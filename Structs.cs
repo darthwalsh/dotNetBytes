@@ -19,6 +19,65 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct DosHeader
+{
+    [Expected('M')]
+    public char MagicM;
+    [Expected('Z')]
+    public char MagicZ;
+    [Expected(0x90)]
+    public ushort BytesOnLastPageOfFile;
+    [Expected(3)]
+    public ushort PagesInFile;
+    [Expected(0)]
+    public ushort Relocations;
+    [Expected(4)]
+    public ushort SizeOfHeaderInParagraphs;
+    [Expected(0)]
+    public ushort MinimumExtraParagraphsNeeded;
+    [Expected(0xFFFF)]
+    public ushort MaximumExtraParagraphsNeeded;
+    [Expected(0)]
+    public ushort InitialRelativeStackSegmentValue;
+    [Expected(0xB8)]
+    public ushort InitialSP;
+    [Expected(0)]
+    public ushort Checksum;
+    [Expected(0)]
+    public ushort InitialIP;
+    [Expected(0)]
+    public ushort InitialRelativeCS;
+    [Expected(0x40)]
+    public ushort RawAddressOfRelocation;
+    [Expected(0)]
+    public ushort OverlayNumber;
+    [Expected(0)]
+    public ulong Reserved;
+    [Expected(0)]
+    public ushort OemIdentifier;
+    [Expected(0)]
+    public ushort OemInformation;
+    [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00})]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+    public byte[] Reserved2;
+    [Expected(0x80)]
+    public uint LfaNew;
+    [Expected(new byte[] { 0x0E, 0x1F, 0xBA, 0x0E, 0x00, 0xB4, 0x09, 0xCD,
+                           0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 14)]
+    public byte[] DosCode;
+    [Expected("This program cannot be run in DOS mode.\r\r\n$")]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 43)]
+    public char[] Message;
+    [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
+    public byte[] Reserved3;
+}
+
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PESignature
 {

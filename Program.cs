@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -36,9 +38,9 @@ public static class StreamExtensions
 
 class AssemblyBytes
 {
-    byte[] b; //TODO remove
     Stream s;
 
+    DosHeader DosHeader;
     PESignature PESignature;
     PEFileHeader PEFileHeader;
     PEOptionalHeader PEOptionalHeader;
@@ -46,26 +48,11 @@ class AssemblyBytes
     public AssemblyBytes(string path)
     {
         s = File.OpenRead(path);
-        b = File.ReadAllBytes(path);
 
-        if (b[0] != 'M' || b[1] != 'Z')
-            Fail("Didn't find magic MZ");
-
-        var pe = Int32(0x3C);
-
-        PESignature = Read<PESignature>(pe);
+        DosHeader = Read<DosHeader>();
+        PESignature = Read<PESignature>();
         PEFileHeader = Read<PEFileHeader>();
         PEOptionalHeader = Read<PEOptionalHeader>();
-    }
-
-    int Int32(int addr)
-    {
-        return BitConverter.ToInt32(b, addr);
-    }
-
-    int Int16(int addr)
-    {
-        return BitConverter.ToInt16(b, addr);
     }
 
     T Read<T>(int addr) where T : struct
@@ -99,18 +86,34 @@ class AssemblyBytes
             {
                 continue;
             }
-
-            if (object.Equals(expected.Value, actual))
+            if (!SmartEquals(expected.Value, actual))
             {
-                continue;
+                Fail(string.Format("Expected {0} to be {1} but instead found {2} at address XX", field.Name, expected.Value, actual));
             }
-            if (expected.Value is int && !(actual is int) && ((int)expected.Value).Equals(MakeInt(actual)))
-            {
-                continue;
-            }
-
-            Fail(string.Format("Expected {0} to be {1} but instead found {2} at address XX", field.Name, expected.Value, actual));
         }
+    }
+
+    private static bool SmartEquals(object expected, object actual)
+    {
+        if (object.Equals(expected, actual))
+        {
+            return true;
+        }
+
+        if (expected is int && !(actual is int))
+        {
+            return ((int)expected).Equals(MakeInt(actual));
+        }
+
+        var expecteds = expected as IEnumerable;
+        var actuals = actual as IEnumerable;
+
+        if (expecteds != null && actuals != null)
+        {
+            return expecteds.Cast<object>().SequenceEqual(actuals.Cast<object>());
+        }
+
+        return false;
     }
 
     static int MakeInt(object o)
