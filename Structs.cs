@@ -19,6 +19,14 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct PEHeader
+{
+    public DosHeader DosHeader;
+    public PESignature PESignature;
+    public PEFileHeader PEFileHeader;
+    public PEOptionalHeader PEOptionalHeader;
+}
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct DosHeader

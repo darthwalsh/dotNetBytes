@@ -40,19 +40,13 @@ class AssemblyBytes
 {
     Stream s;
 
-    DosHeader DosHeader;
-    PESignature PESignature;
-    PEFileHeader PEFileHeader;
-    PEOptionalHeader PEOptionalHeader;
+    PEHeader PEHeader;
 
     public AssemblyBytes(string path)
     {
         s = File.OpenRead(path);
 
-        DosHeader = Read<DosHeader>();
-        PESignature = Read<PESignature>();
-        PEFileHeader = Read<PEFileHeader>();
-        PEOptionalHeader = Read<PEOptionalHeader>();
+        PEHeader = Read<PEHeader>();
     }
 
     T Read<T>(int addr) where T : struct
@@ -88,7 +82,8 @@ class AssemblyBytes
             }
             if (!SmartEquals(expected.Value, actual))
             {
-                Fail(string.Format("Expected {0} to be {1} but instead found {2} at address XX", field.Name, expected.Value, actual));
+                Fail(string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
+                    field.Name, expected.Value, actual, Marshal.OffsetOf(type, field.Name)));
             }
         }
     }
