@@ -36,6 +36,88 @@ public static class StreamExtensions
     }
 }
 
+static class TypeExtensions
+{
+    public static int GetInt32(this object o)
+    {
+        var convert = o as IConvertible;
+
+        if (convert != null)
+        {
+            return convert.ToInt32(CultureInfo.InvariantCulture);
+        }
+
+        throw new InvalidOperationException("MakeInt doesn't support: " + o.GetType().Name);
+    }
+
+    public static int GetSize(this object o)
+    {
+        var os = o as IEnumerable;
+        if (os != null)
+        {
+            return os.Cast<object>().Sum(GetSize);
+        }
+
+        return Marshal.SizeOf(o);
+    }
+
+    public static string GetString(this object o)
+    {
+        var s = o as string;
+        if (s != null)
+        {
+            return s;
+        }
+
+        var cs = o as char[];
+        if (cs != null)
+        {
+            return new string(cs);
+        }
+
+        var os = o as IEnumerable;
+        if (os != null)
+        {
+            return "{" + string.Join(", ", os.Cast<object>().Select(GetString)) + "}";
+        }
+
+        var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });
+        if (method != null)
+        {
+            return "0x" + (string)method.Invoke(o, new object[] { "X" });
+        }
+
+        return o.ToString();
+    }
+}
+
+class CodeNode
+{
+    public string Name;
+    public string Description;
+    public string Value;
+
+    public int Start;
+    public int End;
+    public List<CodeNode> Children = new List<CodeNode>();
+
+    public IEnumerable<string> Yield(int indent = 0)
+    {
+        yield return new string(' ', indent) + string.Join(" ", new[]
+        {
+            Start.ToString("X").PadRight(4), End.ToString("X").PadRight(4), Name.PadRight(24), Value.PadRight(10), Description.Substring(0, Math.Min(Description.Length, 97))
+        });
+
+        foreach (var c in Children)
+        {
+            foreach (var s in c.Yield(indent + 2))
+            {
+                yield return s;
+            }
+        }
+    }
+}
+
 class AssemblyBytes
 {
     Stream s;
@@ -49,31 +131,59 @@ class AssemblyBytes
         PEHeader = Read<PEHeader>();
     }
 
-    T Read<T>(int addr) where T : struct
-    {
-        s.Position = addr;
-        return Read<T>();
-    }
-
     T Read<T>() where T : struct
     {
+        int pos = (int)s.Position;
+
         T ans = s.ReadStruct<T>();
 
-        VerifyFields(ans);
+        CodeNode node = new CodeNode
+        {
+            Name = "Root",
+            Description = "",
+            Value = "",
+
+            Start = pos,
+            End = (int)s.Position,
+        };
+
+        VisitFields(ans, pos, (int)s.Position, node.Children.Add);
+
+        Console.WriteLine(string.Join("\r\n", node.Yield()));
 
         return ans;
     }
 
-    static void VerifyFields(object ans)
+    void VisitFields(object ans, int start, int end, Action<CodeNode> callback)
     {
         var type = ans.GetType();
+
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
             return;
 
         foreach (var field in type.GetFields())
         {
             var actual = field.GetValue(ans);
-            VerifyFields(actual);
+            var name = field.Name;
+            var offset = Marshal.OffsetOf(type, name);
+            var size = actual.GetSize();
+            var nextStart = start + offset.ToInt32();
+
+            var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+
+            CodeNode node = new CodeNode
+            {
+                Name = name,
+                Description = desc != null ? desc.Description : "",
+                Value = actual.GetString(),
+
+                Start = nextStart,
+                End = nextStart + size,
+            };
+
+            VisitFields(actual, nextStart, nextStart + size, node.Children.Add);
+
+            callback(node);
 
             var expected = field.GetCustomAttributes(typeof(ExpectedAttribute), false).FirstOrDefault() as ExpectedAttribute;
             if (expected == null)
@@ -83,12 +193,12 @@ class AssemblyBytes
             if (!SmartEquals(expected.Value, actual))
             {
                 Fail(string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
-                    field.Name, expected.Value, actual, Marshal.OffsetOf(type, field.Name)));
+                    name, expected.Value, actual, offset));
             }
         }
     }
 
-    private static bool SmartEquals(object expected, object actual)
+    static bool SmartEquals(object expected, object actual)
     {
         if (object.Equals(expected, actual))
         {
@@ -97,7 +207,7 @@ class AssemblyBytes
 
         if (expected is int && !(actual is int))
         {
-            return ((int)expected).Equals(MakeInt(actual));
+            return ((int)expected).Equals(actual.GetInt32());
         }
 
         var expecteds = expected as IEnumerable;
@@ -109,18 +219,6 @@ class AssemblyBytes
         }
 
         return false;
-    }
-
-    static int MakeInt(object o)
-    {
-        var convert = o as IConvertible;
-
-        if (convert != null)
-        {
-            return convert.ToInt32(CultureInfo.InvariantCulture);
-        }
-
-        throw new InvalidOperationException("MakeInt doesn't support: " + o.GetType().Name);
     }
 
     static void Fail(string message)
