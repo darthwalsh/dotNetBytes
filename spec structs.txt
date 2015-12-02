@@ -1,0 +1,70 @@
+Offset Size Field Description
+
+
+PEFileHeader
+
+0 2 Machine Always 0x14c.
+2 2 NumberOfSections Number of sections; indicates size of the Section Table, which immediately follows the headers.
+4 4 TimeDateStamp Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.
+8 4 PointerToSymbolTable Always 0 (§II.24.1).
+12 4 NumberOfSymbols Always 0 (§II.24.1).
+16 2 OptionalHeader Size Size of the optional header, the format is described below.
+18 2 Characteristics Flags indicating attributes of the file, see §II.25.2.2.1.
+
+
+PEHeaderStandardFields 
+
+0 2 Magic Always 0x10B.
+2 1 LMajor Always 6 (§II.24.1).
+3 1 LMinor Always 0 (§II.24.1).
+4 4 CodeSize Size of the code (text) section, or the sum of all code sections if there are multiple sections.
+8 4 InitializedDataSize Size of the initialized data section, or the sum of all such sections if there are multiple data sections.
+12 4 UninitializedDataSize Size of the uninitialized data section, or the sum of all such sections if there are multiple unitinitalized data sections.
+16 4 EntryPointRVA RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs
+20 4 BaseOfCode RVA of the code section. (This is a hint to the loader.)
+24 4 BaseOfData RVA of the data section. (This is a hint to the loader.)
+
+
+PEHeaderWindowsNtSpecificFields 
+
+28 4 ImageBase Shall be a multiple of 0x10000.
+32 4 SectionAlignment Shall be greater than File Alignment.
+36 4 FileAlignment Should be 0x200 (§II.24.1).
+40 2 OSMajor Should be 5 (§II.24.1).
+42 2 OSMinor Should be 0 (§II.24.1).
+44 2 UserMajor Should be 0 (§II.24.1).
+46 2 UserMinor Should be 0 (§II.24.1).
+48 2 SubSysMajor Should be 5 (§II.24.1).
+50 2 SubSysMinor Should be 0 (§II.24.1).
+52 4 Reserved Shall be zero
+56 4 ImageSize Size, in bytes, of image, including all headers and padding; shall be a multiple of Section Alignment.
+60 4 HeaderSize Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.
+64 4 FileChecksum Should be 0 (§II.24.1).
+68 2 SubSystem Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).
+70 2 DLLFlags Bits 0x100f shall be zero.
+72 4 StackReserveSize Should be 0x100000 (1Mb) (§II.24.1).
+76 4 StackCommitSize Should be 0x1000 (4Kb) (§II.24.1).
+80 4 HeapReserveSize Should be 0x100000 (1Mb) (§II.24.1).
+84 4 HeapCommitSize Should be 0x1000 (4Kb) (§II.24.1).
+88 4 LoaderFlags Shall be 0
+92 4 NumberOfDataDirectories Shall be 0x10
+
+
+PEHeaderHeaderDataDirectories 
+
+96 8 ExportTable Always 0 (§II.24.1).
+104 8 ImportTable RVA and Size of Import Table, (§II.25.3.1).
+112 8 ResourceTable Always 0 (§II.24.1).
+120 8 ExceptionTable Always 0 (§II.24.1).
+128 8 CertificateTable Always 0 (§II.24.1).
+136 8 BaseRelocationTable Relocation Table; set to 0 if unused (§).
+144 8 Debug Always 0 (§II.24.1).
+152 8 Copyright Always 0 (§II.24.1).
+160 8 Global Ptr Always 0 (§II.24.1).
+168 8 TLSTable Always 0 (§II.24.1).
+176 8 LoadConfig Table Always 0 (§II.24.1).
+184 8 BoundImport Always 0 (§II.24.1).
+192 8 IAT RVA and Size of Import Address Table,(§II.25.3.1).
+200 8 DelayImportDescriptor Always 0 (§II.24.1).
+208 8 CLIHeader CLI Header with directories for runtime data,(§II.25.3.1).
+216 8 Reserved Always 0 (§II.24.1)

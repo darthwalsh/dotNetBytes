@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotNetBytes", "dotNetBytes.csproj", "{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}"
 EndProject
@@ -12,8 +12,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Debug|Any CPU.Build.0 = Debug|x86
-		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.ActiveCfg = Release|x86
-		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.Build.0 = Release|x86
+		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.ActiveCfg = Debug|x86
+		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
