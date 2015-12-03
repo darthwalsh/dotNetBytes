@@ -23,7 +23,7 @@ public static class StreamExtensions
     }
 
     // http://stackoverflow.com/a/4159279/771768
-    public static T ReadStruct<T>(this Stream stream) where T : struct
+    public static T Read<T>(this Stream stream)
     {
         var sz = Marshal.SizeOf(typeof(T));
         var buffer = new byte[sz];

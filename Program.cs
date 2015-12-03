@@ -17,11 +17,11 @@ class AssemblyBytes
         PEHeader = Read<PEHeader>();
     }
 
-    T Read<T>() where T : struct
+    T Read<T>()
     {
         int pos = (int)s.Position;
 
-        T ans = s.ReadStruct<T>();
+        T ans = s.Read<T>();
 
         CodeNode node = new CodeNode
         {

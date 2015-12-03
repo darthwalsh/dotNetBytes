@@ -19,6 +19,7 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
+// S25.2.2
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeader
 {
@@ -28,6 +29,7 @@ struct PEHeader
     public PEOptionalHeader PEOptionalHeader;
 }
 
+// II.25.2.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct DosHeader
 {
@@ -81,7 +83,7 @@ struct DosHeader
     [Expected("This program cannot be run in DOS mode.\r\r\n$")]
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 43)]
     public char[] Message;
-    [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})]
+    [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
     public byte[] Reserved3;
 }
@@ -97,6 +99,7 @@ struct PESignature
     public ushort Reserved;
 }
 
+// II.25.2.2 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEFileHeader
 {
@@ -119,6 +122,7 @@ struct PEFileHeader
     public ushort Characteristics;
 }
 
+// II.25.2.3
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEOptionalHeader
 {
@@ -127,6 +131,7 @@ struct PEOptionalHeader
     public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 }
 
+// II.25.2.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderStandardFields
 {
@@ -153,6 +158,7 @@ struct PEHeaderStandardFields
     public uint BaseOfData;
 }
 
+// II.25.2.3.2
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderWindowsNtSpecificFields
 {
@@ -215,6 +221,7 @@ struct PEHeaderWindowsNtSpecificFields
     public uint NumberOfDataDirectories;
 }
 
+// II.25.2.3.3
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderHeaderDataDirectories
 {
