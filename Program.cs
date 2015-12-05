@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Web.Helpers;
 
 class AssemblyBytes
 {
@@ -36,6 +37,9 @@ class AssemblyBytes
         VisitFields(ans, pos, (int)s.Position, node.Children.Add);
 
         Console.WriteLine(string.Join("\r\n", node.Yield()));
+
+        var json = Json.Encode(node);
+        File.WriteAllText("bytes.json", json);
 
         return ans;
     }
