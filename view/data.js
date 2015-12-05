@@ -38,7 +38,7 @@ var hexEncodeArray = [
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 ];
         
-function readTextFile(file, callback)
+function readBytes(file, callback)
 {
   var oReq = new XMLHttpRequest();
   oReq.open("GET", file);
@@ -48,19 +48,27 @@ function readTextFile(file, callback)
     if (this.status == 200 && oReq.response) {
       var arr = new Uint8Array(oReq.response);
       
-      var s = "";
+      var hex = "";
+      var lit = "";
       
       for (var i = 0; i < arr.byteLength; i++) {
           var code = arr[i];
-          s += hexEncodeArray[code >>> 4];
-          s += hexEncodeArray[code & 0x0F];
-          s += " ";
+          hex += hexEncodeArray[code >>> 4];
+          hex += hexEncodeArray[code & 0x0F];
+          hex += " ";
           
-          if (i % 16  == 15)
-            s += "\n";
+          lit += String.fromCharCode(code);
+          
+          if (i % 16  == 15) {
+            hex += "      ";
+            hex += lit.replace(/[\x00-\x1F\x7F-\x9F]/g, " ");
+            lit = "";
+            
+            hex += "\n";
+          }
       }
       
-      callback(s);
+      callback(hex);
     } else {
       alert("Couldn't find " + file)
     }
@@ -68,14 +76,35 @@ function readTextFile(file, callback)
   
   oReq.send();
 }
+
+function readJson(file, callback)
+{
+  var oReq = new XMLHttpRequest();
+  oReq.open("GET", file);
   
+  oReq.onload = function() {
+    if (this.status == 200 && oReq.responseText) {
+      callback(JSON.parse(oReq.responseText));
+    } else {
+      alert("Couldn't find " + file)
+    }
+  };
+  
+  oReq.send();
+}
+
 window.onload = function() {
   var div = $("div");
 
-  readTextFile("AddR.exe", function(s) {
+  readBytes("AddR.exe", function(s) {
     var a = create("pre");
     a.innerText = s;
 
     div.appendChild(a);
+    
+    readJson("bytes.json", function(json) {
+      var n = json.Name;
+      console.log(n);
+    });
   });
 };
