@@ -30,12 +30,12 @@ function getColor(n) {
   if (n == 0)
     return "white";
 
-  var h = (Math.log2(n) % 12) / 12;
-    return HSVtoRGB(h, 0.5, 0.7);
+  return HSVtoRGB(n / 6, 0.5, 1);
 }
 
 var hexEncodeArray = [
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+  '0', '1', '2', '3', '4', '5', '6', '7',
+  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 ];
         
 function readBytes(file, callback)
@@ -46,29 +46,7 @@ function readBytes(file, callback)
   
   oReq.onload = function() {
     if (this.status == 200 && oReq.response) {
-      var arr = new Uint8Array(oReq.response);
-      
-      var hex = "";
-      var lit = "";
-      
-      for (var i = 0; i < arr.byteLength; i++) {
-          var code = arr[i];
-          hex += hexEncodeArray[code >>> 4];
-          hex += hexEncodeArray[code & 0x0F];
-          hex += " ";
-          
-          lit += String.fromCharCode(code);
-          
-          if (i % 16  == 15) {
-            hex += "      ";
-            hex += lit.replace(/[\x00-\x1F\x7F-\x9F]/g, " ");
-            lit = "";
-            
-            hex += "\n";
-          }
-      }
-      
-      callback(hex);
+      callback(new Uint8Array(oReq.response));
     } else {
       alert("Couldn't find " + file)
     }
@@ -93,18 +71,69 @@ function readJson(file, callback)
   oReq.send();
 }
 
+function byteID(i) {
+  return "byte" + i;
+}
+function litID(i) {
+  return "lit" + i;
+}
+
+function setColor(i, color) {
+  $(byteID(i)).style.backgroundColor = color;
+  $(litID(i)).style.backgroundColor = color;
+}
+
+function setFocus(o)
+{
+  var ch = o.Children;
+  
+  for (var chI = 0; chI < ch.length; ++chI) {
+    var col = getColor(chI + 1);
+    for (var i = ch[chI].Start; i < ch[chI].End; ++i) {
+      setColor(i, col);
+    }
+  }
+}
+
 window.onload = function() {
   var div = $("div");
-
-  readBytes("AddR.exe", function(s) {
-    var a = create("pre");
-    a.innerText = s;
-
-    div.appendChild(a);
+  var width = 16;
+  
+  readBytes("AddR.exe", function(arr) {
+    for (var j = 0; j < arr.byteLength; j += width) {
+      for (var i = j; i - j < width; i++) {
+        var code = arr[i];
+        var hex = hexEncodeArray[code >>> 4];
+        hex += hexEncodeArray[code & 0x0F];
+        hex += " ";
+        
+        var a = create("code");
+        a.innerText = hex;
+        a.setAttribute("id", byteID(i));
+        div.appendChild(a);
+      }
+      
+      var sp = create("code");
+      sp.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+      div.appendChild(sp);
+      
+      for (var i = j; i - j < width; i++) {
+        code = arr[i];
+        var lit = String.fromCharCode(code);
+        var ll = create("code");
+        ll.innerText = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
+        ll.setAttribute("id", litID(i));
+        div.appendChild(ll);
+      }
+      
+      div.appendChild(create("br"));
+    }
     
     readJson("bytes.json", function(json) {
       var n = json.Name;
       console.log(n);
+      
+      setFocus(json);
     });
   });
 };
