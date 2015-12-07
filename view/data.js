@@ -97,6 +97,10 @@ function setFocus(o)
     
   setFocusHelper(o);
   
+  $("detailName").innerText = o.Name;
+  $("detailValue").innerText = o.Value;
+  $("detailDescription").innerText = o.Description;
+  
   $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
@@ -211,7 +215,6 @@ window.onload = function() {
   });
 };
 
-//TODO details
 //TODO hover preview
 //TODO errors
 //TODO scroll into view 

@@ -9,6 +9,11 @@
     float: left;
 }
 
+#details {
+    float: right;
+    width: 20%;
+}
+
 ul {
     list-style-type: none;
     padding-left: 5%; 
