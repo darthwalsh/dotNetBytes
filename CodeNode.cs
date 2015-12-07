@@ -10,6 +10,7 @@ class CodeNode
     public int Start;
     public int End;
     public List<CodeNode> Children = new List<CodeNode>();
+    public List<string> Errors = new List<string>();
 
     public IEnumerable<string> Yield(int indent = 0)
     {

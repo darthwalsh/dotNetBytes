@@ -174,6 +174,34 @@ function addParent(json) {
   }
 }
 
+function findErrors(o) {
+  for (var i = 0; i < o.Errors.length; ++i) {
+    
+    var errorDiv = create("div");
+    errorDiv.classList.add("error");
+    
+    errorDiv.onclick = makeOnClick(o);
+    
+    var p = create("p");
+    p.innerText = o.Name;
+    errorDiv.appendChild(p);
+    
+    p = create("p");
+    p.innerText = o.Value;
+    errorDiv.appendChild(p);
+    
+    p = create("p");
+    p.innerText = o.Description;
+    errorDiv.appendChild(p);
+    
+    $("details").appendChild(errorDiv)
+  }
+  
+  for (var i = 0; i < o.Children.length; ++i) {
+    findErrors(o.Children[i]);
+  }
+}
+
 window.onload = function() {
   var div = $("bytes");
   var width = 16;
@@ -210,13 +238,13 @@ window.onload = function() {
     
     readJson("bytes.json", function(json) {
       addParent(json);
+      findErrors(json);
       setFocus(json);
     });
   });
 };
 
 //TODO hover preview
-//TODO errors
 //TODO scroll into view 
 //TODO smart colors
 //TODO details pinning + clearing

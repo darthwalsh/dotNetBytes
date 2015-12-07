@@ -34,7 +34,7 @@ class AssemblyBytes
             End = (int)s.Position,
         };
 
-        VisitFields(ans, pos, (int)s.Position, node.Children.Add);
+        VisitFields(ans, pos, (int)s.Position, node);
 
         Console.WriteLine(string.Join("\r\n", node.Yield()));
 
@@ -44,7 +44,7 @@ class AssemblyBytes
         return ans;
     }
 
-    void VisitFields(object ans, int start, int end, Action<CodeNode> callback)
+    void VisitFields(object ans, int start, int end, CodeNode parent)
     {
         var type = ans.GetType();
 
@@ -71,9 +71,9 @@ class AssemblyBytes
                 End = nextStart + size,
             };
 
-            VisitFields(actual, nextStart, nextStart + size, node.Children.Add);
+            VisitFields(actual, nextStart, nextStart + size, node);
 
-            callback(node);
+            parent.Children.Add(node);
 
             var expected = field.GetCustomAttributes(typeof(ExpectedAttribute), false).FirstOrDefault() as ExpectedAttribute;
             if (expected == null)
@@ -82,7 +82,7 @@ class AssemblyBytes
             }
             if (!SmartEquals(expected.Value, actual))
             {
-                Fail(string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
+                Fail(node, string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
                     name, expected.Value, actual, offset));
             }
         }
@@ -111,10 +111,9 @@ class AssemblyBytes
         return false;
     }
 
-    static void Fail(string message)
+    static void Fail(CodeNode node, string message)
     {
-        //TODO log failure
-        throw new InvalidOperationException(message);
+        node.Errors.Add(message);
     }
 }
 
