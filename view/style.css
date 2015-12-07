@@ -1,0 +1,17 @@
+#toc {
+    float: left;
+    margin: 10px;
+    
+    position: fixed;
+}
+
+#bytes {
+    margin-left: 200px;
+    float: left;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 5%; 
+    line-height: 150%;
+}

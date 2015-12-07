@@ -83,20 +83,86 @@ function setColor(i, color) {
   $(litID(i)).style.backgroundColor = color;
 }
 
+function setOnClick(i, onclick) {
+  $(byteID(i)).onclick = onclick;
+  $(litID(i)).onclick = onclick;
+}
+
 function setFocus(o)
 {
+  var toc = $("toc");
+  while (toc.hasChildNodes())
+    toc.removeChild(toc.firstChild); 
+    
+  setFocusHelper(o);
+}
+
+function makeOnClick(o) {
+  return function(ev) {
+    setFocus(o);
+  };
+}
+
+function setFocusHelper(o, currentChild) {  
+  var toc = $("toc");
+  
+  var parentLI = null;
+  if (o.parent) {
+    parentLI = setFocusHelper(o.parent, o);
+  } else {
+    var ul = create("ul");
+    var li = create("li");
+    li.innerText = "All";
+    li.onclick = makeOnClick(o);
+    
+    ul.appendChild(li);
+    toc.appendChild(ul);
+    parentLI = li;
+  }
+  
   var ch = o.Children;
   
   for (var chI = 0; chI < ch.length; ++chI) {
     var col = getColor(chI + 1);
     for (var i = ch[chI].Start; i < ch[chI].End; ++i) {
       setColor(i, col);
+      setOnClick(i, makeOnClick(ch[chI]));
     }
+  }
+  
+  var childLI = null;
+  ul = create("ul");
+  for (var chI = 0; chI < ch.length; ++chI) {
+    li = create("li");
+    li.innerText = ch[chI].Name;
+    li.onclick = makeOnClick(ch[chI]);
+    
+    ul.appendChild(li);
+    
+    if (ch[chI] === currentChild) {
+      childLI = li;
+    }
+  }
+  
+  if (parentLI) {
+    parentLI.parentElement.insertBefore(ul, parentLI.nextSibling);
+  } else {
+    toc.appendChild(ul);
+  }
+  
+  return childLI;
+}
+
+function addParent(json) {
+  for (var i = 0; i < json.Children.length; ++i) {
+    json.Children[i].parent = json;
+    
+    addParent(json.Children[i]);
   }
 }
 
 window.onload = function() {
-  var div = $("div");
+  var div = $("bytes");
   var width = 16;
   
   readBytes("AddR.exe", function(arr) {
@@ -114,7 +180,7 @@ window.onload = function() {
       }
       
       var sp = create("code");
-      sp.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+      sp.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;";
       div.appendChild(sp);
       
       for (var i = j; i - j < width; i++) {
@@ -130,9 +196,7 @@ window.onload = function() {
     }
     
     readJson("bytes.json", function(json) {
-      var n = json.Name;
-      console.log(n);
-      
+      addParent(json);
       setFocus(json);
     });
   });
