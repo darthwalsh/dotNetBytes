@@ -210,3 +210,10 @@ window.onload = function() {
     });
   });
 };
+
+//TODO details
+//TODO hover preview
+//TODO errors
+//TODO scroll into view 
+//TODO smart colors
+//TODO details pinning + clearing
