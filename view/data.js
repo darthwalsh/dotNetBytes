@@ -96,6 +96,8 @@ function setFocus(o)
     toc.removeChild(toc.firstChild); 
     
   setFocusHelper(o);
+  
+  $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
 function makeOnClick(o) {
