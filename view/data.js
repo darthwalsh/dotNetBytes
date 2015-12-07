@@ -27,10 +27,11 @@ function HSVtoRGB(h, s, v) {
 }
 
 function getColor(n) {
-  if (n == 0)
-    return "white";
+  return HSVtoRGB(n / 12, 0.9, 1);
+}
 
-  return HSVtoRGB(n / 6, 0.5, 1);
+function getDimColor(n) {
+  return HSVtoRGB(n / 12, 0.3, 1);
 }
 
 var hexEncodeArray = [
@@ -123,7 +124,13 @@ function setFocusHelper(o, currentChild) {
   var ch = o.Children;
   
   for (var chI = 0; chI < ch.length; ++chI) {
-    var col = getColor(chI + 1);
+    var col;
+    if (ch[chI] === currentChild) {
+      col = getColor(chI);
+    } else {
+      col = getDimColor(chI);
+    }
+    
     for (var i = ch[chI].Start; i < ch[chI].End; ++i) {
       setColor(i, col);
       setOnClick(i, makeOnClick(ch[chI]));
