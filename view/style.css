@@ -19,3 +19,7 @@ ul {
     padding-left: 5%; 
     line-height: 150%;
 }
+
+body {
+    font-family: "Verdana";
+}
