@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+// TODO Characteristics as enums
+
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
@@ -27,6 +29,7 @@ struct PEHeader
     public PESignature PESignature;
     public PEFileHeader PEFileHeader;
     public PEOptionalHeader PEOptionalHeader;
+    public SectionHeader SectionHeaders;
 }
 
 // II.25.2.1
@@ -252,8 +255,9 @@ struct PEHeaderHeaderDataDirectories
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong TLSTable;
-    [Description("Table Always 0 (§II.24.1).")]
-    public ulong LoadConfig;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ulong LoadConfigTable;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong BoundImport;
@@ -267,5 +271,36 @@ struct PEHeaderHeaderDataDirectories
     [Description("Always 0 (§II.24.1)")]
     [Expected(0)]
     public ulong Reserved;
+}
+
+// II.25.3
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct SectionHeader
+{
+    [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+    public char[] Name;
+    [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
+    public uint VirtualSize;
+    [Description("For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.")]
+    public uint VirtualAddress;
+    [Description("Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.")]
+    public uint SizeOfRawData;
+    [Description("Offset of section’s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
+    public uint PointerToRawData;
+    [Description("Should be 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint PointerToRelocations;
+    [Description("Should be 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint PointerToLinenumbers;
+    [Description("Should be 0 (§II.24.1).")]
+    [Expected(0)]
+    public ushort NumberOfRelocations;
+    [Description("Should be 0 (§II.24.1).")]
+    [Expected(0)]
+    public ushort NumberOfLinenumbers;
+    [Description("Flags describing section’s characteristics; see below.")]
+    public uint Characteristics;
 }
 

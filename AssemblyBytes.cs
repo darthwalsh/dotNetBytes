@@ -9,6 +9,7 @@ class AssemblyBytes
     Stream s;
 
     PEHeader PEHeader;
+
     CodeNode node;
 
     public AssemblyBytes(string path)
@@ -30,8 +31,6 @@ class AssemblyBytes
         };
 
         VisitFields(PEHeader, start, (int)s.Position, node);
-
-        //Console.Error.WriteLine(string.Join("\r\n", node.Yield()));
     }
 
     T Read<T>()

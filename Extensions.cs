@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -60,18 +61,46 @@ static class TypeExtensions
         return Marshal.SizeOf(o);
     }
 
+    static Dictionary<char, string> escapes = new Dictionary<char, string>
+    {
+        { '\0', @"\0" },
+        { '\t', @"\t" },
+        { '\r', @"\r" },
+        { '\n', @"\n" },
+        { '\v', @"\v" },
+    };
+
+    public static string EscapeControl(this string s)
+    {
+        return string.Concat(s.Select(c =>
+        {
+            if (char.IsControl(c))
+            {
+                string ans;
+                if (escapes.TryGetValue(c, out ans))
+                {
+                    return ans;
+                }
+
+                return @"\" + ((int)c).ToString("X");
+            }
+
+            return "" + c;
+        }));
+    }
+
     public static string GetString(this object o)
     {
         var s = o as string;
         if (s != null)
         {
-            return s;
+            return '"' + s.EscapeControl() + '"';
         }
 
         var cs = o as char[];
         if (cs != null)
         {
-            return new string(cs);
+            return new string(cs).GetString();
         }
 
         var os = o as IEnumerable;

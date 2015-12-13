@@ -62,9 +62,22 @@ PEHeaderHeaderDataDirectories
 152 8 Copyright Always 0 (§II.24.1).
 160 8 Global Ptr Always 0 (§II.24.1).
 168 8 TLSTable Always 0 (§II.24.1).
-176 8 LoadConfig Table Always 0 (§II.24.1).
+176 8 LoadConfigTable Always 0 (§II.24.1).
 184 8 BoundImport Always 0 (§II.24.1).
 192 8 IAT RVA and Size of Import Address Table,(§II.25.3.1).
 200 8 DelayImportDescriptor Always 0 (§II.24.1).
 208 8 CLIHeader CLI Header with directories for runtime data,(§II.25.3.1).
 216 8 Reserved Always 0 (§II.24.1)
+
+SectionHeaders
+
+0 8 Name An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.
+8 4 VirtualSize Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.
+12 4 VirtualAddress For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.
+16 4 SizeOfRawData Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.
+20 4 PointerToRawData Offset of section’s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.
+24 4 PointerToRelocations Should be 0 (§II.24.1).
+28 4 PointerToLinenumbers Should be 0 (§II.24.1).
+32 2 NumberOfRelocations Should be 0 (§II.24.1).
+34 2 NumberOfLinenumbers Should be 0 (§II.24.1).
+36 4 Characteristics Flags describing section’s characteristics; see below.
