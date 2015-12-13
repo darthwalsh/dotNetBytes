@@ -20,5 +20,11 @@
     <Compile Include="Structs.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="view\view.html" />
+    <EmbeddedResource Include="view\data.js" />
+    <EmbeddedResource Include="view\style.css" />
+    <EmbeddedResource Include="view\favicon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

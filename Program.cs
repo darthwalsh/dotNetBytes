@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,39 +11,37 @@ class AssemblyBytes
     Stream s;
 
     PEHeader PEHeader;
+    CodeNode node;
 
     public AssemblyBytes(string path)
     {
         s = File.OpenRead(path);
 
+        int start = (int)s.Position;
+
         PEHeader = Read<PEHeader>();
-    }
 
-    T Read<T>()
-    {
-        int pos = (int)s.Position;
-
-        T ans = s.Read<T>();
-
-        CodeNode node = new CodeNode
+        node = new CodeNode
         {
             Name = "Root",
             Description = "",
             Value = "",
 
-            Start = pos,
+            Start = start,
             End = (int)s.Position,
         };
 
-        VisitFields(ans, pos, (int)s.Position, node);
+        VisitFields(PEHeader, start, (int)s.Position, node);
 
-        Console.WriteLine(string.Join("\r\n", node.Yield()));
-
-        var json = Json.Encode(node);
-        File.WriteAllText("bytes.json", json);
-
-        return ans;
+        //Console.Error.WriteLine(string.Join("\r\n", node.Yield()));
     }
+
+    T Read<T>()
+    {
+        return s.Read<T>();
+    }
+
+    public string AsJson { get { return Json.Encode(node); } }
 
     void VisitFields(object ans, int start, int end, CodeNode parent)
     {
@@ -61,7 +60,7 @@ class AssemblyBytes
 
             var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
 
-            CodeNode node = new CodeNode
+            CodeNode current = new CodeNode
             {
                 Name = name,
                 Description = desc != null ? desc.Description : "",
@@ -71,9 +70,9 @@ class AssemblyBytes
                 End = nextStart + size,
             };
 
-            VisitFields(actual, nextStart, nextStart + size, node);
+            VisitFields(actual, nextStart, nextStart + size, current);
 
-            parent.Children.Add(node);
+            parent.Children.Add(current);
 
             var expected = field.GetCustomAttributes(typeof(ExpectedAttribute), false).FirstOrDefault() as ExpectedAttribute;
             if (expected == null)
@@ -82,7 +81,7 @@ class AssemblyBytes
             }
             if (!SmartEquals(expected.Value, actual))
             {
-                Fail(node, string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
+                Fail(current, string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
                     name, expected.Value, actual, offset));
             }
         }
@@ -121,11 +120,56 @@ static class Program
 {
     static void Main(string[] args)
     {
+        var assembly = typeof(Program).Assembly;
         try
         {
             string path = args.FirstOrDefault() ?? @"C:\code\bootstrappingCIL\understandingCIL\AddR.exe";
 
             var assm = new AssemblyBytes(path);
+
+            var local = Path.Combine(Path.GetDirectoryName(assembly.Location), "serve");
+
+            Directory.CreateDirectory(local);
+
+            File.WriteAllText(Path.Combine(local, "bytes.json"), assm.AsJson);
+
+            File.Copy(path, Path.Combine(local, "Program.dat"), overwrite: true);
+
+            foreach (var res in assembly.GetManifestResourceNames().Where(res => res.StartsWith("view.")))
+            {
+                var trimmed = res.Substring("view.".Length);
+                var destination = Path.Combine(local, trimmed);
+                if (File.Exists(destination))
+                    File.Delete(destination);
+
+                using (var stream = assembly.GetManifestResourceStream(res))
+                using (var file = File.OpenWrite(destination))
+                {
+                    stream.CopyTo(file);
+                }
+            }
+
+            using (var p = Process.Start(new ProcessStartInfo
+            {
+                FileName = "python",
+                Arguments = "-m SimpleHTTPServer 8000",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = local,
+            }))
+            {
+                Process.Start("http://localhost:8000/view.html");
+
+                Console.WriteLine("type exit to exit");
+                while (true)
+                {
+                    if (Console.ReadLine() == "exit") break;
+                }
+
+                p.Kill();
+            }
         }
         catch (Exception e)
         {

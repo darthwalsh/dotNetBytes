@@ -206,7 +206,7 @@ window.onload = function() {
   var div = $("bytes");
   var width = 16;
   
-  readBytes("AddR.exe", function(arr) {
+  readBytes("Program.dat", function(arr) {
     for (var j = 0; j < arr.byteLength; j += width) {
       for (var i = j; i - j < width; i++) {
         var code = arr[i];
