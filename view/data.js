@@ -202,20 +202,43 @@ function findErrors(o) {
   }
 }
 
+function ToHex(code, width) {
+  var s = "";
+  for (var i = 0; i < width || code; ++i) {
+    s = hexEncodeArray[code & 0x0F] + s;
+    code >>>= 4;
+  }
+  
+  return s;
+}
+
 window.onload = function() {
   var div = $("bytes");
   var width = 16;
   
   readBytes("Program.dat", function(arr) {
+    var rowLabelWidth = ToHex(arr.byteLength - 1).length;
+    
+    var corner = create("code");
+    corner.innerText = Array(rowLabelWidth + 1).join("-") + "    ";
+    div.appendChild(corner);
+  
+    for (var i = 0; i < width; i++) {
+      var col = create("code");
+      col.innerText = ToHex(i, 2) + " ";
+      div.appendChild(col);
+    }
+    
+    div.appendChild(create("br"));
+    
     for (var j = 0; j < arr.byteLength; j += width) {
+      var rowLabel = create("code");
+      rowLabel.innerText = ToHex(j, rowLabelWidth) + "    ";
+      div.appendChild(rowLabel);
+      
       for (var i = j; i - j < width; i++) {
-        var code = arr[i];
-        var hex = hexEncodeArray[code >>> 4];
-        hex += hexEncodeArray[code & 0x0F];
-        hex += " ";
-        
         var a = create("code");
-        a.innerText = hex;
+        a.innerText = ToHex(arr[i], 2) + " ";
         a.setAttribute("id", byteID(i));
         div.appendChild(a);
       }
@@ -225,8 +248,7 @@ window.onload = function() {
       div.appendChild(sp);
       
       for (var i = j; i - j < width; i++) {
-        code = arr[i];
-        var lit = String.fromCharCode(code);
+        var lit = String.fromCharCode(arr[i]);
         var ll = create("code");
         ll.innerText = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
         ll.setAttribute("id", litID(i));
