@@ -1,5 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
 // TODO Characteristics as enums
 
@@ -21,15 +28,105 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
-// S25.2.2
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeader
+public abstract class Custom
 {
+    Dictionary<string, int> offsets;
+    Dictionary<string, int> Offsets
+    {
+        get
+        {
+            if (offsets == null)
+            {
+                int at = 0;
+
+                offsets = new Dictionary<string, int>();
+                foreach (var field in OrderedFields)
+                {
+                    offsets.Add(field.Name, at);
+                    at += field.GetValue(this).GetSize();
+                }
+            }
+            return offsets;
+        }
+    }
+
+    IEnumerable<FieldInfo> OrderedFields
+    {
+        get
+        {
+            return GetType().GetFields().OrderBy(field => ((OrderMeAttribute)field.GetCustomAttributes(typeof(OrderMeAttribute), false).Single()).Order);
+        }
+    }
+
+    public void Read(Stream s)
+    {
+        foreach (var field in OrderedFields)
+        {
+            var fieldType = field.FieldType;
+
+            if (fieldType.IsArray)
+            {
+                var elementType = fieldType.GetElementType();
+
+                var os = Array.CreateInstance(elementType, GetCount(field.Name));
+                for (int i = 0; i < os.Length; ++i)
+                {
+                    os.SetValue(s.Read(elementType), i);
+                }
+
+                field.SetValue(this, os);
+            }
+            else
+            {
+                var read = s.Read(fieldType);
+                field.SetValue(this, read);
+            }
+        }
+    }
+
+    protected virtual int GetCount(string name)
+    {
+        throw new InvalidOperationException(name);
+    }
+
+    public int GetOffset(string name)
+    {
+        return Offsets[name];
+    }
+
+    protected sealed class OrderMeAttribute : Attribute
+    {
+        public int Order;
+        public OrderMeAttribute([CallerLineNumber] int i = -1)
+        {
+            Order = i;
+        }
+    }
+}
+
+
+// S25.2.2
+sealed class PEHeader : Custom
+{
+    [OrderMe]
     public DosHeader DosHeader;
+    [OrderMe]
     public PESignature PESignature;
+    [OrderMe]
     public PEFileHeader PEFileHeader;
+    [OrderMe]
     public PEOptionalHeader PEOptionalHeader;
-    public SectionHeader SectionHeaders;
+    [OrderMe]
+    public SectionHeader[] SectionHeaders;
+
+    protected override int GetCount(string name)
+    {
+        switch (name)
+        {
+            case "SectionHeaders": return PEFileHeader.NumberOfSections;
+        }
+        return base.GetCount(name);
+    }
 }
 
 // II.25.2.1

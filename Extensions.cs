@@ -23,8 +23,30 @@ public static class StreamExtensions
         }
     }
 
+    public static object Read(this Stream stream, Type type)
+    {
+        if (type.IsClass)
+        {
+            return typeof(StreamExtensions).GetMethods()
+                .Where(m => m.Name == "Read" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType.IsGenericParameter)
+                .Single().MakeGenericMethod(type)
+                .Invoke(null, new object[] { stream, Activator.CreateInstance(type) });
+        }
+
+        return typeof(StreamExtensions).GetMethods()
+                .Where(m => m.Name == "Read" && m.GetParameters().Length == 1)
+                .Single().MakeGenericMethod(type)
+                .Invoke(null, new object[] { stream });
+    }
+
+    public static T Read<T>(this Stream stream, T t) where T : Custom
+    {
+        t.Read(stream);
+        return t;
+    }
+
     // http://stackoverflow.com/a/4159279/771768
-    public static T Read<T>(this Stream stream)
+    public static T Read<T>(this Stream stream) where T : struct
     {
         var sz = Marshal.SizeOf(typeof(T));
         var buffer = new byte[sz];
@@ -58,7 +80,24 @@ static class TypeExtensions
             return os.Cast<object>().Sum(GetSize);
         }
 
+        var custom = o as Custom;
+        if (custom != null)
+        {
+            return o.GetType().GetFields().Select(info => info.GetValue(o)).Sum(GetSize);
+        }
+
         return Marshal.SizeOf(o);
+    }
+
+    public static int GetOffset(this object o, string name)
+    {
+        var custom = o as Custom;
+        if (custom != null)
+        {
+            return custom.GetOffset(name);
+        }
+
+        return Marshal.OffsetOf(o.GetType(), name).ToInt32();
     }
 
     static Dictionary<char, string> escapes = new Dictionary<char, string>

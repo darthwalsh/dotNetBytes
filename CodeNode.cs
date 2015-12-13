@@ -12,7 +12,12 @@ class CodeNode
     public List<CodeNode> Children = new List<CodeNode>();
     public List<string> Errors = new List<string>();
 
-    public IEnumerable<string> Yield(int indent = 0)
+    public override string ToString()
+    {
+        return string.Join(Environment.NewLine, Yield());
+    }
+
+    IEnumerable<string> Yield(int indent = 0)
     {
         yield return new string(' ', indent) + string.Join(" ", new[]
         {

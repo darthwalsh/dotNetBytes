@@ -1,24 +1,22 @@
 using System.Linq;
 using System.Collections;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Web.Helpers;
+using System;
 
 class AssemblyBytes
 {
-    Stream s;
-
     PEHeader PEHeader;
 
     CodeNode node;
 
     public AssemblyBytes(string path)
     {
-        s = File.OpenRead(path);
+        Stream s = File.OpenRead(path);
 
         int start = (int)s.Position;
 
-        PEHeader = Read<PEHeader>();
+        PEHeader = s.Read(new PEHeader());
 
         node = new CodeNode
         {
@@ -33,11 +31,6 @@ class AssemblyBytes
         VisitFields(PEHeader, start, (int)s.Position, node);
     }
 
-    T Read<T>()
-    {
-        return s.Read<T>();
-    }
-
     public string AsJson { get { return Json.Encode(node); } }
 
     void VisitFields(object ans, int start, int end, CodeNode parent)
@@ -47,13 +40,42 @@ class AssemblyBytes
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
             return;
 
+        if (type.IsArray)
+        {
+            var arr = (Array)ans;
+            for(int i = 0; i < arr.Length; ++i)
+            {
+                var actual = arr.GetValue(i);
+                var name = string.Format("[{0}]", i);
+                var size = actual.GetSize();
+                var offset = i * size;
+                var nextStart = start + offset;
+
+                CodeNode current = new CodeNode
+                {
+                    Name = name,
+                    Description = "",
+                    Value = actual.GetString(),
+
+                    Start = nextStart,
+                    End = nextStart + size,
+                };
+
+                VisitFields(actual, nextStart, nextStart + size, current);
+
+                parent.Children.Add(current);
+            }
+
+            return;
+        }
+
         foreach (var field in type.GetFields())
         {
             var actual = field.GetValue(ans);
             var name = field.Name;
-            var offset = Marshal.OffsetOf(type, name);
+            var offset = ans.GetOffset(name);
             var size = actual.GetSize();
-            var nextStart = start + offset.ToInt32();
+            var nextStart = start + offset;
 
             var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
 
