@@ -15,6 +15,7 @@
     <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyBytes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="CodeNode.cs" />
     <Compile Include="Structs.cs" />
