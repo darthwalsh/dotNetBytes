@@ -28,27 +28,19 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
-public abstract class Custom
+abstract class Custom : IVisitChildren, ICanRead, IHasLocation
+{
+    public abstract int Start { get; }
+    public abstract int End { get; }
+    
+    public abstract void Read(Stream s);
+    public abstract void VisitFields(int start, CodeNode parent);
+}
+
+abstract class OrderedCustom
 {
     Dictionary<string, int> offsets;
-    Dictionary<string, int> Offsets
-    {
-        get
-        {
-            if (offsets == null)
-            {
-                int at = 0;
-
-                offsets = new Dictionary<string, int>();
-                foreach (var field in OrderedFields)
-                {
-                    offsets.Add(field.Name, at);
-                    at += field.GetValue(this).GetSize();
-                }
-            }
-            return offsets;
-        }
-    }
+    int lastRawAddress = -1;
 
     IEnumerable<FieldInfo> OrderedFields
     {
@@ -71,7 +63,8 @@ public abstract class Custom
                 var os = Array.CreateInstance(elementType, GetCount(field.Name));
                 for (int i = 0; i < os.Length; ++i)
                 {
-                    os.SetValue(s.Read(elementType), i);
+                    var read = s.Read(elementType);
+                    os.SetValue(read, i);
                 }
 
                 field.SetValue(this, os);
@@ -89,9 +82,28 @@ public abstract class Custom
         throw new InvalidOperationException(name);
     }
 
-    public int GetOffset(string name)
+    // TODO kill?
+    public virtual int GetOffset(string name, int rawAddress)
     {
-        return Offsets[name];
+        int offset;
+
+        if (offsets == null || lastRawAddress != rawAddress || !offsets.TryGetValue(name, out offset))
+        {
+            lastRawAddress = rawAddress;
+
+            int relativeAt = 0;
+
+            offsets = new Dictionary<string, int>();
+            foreach (var field in OrderedFields)
+            {
+                offsets.Add(field.Name, relativeAt);
+                relativeAt += field.GetValue(this).GetSize();
+            }
+
+            offset = offsets[name];
+        }
+
+        return offset;
     }
 
     protected sealed class OrderMeAttribute : Attribute
@@ -105,8 +117,57 @@ public abstract class Custom
 }
 
 
+// S25
+sealed class FileFormat : Custom
+{
+    public PEHeader PEHeader;
+    public Section[] Sections;
+
+    public override int Start { get { return 0; } }
+
+    public override int End { get { return Sections.Max(s => s.End); } }
+
+    public override void Read(Stream s)
+    {
+        PEHeader = s.ReadClass<PEHeader>();
+
+        List<Section> sections = new List<Section>();
+        foreach (var header in PEHeader.SectionHeaders)
+        {
+            int start = (int)header.PointerToRawData;
+
+            var section = new Section(start, start + (int)header.SizeOfRawData, (int)header.VirtualAddress, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories);
+            section.Read(s);
+
+            sections.Add(section);
+        }
+        Sections = sections.ToArray();
+    }
+
+    public override void VisitFields(int start, CodeNode parent)
+    {
+        CodeNode current = new CodeNode
+        {
+            Name = "Root",
+
+            Start = Start,
+            End = End,
+        };
+
+        PEHeader.VisitFields(start, current);
+        start += PEHeader.GetSize();
+
+        foreach (var s in Sections)
+        {
+            s.VisitFields(-1, current);
+        }
+
+        parent.Children.Add(current);
+    }
+}
+
 // S25.2.2
-sealed class PEHeader : Custom
+sealed class PEHeader : OrderedCustom
 {
     [OrderMe]
     public DosHeader DosHeader;
@@ -329,7 +390,7 @@ struct PEHeaderHeaderDataDirectories
     [Expected(0)]
     public ulong ExportTable;
     [Description("RVA and Size of Import Table, (§II.25.3.1).")]
-    public ulong ImportTable;
+    public RVAandSize ImportTable;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong ResourceTable;
@@ -340,15 +401,16 @@ struct PEHeaderHeaderDataDirectories
     [Expected(0)]
     public ulong CertificateTable;
     [Description("Relocation Table; set to 0 if unused (§).")]
-    public ulong BaseRelocationTable;
+    public RVAandSize BaseRelocationTable;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong Debug;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong Copyright;
-    [Description("Ptr Always 0 (§II.24.1).")]
-    public ulong Global;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ulong GlobalPtr;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong TLSTable;
@@ -359,15 +421,23 @@ struct PEHeaderHeaderDataDirectories
     [Expected(0)]
     public ulong BoundImport;
     [Description("RVA and Size of Import Address Table,(§II.25.3.1).")]
-    public ulong IAT;
+    public RVAandSize ImportAddressTableDirectory;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong DelayImportDescriptor;
     [Description("CLI Header with directories for runtime data,(§II.25.3.1).")]
-    public ulong CLIHeader;
+    public RVAandSize CLIHeader;
     [Description("Always 0 (§II.24.1)")]
     [Expected(0)]
     public ulong Reserved;
+}
+
+// II.25.3
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct RVAandSize
+{
+    public uint RVA;
+    public uint Size;
 }
 
 // II.25.3
@@ -383,7 +453,7 @@ struct SectionHeader
     public uint VirtualAddress;
     [Description("Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.")]
     public uint SizeOfRawData;
-    [Description("Offset of section’s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
+    [Description("Offset of section's first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
     public uint PointerToRawData;
     [Description("Should be 0 (§II.24.1).")]
     [Expected(0)]
@@ -401,3 +471,188 @@ struct SectionHeader
     public uint Characteristics;
 }
 
+class NodeObject
+{
+    public string Name;
+    public string Description = "";
+    public object Value;
+
+    public int Start;
+    public int End;
+
+    public CodeNode CodeNode
+    {
+        get
+        {
+            return new CodeNode
+            {
+                Name = Name,
+                Description = Description,
+                Value = Value.GetString(),
+
+                Start = Start,
+                End = End,
+            };
+        }
+    }
+}
+
+sealed class Section : Custom
+{
+    public int start;
+    public int end;
+    public int rva;
+
+    PEHeaderHeaderDataDirectories data;
+
+    List<NodeObject> children = new List<NodeObject>();
+
+    public override int Start { get { return start; } }
+
+    public override int End { get { return end; } }
+
+    public Section(int start, int end, int rva, PEHeaderHeaderDataDirectories data)
+    {
+        this.start = start;
+        this.end = end;
+        this.rva = rva;
+        this.data = data;
+    }
+
+    public override void Read(Stream s)
+    {
+        foreach (var nr in data.GetType().GetFields()
+            .Where(field => field.FieldType == typeof(RVAandSize))
+            .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
+            .Where(nr => rva < nr.rva.RVA && nr.rva.RVA < rva + end - start )
+            .OrderBy(nr => nr.rva.RVA))
+        {
+            var type = typeof(Section).Assembly.GetType(nr.name);
+            if (type == null)
+            {
+                throw new InvalidOperationException(nr.name);
+            }
+
+            var startPos = start + nr.rva.RVA - rva;
+            s.Position = startPos;
+
+            var o = s.Read(type);
+            children.Add(new NodeObject
+            {
+                Name = nr.name,
+                Value = o,
+
+                Start = (int)startPos,
+                End = (int)s.Position,
+            });
+        }
+    }
+
+    public override void VisitFields(int start, CodeNode parent)
+    {
+        foreach (var obj in children)
+        {
+            CodeNode current = obj.CodeNode;
+
+            obj.Value.VisitFields(obj.Start, current);
+
+            parent.Children.Add(current);
+        }
+    }
+}
+
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ImportTable
+{
+    public uint HintNameTableRVA;
+    [Expected(0)]
+    public uint NullTerminated;
+}
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ImportAddressTable
+{
+    [Description("RVA of the Import Lookup Table")]
+    public uint ImportLookupTable;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint DateTimeStamp;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint ForwarderChain;
+    [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
+    public uint Name;
+    [Description("RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).")]
+    public uint ImportAddressTableRVA;
+    [Description("End of Import Table. Shall be filled with zeros.")]
+    [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00})]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+    public byte[] Reserved;
+}
+
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ImportAddressTableDirectory
+{
+    public uint HintNameTableRVA;
+    [Expected(0)]
+    public uint NullTerminated;
+}
+
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct BaseRelocationTable
+{
+    public uint HintNameTableRVA;
+    [Expected(0)]
+    public uint NullTerminated;
+}
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct Relocations
+{
+    public uint HintNameTableRVA;
+    [Expected(0)]
+    public uint NullTerminated;
+}
+
+// II.25.3.3
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct CLIHeader
+{
+    [Description("Size of the header in bytes")]
+    public uint Cb;
+    [Description("The minimum version of the runtime required to run this program, currently 2.")]
+    public ushort MajorRuntimeVersion;
+    [Description("The minor portion of the version, currently 0.")]
+    public ushort MinorRuntimeVersion;
+    [Description("RVA and size of the physical metadata (§II.24).")]
+    public ulong MetaData;
+    [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
+    public uint Flags;
+    [Description("Token for the MethodDef or File of the entry point for the image")]
+    public uint EntryPointToken;
+    [Description("RVA and size of implementation-specific resources.")]
+    public ulong Resources;
+    [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]
+    public ulong StrongNameSignature;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ulong CodeManagerTable;
+    [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.")]
+    public ulong VTableFixups;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ulong ExportAddressTableJumps;
+    [Description("Always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ulong ManagedNativeHeader;
+}

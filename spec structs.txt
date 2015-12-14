@@ -60,7 +60,7 @@ PEHeaderHeaderDataDirectories
 136 8 BaseRelocationTable Relocation Table; set to 0 if unused (§).
 144 8 Debug Always 0 (§II.24.1).
 152 8 Copyright Always 0 (§II.24.1).
-160 8 Global Ptr Always 0 (§II.24.1).
+160 8 GlobalPtr Always 0 (§II.24.1).
 168 8 TLSTable Always 0 (§II.24.1).
 176 8 LoadConfigTable Always 0 (§II.24.1).
 184 8 BoundImport Always 0 (§II.24.1).
@@ -68,6 +68,7 @@ PEHeaderHeaderDataDirectories
 200 8 DelayImportDescriptor Always 0 (§II.24.1).
 208 8 CLIHeader CLI Header with directories for runtime data,(§II.25.3.1).
 216 8 Reserved Always 0 (§II.24.1)
+
 
 SectionHeaders
 
@@ -80,4 +81,35 @@ SectionHeaders
 28 4 PointerToLinenumbers Should be 0 (§II.24.1).
 32 2 NumberOfRelocations Should be 0 (§II.24.1).
 34 2 NumberOfLinenumbers Should be 0 (§II.24.1).
-36 4 Characteristics Flags describing section’s characteristics; see below.
+36 4 Characteristi
+cs Flags describing section’s characteristics; see below.
+
+
+ImportAddressTable
+
+0 4 ImportLookupTable RVA of the Import Lookup Table
+4 4 DateTimeStamp Always 0 (§II.24.1).
+8 4 ForwarderChain Always 0 (§II.24.1).
+12 4 Name RVA of null-terminated ASCII string “mscoree.dll”.
+16 4 ImportAddressTable RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).
+20 20 End of Import Table. Shall be filled with zeros.
+
+
+CLIHeader
+0 4 Cb Size of the header in bytes
+4 2 MajorRuntimeVersion The minimum version of the runtime required to run
+this program, currently 2.
+6 2 MinorRuntimeVersion The minor portion of the version, currently 0.
+8 8 MetaData RVA and size of the physical metadata (§II.24).
+16 4 Flags Flags describing this runtime image. (§II.25.3.3.1).
+20 4 EntryPointToken Token for the MethodDef or File of the entry point
+for the image
+24 8 Resources RVA and size of implementation-specific resources.
+32 8 StrongNameSignature RVA of the hash data for this PE file used by the
+CLI loader for binding and versioning
+40 8 CodeManagerTable Always 0 (§II.24.1).
+48 8 VTableFixups RVA of an array of locations in the file that contain
+an array of function pointers (e.g., vtable slots), see
+below.
+56 8 ExportAddressTableJumps Always 0 (§II.24.1).
+64 8 ManagedNativeHeader Always 0 (§II.24.1).

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 class CodeNode
 {
-    public string Name;
-    public string Description;
-    public string Value;
+    public string Name = "oops!";
+    public string Description = "";
+    public string Value = "";
 
     public int Start;
     public int End;

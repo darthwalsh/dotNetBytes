@@ -6,7 +6,23 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-public static class StreamExtensions
+interface IVisitChildren
+{
+    void VisitFields(int start, CodeNode parent);
+}
+
+interface ICanRead
+{
+    void Read(Stream s);
+}
+
+interface IHasLocation
+{
+    int Start { get; }
+    int End { get; }
+}
+
+static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html
     static void ReadWholeArray(Stream stream, byte[] data)
@@ -27,10 +43,22 @@ public static class StreamExtensions
     {
         if (type.IsClass)
         {
-            return typeof(StreamExtensions).GetMethods()
-                .Where(m => m.Name == "Read" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType.IsGenericParameter)
-                .Single().MakeGenericMethod(type)
-                .Invoke(null, new object[] { stream, Activator.CreateInstance(type) });
+            var t = Activator.CreateInstance(type);
+            var orderedCustom = t as OrderedCustom;
+            if (orderedCustom != null)
+            {
+                orderedCustom.Read(stream);
+                return orderedCustom;
+            }
+
+            var custom = t as Custom;
+            if (custom != null)
+            {
+                custom.Read(stream);
+                return custom;
+            }
+
+            throw new InvalidOperationException(type.Name);
         }
 
         return typeof(StreamExtensions).GetMethods()
@@ -39,10 +67,9 @@ public static class StreamExtensions
                 .Invoke(null, new object[] { stream });
     }
 
-    public static T Read<T>(this Stream stream, T t) where T : Custom
+    public static T ReadClass<T>(this Stream stream) where T : class
     {
-        t.Read(stream);
-        return t;
+        return (T)stream.Read(typeof(T));
     }
 
     // http://stackoverflow.com/a/4159279/771768
@@ -80,7 +107,7 @@ static class TypeExtensions
             return os.Cast<object>().Sum(GetSize);
         }
 
-        var custom = o as Custom;
+        var custom = o as OrderedCustom;
         if (custom != null)
         {
             return o.GetType().GetFields().Select(info => info.GetValue(o)).Sum(GetSize);
@@ -89,12 +116,12 @@ static class TypeExtensions
         return Marshal.SizeOf(o);
     }
 
-    public static int GetOffset(this object o, string name)
+    public static int GetOffset(this object o, string name, int rawAddress)
     {
-        var custom = o as Custom;
+        var custom = o as OrderedCustom;
         if (custom != null)
         {
-            return custom.GetOffset(name);
+            return custom.GetOffset(name, rawAddress);
         }
 
         return Marshal.OffsetOf(o.GetType(), name).ToInt32();
@@ -155,5 +182,120 @@ static class TypeExtensions
         }
 
         return o.ToString();
+    }
+
+    public static void VisitFields(this object ans, int start, CodeNode parent)
+    {
+        var visitor = ans as IVisitChildren;
+        if (visitor != null)
+        {
+            visitor.VisitFields(start, parent);
+            return;
+        }
+
+        var type = ans.GetType();
+
+        if (type.Assembly != typeof(AssemblyBytes).Assembly)
+            return;
+
+        if (type.IsArray)
+        {
+            var arr = (Array)ans;
+            for (int i = 0; i < arr.Length; ++i)
+            {
+                var actual = arr.GetValue(i);
+                var name = string.Format("[{0}]", i);
+                var size = actual.GetSize();
+                var offset = i * size;
+                var nextStart = start + offset;
+
+                CodeNode current = new CodeNode
+                {
+                    Name = name,
+                    Description = "",
+                    Value = actual.GetString(),
+
+                    Start = nextStart,
+                    End = nextStart + size,
+                };
+
+                actual.VisitFields(nextStart, current);
+
+                parent.Children.Add(current);
+            }
+
+            return;
+        }
+
+        foreach (var field in type.GetFields())
+        {
+            var actual = field.GetValue(ans);
+            var name = field.Name;
+            var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+
+            CodeNode current = new CodeNode
+            {
+                Name = name,
+                Description = desc != null ? desc.Description : "",
+                Value = actual.GetString(),
+            };
+
+            var hasLocation = actual as IHasLocation;
+            if (hasLocation != null)
+            {
+                current.Start = hasLocation.Start;
+                current.End = hasLocation.End;
+            }
+            else
+            {
+                var offset = ans.GetOffset(name, start);
+                var nextStart = start + offset;
+
+                current.Start = nextStart;
+                current.End = nextStart + actual.GetSize();
+            }
+
+            actual.VisitFields(current.Start, current);
+
+            parent.Children.Add(current);
+
+            var expected = field.GetCustomAttributes(typeof(ExpectedAttribute), false).FirstOrDefault() as ExpectedAttribute;
+            if (expected == null)
+            {
+                continue;
+            }
+            if (!SmartEquals(expected.Value, actual))
+            {
+                Fail(current, string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
+                    name, expected.Value, actual, current.Start));
+            }
+        }
+    }
+
+    static bool SmartEquals(object expected, object actual)
+    {
+        if (object.Equals(expected, actual))
+        {
+            return true;
+        }
+
+        if (expected is int && !(actual is int))
+        {
+            return ((int)expected).Equals(actual.GetInt32());
+        }
+
+        var expecteds = expected as IEnumerable;
+        var actuals = actual as IEnumerable;
+
+        if (expecteds != null && actuals != null)
+        {
+            return expecteds.Cast<object>().SequenceEqual(actuals.Cast<object>());
+        }
+
+        return false;
+    }
+    static void Fail(CodeNode node, string message)
+    {
+        node.Errors.Add(message);
     }
 }
