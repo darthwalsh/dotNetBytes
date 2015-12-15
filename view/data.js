@@ -85,9 +85,6 @@ function setColor(i, color) {
 }
 
 function setOnClick(i, onclick) {
-  if (i == 0x1D8 && onclick)
-    console.log(i);
-
   $(byteID(i)).onclick = onclick;
   $(litID(i)).onclick = onclick;
 }
