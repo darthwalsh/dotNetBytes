@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 interface ICanRead
 {
-    CodeNode Read(Stream s);
+    CodeNode Read(Stream stream);
 }
 
 static class StreamExtensions
@@ -29,7 +30,7 @@ static class StreamExtensions
     }
 
     // http://stackoverflow.com/a/4159279/771768
-    public static CodeNode ReadStruct<T>(this Stream stream, ref T t, string name = null) where T : struct
+    public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
         CodeNode node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
@@ -48,7 +49,7 @@ static class StreamExtensions
 
         return node;
     }
-    public static CodeNode ReadStructs<T>(this Stream stream, ref T[] ts, int n, string name = null) where T : struct
+    public static CodeNode ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
     {
         name = name ?? typeof(T).Name + "s";
 
@@ -59,7 +60,7 @@ static class StreamExtensions
         ts = new T[n];
         for(int i = 0; i < n; ++i)
         {
-            node.Children.Add(stream.ReadStruct(ref ts[i], name + "[" + i + "]"));
+            node.Children.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
         }
 
         node.End = (int)stream.Position;
@@ -76,7 +77,7 @@ static class StreamExtensions
         node.Start = (int)stream.Position;
 
         ts = ts ?? new T[n];
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < ts.Length; ++i)
         {
             node.Children.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
         }
@@ -190,7 +191,7 @@ static class TypeExtensions
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
             return;
 
-        foreach (var field in type.GetFields())
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
             var actual = field.GetValue(ans);
             var name = field.Name;

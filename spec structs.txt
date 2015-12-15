@@ -97,19 +97,14 @@ ImportAddressTable
 
 CLIHeader
 0 4 Cb Size of the header in bytes
-4 2 MajorRuntimeVersion The minimum version of the runtime required to run
-this program, currently 2.
+4 2 MajorRuntimeVersion The minimum version of the runtime required to run this program, currently 2.
 6 2 MinorRuntimeVersion The minor portion of the version, currently 0.
 8 8 MetaData RVA and size of the physical metadata (§II.24).
 16 4 Flags Flags describing this runtime image. (§II.25.3.3.1).
-20 4 EntryPointToken Token for the MethodDef or File of the entry point
-for the image
+20 4 EntryPointToken Token for the MethodDef or File of the entry point for the image
 24 8 Resources RVA and size of implementation-specific resources.
-32 8 StrongNameSignature RVA of the hash data for this PE file used by the
-CLI loader for binding and versioning
+32 8 StrongNameSignature RVA of the hash data for this PE file used by the CLI loader for binding and versioning
 40 8 CodeManagerTable Always 0 (§II.24.1).
-48 8 VTableFixups RVA of an array of locations in the file that contain
-an array of function pointers (e.g., vtable slots), see
-below.
+48 8 VTableFixups RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.
 56 8 ExportAddressTableJumps Always 0 (§II.24.1).
 64 8 ManagedNativeHeader Always 0 (§II.24.1).

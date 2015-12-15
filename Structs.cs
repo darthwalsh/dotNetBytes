@@ -37,16 +37,12 @@ sealed class FileFormat : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        CodeNode node = new CodeNode();
-        
-        node.Children.Add(stream.ReadClass(ref PEHeader));
-
-        CodeNode sectionNode = new CodeNode();
-
-        Sections = PEHeader.SectionHeaders.Select(header =>
+        CodeNode node = new CodeNode
         {
-            return new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories);
-        }).ToArray();
+            stream.ReadClass(ref PEHeader),
+        };
+        
+        Sections = PEHeader.SectionHeaders.Select(header => new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories)).ToArray();
 
         node.Children.Add(stream.ReadClasses(ref Sections));
 
@@ -65,13 +61,14 @@ sealed class PEHeader : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        CodeNode node = new CodeNode();
-        
-        node.Children.Add(stream.ReadStruct(ref DosHeader));
-        node.Children.Add(stream.ReadStruct(ref PESignature));
-        node.Children.Add(stream.ReadStruct(ref PEFileHeader));
-        node.Children.Add(stream.ReadStruct(ref PEOptionalHeader));
-        node.Children.Add(stream.ReadStructs(ref SectionHeaders, PEFileHeader.NumberOfSections));
+        CodeNode node = new CodeNode
+        {
+            stream.ReadStruct(out DosHeader),
+            stream.ReadStruct(out PESignature),
+            stream.ReadStruct(out PEFileHeader),
+            stream.ReadStruct(out PEOptionalHeader),
+            stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
+        };
 
         return node;
     }
@@ -358,32 +355,6 @@ struct SectionHeader
     public uint Characteristics;
 }
 
-class NodeObject
-{
-    public string Name;
-    public string Description = "";
-    public object Value;
-
-    public int Start;
-    public int End;
-
-    public CodeNode CodeNode
-    {
-        get
-        {
-            return new CodeNode
-            {
-                Name = Name,
-                Description = Description,
-                Value = Value.GetString(),
-
-                Start = Start,
-                End = End,
-            };
-        }
-    }
-}
-
 sealed class Section : ICanRead
 {
     int start;
@@ -392,7 +363,7 @@ sealed class Section : ICanRead
     string name;
     PEHeaderHeaderDataDirectories data;
 
-    public ICanRead[] Members;
+    public object[] Members;
 
     public Section(SectionHeader header, PEHeaderHeaderDataDirectories data)
     {
@@ -410,27 +381,46 @@ sealed class Section : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        List<ICanRead> ss = new List<ICanRead>();
+        CodeNode node = new CodeNode
+        {
+            Description = name,
+        };
+
+        var ss = new List<object>();
 
         foreach (var nr in data.GetType().GetFields()
             .Where(field => field.FieldType == typeof(RVAandSize))
             .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
-            .Where(nr => rva < nr.rva.RVA && nr.rva.RVA < rva + end - start )
+            .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
             .OrderBy(nr => nr.rva.RVA))
         {
-            var type = typeof(Section).Assembly.GetType(nr.name);
-            if (type == null)
-            {
-                throw new InvalidOperationException(nr.name);
-            }
+            stream.Position = start + nr.rva.RVA - rva;
 
-            ss.Add((ICanRead)Activator.CreateInstance(type, new object[] { start + nr.rva.RVA - rva }));
+            switch (nr.name)
+            {
+                case "CLIHeader":
+                    CLIHeader CLIHeader;
+                    node.Children.Add(stream.ReadStruct(out CLIHeader));
+                    CLIHeader.Instance = CLIHeader;
+                    break;
+                case "ImportTable":
+                    ImportTable ImportTable;
+                    node.Children.Add(stream.ReadStruct(out ImportTable));
+                    break;
+                case "ImportAddressTableDirectory":
+                    ImportAddressTableDirectory ImportAddressTableDirectory;
+                    node.Children.Add(stream.ReadStruct(out ImportAddressTableDirectory));
+                    break;
+                case "BaseRelocationTable":
+                    Relocations Relocations = null;
+                    node.Children.Add(stream.ReadClass(ref Relocations));
+                    break;
+                default:
+                    throw new NotImplementedException(nr.name);
+            }
         }
 
         Members = ss.ToArray();
-
-        CodeNode node = stream.ReadClasses(ref Members);
-        node.Name = name;
 
         return node;
     }
@@ -446,6 +436,7 @@ struct ImportTable
     public uint NullTerminated;
 }
 
+//TODO use
 // II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ImportAddressTable
@@ -480,23 +471,37 @@ struct ImportAddressTableDirectory
     public uint NullTerminated;
 }
 
+// II.25.3.1
+class Relocations : ICanRead
+{
+    public BaseRelocationTable BaseRelocationTable;
+    public Fixup[] Fixups;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out BaseRelocationTable),
+            stream.ReadStructs(out Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
+        };
+    }
+}
 
 // II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct BaseRelocationTable
 {
-    public uint HintNameTableRVA;
-    [Expected(0)]
-    public uint NullTerminated;
+    public uint PageRVA;
+    public uint BlockSize;
 }
 
 // II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct Relocations
+struct Fixup
 {
-    public uint HintNameTableRVA;
-    [Expected(0)]
-    public uint NullTerminated;
+    [Description("Type is stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3). Offset stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
+    public byte[] Data;
 }
 
 // II.25.3.3
@@ -530,4 +535,6 @@ struct CLIHeader
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong ManagedNativeHeader;
+
+    public static CLIHeader Instance;
 }

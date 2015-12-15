@@ -1,7 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
-class CodeNode
+class CodeNode : IEnumerable<string>
 {
     public string Name = "oops!";
     public string Description = "";
@@ -11,6 +12,11 @@ class CodeNode
     public int End;
     public List<CodeNode> Children = new List<CodeNode>();
     public List<string> Errors = new List<string>();
+
+    public void Add(CodeNode node)
+    {
+        Children.Add(node);
+    }
 
     public override string ToString()
     {
@@ -31,5 +37,15 @@ class CodeNode
                 yield return s;
             }
         }
+    }
+
+    public IEnumerator<string> GetEnumerator()
+    {
+        return Yield().GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
