@@ -49,42 +49,34 @@ static class StreamExtensions
 
         return node;
     }
-    public static CodeNode ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
+    public static IEnumerable<CodeNode> ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
     {
         name = name ?? typeof(T).Name + "s";
 
-        CodeNode node = new CodeNode();
-        node.Name = name;
-        node.Start = (int)stream.Position;
+        var nodes = new List<CodeNode>();
 
         ts = new T[n];
         for(int i = 0; i < n; ++i)
         {
-            node.Children.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
+            nodes.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
         }
 
-        node.End = (int)stream.Position;
-
-        return node;
+        return nodes;
     }
 
-    public static CodeNode ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanRead
+    public static IEnumerable<CodeNode> ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanRead
     {
         name = name ?? typeof(T).Name + "s";
 
-        CodeNode node = new CodeNode();
-        node.Name = name;
-        node.Start = (int)stream.Position;
+        var nodes = new List<CodeNode>();
 
         ts = ts ?? new T[n];
         for (int i = 0; i < ts.Length; ++i)
         {
-            node.Children.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
+            nodes.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
         }
 
-        node.End = (int)stream.Position;
-
-        return node;
+        return nodes;
     }
 
     public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanRead

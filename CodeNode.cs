@@ -19,6 +19,11 @@ class CodeNode : IEnumerable<string>
         Children.Add(node);
     }
 
+    public void Add(IEnumerable<CodeNode> node)
+    {
+        Children.AddRange(node);
+    }
+
     public void Widen()
     {
         foreach (var c in Children)

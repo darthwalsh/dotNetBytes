@@ -44,12 +44,13 @@ sealed class FileFormat : ICanRead
         
         Sections = PEHeader.SectionHeaders.Select(header => new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories)).ToArray();
 
-        CodeNode sections;
-        node.Children.Add(sections = stream.ReadClasses(ref Sections));
+        IEnumerable<CodeNode> sections;
+        node.Add(sections = stream.ReadClasses(ref Sections));
+        var ss = sections.ToArray();
 
         for (int i = 0; i < Sections.Length; ++i)
         {
-            Sections[i].CallBack(sections.Children[i]);
+            Sections[i].CallBack(ss[i]);
         }
 
         return node;
@@ -406,20 +407,20 @@ sealed class Section : ICanRead
             {
                 case "CLIHeader":
                     CLIHeader CLIHeader;
-                    node.Children.Add(stream.ReadStruct(out CLIHeader));
+                    node.Add(stream.ReadStruct(out CLIHeader));
                     CLIHeader.Instance = CLIHeader;
                     break;
                 case "ImportTable":
                     ImportTable ImportTable;
-                    node.Children.Add(stream.ReadStruct(out ImportTable));
+                    node.Add(stream.ReadStruct(out ImportTable));
                     break;
                 case "ImportAddressTableDirectory":
                     ImportAddressTableDirectory ImportAddressTableDirectory;
-                    node.Children.Add(stream.ReadStruct(out ImportAddressTableDirectory));
+                    node.Add(stream.ReadStruct(out ImportAddressTableDirectory));
                     break;
                 case "BaseRelocationTable":
                     Relocations Relocations = null;
-                    node.Children.Add(stream.ReadClass(ref Relocations));
+                    node.Add(stream.ReadClass(ref Relocations));
                     break;
                 default:
                     throw new NotImplementedException(nr.name);
