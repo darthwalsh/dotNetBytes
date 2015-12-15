@@ -44,7 +44,21 @@ sealed class FileFormat : ICanRead
         
         Sections = PEHeader.SectionHeaders.Select(header => new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories)).ToArray();
 
-        node.Children.Add(stream.ReadClasses(ref Sections));
+        CodeNode sections;
+        node.Children.Add(sections = stream.ReadClasses(ref Sections));
+
+        int max = int.MinValue;
+        int min = int.MaxValue;
+        for (int i = 0; i < Sections.Length; ++i)
+        {
+            Sections[i].CallBack(sections.Children[i]);
+
+            min = Math.Min(min, sections.Children[i].Start);
+            max = Math.Max(max, sections.Children[i].End);
+        }
+
+        sections.Start = min;
+        sections.End = max;
 
         return node;
     }
@@ -423,6 +437,12 @@ sealed class Section : ICanRead
         Members = ss.ToArray();
 
         return node;
+    }
+
+    public void CallBack(CodeNode node)
+    {
+        node.Start = start;
+        node.End = end;
     }
 }
 
