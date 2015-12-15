@@ -28,165 +28,52 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
-abstract class Custom : IVisitChildren, ICanRead, IHasLocation
-{
-    public abstract int Start { get; }
-    public abstract int End { get; }
-    
-    public abstract void Read(Stream s);
-    public abstract void VisitFields(int start, CodeNode parent);
-}
-
-abstract class OrderedCustom
-{
-    Dictionary<string, int> offsets;
-    int lastRawAddress = -1;
-
-    IEnumerable<FieldInfo> OrderedFields
-    {
-        get
-        {
-            return GetType().GetFields().OrderBy(field => ((OrderMeAttribute)field.GetCustomAttributes(typeof(OrderMeAttribute), false).Single()).Order);
-        }
-    }
-
-    public void Read(Stream s)
-    {
-        foreach (var field in OrderedFields)
-        {
-            var fieldType = field.FieldType;
-
-            if (fieldType.IsArray)
-            {
-                var elementType = fieldType.GetElementType();
-
-                var os = Array.CreateInstance(elementType, GetCount(field.Name));
-                for (int i = 0; i < os.Length; ++i)
-                {
-                    var read = s.Read(elementType);
-                    os.SetValue(read, i);
-                }
-
-                field.SetValue(this, os);
-            }
-            else
-            {
-                var read = s.Read(fieldType);
-                field.SetValue(this, read);
-            }
-        }
-    }
-
-    protected virtual int GetCount(string name)
-    {
-        throw new InvalidOperationException(name);
-    }
-
-    // TODO kill?
-    public virtual int GetOffset(string name, int rawAddress)
-    {
-        int offset;
-
-        if (offsets == null || lastRawAddress != rawAddress || !offsets.TryGetValue(name, out offset))
-        {
-            lastRawAddress = rawAddress;
-
-            int relativeAt = 0;
-
-            offsets = new Dictionary<string, int>();
-            foreach (var field in OrderedFields)
-            {
-                offsets.Add(field.Name, relativeAt);
-                relativeAt += field.GetValue(this).GetSize();
-            }
-
-            offset = offsets[name];
-        }
-
-        return offset;
-    }
-
-    protected sealed class OrderMeAttribute : Attribute
-    {
-        public int Order;
-        public OrderMeAttribute([CallerLineNumber] int i = -1)
-        {
-            Order = i;
-        }
-    }
-}
-
 
 // S25
-sealed class FileFormat : Custom
+sealed class FileFormat : ICanRead
 {
     public PEHeader PEHeader;
     public Section[] Sections;
 
-    public override int Start { get { return 0; } }
-
-    public override int End { get { return Sections.Max(s => s.End); } }
-
-    public override void Read(Stream s)
+    public CodeNode Read(Stream stream)
     {
-        PEHeader = s.ReadClass<PEHeader>();
+        CodeNode node = new CodeNode();
+        
+        node.Children.Add(stream.ReadClass(ref PEHeader));
 
-        List<Section> sections = new List<Section>();
-        foreach (var header in PEHeader.SectionHeaders)
+        CodeNode sectionNode = new CodeNode();
+
+        Sections = PEHeader.SectionHeaders.Select(header =>
         {
-            int start = (int)header.PointerToRawData;
+            return new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories);
+        }).ToArray();
 
-            var section = new Section(start, start + (int)header.SizeOfRawData, (int)header.VirtualAddress, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories);
-            section.Read(s);
+        node.Children.Add(stream.ReadClasses(ref Sections));
 
-            sections.Add(section);
-        }
-        Sections = sections.ToArray();
-    }
-
-    public override void VisitFields(int start, CodeNode parent)
-    {
-        CodeNode current = new CodeNode
-        {
-            Name = "Root",
-
-            Start = Start,
-            End = End,
-        };
-
-        PEHeader.VisitFields(start, current);
-        start += PEHeader.GetSize();
-
-        foreach (var s in Sections)
-        {
-            s.VisitFields(-1, current);
-        }
-
-        parent.Children.Add(current);
+        return node;
     }
 }
 
 // S25.2.2
-sealed class PEHeader : OrderedCustom
+sealed class PEHeader : ICanRead
 {
-    [OrderMe]
     public DosHeader DosHeader;
-    [OrderMe]
     public PESignature PESignature;
-    [OrderMe]
     public PEFileHeader PEFileHeader;
-    [OrderMe]
     public PEOptionalHeader PEOptionalHeader;
-    [OrderMe]
     public SectionHeader[] SectionHeaders;
 
-    protected override int GetCount(string name)
+    public CodeNode Read(Stream stream)
     {
-        switch (name)
-        {
-            case "SectionHeaders": return PEFileHeader.NumberOfSections;
-        }
-        return base.GetCount(name);
+        CodeNode node = new CodeNode();
+        
+        node.Children.Add(stream.ReadStruct(ref DosHeader));
+        node.Children.Add(stream.ReadStruct(ref PESignature));
+        node.Children.Add(stream.ReadStruct(ref PEFileHeader));
+        node.Children.Add(stream.ReadStruct(ref PEOptionalHeader));
+        node.Children.Add(stream.ReadStructs(ref SectionHeaders, PEFileHeader.NumberOfSections));
+
+        return node;
     }
 }
 
@@ -497,30 +384,34 @@ class NodeObject
     }
 }
 
-sealed class Section : Custom
+sealed class Section : ICanRead
 {
-    public int start;
-    public int end;
-    public int rva;
-
+    int start;
+    int end;
+    int rva;
+    string name;
     PEHeaderHeaderDataDirectories data;
 
-    List<NodeObject> children = new List<NodeObject>();
+    public ICanRead[] Members;
 
-    public override int Start { get { return start; } }
-
-    public override int End { get { return end; } }
-
-    public Section(int start, int end, int rva, PEHeaderHeaderDataDirectories data)
+    public Section(SectionHeader header, PEHeaderHeaderDataDirectories data)
     {
-        this.start = start;
-        this.end = end;
-        this.rva = rva;
+        start = (int)header.PointerToRawData;
+        end = start + (int)header.SizeOfRawData;
+        rva = (int)header.VirtualAddress;
+        name = new string(header.Name);
         this.data = data;
+
+        sections.Add(this);
     }
 
-    public override void Read(Stream s)
+    // TODO provide RVA to Raw mapping
+    static List<Section> sections = new List<Section>();
+
+    public CodeNode Read(Stream stream)
     {
+        List<ICanRead> ss = new List<ICanRead>();
+
         foreach (var nr in data.GetType().GetFields()
             .Where(field => field.FieldType == typeof(RVAandSize))
             .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
@@ -533,31 +424,15 @@ sealed class Section : Custom
                 throw new InvalidOperationException(nr.name);
             }
 
-            var startPos = start + nr.rva.RVA - rva;
-            s.Position = startPos;
-
-            var o = s.Read(type);
-            children.Add(new NodeObject
-            {
-                Name = nr.name,
-                Value = o,
-
-                Start = (int)startPos,
-                End = (int)s.Position,
-            });
+            ss.Add((ICanRead)Activator.CreateInstance(type, new object[] { start + nr.rva.RVA - rva }));
         }
-    }
 
-    public override void VisitFields(int start, CodeNode parent)
-    {
-        foreach (var obj in children)
-        {
-            CodeNode current = obj.CodeNode;
+        Members = ss.ToArray();
 
-            obj.Value.VisitFields(obj.Start, current);
+        CodeNode node = stream.ReadClasses(ref Members);
+        node.Name = name;
 
-            parent.Children.Add(current);
-        }
+        return node;
     }
 }
 

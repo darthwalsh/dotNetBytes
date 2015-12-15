@@ -11,21 +11,7 @@ class AssemblyBytes
     {
         Stream s = File.OpenRead(path);
 
-        int start = (int)s.Position;
-
-        FileFormat = s.ReadClass<FileFormat>();
-
-        node = new CodeNode
-        {
-            Name = "Root",
-            Description = "",
-            Value = "",
-
-            Start = start,
-            End = (int)s.Position,
-        };
-
-        FileFormat.VisitFields(start, node);
+        node = s.ReadClass(ref FileFormat);
 
         System.Console.Error.WriteLine(node.ToString());
     }

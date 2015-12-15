@@ -6,20 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-interface IVisitChildren
-{
-    void VisitFields(int start, CodeNode parent);
-}
-
 interface ICanRead
 {
-    void Read(Stream s);
-}
-
-interface IHasLocation
-{
-    int Start { get; }
-    int End { get; }
+    CodeNode Read(Stream s);
 }
 
 static class StreamExtensions
@@ -39,49 +28,76 @@ static class StreamExtensions
         }
     }
 
-    public static object Read(this Stream stream, Type type)
-    {
-        if (type.IsClass)
-        {
-            var t = Activator.CreateInstance(type);
-            var orderedCustom = t as OrderedCustom;
-            if (orderedCustom != null)
-            {
-                orderedCustom.Read(stream);
-                return orderedCustom;
-            }
-
-            var custom = t as Custom;
-            if (custom != null)
-            {
-                custom.Read(stream);
-                return custom;
-            }
-
-            throw new InvalidOperationException(type.Name);
-        }
-
-        return typeof(StreamExtensions).GetMethods()
-                .Where(m => m.Name == "Read" && m.GetParameters().Length == 1)
-                .Single().MakeGenericMethod(type)
-                .Invoke(null, new object[] { stream });
-    }
-
-    public static T ReadClass<T>(this Stream stream) where T : class
-    {
-        return (T)stream.Read(typeof(T));
-    }
-
     // http://stackoverflow.com/a/4159279/771768
-    public static T Read<T>(this Stream stream) where T : struct
+    public static CodeNode ReadStruct<T>(this Stream stream, ref T t, string name = null) where T : struct
     {
+        CodeNode node = new CodeNode();
+        node.Name = name ?? typeof(T).Name;
+        node.Start = (int)stream.Position;
+
         var sz = Marshal.SizeOf(typeof(T));
         var buffer = new byte[sz];
         ReadWholeArray(stream, buffer);
         var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        var structure = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(T));
+        t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(T));
         pinnedBuffer.Free();
-        return structure;
+
+        node.End = (int)stream.Position;
+
+        t.VisitFields(node.Start, node);
+
+        return node;
+    }
+    public static CodeNode ReadStructs<T>(this Stream stream, ref T[] ts, int n, string name = null) where T : struct
+    {
+        name = name ?? typeof(T).Name + "s";
+
+        CodeNode node = new CodeNode();
+        node.Name = name;
+        node.Start = (int)stream.Position;
+
+        ts = new T[n];
+        for(int i = 0; i < n; ++i)
+        {
+            node.Children.Add(stream.ReadStruct(ref ts[i], name + "[" + i + "]"));
+        }
+
+        node.End = (int)stream.Position;
+
+        return node;
+    }
+
+    public static CodeNode ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanRead
+    {
+        name = name ?? typeof(T).Name + "s";
+
+        CodeNode node = new CodeNode();
+        node.Name = name;
+        node.Start = (int)stream.Position;
+
+        ts = ts ?? new T[n];
+        for (int i = 0; i < n; ++i)
+        {
+            node.Children.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
+        }
+
+        node.End = (int)stream.Position;
+
+        return node;
+    }
+
+    public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanRead
+    {
+        var start = (int)stream.Position;
+
+        t = t ?? Activator.CreateInstance<T>();
+        CodeNode node = t.Read(stream);
+        node.Name = name ?? typeof(T).Name;
+        node.Start = start;
+
+        node.End = (int)stream.Position;
+
+        return node;
     }
 }
 
@@ -107,24 +123,7 @@ static class TypeExtensions
             return os.Cast<object>().Sum(GetSize);
         }
 
-        var custom = o as OrderedCustom;
-        if (custom != null)
-        {
-            return o.GetType().GetFields().Select(info => info.GetValue(o)).Sum(GetSize);
-        }
-
         return Marshal.SizeOf(o);
-    }
-
-    public static int GetOffset(this object o, string name, int rawAddress)
-    {
-        var custom = o as OrderedCustom;
-        if (custom != null)
-        {
-            return custom.GetOffset(name, rawAddress);
-        }
-
-        return Marshal.OffsetOf(o.GetType(), name).ToInt32();
     }
 
     static Dictionary<char, string> escapes = new Dictionary<char, string>
@@ -186,46 +185,10 @@ static class TypeExtensions
 
     public static void VisitFields(this object ans, int start, CodeNode parent)
     {
-        var visitor = ans as IVisitChildren;
-        if (visitor != null)
-        {
-            visitor.VisitFields(start, parent);
-            return;
-        }
-
         var type = ans.GetType();
 
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
             return;
-
-        if (type.IsArray)
-        {
-            var arr = (Array)ans;
-            for (int i = 0; i < arr.Length; ++i)
-            {
-                var actual = arr.GetValue(i);
-                var name = string.Format("[{0}]", i);
-                var size = actual.GetSize();
-                var offset = i * size;
-                var nextStart = start + offset;
-
-                CodeNode current = new CodeNode
-                {
-                    Name = name,
-                    Description = "",
-                    Value = actual.GetString(),
-
-                    Start = nextStart,
-                    End = nextStart + size,
-                };
-
-                actual.VisitFields(nextStart, current);
-
-                parent.Children.Add(current);
-            }
-
-            return;
-        }
 
         foreach (var field in type.GetFields())
         {
@@ -233,27 +196,17 @@ static class TypeExtensions
             var name = field.Name;
             var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
 
+            var nextStart = start + Marshal.OffsetOf(ans.GetType(), name).ToInt32();
+
             CodeNode current = new CodeNode
             {
                 Name = name,
                 Description = desc != null ? desc.Description : "",
                 Value = actual.GetString(),
+
+                Start = nextStart,
+                End = nextStart + actual.GetSize(),
             };
-
-            var hasLocation = actual as IHasLocation;
-            if (hasLocation != null)
-            {
-                current.Start = hasLocation.Start;
-                current.End = hasLocation.End;
-            }
-            else
-            {
-                var offset = ans.GetOffset(name, start);
-                var nextStart = start + offset;
-
-                current.Start = nextStart;
-                current.End = nextStart + actual.GetSize();
-            }
 
             actual.VisitFields(current.Start, current);
 
@@ -294,6 +247,7 @@ static class TypeExtensions
 
         return false;
     }
+
     static void Fail(CodeNode node, string message)
     {
         node.Errors.Add(message);
