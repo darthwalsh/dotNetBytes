@@ -47,18 +47,10 @@ sealed class FileFormat : ICanRead
         CodeNode sections;
         node.Children.Add(sections = stream.ReadClasses(ref Sections));
 
-        int max = int.MinValue;
-        int min = int.MaxValue;
         for (int i = 0; i < Sections.Length; ++i)
         {
             Sections[i].CallBack(sections.Children[i]);
-
-            min = Math.Min(min, sections.Children[i].Start);
-            max = Math.Max(max, sections.Children[i].End);
         }
-
-        sections.Start = min;
-        sections.End = max;
 
         return node;
     }

@@ -16,6 +16,8 @@ class AssemblyBytes
 
         node = s.ReadClass(ref FileFormat);
 
+        node.Widen();
+
         System.Console.Error.WriteLine(node.ToString());
     }
 

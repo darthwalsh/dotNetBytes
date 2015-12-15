@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 class CodeNode : IEnumerable<string>
 {
@@ -16,6 +17,20 @@ class CodeNode : IEnumerable<string>
     public void Add(CodeNode node)
     {
         Children.Add(node);
+    }
+
+    public void Widen()
+    {
+        foreach (var c in Children)
+        {
+            c.Widen();
+        }
+
+        if (Children.Any())
+        {
+            Start = Math.Min(Start, Children.Min(c => c.Start));
+            End = Math.Max(End, Children.Max(c => c.End));
+        }
     }
 
     public override string ToString()
