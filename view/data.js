@@ -85,6 +85,9 @@ function setColor(i, color) {
 }
 
 function setOnClick(i, onclick) {
+  if (i == 0x1D8 && onclick)
+    console.log(i);
+
   $(byteID(i)).onclick = onclick;
   $(litID(i)).onclick = onclick;
 }
@@ -94,7 +97,16 @@ function setFocus(o)
   var toc = $("toc");
   while (toc.hasChildNodes())
     toc.removeChild(toc.firstChild); 
-    
+  
+  var grandparent = o;
+  while (grandparent.parent)
+    grandparent = grandparent.parent;
+  
+  for (var i = grandparent.Start; i < grandparent.End; ++i) {
+      setColor(i, "white");
+      setOnClick(i, null);
+  }
+  
   setFocusHelper(o);
   
   $("detailName").innerText = o.Name;
@@ -130,16 +142,22 @@ function setFocusHelper(o, currentChild) {
   var ch = o.Children;
   
   for (var chI = 0; chI < ch.length; ++chI) {
-    var col;
-    if (ch[chI] === currentChild) {
-      col = getColor(chI);
-    } else {
-      col = getDimColor(chI);
-    }
+    var cc = ch[chI];
+    if (cc === currentChild) {
+      continue;
+    } 
+    var col = getDimColor(chI);
     
-    for (var i = ch[chI].Start; i < ch[chI].End; ++i) {
+    for (var i = cc.Start; i < cc.End; ++i) {
       setColor(i, col);
-      setOnClick(i, makeOnClick(ch[chI]));
+      setOnClick(i, makeOnClick(cc));
+    }
+  }
+  
+  if (!currentChild && !ch.length) {
+    for (var i = o.Start; i < o.End; ++i) {
+      setColor(i, getColor(0)); //TODO in-order coloring
+      setOnClick(i, makeOnClick(o));
     }
   }
   
@@ -266,6 +284,8 @@ window.onload = function() {
   });
 };
 
+//TODO pin TOC width
+//TODO details persist on the screen
 //TODO hover preview
 //TODO scroll into view 
 //TODO smart colors
