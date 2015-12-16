@@ -91,15 +91,32 @@ function setOnClick(i, onclick) {
 
 function setFocus(o)
 {
-  var toc = $("toc");
-  while (toc.hasChildNodes())
-    toc.removeChild(toc.firstChild); 
+  // Hide all lists in the ToC
+  for (var i = 0; i < allTocUL.length; ++i) {
+    allTocUL[i].style.display = "none";
+  }
   
+  // Unhide all the ToC up the parents
+  var tocDiv = $("toc");
+  var toc = o.tocDom;
+  var parentUL = toc.parentElement;
+  while (parentUL !== tocDiv) {
+    parentUL.style.display = "";
+    parentUL = parentUL.parentElement;
+  }
+
+  // Unhide everything at this level
+  var sibs = toc.parentElement.firstChild;
+  while (sibs) {
+    sibs.style.display = "";
+    sibs = sibs.nextSibling;
+  }
+  
+  // Reset all the byte display
   var grandparent = o;
   while (grandparent.parent)
     grandparent = grandparent.parent;
-  
-  for (var i = grandparent.Start; i < grandparent.End; ++i) {
+  for (i = grandparent.Start; i < grandparent.End; ++i) {
       setColor(i, "white");
       setOnClick(i, null);
   }
@@ -109,8 +126,6 @@ function setFocus(o)
   $("detailName").innerText = o.Name;
   $("detailValue").innerText = o.Value;
   $("detailDescription").innerText = o.Description;
-  
-  $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
 function makeOnClick(o) {
@@ -120,20 +135,8 @@ function makeOnClick(o) {
 }
 
 function setFocusHelper(o, currentChild) {  
-  var toc = $("toc");
-  
-  var parentLI = null;
   if (o.parent) {
-    parentLI = setFocusHelper(o.parent, o);
-  } else {
-    var ul = create("ul");
-    var li = create("li");
-    li.innerText = "All";
-    li.onclick = makeOnClick(o);
-    
-    ul.appendChild(li);
-    toc.appendChild(ul);
-    parentLI = li;
+    setFocusHelper(o.parent, o);
   }
   
   var ch = o.Children;
@@ -157,28 +160,6 @@ function setFocusHelper(o, currentChild) {
       setOnClick(i, makeOnClick(o));
     }
   }
-  
-  var childLI = null;
-  ul = create("ul");
-  for (var chI = 0; chI < ch.length; ++chI) {
-    li = create("li");
-    li.innerText = ch[chI].Name;
-    li.onclick = makeOnClick(ch[chI]);
-    
-    ul.appendChild(li);
-    
-    if (ch[chI] === currentChild) {
-      childLI = li;
-    }
-  }
-  
-  if (parentLI) {
-    parentLI.parentElement.insertBefore(ul, parentLI.nextSibling);
-  } else {
-    toc.appendChild(ul);
-  }
-  
-  return childLI;
 }
 
 function addParent(json) {
@@ -186,6 +167,38 @@ function addParent(json) {
     json.Children[i].parent = json;
     
     addParent(json.Children[i]);
+  }
+}
+
+function drawToc(json) {
+  var ul = create("ul");
+  $("toc").appendChild(ul);
+    
+  drawTocHelper(json, ul);
+  
+  $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
+}
+
+var allTocUL = [];
+
+function drawTocHelper(o, parentUL) {
+  var li = create("li");
+  li.innerText = o.Name;
+  li.onclick = makeOnClick(o);
+  
+  o.tocDom = li;
+  
+  parentUL.appendChild(li);
+  
+  var ch = o.Children; 
+  
+  if (ch.length) {
+    var ul = create("ul");
+    allTocUL.push(ul);
+    for (var i = 0; i < ch.length; ++i) {
+      drawTocHelper(ch[i], ul);
+    }
+    parentUL.appendChild(ul);
   }
 }
 
@@ -275,13 +288,13 @@ window.onload = function() {
     
     readJson("bytes.json", function(json) {
       addParent(json);
+      drawToc(json);
       findErrors(json);
       setFocus(json);
     });
   });
 };
 
-//TODO pin TOC width
 //TODO details persist on the screen
 //TODO hover preview
 //TODO scroll into view 
