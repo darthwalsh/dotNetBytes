@@ -105,11 +105,10 @@ function setFocus(o)
     parentUL = parentUL.parentElement;
   }
 
-  // Unhide everything at this level
-  var sibs = toc.parentElement.firstChild;
-  while (sibs) {
-    sibs.style.display = "";
-    sibs = sibs.nextSibling;
+  // Unhide sub-elements
+  var sib = toc.nextElementSibling;
+  if (sib) {
+    sib.style.display = "";
   }
   
   // Reset all the byte display
