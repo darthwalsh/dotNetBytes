@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
@@ -401,7 +402,7 @@ sealed class Section : ICanRead
             .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
             .OrderBy(nr => nr.rva.RVA))
         {
-            stream.Position = start + nr.rva.RVA - rva;
+            Reposition(stream, nr.rva.RVA);
 
             switch (nr.name)
             {
@@ -409,6 +410,10 @@ sealed class Section : ICanRead
                     CLIHeader CLIHeader;
                     node.Add(stream.ReadStruct(out CLIHeader));
                     CLIHeader.Instance = CLIHeader;
+
+                    Reposition(stream, CLIHeader.MetaData.RVA);
+                    MetadataRoot MetadataRoot = null;
+                    node.Add(stream.ReadClass(ref MetadataRoot));
                     break;
                 case "ImportTable":
                     ImportTable ImportTable;
@@ -430,6 +435,11 @@ sealed class Section : ICanRead
         Members = ss.ToArray();
 
         return node;
+    }
+
+    void Reposition(Stream stream, long dataRVA)
+    {
+        stream.Position = start + dataRVA - rva;
     }
 
     public void CallBack(CodeNode node)
@@ -549,5 +559,72 @@ struct CLIHeader
     [Expected(0)]
     public ulong ManagedNativeHeader;
 
-    public static CLIHeader Instance;
+    public static CLIHeader Instance; // TODO good idea?
+}
+
+
+// S24.2.1
+sealed class MetadataRoot : ICanRead
+{
+    //TODO forward Descriptions???
+
+    [Description("Magic signature for physical metadata : 0x424A5342.")]
+    public uint Signature;
+    [Description("Major version, 1 (ignore on read)")]
+    [Expected(1)]
+    public ushort MajorVersion;
+    [Description("Minor version, 1 (ignore on read)")]
+    [Expected(1)]
+    public ushort MinorVersion;
+    [Description("Reserved, always 0 (§II.24.1).")]
+    public uint Reserved;
+    [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
+    public uint Length;
+    [Description("UTF8-encoded null-terminated version string.")]
+    public string Version;
+    [Description("Reserved, always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ushort Flags;
+    [Description("Number of streams.")]
+    public ushort Streams;
+    public StreamHeader[] StreamHeaders;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Signature, "Signature"),
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out Reserved, "Reserved"),
+            stream.ReadStruct(out Length, "Length"),
+            stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadStruct(out Streams, "Streams"),
+            stream.ReadClasses(ref StreamHeaders, Streams),
+        };
+    }
+}
+
+// S24.2.2
+sealed class StreamHeader  : ICanRead
+{
+    //TODO forward Descriptions???
+
+    [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
+    public uint Offset;
+    [Description("Size of this stream in bytes, shall be a multiple of 4.")]
+    public uint Size;
+    [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
+    public string Name;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Offset, "Offset"),
+            stream.ReadStruct(out Size, "Size"),
+            stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
+        };
+    }
 }

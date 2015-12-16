@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 interface ICanRead
 {
@@ -29,6 +30,24 @@ static class StreamExtensions
         }
     }
 
+    public static Func<Stream, string> ReadNullTerminated(Encoding encoding, int byteBoundary)
+    {
+        var builder = new List<byte>();
+
+        var buffer = new byte[byteBoundary];
+
+        return stream =>
+        {
+            while (true)
+            {
+                ReadWholeArray(stream, buffer);
+                builder.AddRange(buffer);
+                if (buffer.Contains((byte)'\0'))
+                    return encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
+            }
+        };
+    }
+
     // http://stackoverflow.com/a/4159279/771768
     public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
@@ -46,6 +65,9 @@ static class StreamExtensions
         node.End = (int)stream.Position;
 
         t.VisitFields(node.Start, node);
+
+        if (typeof(T).Assembly != typeof(AssemblyBytes).Assembly)
+            node.Value = t.GetString();
 
         return node;
     }
@@ -87,6 +109,22 @@ static class StreamExtensions
         CodeNode node = t.Read(stream);
         node.Name = name ?? typeof(T).Name;
         node.Start = start;
+
+        node.End = (int)stream.Position;
+
+        return node;
+    }
+
+    public static CodeNode ReadAnything<T>(this Stream stream, out T t, Func<Stream, T> callback, string name = null)
+    {
+        CodeNode node = new CodeNode();
+        node.Name = name ?? typeof(T).Name;
+        node.Start = (int)stream.Position;
+
+        t = callback(stream);
+
+        if (typeof(T).Assembly != typeof(AssemblyBytes).Assembly)
+            node.Value = t.GetString();
 
         node.End = (int)stream.Position;
 
