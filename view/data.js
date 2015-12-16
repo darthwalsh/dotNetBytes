@@ -246,7 +246,7 @@ function findErrors(o) {
     errorDiv.appendChild(p);
     
     p = create("p");
-    p.innerText = o.Description;
+    p.innerText = o.Errors[i];
     errorDiv.appendChild(p);
     
     $("details").appendChild(errorDiv)
