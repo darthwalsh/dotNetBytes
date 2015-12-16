@@ -89,6 +89,24 @@ function setOnClick(i, onclick) {
   $(litID(i)).onclick = onclick;
 }
 
+function scrollIntoView(o) {
+  var first = $(byteID(o.Start));
+  var last = $(byteID(o.End - 1));
+  
+  var firstBox = first.getBoundingClientRect()
+  var lastBox = last.getBoundingClientRect()
+  
+  // Need to scroll up
+  if (lastBox.bottom < 0) {
+    first.scrollIntoView( /* top: */ true);
+  }
+  
+  // Need to scroll down
+  if (firstBox.top > window.innerHeight) {
+    last.scrollIntoView( /* top: */ false);
+  }
+}
+
 function setFocus(o)
 {
   // Hide all lists in the ToC
@@ -111,6 +129,12 @@ function setFocus(o)
     sib.style.display = "";
   }
   
+  // Underline the current li
+  for (var i = 0; i < allTocLI.length; ++i) {
+    allTocLI[i].style.textDecoration = "";
+  }
+  toc.style.textDecoration = "underline"
+  
   // Reset all the byte display
   var grandparent = o;
   while (grandparent.parent)
@@ -121,6 +145,8 @@ function setFocus(o)
   }
   
   setFocusHelper(o);
+  
+  scrollIntoView(o);
   
   $("detailName").innerText = o.Name;
   $("detailValue").innerText = o.Value;
@@ -179,9 +205,11 @@ function drawToc(json) {
 }
 
 var allTocUL = [];
+var allTocLI = [];
 
 function drawTocHelper(o, parentUL) {
   var li = create("li");
+  allTocLI.push(li);
   li.innerText = o.Name;
   li.onclick = makeOnClick(o);
   
@@ -295,6 +323,5 @@ window.onload = function() {
 };
 
 //TODO hover preview
-//TODO scroll into view 
 //TODO smart colors
 //TODO details pinning + clearing
