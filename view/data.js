@@ -294,7 +294,6 @@ window.onload = function() {
   });
 };
 
-//TODO details persist on the screen
 //TODO hover preview
 //TODO scroll into view 
 //TODO smart colors

@@ -1,6 +1,11 @@
 #toc {
     float: left;
-    margin: 10px;
+    
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    
+    padding-right: 50px;
     
     position: fixed;
 }
@@ -12,6 +17,9 @@
 #details {
     float: right;
     width: 20%;
+    
+    right: 8px;
+    position: fixed;
 }
 
 .detail {
@@ -29,7 +37,7 @@
 
 ul {
     list-style-type: none;
-    padding-left: 5%; 
+    padding-left: 5%;
     line-height: 150%;
 }
 
