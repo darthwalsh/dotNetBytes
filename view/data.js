@@ -322,6 +322,8 @@ window.onload = function() {
   });
 };
 
-//TODO hover preview
 //TODO smart colors
+//TODO ToC text search filter
+//TODO hover preview
+//TODO links
 //TODO details pinning + clearing

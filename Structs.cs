@@ -528,20 +528,20 @@ struct CLIHeader
     [Description("The minor portion of the version, currently 0.")]
     public ushort MinorRuntimeVersion;
     [Description("RVA and size of the physical metadata (§II.24).")]
-    public ulong MetaData;
+    public RVAandSize MetaData;
     [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
     public uint Flags;
     [Description("Token for the MethodDef or File of the entry point for the image")]
     public uint EntryPointToken;
     [Description("RVA and size of implementation-specific resources.")]
-    public ulong Resources;
+    public RVAandSize Resources;
     [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]
-    public ulong StrongNameSignature;
+    public RVAandSize StrongNameSignature;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong CodeManagerTable;
     [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.")]
-    public ulong VTableFixups;
+    public RVAandSize VTableFixups;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong ExportAddressTableJumps;
