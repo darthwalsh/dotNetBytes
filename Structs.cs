@@ -657,7 +657,25 @@ sealed class TildeStream : ICanRead
         {
             stream.ReadStruct(out TildeData),
             stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+            Enum.GetValues(typeof(MetadataTableFlags))
+                .Cast<MetadataTableFlags>()
+                .Where(flag => TildeData.Valid.HasFlag(flag))
+                .SelectMany((flag, row) => ReadTable(stream, flag, row))
         };
+    }
+
+    IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
+    {
+        int count = (int)Rows[row];
+
+        switch (flag)
+        {
+            case MetadataTableFlags.Module:
+                ModuleTableRow[] ModuleTableRows = null;
+                return stream.ReadClasses(ref ModuleTableRows, count);
+            default:
+                return new[] { new CodeNode { Name = flag.ToString(), Errors = new List<string> { "Unknown MetadataTableFlags" + flag.ToString() } } };
+        }
     }
 }
 
@@ -726,4 +744,53 @@ public enum MetadataTableFlags : ulong
     GenericParam = 1L << 0x2A,
     MethodSpec = 1L << 0x2B,
     GenericParamConstraint = 1L << 0x2C,
+}
+
+sealed class StringHeapIndex : ICanRead
+{
+    public CodeNode Read(Stream stream)
+    {
+        //TODO
+
+        ushort index;
+        return new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+    }
+}
+sealed class GuidHeapIndex : ICanRead
+{
+    public CodeNode Read(Stream stream)
+    {
+        //TODO
+
+        ushort index;
+        return new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+    }
+}
+
+// II.22.30
+sealed class ModuleTableRow : ICanRead
+{
+    public ushort Generation;
+    public StringHeapIndex Name;
+    public GuidHeapIndex Mvid;
+    public GuidHeapIndex EncId;
+    public GuidHeapIndex EncBaseId;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Generation, "Generation"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Mvid, "Mvid"),
+            stream.ReadClass(ref EncId, "EncId"),
+            stream.ReadClass(ref EncBaseId, "EncBaseId"),
+        };
+    }
 }
