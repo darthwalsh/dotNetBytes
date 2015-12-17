@@ -154,7 +154,14 @@ static class TypeExtensions
             return os.Cast<object>().Sum(GetSize);
         }
 
-        return Marshal.SizeOf(o);
+        var type = o.GetType();
+
+        if (type.IsEnum)
+        {
+            type = Enum.GetUnderlyingType(type);
+        }
+
+        return Marshal.SizeOf(type);
     }
 
     static Dictionary<char, string> escapes = new Dictionary<char, string>
@@ -185,6 +192,14 @@ static class TypeExtensions
         }));
     }
 
+    public static int CountSetBits(this ulong n)
+    {
+        ulong count = 0;
+        for (; n != 0; n >>= 1)
+            count += n & 0x1;
+        return (int)count;
+    }
+
     public static string GetString(this object o)
     {
         var s = o as string;
@@ -205,6 +220,12 @@ static class TypeExtensions
             return "{" + string.Join(", ", os.Cast<object>().Select(GetString)) + "}";
         }
 
+        if (o is Enum)
+        {
+            Enum en = (Enum)o;
+            return "0x" + en.ToString("X") + " " + en.ToString(); ;
+        }
+
         var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });
         if (method != null)
         {
@@ -219,6 +240,9 @@ static class TypeExtensions
         var type = ans.GetType();
 
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
+            return;
+
+        if (type.IsEnum)
             return;
 
         foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))

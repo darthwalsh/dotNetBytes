@@ -108,3 +108,30 @@ CLIHeader
 48 8 VTableFixups RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.
 56 8 ExportAddressTableJumps Always 0 (§II.24.1).
 64 8 ManagedNativeHeader Always 0 (§II.24.1).
+
+
+MetadataRoot
+
+0 4 Signature Magic signature for physical metadata : 0x424A5342.
+4 2 MajorVersion Major version, 1 (ignore on read)
+6 2 MinorVersion Minor version, 1 (ignore on read)
+8 4 Reserved Reserved, always 0 (§II.24.1).
+12 4 Length Number of bytes allocated to hold version string, rounded up to a multiple of four.
+16 m Version UTF8-encoded null-terminated version string of length m (see above)
+16+m x-m Padding to next 4 byte boundary.
+16+x 2 Flags Reserved, always 0 (§II.24.1).
+16+x+2 2 Streams Number of streams, say n.
+16+x+4 StreamHeaders Array of n StreamHdr structures.
+
+
+TildeStream
+
+0 4 Reserved Reserved, always 0 (§II.24.1).
+4 1 MajorVersion Major version of table schemata; shall be 2 (§II.24.1).
+5 1 MinorVersion Minor version of table schemata; shall be 0 (§II.24.1).
+6 1 HeapSizes Bit vector for heap sizes.
+7 1 Reserved Reserved, always 1 (§II.24.1).
+8 8 Valid Bit vector of present tables, let n be the number of bits that are 1.
+16 8 Sorted Bit vector of sorted tables.
+24 4*n Rows Array of n 4-byte unsigned integers indicating the number of rows for each present table.
+24+4*n Tables The sequence of physical tables.

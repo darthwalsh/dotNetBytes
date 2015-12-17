@@ -9,7 +9,7 @@ using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
-// TODO Characteristics as enums
+//TODO(flags) Characteristics as enums
 
 sealed class ExpectedAttribute : Attribute
 {
@@ -253,7 +253,7 @@ struct PEHeaderWindowsNtSpecificFields
     [Description("Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).")]
     public ushort SubSystem;
     [Description("Bits 0x100f shall be zero.")]
-    public ushort DLLFlags;
+    public ushort DLLFlags;  //TODO(flags)
     [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
     [Expected(0x100000)]
     public uint StackReserveSize;
@@ -360,7 +360,7 @@ struct SectionHeader
     [Expected(0)]
     public ushort NumberOfLinenumbers;
     [Description("Flags describing section’s characteristics; see below.")]
-    public uint Characteristics;
+    public uint Characteristics; //TODO(flags)
 }
 
 sealed class Section : ICanRead
@@ -414,6 +414,21 @@ sealed class Section : ICanRead
                     Reposition(stream, CLIHeader.MetaData.RVA);
                     MetadataRoot MetadataRoot = null;
                     node.Add(stream.ReadClass(ref MetadataRoot));
+
+                    foreach (var streamHeader in MetadataRoot.StreamHeaders)
+                    {
+                        switch (streamHeader.Name)
+                        {
+                            case "#~":
+                                TildeStream TildeStream = null;
+                                node.Add(stream.ReadClass(ref TildeStream));
+                                break;
+                            default: //TODO add new entries
+                                node.Errors.Add("Unknown stream name: " + streamHeader.Name);
+                                break;
+                        }
+                    }
+
                     break;
                 case "ImportTable":
                     ImportTable ImportTable;
@@ -540,7 +555,7 @@ struct CLIHeader
     [Description("RVA and size of the physical metadata (§II.24).")]
     public RVAandSize MetaData;
     [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
-    public uint Flags;
+    public uint Flags; //TODO(flags)
     [Description("Token for the MethodDef or File of the entry point for the image")]
     public uint EntryPointToken;
     [Description("RVA and size of implementation-specific resources.")]
@@ -566,7 +581,7 @@ struct CLIHeader
 // S24.2.1
 sealed class MetadataRoot : ICanRead
 {
-    //TODO forward Descriptions???
+    //TODO(descriptions)
 
     [Description("Magic signature for physical metadata : 0x424A5342.")]
     public uint Signature;
@@ -607,9 +622,9 @@ sealed class MetadataRoot : ICanRead
 }
 
 // S24.2.2
-sealed class StreamHeader  : ICanRead
+sealed class StreamHeader : ICanRead
 {
-    //TODO forward Descriptions???
+    //TODO(descriptions)
 
     [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
     public uint Offset;
@@ -627,4 +642,88 @@ sealed class StreamHeader  : ICanRead
             stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
         };
     }
+}
+
+// II.24.2.6
+sealed class TildeStream : ICanRead
+{
+    public TildeData TildeData;
+    public uint[] Rows;
+
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out TildeData),
+            stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+        };
+    }
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct TildeData
+{
+    [Description("Reserved, always 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint Reserved;
+    [Description("Major version of table schemata; shall be 2 (§II.24.1).")]
+    [Expected(2)]
+    public byte MajorVersion;
+    [Description("Minor version of table schemata; shall be 0 (§II.24.1).")]
+    [Expected(0)]
+    public byte MinorVersion;
+    [Description("Bit vector for heap sizes.")]
+    public byte HeapSizes; //TODO(flags)
+    [Description("Reserved, always 1 (§II.24.1).")]
+    [Expected(1)]
+    public byte Reserved2;
+    [Description("Bit vector of present tables, let n be the number of bits that are 1.")]
+    public MetadataTableFlags Valid;
+    [Description("Bit vector of sorted tables.")]
+    public MetadataTableFlags Sorted;
+}
+
+// II.22
+[Flags]
+public enum MetadataTableFlags : ulong
+{
+    Module = 1L << 0x00,
+    TypeRef = 1L << 0x01,
+    TypeDef = 1L << 0x02,
+    Field = 1L << 0x04,
+    MethodDef = 1L << 0x06,
+    Param = 1L << 0x08,
+    InterfaceImpl = 1L << 0x09,
+    MemberRef = 1L << 0x0A,
+    Constant = 1L << 0x0B,
+    CustomAttribute = 1L << 0x0C,
+    FieldMarshal = 1L << 0x0D,
+    DeclSecurity = 1L << 0x0E,
+    ClassLayout = 1L << 0x0F,
+    FieldLayout = 1L << 0x10,
+    StandAloneSig = 1L << 0x11,
+    EventMap = 1L << 0x12,
+    Event = 1L << 0x14,
+    PropertyMap = 1L << 0x15,
+    Property = 1L << 0x17,
+    MethodSemantics = 1L << 0x18,
+    MethodImpl = 1L << 0x19,
+    ModuleRef = 1L << 0x1A,
+    TypeSpec = 1L << 0x1B,
+    ImplMap = 1L << 0x1C,
+    FieldRVA = 1L << 0x1D,
+    Assembly = 1L << 0x20,
+    AssemblyProcessor = 1L << 0x21,
+    AssemblyOS = 1L << 0x22,
+    AssemblyRef = 1L << 0x23,
+    AssemblyRefProcessor = 1L << 0x24,
+    AssemblyRefOS = 1L << 0x25,
+    File = 1L << 0x26,
+    ExportedType = 1L << 0x27,
+    ManifestResource = 1L << 0x28,
+    NestedClass = 1L << 0x29,
+    GenericParam = 1L << 0x2A,
+    MethodSpec = 1L << 0x2B,
+    GenericParamConstraint = 1L << 0x2C,
 }
