@@ -673,6 +673,9 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.Module:
                 ModuleTableRow[] ModuleTableRows = null;
                 return stream.ReadClasses(ref ModuleTableRows, count);
+            case MetadataTableFlags.TypeRef:
+                TypeRefTableRow[] TypeRefTableRows = null;
+                return stream.ReadClasses(ref TypeRefTableRows, count);
             default:
                 return new[] { new CodeNode { Name = flag.ToString(), Errors = new List<string> { "Unknown MetadataTableFlags" + flag.ToString() } } };
         }
@@ -750,7 +753,7 @@ sealed class StringHeapIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
-        //TODO
+        //TODO variable width, make link?
 
         ushort index;
         return new CodeNode
@@ -759,11 +762,26 @@ sealed class StringHeapIndex : ICanRead
         };
     }
 }
+
+sealed class CodedIndex : ICanRead
+{
+    public CodeNode Read(Stream stream)
+    {
+        //TODO variable width, make link?
+
+        ushort index;
+        return new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+    }
+}
+
 sealed class GuidHeapIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
-        //TODO
+        //TODO variable width, make link?
 
         ushort index;
         return new CodeNode
@@ -791,6 +809,24 @@ sealed class ModuleTableRow : ICanRead
             stream.ReadClass(ref Mvid, "Mvid"),
             stream.ReadClass(ref EncId, "EncId"),
             stream.ReadClass(ref EncBaseId, "EncBaseId"),
+        };
+    }
+}
+
+// II.22.38
+sealed class TypeRefTableRow : ICanRead
+{
+    public CodedIndex ResolutionScope;
+    public StringHeapIndex TypeName;
+    public StringHeapIndex TypeNamespace;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref ResolutionScope, "ResolutionScope"),
+            stream.ReadClass(ref TypeName, "TypeName"),
+            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
         };
     }
 }
