@@ -13,10 +13,15 @@ interface ICanRead
     CodeNode Read(Stream stream);
 }
 
+interface IHaveValue
+{
+    object Value { get; }
+}
+
 static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html
-    static void ReadWholeArray(Stream stream, byte[] data)
+    public static void ReadWholeArray(this Stream stream, byte[] data)
     {
         int offset = 0;
         int remaining = data.Length;
@@ -40,7 +45,7 @@ static class StreamExtensions
         {
             while (true)
             {
-                ReadWholeArray(stream, buffer);
+                stream.ReadWholeArray(buffer);
                 builder.AddRange(buffer);
                 if (buffer.Contains((byte)'\0'))
                     return encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
@@ -48,16 +53,16 @@ static class StreamExtensions
         };
     }
 
-    // http://stackoverflow.com/a/4159279/771768
     public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
         CodeNode node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
 
+        // http://stackoverflow.com/a/4159279/771768
         var sz = Marshal.SizeOf(typeof(T));
         var buffer = new byte[sz];
-        ReadWholeArray(stream, buffer);
+        stream.ReadWholeArray(buffer);
         var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
         t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(T));
         pinnedBuffer.Free();
@@ -71,6 +76,7 @@ static class StreamExtensions
 
         return node;
     }
+
     public static IEnumerable<CodeNode> ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
     {
         name = name ?? typeof(T).Name + "s";
@@ -111,6 +117,9 @@ static class StreamExtensions
         node.Start = start;
 
         node.End = (int)stream.Position;
+
+        if (t is IHaveValue)
+            node.Value = t.GetString();
 
         return node;
     }
@@ -224,6 +233,12 @@ static class TypeExtensions
         {
             Enum en = (Enum)o;
             return "0x" + en.ToString("X") + " " + en.ToString(); ;
+        }
+
+        var hasValue = o as IHaveValue;
+        if (hasValue != null)
+        {
+            return hasValue.Value.GetString();
         }
 
         var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });

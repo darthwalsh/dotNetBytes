@@ -415,10 +415,16 @@ sealed class Section : ICanRead
                     MetadataRoot MetadataRoot = null;
                     node.Add(stream.ReadClass(ref MetadataRoot));
 
-                    foreach (var streamHeader in MetadataRoot.StreamHeaders)
+                    foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.IndexOf('~'))) // Read #~ after heaps
                     {
+                        Reposition(stream, streamHeader.Offset + CLIHeader.MetaData.RVA);
+
                         switch (streamHeader.Name)
                         {
+                            case "#Strings":
+                                StringHeap StringHeap = new StringHeap((int)streamHeader.Size);
+                                node.Add(stream.ReadClass(ref StringHeap));
+                                break;
                             case "#~":
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
@@ -644,6 +650,35 @@ sealed class StreamHeader : ICanRead
     }
 }
 
+// II.24.2.3
+sealed class StringHeap : ICanRead
+{
+    byte[] data;
+
+    public StringHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return new CodeNode();
+    }
+
+    static StringHeap instance;
+    public static string GetString(StringHeapIndex i)
+    {
+        var stream = new MemoryStream(instance.data);
+        stream.Position = i.Index;
+        return StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1)(stream);
+    }
+}
+
 // II.24.2.6
 sealed class TildeStream : ICanRead
 {
@@ -749,17 +784,28 @@ public enum MetadataTableFlags : ulong
     GenericParamConstraint = 1L << 0x2C,
 }
 
-sealed class StringHeapIndex : ICanRead
+sealed class StringHeapIndex : ICanRead, IHaveValue
 {
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+
+    public object Value { get { return StringHeap.GetString(this); } }
+
     public CodeNode Read(Stream stream)
     {
         //TODO variable width, make link?
 
         ushort index;
-        return new CodeNode
+        var node = new CodeNode
         {
             stream.ReadStruct(out index, "index"),
         };
+
+        shortIndex = index;
+
+        return node;
     }
 }
 
