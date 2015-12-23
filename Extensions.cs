@@ -235,6 +235,12 @@ static class TypeExtensions
             return "0x" + en.ToString("X") + " " + en.ToString(); ;
         }
 
+        var guid = o as Guid?;
+        if (guid != null)
+        {
+            return guid.ToString();
+        }
+
         var hasValue = o as IHaveValue;
         if (hasValue != null)
         {

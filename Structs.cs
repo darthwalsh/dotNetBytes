@@ -469,6 +469,18 @@ sealed class Section : ICanRead
                                 StringHeap StringHeap = new StringHeap((int)streamHeader.Size);
                                 node.Add(stream.ReadClass(ref StringHeap));
                                 break;
+                            case "#US":
+                                UserStringHeap UserStringHeap = new UserStringHeap((int)streamHeader.Size);
+                                node.Add(stream.ReadClass(ref UserStringHeap));
+                                break;
+                            case "#Blob":
+                                BlobHeap BlobHeap = new BlobHeap((int)streamHeader.Size);
+                                node.Add(stream.ReadClass(ref BlobHeap));
+                                break;
+                            case "#GUID":
+                                GuidHeap GuidHeap = new GuidHeap((int)streamHeader.Size);
+                                node.Add(stream.ReadClass(ref GuidHeap));
+                                break;
                             case "#~":
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
@@ -725,11 +737,94 @@ sealed class StringHeap : ICanRead
     }
 
     static StringHeap instance;
-    public static string GetString(StringHeapIndex i)
+    public static string Get(StringHeapIndex i)
     {
         var stream = new MemoryStream(instance.data);
         stream.Position = i.Index;
         return StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1)(stream);
+    }
+}
+
+
+// II.24.2.4
+sealed class UserStringHeap : ICanRead
+{
+    byte[] data;
+
+    public UserStringHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return new CodeNode();
+    }
+
+    static UserStringHeap instance;
+    public static string Get(UserStringHeapIndex i)
+    {
+        throw new NotImplementedException(); //TODO(implement UserStringHeap)
+    }
+}
+
+sealed class BlobHeap : ICanRead
+{
+    byte[] data;
+
+    public BlobHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return new CodeNode();
+    }
+
+    static BlobHeap instance;
+    public static byte[] Get(BlobHeapIndex i)
+    {
+        throw new NotImplementedException(); //TODO(implement BlobHeap)
+    }
+}
+
+sealed class GuidHeap : ICanRead
+{
+    byte[] data;
+
+    public GuidHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return new CodeNode();
+    }
+
+    static GuidHeap instance;
+    public static Guid Get(GuidHeapIndex i)
+    {
+        const int size = 16;
+        int startAt = (i.Index - 1) * size; // GuidHeap is indexed from 1
+
+        return new Guid(instance.data.Skip(startAt).Take(size).ToArray());
     }
 }
 
@@ -854,7 +949,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
     public int Index { get { return (int)(intIndex ?? shortIndex); } }
 
-    public object Value { get { return StringHeap.GetString(this); } }
+    public object Value { get { return StringHeap.Get(this); } }
 
     public CodeNode Read(Stream stream)
     {
@@ -872,25 +967,86 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
     }
 }
 
+sealed class UserStringHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+
+    public object Value { get { return UserStringHeap.Get(this); } }
+
+    public CodeNode Read(Stream stream)
+    {
+        //TODO make link
+
+        ushort index;
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+
+        shortIndex = index;
+
+        return node;
+    }
+}
+
+sealed class BlobHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+
+    public object Value { get { return BlobHeap.Get(this); } }
+
+    public CodeNode Read(Stream stream)
+    {
+        //TODO make link
+
+        ushort index;
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+
+        shortIndex = index;
+
+        return node;
+    }
+}
+
+sealed class GuidHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+    public object Value { get { return GuidHeap.Get(this); } }
+
+    public CodeNode Read(Stream stream)
+    {
+        //TODO make link
+
+        ushort index;
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out index, "index"),
+        };
+
+        shortIndex = index;
+        return node;
+    }
+}
+
 sealed class CodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
         //TODO make link
 
-        ushort index;
-        return new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
-    }
-}
-
-sealed class GuidHeapIndex : ICanRead
-{
-    public CodeNode Read(Stream stream)
-    {
-        //TODO make link
+        //TODO variable width?
 
         ushort index;
         return new CodeNode
