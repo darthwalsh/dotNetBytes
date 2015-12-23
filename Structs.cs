@@ -9,8 +9,6 @@ using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
-//TODO(flags) Characteristics as enums
-
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
@@ -253,7 +251,7 @@ struct PEHeaderWindowsNtSpecificFields
     [Description("Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).")]
     public ushort SubSystem;
     [Description("Bits 0x100f shall be zero.")]
-    public ushort DLLFlags;  //TODO(flags)
+    public DllCharacteristics DLLFlags;
     [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
     [Expected(0x100000)]
     public uint StackReserveSize;
@@ -272,6 +270,33 @@ struct PEHeaderWindowsNtSpecificFields
     [Description("Shall be 0x10")]
     [Expected(0x10)]
     public uint NumberOfDataDirectories;
+}
+
+[Flags]
+enum DllCharacteristics : ushort
+{
+    Reserved1 = 0x0001,
+    Reserved2 = 0x0002,
+    Reserved3 = 0x0004,
+    Reserved4 = 0x0008,
+    [Description("The DLL can be relocated at load time.")]
+    DYNAMIC_BASE = 0x0040,
+    [Description("Code integrity checks are forced. If you set this flag and a section contains only uninitialized data, set the PointerToRawData member of IMAGE_SECTION_HEADER for that section to zero; otherwise, the image will fail to load because the digital signature cannot be verified.")]
+    FORCE_INTEGRITY = 0x0080,
+    [Description("The image is compatible with data execution prevention (DEP).")]
+    NX_COMPAT = 0x0100,
+    [Description("The image is isolation aware, but should not be isolated.")]
+    NO_ISOLATION = 0x0200,
+    [Description("The image does not use structured exception handling (SEH). No handlers can be called in this image.")]
+    NO_SEH = 0x0400,
+    [Description("Do not bind the image. ")]
+    NO_BIND = 0x0800,
+    Reserved5 = 0x1000,
+    [Description("A WDM driver. ")]
+    WDM_DRIVER = 0x2000,
+    Reserved6 = 0x4000,
+    [Description("The image is terminal server aware.")]
+    TERMINAL_SERVER_AWARE = 0x8000,
 }
 
 // II.25.2.3.3
@@ -359,8 +384,27 @@ struct SectionHeader
     [Description("Should be 0 (§II.24.1).")]
     [Expected(0)]
     public ushort NumberOfLinenumbers;
-    [Description("Flags describing section’s characteristics; see below.")]
-    public uint Characteristics; //TODO(flags)
+    [Description("Flags describing section’s characteristics.")]
+    public SectionHeaderCharacteristics Characteristics;
+}
+
+[Flags]
+enum SectionHeaderCharacteristics : uint
+{
+    ShouldNotBePadded = 0x00000008,
+    ContainsCode = 0x00000020,
+    ContainsInitializedData = 0x00000040,
+    ContainsUninitializedData = 0x00000080,
+    LinkContainsComments = 0x00000200,
+    LinkShouldBeRemoved = 0x00000800,
+    Link_COMDAT = 0x00001000,
+    MemoryCanBeDiscarded = 0x02000000,
+    MemoryCannotBeCached = 0x04000000,
+    MemoryCannotBePaged = 0x08000000,
+    MemoryCanBeShared = 0x10000000,
+    MemoryCanBeExecutedAsCode = 0x20000000,
+    MemoryCanBeRead = 0x40000000,
+    MemoryCanBeWrittenTo = 0x80000000,
 }
 
 sealed class Section : ICanRead
@@ -561,7 +605,7 @@ struct CLIHeader
     [Description("RVA and size of the physical metadata (§II.24).")]
     public RVAandSize MetaData;
     [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
-    public uint Flags; //TODO(flags)
+    public CliHeaderFlags Flags;
     [Description("Token for the MethodDef or File of the entry point for the image")]
     public uint EntryPointToken;
     [Description("RVA and size of implementation-specific resources.")]
@@ -581,6 +625,16 @@ struct CLIHeader
     public ulong ManagedNativeHeader;
 
     public static CLIHeader Instance; // TODO good idea?
+}
+
+[Flags]
+enum CliHeaderFlags : uint
+{
+    ILOnly = 0x01,
+    Required32Bit = 0x02,
+    StrongNameSigned = 0x08,
+    NativeEntryPoint = 0x10,
+    TrackDebugData = 0x10000,
 }
 
 
@@ -729,8 +783,9 @@ struct TildeData
     [Description("Minor version of table schemata; shall be 0 (§II.24.1).")]
     [Expected(0)]
     public byte MinorVersion;
-    [Description("Bit vector for heap sizes.")]
-    public byte HeapSizes; //TODO(flags)
+    [Description("Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)")]
+    [Expected(0)]
+    public TildeDateHeapSizes HeapSizes;
     [Description("Reserved, always 1 (§II.24.1).")]
     [Expected(1)]
     public byte Reserved2;
@@ -738,6 +793,14 @@ struct TildeData
     public MetadataTableFlags Valid;
     [Description("Bit vector of sorted tables.")]
     public MetadataTableFlags Sorted;
+}
+
+[Flags]
+enum TildeDateHeapSizes : byte
+{
+    StringHeapIndexWide = 0x01,
+    GuidHeapIndexWide = 0x02,
+    BlobHeapIndexWide = 0x04,
 }
 
 // II.22
@@ -795,7 +858,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        //TODO variable width, make link?
+        //TODO make link
 
         ushort index;
         var node = new CodeNode
@@ -813,7 +876,7 @@ sealed class CodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
-        //TODO variable width, make link?
+        //TODO make link
 
         ushort index;
         return new CodeNode
@@ -827,7 +890,7 @@ sealed class GuidHeapIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
-        //TODO variable width, make link?
+        //TODO make link
 
         ushort index;
         return new CodeNode
