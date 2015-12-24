@@ -431,6 +431,7 @@ sealed class Section : ICanRead
     // TODO provide RVA to Raw mapping
     static List<Section> sections = new List<Section>();
 
+    //TODO reorder children in order 
     public CodeNode Read(Stream stream)
     {
         CodeNode node = new CodeNode
@@ -485,8 +486,8 @@ sealed class Section : ICanRead
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 break;
-                            default: //TODO add new entries
-                                node.Errors.Add("Unknown stream name: " + streamHeader.Name);
+                            default:
+                                node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
                                 break;
                         }
                     }
@@ -795,7 +796,32 @@ sealed class BlobHeap : ICanRead
     static BlobHeap instance;
     public static byte[] Get(BlobHeapIndex i)
     {
-        throw new NotImplementedException(); //TODO(implement BlobHeap)
+        int length;
+        int offset;
+        byte firstByte = instance.data[i.Index];
+        if ((firstByte & 0x80) == 0)
+        {
+            length = firstByte & 0x7F;
+            offset = 1;
+        }
+        else if ((firstByte & 0xC0) == 0x80)
+        {
+            length = ((firstByte & 0x3F) << 8) + instance.data[i.Index + 1];
+            offset = 2;
+        }
+        else if ((firstByte & 0xE0) == 0xC0)
+        {
+            length = ((firstByte & 0x1F) << 24) + (instance.data[i.Index + 1] << 16) + (instance.data[i.Index + 2] << 8) + instance.data[i.Index + 3];
+            offset = 4;
+        }
+        else
+        {
+            throw new InvalidOperationException("Blob heap byte " + i.Index + " can't start with 1111...");
+        }
+
+        var ans = new byte[length];
+        Array.Copy(instance.data, i.Index + offset, ans, 0, length);
+        return ans;
     }
 }
 
@@ -860,8 +886,11 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.TypeRef:
                 TypeRefTableRow[] TypeRefTableRows = null;
                 return stream.ReadClasses(ref TypeRefTableRows, count);
+            case MetadataTableFlags.Assembly:
+                AssemblyTableRow[] AssemblyTableRows = null;
+                return stream.ReadClasses(ref AssemblyTableRows, count);
             default:
-                return new[] { new CodeNode { Name = flag.ToString(), Errors = new List<string> { "Unknown MetadataTableFlags" + flag.ToString() } } };
+                return new[] { new CodeNode { Name = flag.ToString(), Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() } } };
         }
     }
 }
@@ -1094,4 +1123,68 @@ sealed class TypeRefTableRow : ICanRead
             stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
         };
     }
+}
+
+// II.22.2
+sealed class AssemblyTableRow : ICanRead
+{
+    public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
+    public ushort MajorVersion;
+    public ushort MinorVersion;
+    public ushort BuildNumber;
+    public ushort RevisionNumber;
+    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public BlobHeapIndex PublicKey;
+    public StringHeapIndex Name;
+    public StringHeapIndex Culture;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out HashAlgId, "HashAlgId"),
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out BuildNumber, "BuildNumber"),
+            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref PublicKey, "PublicKey"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Culture, "Culture"),
+        };
+    }
+}
+
+// Makes the enum blittable. 
+//TODO remove from graph, or make a ReadStruct overload that reads inner enum type
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct AssemblyHashAlgorithmBlittableWrapper
+{
+    AssemblyHashAlgorithm AssemblyHashAlgorithm;
+}
+
+enum AssemblyHashAlgorithm : uint
+{
+    None = 0x0000,
+    Reserved_MD5 = 0x8003,
+    SHA1 = 0x8004,
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct AssemblyFlagsHolderBlittableWrapper
+{
+    AssemblyFlags AssemblyFlags;
+}
+
+[Flags]
+enum AssemblyFlags : uint
+{
+    [Description("The assembly reference holds the full (unhashed) public key.")]
+    PublicKey = 0x0001,
+    [Description("The implementation of this assembly used at runtime is not expected to match the version seen at compile time. (See the text following this table.)")]
+    Retargetable = 0x0100,
+    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should not generate optimized code)")]
+    DisableJITcompileOptimizer = 0x4000,
+    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)")]
+    EnableJITcompileTracking = 0x8000,
 }

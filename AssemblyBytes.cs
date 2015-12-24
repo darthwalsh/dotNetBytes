@@ -10,6 +10,7 @@ class AssemblyBytes
 
     CodeNode node;
 
+    //TODO test with a forward-only stream
     public AssemblyBytes(string path)
     {
         Stream s = File.OpenRead(path);

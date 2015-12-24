@@ -60,7 +60,7 @@ static class StreamExtensions
         node.Start = (int)stream.Position;
 
         // http://stackoverflow.com/a/4159279/771768
-        var sz = Marshal.SizeOf(typeof(T));
+        var sz = typeof(T).GetSize();
         var buffer = new byte[sz];
         stream.ReadWholeArray(buffer);
         var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -84,7 +84,7 @@ static class StreamExtensions
         var nodes = new List<CodeNode>();
 
         ts = new T[n];
-        for(int i = 0; i < n; ++i)
+        for (int i = 0; i < n; ++i)
         {
             nodes.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
         }
@@ -163,8 +163,11 @@ static class TypeExtensions
             return os.Cast<object>().Sum(GetSize);
         }
 
-        var type = o.GetType();
+        return o.GetType().GetSize();
+    }
 
+    public static int GetSize(this Type type)
+    {
         if (type.IsEnum)
         {
             type = Enum.GetUnderlyingType(type);
