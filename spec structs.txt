@@ -137,13 +137,65 @@ TildeStream
 
 
 AssemblyHashAlgorithm
+
 None 0x0000
 Reserved_MD5 0x8003
 SHA1 0x8004
 
 
 AssemblyFlags
+
 PublicKey 0x0001 The assembly reference holds the full (unhashed) public key.
 Retargetable 0x0100 The implementation of this assembly used at runtime is not expected to match the version seen at compile time. (See the text following this table.)
 DisableJITcompileOptimizer 0x4000 Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should not generate optimized code)
 EnableJITcompileTracking 0x8000 Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)
+
+
+TypeAttributes
+
+Visibility attributes
+VisibilityMask 0x00000007 Use this mask to retrieve visibility information. These 3 bits contain one of the following values:
+NotPublic 0x00000000 Class has no public scope
+Public 0x00000001 Class has public scope
+NestedPublic 0x00000002 Class is nested with public visibility
+NestedPrivate 0x00000003 Class is nested with private visibility
+NestedFamily 0x00000004 Class is nested with family visibility
+NestedAssembly 0x00000005 Class is nested with assembly visibility
+NestedFamANDAssem 0x00000006 Class is nested with family and assembly visibility
+NestedFamORAssem 0x00000007 Class is nested with family or assembly visibility
+
+Class layout attributes
+LayoutMask 0x00000018 Use this mask to retrieve class layout information. These 2 bits contain one of the following values:
+AutoLayout 0x00000000 Class fields are auto-laid out
+SequentialLayout 0x00000008 Class fields are laid out sequentially
+ExplicitLayout 0x00000010 Layout is supplied explicitly
+
+Class semantics attributes
+ClassSemanticsMask 0x00000020 Use this mask to retrive class semantics information. This bit contains one of the following values:
+Class 0x00000000 Type is a class
+Interface 0x00000020 Type is an interface
+
+Special semantics in addition to class semantics
+Abstract 0x00000080 Class is abstract
+Sealed 0x00000100 Class cannot be extended
+SpecialName 0x00000400 Class name is special
+
+Implementation Attributes
+Import 0x00001000 Class/Interface is imported
+Serializable 0x00002000 Reserved (Class is serializable)
+
+String formatting Attributes
+StringFormatMask 0x00030000 Use this mask to retrieve string information for native interop. These 2 bits contain one of the following values:
+AnsiClass 0x00000000 LPSTR is interpreted as ANSI
+UnicodeClass 0x00010000 LPSTR is interpreted as Unicode
+AutoClass 0x00020000 LPSTR is interpreted automatically
+CustomFormatClass 0x00030000 A non-standard encoding specified by CustomStringFormatMask
+CustomStringFormatMask 0x00C00000 Use this mask to retrieve non-standard encoding information for native interop. The meaning of the values of these 2 bits is unspecified.
+
+Class Initialization Attributes
+BeforeFieldInit 0x00100000 Initialize the class before first static field access
+
+Additional Flags
+RTSpecialName 0x00000800 CLI provides 'special' behavior, depending upon the name of the Type
+HasSecurity 0x00040000 Type has security associate with it
+IsTypeForwarder 0x00200000 This ExportedType entry is a type forwarder

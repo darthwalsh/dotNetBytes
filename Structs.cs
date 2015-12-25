@@ -1125,6 +1125,121 @@ sealed class TypeRefTableRow : ICanRead
     }
 }
 
+
+// II.22.38
+sealed class TypeDefTableRow : ICanRead
+{
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+        };
+    }
+}
+
+// II.23.1.15
+class TypeAttributes : ICanRead
+{
+    //public static void AddDetails(CodeNode parent, uint value)
+    //{
+    //    var visibility = (Visibility)(value & VisibilityMask);
+    //    parent.Add(new CodeNode { Name = "Visibility", Value = visibility.GetString)
+
+    //    var layout = (Layout)(value & LayoutMask);
+    //    var classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
+    //    var stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
+    //    var flags = (Flags)(value & FlagsMask);
+    //}
+
+    public CodeNode Read(Stream stream)
+    {
+        throw new NotImplementedException(); //TODO me!
+    }
+
+    const uint VisibilityMask = 0x00000007;
+
+    public enum Visibility : uint
+    {
+        [Description("Class has no public scope")]
+        NotPublic = 0x00000000,
+        [Description("Class has public scope")]
+        Public = 0x00000001,
+        [Description("Class is nested with public visibility")]
+        NestedPublic = 0x00000002,
+        [Description("Class is nested with private visibility")]
+        NestedPrivate = 0x00000003,
+        [Description("Class is nested with family visibility")]
+        NestedFamily = 0x00000004,
+        [Description("Class is nested with assembly visibility")]
+        NestedAssembly = 0x00000005,
+        [Description("Class is nested with family and assembly visibility")]
+        NestedFamANDAssem = 0x00000006,
+        [Description("Class is nested with family or assembly visibility")]
+        NestedFamORAssem = 0x00000007,
+    }
+
+    const uint LayoutMask = 0x00000018;
+
+    public enum Layout : uint
+    {
+        [Description("Class fields are auto-laid out")]
+        AutoLayout = 0x00000000,
+        [Description("Class fields are laid out sequentially")]
+        SequentialLayout = 0x00000008,
+        [Description("Layout is supplied explicitly")]
+        ExplicitLayout = 0x00000010,
+    }
+
+    const uint ClassSemanticsMask = 0x00000020;
+
+    public enum ClassSemantics : uint
+    {
+        [Description("Type is a class")]
+        Class = 0x00000000,
+        [Description("Type is an interface")]
+        Interface = 0x00000020,
+    }
+
+    const uint StringInteropFormatMask = 0x00030000;
+    public enum StringInteropFormat : uint
+    {
+        [Description("LPSTR is interpreted as ANSI")]
+        AnsiClass = 0x00000000,
+        [Description("LPSTR is interpreted as Unicode")]
+        UnicodeClass = 0x00010000,
+        [Description("LPSTR is interpreted automatically")]
+        AutoClass = 0x00020000,
+        [Description("A non-standard encoding specified by CustomStringFormatMask, look at bits masked by 0x00C00000 for meaning, unspecified")]
+        CustomFormatClass = 0x00030000,
+    }
+
+    const uint FlagsMask = ~VisibilityMask & ~LayoutMask & ~ClassSemanticsMask & ~StringInteropFormatMask;
+
+    [Flags]
+    public enum Flags : uint
+    {
+        [Description("Class is abstract")]
+        Abstract = 0x00000080,
+        [Description("Class cannot be extended")]
+        Sealed = 0x00000100,
+        [Description("Class name is special")]
+        SpecialName = 0x00000400,
+        [Description("Class/Interface is imported")]
+        Import = 0x00001000,
+        [Description("Reserved (Class is serializable)")]
+        Serializable = 0x00002000,
+        [Description("Initialize the class before first static field access")]
+        BeforeFieldInit = 0x00100000,
+        [Description("CLI provides 'special' behavior, depending upon the name of the Type")]
+        RTSpecialName = 0x00000800,
+        [Description("Type has security associate with it")]
+        HasSecurity = 0x00040000,
+        [Description("This ExportedType entry is a type forwarder")]
+        IsTypeForwarder = 0x00200000,
+    }
+}
+
 // II.22.2
 sealed class AssemblyTableRow : ICanRead
 {
