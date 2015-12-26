@@ -1,8 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Nancy.Hosting.Self;
+
 
 static class Program
 {
@@ -17,13 +18,13 @@ static class Program
 
             string local = SetupFiles(path, assmJson);
 
-            using (var p = RunWebServer(local))
+            using (NancyHost host = new NancyHost( new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
             {
-                Console.WriteLine("Running web server, opening in IE");
-                OpenInIE();
-                Console.WriteLine("IE was closed");
+                host.Start();
 
-                p.Kill();
+                OpenInIE();
+
+                Console.ReadLine();
             }
         }
         catch (Exception e)
@@ -36,7 +37,7 @@ static class Program
     {
         var assembly = typeof(Program).Assembly;
 
-        var local = Path.Combine(Path.GetDirectoryName(assembly.Location), "serve");
+        var local = Path.Combine(Path.GetDirectoryName(assembly.Location), "Content");
 
         Directory.CreateDirectory(local);
 
@@ -61,27 +62,13 @@ static class Program
         return local;
     }
 
-    static Process RunWebServer(string local)
-    {
-        return Process.Start(new ProcessStartInfo
-        {
-            FileName = "python",
-            Arguments = "-m SimpleHTTPServer 8000",
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            WindowStyle = ProcessWindowStyle.Hidden,
-            WorkingDirectory = local,
-        });
-    }
-
     static void OpenInIE()
     {
         using (var exit = new ManualResetEvent(false))
         {
             var ie = new SHDocVw.InternetExplorer();
             ie.Visible = true;
-            ie.Navigate("http://127.0.0.1:8000/view.html");
+            ie.Navigate("http://127.0.0.1:8000/Content/view.html");
 
             ie.OnQuit += () =>
             {
