@@ -46,7 +46,7 @@ class AssemblyBytes
 
     class CodeNodeConverter : JavaScriptConverter
     {
-        public override IEnumerable<Type> SupportedTypes { get { return new[] { typeof(CodeNode) }; } }
+        public override IEnumerable<Type> SupportedTypes => new[] { typeof(CodeNode) };
 
         public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
         {

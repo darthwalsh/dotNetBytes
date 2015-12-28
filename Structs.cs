@@ -40,7 +40,7 @@ sealed class FileFormat : ICanRead
         {
             stream.ReadClass(ref PEHeader),
         };
-        
+
         Sections = PEHeader.SectionHeaders.Select(header => new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories)).ToArray();
 
         IEnumerable<CodeNode> sections;
@@ -982,9 +982,9 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
     ushort? shortIndex;
     uint? intIndex;
 
-    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+    public int Index => (int)(intIndex ?? shortIndex);
 
-    public object Value { get { return StringHeap.Get(this); } }
+    public object Value => StringHeap.Get(this);
 
     public CodeNode Read(Stream stream)
     {
@@ -1007,9 +1007,9 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
     ushort? shortIndex;
     uint? intIndex;
 
-    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+    public int Index => (int)(intIndex ?? shortIndex);
 
-    public object Value { get { return UserStringHeap.Get(this); } }
+    public object Value => UserStringHeap.Get(this);
 
     public CodeNode Read(Stream stream)
     {
@@ -1032,9 +1032,9 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
     ushort? shortIndex;
     uint? intIndex;
 
-    public int Index { get { return (int)(intIndex ?? shortIndex); } }
+    public int Index => (int)(intIndex ?? shortIndex);
 
-    public object Value { get { return BlobHeap.Get(this); } }
+    public object Value => BlobHeap.Get(this);
 
     public CodeNode Read(Stream stream)
     {
@@ -1057,8 +1057,8 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
     ushort? shortIndex;
     uint? intIndex;
 
-    public int Index { get { return (int)(intIndex ?? shortIndex); } }
-    public object Value { get { return GuidHeap.Get(this); } }
+    public int Index => (int)(intIndex ?? shortIndex);
+    public object Value => GuidHeap.Get(this);
 
     public CodeNode Read(Stream stream)
     {

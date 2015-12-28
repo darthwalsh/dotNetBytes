@@ -6,6 +6,7 @@
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <ProjectGuid>{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}</ProjectGuid>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <LangVersion>6</LangVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
