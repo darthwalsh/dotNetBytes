@@ -506,7 +506,8 @@ sealed class Section : ICanRead
                     node.Add(stream.ReadClass(ref Relocations));
                     break;
                 default:
-                    throw new NotImplementedException(nr.name);
+                    node.Errors.Add("Unexpected data directoriy name: " + nr.name);
+                    break;
             }
         }
 
@@ -1144,22 +1145,35 @@ sealed class TypeDefTableRow : ICanRead
 }
 
 // II.23.1.15
-class TypeAttributes : ICanRead
+class TypeAttributes : ICanRead, IHaveValue
 {
-    //public static void AddDetails(CodeNode parent, uint value)
-    //{
-    //    var visibility = (Visibility)(value & VisibilityMask);
-    //    parent.Add(new CodeNode { Name = "Visibility", Value = visibility.GetString)
+    public Visibility visibility;
+    public Layout layout;
+    public ClassSemantics classSemantics;
+    public StringInteropFormat stringInteropFormat;
+    public Flags flags;
 
-    //    var layout = (Layout)(value & LayoutMask);
-    //    var classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
-    //    var stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
-    //    var flags = (Flags)(value & FlagsMask);
-    //}
+
+    public void AddDetails(CodeNode parent, uint value)
+    {
+        visibility = (Visibility)(value & VisibilityMask);
+        layout = (Layout)(value & LayoutMask);
+        classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
+        stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
+        flags = (Flags)(value & FlagsMask);
+    }
 
     public CodeNode Read(Stream stream)
     {
         throw new NotImplementedException(); //TODO me!
+    }
+
+    public object Value
+    {
+        get
+        {
+            throw new NotImplementedException();
+        }
     }
 
     const uint VisibilityMask = 0x00000007;
@@ -1220,7 +1234,6 @@ class TypeAttributes : ICanRead
     }
 
     const uint FlagsMask = ~VisibilityMask & ~LayoutMask & ~ClassSemanticsMask & ~StringInteropFormatMask;
-
     [Flags]
     public enum Flags : uint
     {
