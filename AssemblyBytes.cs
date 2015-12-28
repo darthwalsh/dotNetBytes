@@ -17,7 +17,19 @@ class AssemblyBytes
 
         node = s.ReadClass(ref FileFormat);
 
-        node.Widen();
+        node.CallBack(n =>
+        {
+            if (n.Children.Any())
+            {
+                n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
+                n.End = Math.Max(n.End, n.Children.Max(c => c.End));
+            }
+        });
+
+        node.CallBack(n =>
+        {
+            n.Children = n.Children.OrderBy(c => c.Start).ToList();
+        });
 
         System.Console.Error.WriteLine(node.ToString());
     }

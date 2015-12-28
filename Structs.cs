@@ -890,7 +890,12 @@ sealed class TildeStream : ICanRead
                 AssemblyTableRow[] AssemblyTableRows = null;
                 return stream.ReadClasses(ref AssemblyTableRows, count);
             default:
-                return new[] { new CodeNode { Name = flag.ToString(), Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() } } };
+                return new[] { new CodeNode {
+                    Name = flag.ToString(),
+                    Start = (int)stream.Position,
+                    End = (int)stream.Position,
+                    Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() }
+                } };
         }
     }
 }

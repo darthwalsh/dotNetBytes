@@ -24,18 +24,14 @@ class CodeNode : IEnumerable<string>
         Children.AddRange(node);
     }
 
-    public void Widen()
+    public void CallBack(Action<CodeNode> callback)
     {
         foreach (var c in Children)
         {
-            c.Widen();
+            c.CallBack(callback);
         }
 
-        if (Children.Any())
-        {
-            Start = Math.Min(Start, Children.Min(c => c.Start));
-            End = Math.Max(End, Children.Max(c => c.End));
-        }
+        callback(this);
     }
 
     public override string ToString()
