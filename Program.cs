@@ -11,7 +11,7 @@ static class Program
     {
         try
         {
-            string path = args.FirstOrDefault() ?? @"C:\code\bootstrappingCIL\understandingCIL\AddR.exe";
+            string path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
 
             var assm = new AssemblyBytes(path);
             var assmJson = assm.AsJson;
@@ -68,6 +68,9 @@ static class Program
         {
             var ie = new SHDocVw.InternetExplorer();
             ie.Visible = true;
+            ie.Width = 1600;
+            ie.Height = 700;
+
             ie.Navigate("http://127.0.0.1:8000/Content/view.html");
 
             ie.OnQuit += () =>
