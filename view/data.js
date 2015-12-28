@@ -27,7 +27,7 @@ function HSVtoRGB(h, s, v) {
 }
 
 function getColor(n) {
-  return HSVtoRGB(n / 12, 0.9, 1);
+  return HSVtoRGB(n / 12, 0.8, 1);
 }
 
 function getDimColor(n) {
@@ -171,7 +171,8 @@ function setFocusHelper(o, currentChild) {
     if (cc === currentChild) {
       continue;
     } 
-    var col = getDimColor(chI);
+
+    var col = currentChild ? getDimColor(chI) : getColor(chI);
     
     for (var i = cc.Start; i < cc.End; ++i) {
       setColor(i, col);
@@ -180,8 +181,9 @@ function setFocusHelper(o, currentChild) {
   }
   
   if (!currentChild && !ch.length) {
+    var col = getColor(0);
     for (var i = o.Start; i < o.End; ++i) {
-      setColor(i, getColor(0)); //TODO in-order coloring
+      setColor(i, col); //TODO in-order coloring
       setOnClick(i, makeOnClick(o));
     }
   }
