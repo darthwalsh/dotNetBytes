@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
+
+//TODO reorder by spec reference
 
 sealed class ExpectedAttribute : Attribute
 {
@@ -860,6 +860,10 @@ sealed class TildeStream : ICanRead
 {
     public TildeData TildeData;
     public uint[] Rows;
+    public ModuleTableRow[] ModuleTableRows;
+    public TypeRefTableRow[] TypeRefTableRows;
+    public TypeDefTableRow[] TypeDefTableRows;
+    public AssemblyTableRow[] AssemblyTableRows;
 
 
     public CodeNode Read(Stream stream)
@@ -882,14 +886,14 @@ sealed class TildeStream : ICanRead
         switch (flag)
         {
             case MetadataTableFlags.Module:
-                ModuleTableRow[] ModuleTableRows = null;
                 return stream.ReadClasses(ref ModuleTableRows, count);
+            case MetadataTableFlags.TypeDef:
+                return stream.ReadClasses(ref TypeDefTableRows, count);
             case MetadataTableFlags.TypeRef:
-                TypeRefTableRow[] TypeRefTableRows = null;
                 return stream.ReadClasses(ref TypeRefTableRows, count);
-            case MetadataTableFlags.Assembly:
-                AssemblyTableRow[] AssemblyTableRows = null;
-                return stream.ReadClasses(ref AssemblyTableRows, count);
+            //TODO(uncomment once previous structures are correctly read)
+            //case MetadataTableFlags.Assembly:
+            //    return stream.ReadClasses(ref AssemblyTableRows, count);
             default:
                 return new[] { new CodeNode {
                     Name = flag.ToString(),
@@ -1075,13 +1079,12 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
     }
 }
 
+//TODO various kinds of CodedInded...
 sealed class CodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
         //TODO make link
-
-        //TODO variable width?
 
         ushort index;
         return new CodeNode
@@ -1135,11 +1138,23 @@ sealed class TypeRefTableRow : ICanRead
 // II.22.38
 sealed class TypeDefTableRow : ICanRead
 {
+    public TypeAttributes Flags;
+    public StringHeapIndex TypeName;
+    public StringHeapIndex TypeNamespace;
+    public CodedIndex Extends;
+    public CodedIndex FieldList;
+    public CodedIndex MethodList;
 
     public CodeNode Read(Stream stream)
     {
         return new CodeNode
         {
+            stream.ReadClass(ref Flags, "Flags"),
+            stream.ReadClass(ref TypeName, "TypeName"),
+            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
+            stream.ReadClass(ref Extends, "Extends"),
+            stream.ReadClass(ref FieldList, "FieldList"),
+            stream.ReadClass(ref MethodList, "MethodList"),
         };
     }
 }
@@ -1153,28 +1168,21 @@ class TypeAttributes : ICanRead, IHaveValue
     public StringInteropFormat stringInteropFormat;
     public Flags flags;
 
-
-    public void AddDetails(CodeNode parent, uint value)
+    public CodeNode Read(Stream stream)
     {
+        uint value;
+        var node = stream.ReadStruct(out value, "data");
+        
         visibility = (Visibility)(value & VisibilityMask);
         layout = (Layout)(value & LayoutMask);
         classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
         stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
         flags = (Flags)(value & FlagsMask);
+
+        return node;
     }
 
-    public CodeNode Read(Stream stream)
-    {
-        throw new NotImplementedException(); //TODO me!
-    }
-
-    public object Value
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public object Value => new Enum[] { visibility, layout, classSemantics, stringInteropFormat, flags };
 
     const uint VisibilityMask = 0x00000007;
 

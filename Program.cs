@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using Nancy.Hosting.Self;
 
-
 static class Program
 {
     static void Main(string[] args)
