@@ -71,8 +71,12 @@ static class Program
         {
             var ie = new SHDocVw.InternetExplorer();
             ie.Visible = true;
-            ie.Width = 1600;
-            ie.Height = 700;
+
+            ie.Left = 381;
+            ie.Top = 0;
+
+            ie.Width = 1546;
+            ie.Height = 1057;
 
             ie.Navigate("http://127.0.0.1:8000/Content/view.html");
 
