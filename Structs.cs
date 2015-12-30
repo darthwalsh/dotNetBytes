@@ -863,6 +863,7 @@ sealed class TildeStream : ICanRead
     public ModuleTableRow[] ModuleTableRows;
     public TypeRefTableRow[] TypeRefTableRows;
     public TypeDefTableRow[] TypeDefTableRows;
+    public MethodDef[] MethodDefRows;
     public AssemblyTableRow[] AssemblyTableRows;
 
 
@@ -891,6 +892,8 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref TypeDefTableRows, count);
             case MetadataTableFlags.TypeRef:
                 return stream.ReadClasses(ref TypeRefTableRows, count);
+            case MetadataTableFlags.MethodDef:
+                return stream.ReadClasses(ref MethodDefRows, count);
             //TODO(uncomment once previous structures are correctly read)
             //case MetadataTableFlags.Assembly:
             //    return stream.ReadClasses(ref AssemblyTableRows, count);
@@ -1159,6 +1162,31 @@ sealed class TypeDefTableRow : ICanRead
     }
 }
 
+// II 22.26
+sealed class MethodDef : ICanRead
+{
+    public uint RVA;
+    public ushort ImplFlags;
+    public ushort Flags;  //TODO(flags)
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature;
+    public CodedIndex ParamList;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out RVA, "RVA"),
+            stream.ReadStruct(out ImplFlags, "ImplFlags"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadClass(ref ParamList, "ParamList"),
+        };
+    }
+}
+
+
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
 {
@@ -1172,7 +1200,7 @@ class TypeAttributes : ICanRead, IHaveValue
     {
         uint value;
         var node = stream.ReadStruct(out value, "data");
-        
+
         visibility = (Visibility)(value & VisibilityMask);
         layout = (Layout)(value & LayoutMask);
         classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
