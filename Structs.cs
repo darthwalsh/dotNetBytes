@@ -865,7 +865,8 @@ sealed class TildeStream : ICanRead
     public Module[] Modules;
     public TypeRef[] TypeRefs;
     public TypeDef[] TypeDefs;
-    public MethodDef[] MethodDefRows;
+    public MethodDef[] MethodDefs;
+    public MemberRef[] MemberRefs;
     public Assembly[] Assemblies;
 
 
@@ -895,7 +896,9 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.TypeRef:
                 return stream.ReadClasses(ref TypeRefs, count);
             case MetadataTableFlags.MethodDef:
-                return stream.ReadClasses(ref MethodDefRows, count);
+                return stream.ReadClasses(ref MethodDefs, count);
+            case MetadataTableFlags.MemberRef:
+                return stream.ReadClasses(ref MemberRefs, count);
             //TODO(uncomment once previous structures are correctly read)
             //case MetadataTableFlags.Assembly:
             //    return stream.ReadClasses(ref Assembliess, count);
@@ -1164,7 +1167,7 @@ sealed class TypeDef : ICanRead
     }
 }
 
-// II 22.26
+// II.22.26
 sealed class MethodDef : ICanRead
 {
     public uint RVA;
@@ -1184,6 +1187,25 @@ sealed class MethodDef : ICanRead
             stream.ReadClass(ref Name, "Name"),
             stream.ReadClass(ref Signature, "Signature"),
             stream.ReadClass(ref ParamList, "ParamList"),
+        };
+    }
+}
+
+
+// II 22.26
+sealed class MemberRef : ICanRead
+{
+    public CodedIndex Class;
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature;
+    
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref Class, "Class"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
         };
     }
 }
