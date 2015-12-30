@@ -867,6 +867,7 @@ sealed class TildeStream : ICanRead
     public TypeDef[] TypeDefs;
     public MethodDef[] MethodDefs;
     public MemberRef[] MemberRefs;
+    public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
 
 
@@ -899,9 +900,10 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref MethodDefs, count);
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
-            //TODO(uncomment once previous structures are correctly read)
-            //case MetadataTableFlags.Assembly:
-            //    return stream.ReadClasses(ref Assembliess, count);
+            case MetadataTableFlags.TypeSpec:
+                return stream.ReadClasses(ref TypeSpecs, count);
+            case MetadataTableFlags.Assembly:
+                return stream.ReadClasses(ref Assemblies, count, "Assemblies");
             default:
                 return new[] { new CodeNode {
                     Name = flag.ToString(),
@@ -1174,7 +1176,7 @@ sealed class MethodDef : ICanRead
     public ushort ImplFlags;
     public ushort Flags;  //TODO(flags)
     public StringHeapIndex Name;
-    public BlobHeapIndex Signature;
+    public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
     public CodedIndex ParamList;
 
     public CodeNode Read(Stream stream)
@@ -1190,7 +1192,6 @@ sealed class MethodDef : ICanRead
         };
     }
 }
-
 
 // II 22.26
 sealed class MemberRef : ICanRead
@@ -1210,6 +1211,19 @@ sealed class MemberRef : ICanRead
     }
 }
 
+// II 22.39
+sealed class TypeSpec : ICanRead
+{
+    public BlobHeapIndex Signature;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref Signature, "Signature"),
+        };
+    }
+}
 
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
