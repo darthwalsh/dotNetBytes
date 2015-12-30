@@ -38,6 +38,12 @@ static class Program
 
         var local = Path.Combine(Path.GetDirectoryName(assembly.Location), "Content");
 
+        try
+        {
+            Directory.Delete(local, recursive: true);
+        }
+        catch
+        { }
         Directory.CreateDirectory(local);
 
         File.WriteAllText(Path.Combine(local, "bytes.json"), assmJson);
