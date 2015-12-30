@@ -22,8 +22,6 @@ static class Program
                 host.Start();
 
                 OpenInIE();
-
-                Console.ReadLine();
             }
         }
         catch (Exception e)
@@ -83,6 +81,7 @@ static class Program
                 exit.Set();
             };
 
+            Console.WriteLine("Waiting for IE to quit");
             exit.WaitOne();
 
             ie.Quit();
