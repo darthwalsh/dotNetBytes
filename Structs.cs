@@ -869,6 +869,7 @@ sealed class TildeStream : ICanRead
     public MemberRef[] MemberRefs;
     public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
+    public AssemblyRef[] AssemblyRefs;
 
 
     public CodeNode Read(Stream stream)
@@ -904,6 +905,8 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref TypeSpecs, count);
             case MetadataTableFlags.Assembly:
                 return stream.ReadClasses(ref Assemblies, count, "Assemblies");
+            case MetadataTableFlags.AssemblyRef:
+                return stream.ReadClasses(ref AssemblyRefs, count);
             default:
                 return new[] { new CodeNode {
                     Name = flag.ToString(),
@@ -1358,6 +1361,36 @@ sealed class Assembly : ICanRead
             stream.ReadClass(ref PublicKey, "PublicKey"),
             stream.ReadClass(ref Name, "Name"),
             stream.ReadClass(ref Culture, "Culture"),
+        };
+    }
+}
+
+// II.22.5
+sealed class AssemblyRef : ICanRead
+{
+    public ushort MajorVersion;
+    public ushort MinorVersion;
+    public ushort BuildNumber;
+    public ushort RevisionNumber;
+    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public BlobHeapIndex PublicKeyOrToken;
+    public StringHeapIndex Name;
+    public StringHeapIndex Culture;
+    public BlobHeapIndex HashValue;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out BuildNumber, "BuildNumber"),
+            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref PublicKeyOrToken, "PublicKeyOrToken"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Culture, "Culture"),
+            stream.ReadClass(ref HashValue, "HashValue"),
         };
     }
 }
