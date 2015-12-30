@@ -860,11 +860,13 @@ sealed class TildeStream : ICanRead
 {
     public TildeData TildeData;
     public uint[] Rows;
-    public ModuleTableRow[] ModuleTableRows;
-    public TypeRefTableRow[] TypeRefTableRows;
-    public TypeDefTableRow[] TypeDefTableRows;
+
+    // TODO (reorder)
+    public Module[] Modules;
+    public TypeRef[] TypeRefs;
+    public TypeDef[] TypeDefs;
     public MethodDef[] MethodDefRows;
-    public AssemblyTableRow[] AssemblyTableRows;
+    public Assembly[] Assemblies;
 
 
     public CodeNode Read(Stream stream)
@@ -887,16 +889,16 @@ sealed class TildeStream : ICanRead
         switch (flag)
         {
             case MetadataTableFlags.Module:
-                return stream.ReadClasses(ref ModuleTableRows, count);
+                return stream.ReadClasses(ref Modules, count);
             case MetadataTableFlags.TypeDef:
-                return stream.ReadClasses(ref TypeDefTableRows, count);
+                return stream.ReadClasses(ref TypeDefs, count);
             case MetadataTableFlags.TypeRef:
-                return stream.ReadClasses(ref TypeRefTableRows, count);
+                return stream.ReadClasses(ref TypeRefs, count);
             case MetadataTableFlags.MethodDef:
                 return stream.ReadClasses(ref MethodDefRows, count);
             //TODO(uncomment once previous structures are correctly read)
             //case MetadataTableFlags.Assembly:
-            //    return stream.ReadClasses(ref AssemblyTableRows, count);
+            //    return stream.ReadClasses(ref Assembliess, count);
             default:
                 return new[] { new CodeNode {
                     Name = flag.ToString(),
@@ -1098,7 +1100,7 @@ sealed class CodedIndex : ICanRead
 }
 
 // II.22.30
-sealed class ModuleTableRow : ICanRead
+sealed class Module : ICanRead
 {
     public ushort Generation;
     public StringHeapIndex Name;
@@ -1120,7 +1122,7 @@ sealed class ModuleTableRow : ICanRead
 }
 
 // II.22.38
-sealed class TypeRefTableRow : ICanRead
+sealed class TypeRef : ICanRead
 {
     public CodedIndex ResolutionScope;
     public StringHeapIndex TypeName;
@@ -1139,7 +1141,7 @@ sealed class TypeRefTableRow : ICanRead
 
 
 // II.22.38
-sealed class TypeDefTableRow : ICanRead
+sealed class TypeDef : ICanRead
 {
     public TypeAttributes Flags;
     public StringHeapIndex TypeName;
@@ -1295,7 +1297,7 @@ class TypeAttributes : ICanRead, IHaveValue
 }
 
 // II.22.2
-sealed class AssemblyTableRow : ICanRead
+sealed class Assembly : ICanRead
 {
     public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
     public ushort MajorVersion;
