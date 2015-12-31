@@ -4,6 +4,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotNetBytes", "dotNetBytes.csproj", "{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{51E066FB-215F-4523-94F3-DDC414D37717}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Debug|Any CPU.Build.0 = Debug|x86
 		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.ActiveCfg = Debug|x86
 		{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}.Release|Any CPU.Build.0 = Debug|x86
+		{51E066FB-215F-4523-94F3-DDC414D37717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E066FB-215F-4523-94F3-DDC414D37717}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E066FB-215F-4523-94F3-DDC414D37717}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E066FB-215F-4523-94F3-DDC414D37717}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
