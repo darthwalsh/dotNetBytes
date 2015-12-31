@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-class CodeNode : IEnumerable<string>
+public class CodeNode : IEnumerable<string>
 {
     public string Name = "oops!";
     public string Description = "";

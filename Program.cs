@@ -12,8 +12,9 @@ static class Program
         {
             string path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
 
-            var assm = new AssemblyBytes(path);
-            var assmJson = assm.AsJson;
+            var assm = new AssemblyBytes(File.OpenRead(path));
+
+            var assmJson = CodeNodeConverter.ToJson(assm.Node);
 
             string local = SetupFiles(path, assmJson);
 

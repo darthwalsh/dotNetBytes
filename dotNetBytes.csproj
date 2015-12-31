@@ -24,6 +24,7 @@
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeNodeConverter.cs" />
     <Compile Include="AssemblyBytes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="CodeNode.cs" />

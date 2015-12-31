@@ -4,17 +4,15 @@ using System.Linq;
 using System.IO;
 using System.Web.Script.Serialization;
 
-class AssemblyBytes
+public class AssemblyBytes
 {
     FileFormat FileFormat;
 
     CodeNode node;
 
     //TODO test with a forward-only stream
-    public AssemblyBytes(string path)
+    public AssemblyBytes(Stream s)
     {
-        Stream s = File.OpenRead(path);
-
         node = s.ReadClass(ref FileFormat);
 
         node.CallBack(n =>
@@ -34,28 +32,5 @@ class AssemblyBytes
         System.Console.Error.WriteLine(node.ToString());
     }
 
-    public string AsJson
-    {
-        get
-        {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            serializer.RegisterConverters(new[] { new CodeNodeConverter() });
-            return serializer.Serialize(node);
-        }
-    }
-
-    class CodeNodeConverter : JavaScriptConverter
-    {
-        public override IEnumerable<Type> SupportedTypes => new[] { typeof(CodeNode) };
-
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
-        {
-            return typeof(CodeNode).GetFields().ToDictionary(field => field.Name, field => field.GetValue(obj));
-        }
-    }
+    public CodeNode Node => node;
 }
