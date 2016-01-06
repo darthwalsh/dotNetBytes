@@ -10,7 +10,6 @@ public class AssemblyBytes
 
     CodeNode node;
 
-    //TODO test with a forward-only stream
     public AssemblyBytes(Stream s)
     {
         node = s.ReadClass(ref FileFormat);

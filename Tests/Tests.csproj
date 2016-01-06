@@ -35,7 +35,15 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="AssemblyBytesTests.cs" />
+    <Compile Include="Asserts.cs" />
+    <Compile Include="DelegatingStream.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dotNetBytes.csproj">
+      <Project>{d1ffa0dc-0acc-4108-adc1-2a71122c09af}</Project>
+      <Name>dotNetBytes</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
