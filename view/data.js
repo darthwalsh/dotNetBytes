@@ -147,6 +147,12 @@ function setFocus(o)
   setFocusHelper(o);
   
   scrollIntoView(o);
+
+  var hash = "";
+  for (var hashParent = o; hashParent; hashParent = hashParent.parent) {
+    hash = hashParent.Name + "/" + hash;
+  }
+  window.location.hash = hash.substring(0, hash.length - 1);
   
   $("detailName").innerText = o.Name;
   $("detailValue").innerText = o.Value;
@@ -319,6 +325,7 @@ window.onload = function() {
       addParent(json);
       drawToc(json);
       findErrors(json);
+
       setFocus(json);
     });
   });

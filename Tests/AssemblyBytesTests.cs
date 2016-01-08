@@ -23,6 +23,8 @@ namespace Tests
             assm.Node.CallBack(AssertChildrenDontOverlap);
 
             assm.Node.CallBack(AssertNoErrors);
+
+            assm.Node.CallBack(AssertUniqueNames);
         }
 
         static void AssertChildrenDontOverlap(CodeNode node)
@@ -37,6 +39,12 @@ namespace Tests
         {
             string error = node.Errors.FirstOrDefault();
             Assert.IsNull(error, error);
+        }
+
+        static void AssertUniqueNames(CodeNode node)
+        {
+            string name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
+            Assert.IsNull(name, name);
         }
     }
 
