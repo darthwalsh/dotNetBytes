@@ -107,6 +107,15 @@ function scrollIntoView(o) {
   }
 }
 
+function setFocusObject(o)
+{
+  var hash = "";
+  for (var hashParent = o; hashParent; hashParent = hashParent.parent) {
+    hash = hashParent.Name + "/" + hash;
+  }
+  window.location.hash = hash.substring(0, hash.length - 1);
+}
+
 function setFocus(o)
 {
   // Hide all lists in the ToC
@@ -147,12 +156,6 @@ function setFocus(o)
   setFocusHelper(o);
   
   scrollIntoView(o);
-
-  var hash = "";
-  for (var hashParent = o; hashParent; hashParent = hashParent.parent) {
-    hash = hashParent.Name + "/" + hash;
-  }
-  window.location.hash = hash.substring(0, hash.length - 1);
   
   $("detailName").innerText = o.Name;
   $("detailValue").innerText = o.Value;
@@ -161,6 +164,31 @@ function setFocus(o)
 
 function makeOnClick(o) {
   return function(ev) {
+    setFocusObject(o);
+  };
+}
+
+function makeOnHashChange(json) {
+  return function (ev) {
+    var hash = ev.newURL;
+    hash = hash.split("#")[1];
+    var names = hash.split("/");
+
+    var o = json;
+    for (var i = 1; i < names.length; ++i) {
+      for (var chi = 0; ; ++chi) {
+        if (chi == o.Children.length) {
+          throw "Couldn't find " + names[i];
+          return;
+        }
+
+        if (names[i] === o.Children[chi].Name) {
+          o = o.Children[chi];
+          break;
+        }
+      }
+    }
+
     setFocus(o);
   };
 }
@@ -326,13 +354,15 @@ window.onload = function() {
       drawToc(json);
       findErrors(json);
 
-      setFocus(json);
+      window.onhashchange = makeOnHashChange(json);
+
+      setFocusObject(json);
     });
   });
 };
 
+//TODO links
 //TODO smart colors
 //TODO ToC text search filter
 //TODO hover preview
-//TODO links
 //TODO details pinning + clearing
