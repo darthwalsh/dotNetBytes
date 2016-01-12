@@ -1018,7 +1018,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
         {
             stream.ReadStruct(out index, "index"),
         };
-        node.Link = StringHeap.Node;
+        node.Children.Single().Link = StringHeap.Node;
 
         shortIndex = index;
 
@@ -1042,7 +1042,7 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
         {
             stream.ReadStruct(out index, "index"),
         };
-        node.Link = UserStringHeap.Node;
+        node.Children.Single().Link = UserStringHeap.Node;
 
         shortIndex = index;
 
@@ -1066,7 +1066,7 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
         {
             stream.ReadStruct(out index, "index"),
         };
-        node.Link = BlobHeap.Node;
+        node.Children.Single().Link = BlobHeap.Node;
 
         shortIndex = index;
 
@@ -1089,7 +1089,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
         {
             stream.ReadStruct(out index, "index"),
         };
-        node.Link = GuidHeap.Node;
+        node.Children.Single().Link = GuidHeap.Node;
 
         shortIndex = index;
         return node;
