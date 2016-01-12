@@ -170,8 +170,7 @@ function makeOnClick(o) {
 
 function makeOnHashChange(json) {
   return function (ev) {
-    var hash = ev.newURL;
-    hash = hash.split("#")[1];
+    var hash = window.location.href.split("#")[1];
     var names = hash.split("/");
 
     var o = json;
@@ -356,7 +355,11 @@ window.onload = function() {
 
       window.onhashchange = makeOnHashChange(json);
 
-      setFocusObject(json);
+      if (window.location.href.indexOf("#") === -1) {
+        setFocusObject(json);
+      } else {
+        window.onhashchange();
+      }
     });
   });
 };
