@@ -735,8 +735,10 @@ sealed class StringHeap : ICanRead
         // Parsing the whole array now isn't sensible
         stream.ReadWholeArray(data);
 
-        return new CodeNode();
+        return Node = new CodeNode();
     }
+
+    public static CodeNode Node { get; private set; }
 
     static StringHeap instance;
     public static string Get(StringHeapIndex i)
@@ -765,8 +767,10 @@ sealed class UserStringHeap : ICanRead
         // Parsing the whole array now isn't sensible
         stream.ReadWholeArray(data);
 
-        return new CodeNode();
+        return Node = new CodeNode();
     }
+
+    public static CodeNode Node { get; private set; }
 
     static UserStringHeap instance;
     public static string Get(UserStringHeapIndex i)
@@ -791,8 +795,10 @@ sealed class BlobHeap : ICanRead
         // Parsing the whole array now isn't sensible
         stream.ReadWholeArray(data);
 
-        return new CodeNode();
+        return Node = new CodeNode();
     }
+
+    public static CodeNode Node { get; private set; }
 
     static BlobHeap instance;
     public static byte[] Get(BlobHeapIndex i)
@@ -842,8 +848,10 @@ sealed class GuidHeap : ICanRead
         // Parsing the whole array now isn't sensible
         stream.ReadWholeArray(data);
 
-        return new CodeNode();
+        return Node = new CodeNode();
     }
+
+    public static CodeNode Node { get; private set; }
 
     static GuidHeap instance;
     public static Guid Get(GuidHeapIndex i)
@@ -1005,13 +1013,12 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        //TODO make link
-
         ushort index;
         var node = new CodeNode
         {
             stream.ReadStruct(out index, "index"),
         };
+        node.Link = StringHeap.Node;
 
         shortIndex = index;
 
@@ -1030,13 +1037,12 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        //TODO make link
-
         ushort index;
         var node = new CodeNode
         {
             stream.ReadStruct(out index, "index"),
         };
+        node.Link = UserStringHeap.Node;
 
         shortIndex = index;
 
@@ -1055,13 +1061,12 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        //TODO make link
-
         ushort index;
         var node = new CodeNode
         {
             stream.ReadStruct(out index, "index"),
         };
+        node.Link = BlobHeap.Node;
 
         shortIndex = index;
 
@@ -1079,13 +1084,12 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        //TODO make link
-
         ushort index;
         var node = new CodeNode
         {
             stream.ReadStruct(out index, "index"),
         };
+        node.Link = GuidHeap.Node;
 
         shortIndex = index;
         return node;

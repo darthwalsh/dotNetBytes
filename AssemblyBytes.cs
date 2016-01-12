@@ -28,6 +28,9 @@ public class AssemblyBytes
             n.Children = n.Children.OrderBy(c => c.Start).ToList();
         });
 
+        node.AssignPath();
+        node.CallBack(CodeNode.AssignLink);
+
         System.Console.Error.WriteLine(node.ToString());
     }
 

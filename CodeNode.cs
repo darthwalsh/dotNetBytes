@@ -14,6 +14,42 @@ public class CodeNode : IEnumerable<string>
     public List<CodeNode> Children = new List<CodeNode>();
     public List<string> Errors = new List<string>();
 
+    public string LinkPath;
+    CodeNode link;
+    string path;
+    public CodeNode Link { set { link = value; } }
+
+    public void AssignPath()
+    {
+        AssignPath(null);
+    }
+    void AssignPath(string parentPath)
+    {
+        if (path != null)
+            throw new InvalidOperationException($"path was already {path}");
+
+        if (parentPath != null)
+            parentPath += "/";
+        
+        path = parentPath + Name;
+
+        foreach (var c in Children)
+        {
+            c.AssignPath(path);
+        }
+    }
+
+    public static void AssignLink(CodeNode node)
+    {
+        if (node.link == null)
+            return;
+
+        if (node.link.path == null)
+            throw new InvalidOperationException($"null link {node.link.Name}");
+
+        node.LinkPath = node.link.path;
+    }
+
     public void Add(CodeNode node)
     {
         Children.Add(node);
