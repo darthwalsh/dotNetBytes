@@ -79,14 +79,18 @@ function litID(i) {
   return "lit" + i;
 }
 
-function setColor(i, color) {
-  $(byteID(i)).style.backgroundColor = color;
-  $(litID(i)).style.backgroundColor = color;
-}
+function setByte(i, color, onclick, cursor) {
+  var byte = $(byteID(i));
+  var lit = $(litID(i));
 
-function setOnClick(i, onclick) {
-  $(byteID(i)).onclick = onclick;
-  $(litID(i)).onclick = onclick;
+  byte.style.backgroundColor = color;
+  lit.style.backgroundColor = color;
+
+  byte.onclick = onclick;
+  lit.onclick = onclick;
+
+  byte.style.cursor = cursor;
+  lit.style.cursor = cursor;
 }
 
 function scrollIntoView(o) {
@@ -149,8 +153,7 @@ function setFocus(o)
   while (grandparent.parent)
     grandparent = grandparent.parent;
   for (i = grandparent.Start; i < grandparent.End; ++i) {
-      setColor(i, "white");
-      setOnClick(i, null);
+    setByte(i, "white", null, "auto");
   }
   
   setFocusHelper(o);
@@ -208,16 +211,20 @@ function setFocusHelper(o, currentChild) {
     var col = currentChild ? getDimColor(chI) : getColor(chI);
     
     for (var i = cc.Start; i < cc.End; ++i) {
-      setColor(i, col);
-      setOnClick(i, makeOnClick(cc));
+      setByte(i, col, makeOnClick(cc), "zoom-in");
     }
   }
   
   if (!currentChild && !ch.length) {
-    var col = getColor(0);
+    var col = getColor(0); //TODO in-order coloring 
+    var onclick = null;
+    var cursor = "auto";
+    if (o.LinkPath) {
+      onclick = function(ev) { window.location.hash = o.LinkPath; };
+      cursor = "pointer";
+    } 
     for (var i = o.Start; i < o.End; ++i) {
-      setColor(i, col); //TODO in-order coloring
-      setOnClick(i, makeOnClick(o));
+      setByte(i, col, onclick, cursor); 
     }
   }
 }
@@ -364,7 +371,6 @@ window.onload = function() {
   });
 };
 
-//TODO links
 //TODO smart colors
 //TODO ToC text search filter
 //TODO hover preview
