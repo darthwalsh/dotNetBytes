@@ -27,6 +27,8 @@ namespace Tests
             assm.Node.CallBack(AssertUniqueNames);
 
             assm.Node.CallBack(AssertLinkOrChildren);
+
+            assm.Node.CallBack(AssertParentDifferentSizeThanChild);
         }
 
         static void AssertChildrenDontOverlap(CodeNode node)
@@ -54,6 +56,19 @@ namespace Tests
             if (node.LinkPath != null && node.Children.Any())
             {
                 Assert.Fail(node.Name);
+            }
+        }
+
+        static void AssertParentDifferentSizeThanChild(CodeNode node)
+        {
+            if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End)
+            {
+                if (node.Name.Contains("TypeSpecs"))
+                {
+                    System.Diagnostics.Trace.WriteLine("TypeSpecs expected to be same size as child..." + string.Join("\r\n", node));
+                    return;
+                }
+                Assert.Fail(string.Join("\r\n", node));
             }
         }
     }

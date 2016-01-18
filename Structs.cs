@@ -584,12 +584,12 @@ class Relocations : ICanRead
         return new CodeNode
         {
             stream.ReadStruct(out BaseRelocationTable),
-            stream.ReadStructs(out Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
+            stream.ReadClasses(ref Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
         };
     }
 }
 
-// II.25.3.1
+// II.25.3.2
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct BaseRelocationTable
 {
@@ -597,13 +597,29 @@ struct BaseRelocationTable
     public uint BlockSize;
 }
 
-// II.25.3.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct Fixup
+// II.25.3.2
+class Fixup : ICanRead
 {
-    [Description("Type is stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3). Offset stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
-    public byte[] Data;
+    [Description("Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).")]
+    public byte Type;
+    [Description("Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
+    public short Offset;
+
+    public CodeNode Read(Stream stream)
+    {
+        byte tmp = 0xCC;
+
+        return new CodeNode
+        {
+            stream.ReadStruct(out Type, "Type", (byte b) => {
+                tmp = b;
+                return (byte)(b >> 4);
+            }),
+            stream.ReadStruct(out Offset, "Offset", (byte b) => {
+                return (short)(((tmp << 8) & 0x0F00) | b);
+            }),
+        };
+    }
 }
 
 // II.25.3.3
@@ -1014,14 +1030,12 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
-        node.Children.Single().Link = StringHeap.Node;
-
+        var node = stream.ReadStruct(out index, "index");
         shortIndex = index;
 
+        node.Link = StringHeap.Node;
+        node.Description = $"String Heap index {index:X}";
+        
         return node;
     }
 }
@@ -1038,13 +1052,11 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
-        node.Children.Single().Link = UserStringHeap.Node;
-
+        var node = stream.ReadStruct(out index, "index");
         shortIndex = index;
+
+        node.Link = UserStringHeap.Node;
+        node.Description = $"User String Heap index {index:X}";
 
         return node;
     }
@@ -1062,13 +1074,11 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
-        node.Children.Single().Link = BlobHeap.Node;
-
+        var node = stream.ReadStruct(out index, "index");
         shortIndex = index;
+
+        node.Link = BlobHeap.Node;
+        node.Description = $"Blob Heap index {index:X}";
 
         return node;
     }
@@ -1085,13 +1095,12 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
-        node.Children.Single().Link = GuidHeap.Node;
-
+        var node = stream.ReadStruct(out index, "index");
         shortIndex = index;
+
+        node.Link = GuidHeap.Node;
+        node.Description = $"Guid Heap index {index:X}";
+
         return node;
     }
 }
@@ -1104,10 +1113,7 @@ sealed class CodedIndex : ICanRead
         //TODO make link
 
         ushort index;
-        return new CodeNode
-        {
-            stream.ReadStruct(out index, "index"),
-        };
+        return stream.ReadStruct(out index, "index");
     }
 }
 
