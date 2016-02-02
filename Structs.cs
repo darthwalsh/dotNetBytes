@@ -1140,11 +1140,13 @@ sealed class Module : ICanRead
 }
 
 // II.22.38
-sealed class TypeRef : ICanRead
+sealed class TypeRef : ICanRead, IHaveValue
 {
     public CodedIndex ResolutionScope;
     public StringHeapIndex TypeName;
     public StringHeapIndex TypeNamespace;
+
+    public object Value => (string)TypeNamespace.Value + "." + (string)TypeName.Value;
 
     public CodeNode Read(Stream stream)
     {
@@ -1159,7 +1161,7 @@ sealed class TypeRef : ICanRead
 
 
 // II.22.38
-sealed class TypeDef : ICanRead
+sealed class TypeDef : ICanRead, IHaveValue
 {
     public TypeAttributes Flags;
     public StringHeapIndex TypeName;
@@ -1167,6 +1169,8 @@ sealed class TypeDef : ICanRead
     public CodedIndex Extends;
     public CodedIndex FieldList;
     public CodedIndex MethodList;
+
+    public object Value => (string)TypeNamespace.Value + "." + (string)TypeName.Value;
 
     public CodeNode Read(Stream stream)
     {
