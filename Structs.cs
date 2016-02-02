@@ -885,7 +885,6 @@ sealed class TildeStream : ICanRead
     public TildeData TildeData;
     public uint[] Rows;
 
-    // TODO (reorder)
     public Module[] Modules;
     public TypeRef[] TypeRefs;
     public TypeDef[] TypeDefs;
@@ -894,8 +893,7 @@ sealed class TildeStream : ICanRead
     public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
     public AssemblyRef[] AssemblyRefs;
-
-
+    
     public CodeNode Read(Stream stream)
     {
         return new CodeNode
@@ -917,10 +915,10 @@ sealed class TildeStream : ICanRead
         {
             case MetadataTableFlags.Module:
                 return stream.ReadClasses(ref Modules, count);
-            case MetadataTableFlags.TypeDef:
-                return stream.ReadClasses(ref TypeDefs, count);
             case MetadataTableFlags.TypeRef:
                 return stream.ReadClasses(ref TypeRefs, count);
+            case MetadataTableFlags.TypeDef:
+                return stream.ReadClasses(ref TypeDefs, count);
             case MetadataTableFlags.MethodDef:
                 return stream.ReadClasses(ref MethodDefs, count);
             case MetadataTableFlags.MemberRef:
