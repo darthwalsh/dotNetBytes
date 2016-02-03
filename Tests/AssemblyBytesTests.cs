@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,6 +30,15 @@ namespace Tests
             assm.Node.CallBack(AssertLinkOrChildren);
 
             assm.Node.CallBack(AssertParentDifferentSizeThanChild);
+
+            byte[] data;
+            using (var memory = new MemoryStream())
+            {
+                s.Position = 0;
+                s.CopyTo(memory);
+                data = memory.ToArray();
+            }
+            assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
         }
 
         static void AssertChildrenDontOverlap(CodeNode node)
@@ -69,6 +79,28 @@ namespace Tests
                     return;
                 }
                 Assert.Fail(string.Join("\r\n", node));
+            }
+        }
+
+        static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data)
+        {
+            if (!node.Children.Any())
+            {
+                return;
+            }
+
+            HashSet<int> childIncludes = new HashSet<int>();
+            foreach (var child in node.Children)
+            {
+                childIncludes.UnionWith(new HashSet<int>(Enumerable.Range(child.Start, child.End - child.Start)));
+            }
+
+            foreach (var i in Enumerable.Range(node.Start, node.End - node.Start))
+            {
+                if (data[i] == 0 || childIncludes.Contains(i))
+                    continue;
+
+                Assert.Fail($"Interested byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
             }
         }
     }

@@ -91,7 +91,9 @@ public class CodeNode : IEnumerable<string>
     {
         yield return new string(' ', indent) + string.Join(" ", new[]
         {
-            Start.ToString("X").PadRight(4), End.ToString("X").PadRight(4), Name.PadRight(24), Value.PadRight(10), Description.Substring(0, Math.Min(Description.Length, 97))
+            Start.ToString("X").PadRight(4), End.ToString("X").PadRight(4), Name.PadRight(32),
+            (link != null ? "-> " + link.Start.ToString("X").PadRight(4) : new string(' ', 7)),
+            Value.PadRight(10), Description.Substring(0, Math.Min(Description.Length, 89))
         });
 
         foreach (var c in Children)

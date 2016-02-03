@@ -28,7 +28,7 @@ sealed class DescriptionAttribute : Attribute
 }
 
 
-// S25
+// II.25
 sealed class FileFormat : ICanRead
 {
     public PEHeader PEHeader;
@@ -57,7 +57,7 @@ sealed class FileFormat : ICanRead
     }
 }
 
-// S25.2.2
+// II.25.2.2
 sealed class PEHeader : ICanRead
 {
     public DosHeader DosHeader;
@@ -486,6 +486,8 @@ sealed class Section : ICanRead
                                 node.Add(stream.ReadClass(ref GuidHeap));
                                 break;
                             case "#~":
+                                MethodDef.OnRead = CreateMethodDefOnRead(node, stream);
+
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 TildeStream.Instance = TildeStream;
@@ -545,6 +547,22 @@ sealed class Section : ICanRead
     {
         node.Start = start;
         node.End = end;
+    }
+
+    Action<MethodDef> CreateMethodDefOnRead(CodeNode sectionNode, Stream stream)
+    {
+        return methodDef =>
+        {
+            long oldPosition = stream.Position;
+            Reposition(stream, methodDef.RVA);
+
+            Method method = null;
+            sectionNode.Add(stream.ReadClass(ref method));
+
+            methodDef.Node.Children.Where(child => child.Name == "RVA").Single().Link = method.Node;
+
+            stream.Position = oldPosition;
+        };
     }
 }
 
@@ -712,8 +730,40 @@ enum CliHeaderFlags : uint
     TrackDebugData = 0x10000,
 }
 
+// II.25.4
+sealed class Method : ICanRead, IHaveValueNode
+{
+    public byte Header;
+    public byte[] CilOps;
 
-// S24.2.1
+    public object Value => "Main"; //TODO Name methods... somehow...
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        Node = new CodeNode
+        {
+            stream.ReadStruct(out Header, "Header"),
+        };
+
+        if ((Header & 0x03) != (byte)MethodHeaderType.Tiny)
+            throw new NotImplementedException("MethodHeaderType.Fat");
+
+        Node.Add(stream.ReadAnything(out CilOps, StreamExtensions.ReadByteArray(Header >> 2), "CilOps"));
+
+        return Node;
+    }
+}
+
+// II.25.4.1
+enum MethodHeaderType : byte
+{
+    Tiny = 0x02,
+    Fat = 0x03,
+}
+
+// II.24.2.1
 sealed class MetadataRoot : ICanRead
 {
     //TODO(descriptions)
@@ -756,7 +806,7 @@ sealed class MetadataRoot : ICanRead
     }
 }
 
-// S24.2.2
+// II.24.2.2
 sealed class StreamHeader : ICanRead
 {
     //TODO(descriptions)
@@ -1399,7 +1449,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 
     public CodeNode Read(Stream stream)
     {
-        return Node = new CodeNode
+        Node = new CodeNode
         {
             stream.ReadStruct(out RVA, "RVA"),
             stream.ReadStruct(out ImplFlags, "ImplFlags"),
@@ -1408,7 +1458,13 @@ sealed class MethodDef : ICanRead, IHaveValueNode
             stream.ReadClass(ref Signature, "Signature"),
             stream.ReadClass(ref ParamList, "ParamList"),
         };
+
+        OnRead(this);
+
+        return Node;
     }
+
+    public static Action<MethodDef> OnRead;
 }
 
 // II 22.26

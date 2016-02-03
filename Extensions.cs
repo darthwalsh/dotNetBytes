@@ -40,6 +40,16 @@ static class StreamExtensions
         }
     }
 
+    public static Func<Stream, byte[]> ReadByteArray(int length)
+    {
+        return stream =>
+        {
+            var data = new byte[length];
+            stream.ReadWholeArray(data);
+            return data;
+        };
+    }
+
     public static Func<Stream, string> ReadNullTerminated(Encoding encoding, int byteBoundary)
     {
         var builder = new List<byte>();
