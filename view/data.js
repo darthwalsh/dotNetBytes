@@ -374,4 +374,6 @@ window.onload = function() {
 //TODO smart colors
 //TODO ToC text search filter
 //TODO hover preview
+//TODO keyboarding through ToC
+//TODO favorites "shortcut" pinning
 //TODO details pinning + clearing
