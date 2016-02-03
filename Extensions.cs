@@ -18,6 +18,11 @@ interface IHaveValue
     object Value { get; }
 }
 
+interface IHaveValueNode : IHaveValue
+{
+    CodeNode Node { get; }
+}
+
 static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html

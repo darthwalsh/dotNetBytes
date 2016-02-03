@@ -19,6 +19,18 @@ public class CodeNode : IEnumerable<string>
     string path;
     public CodeNode Link { set { link = value; } }
 
+    Func<IHaveValueNode> delayed;
+    internal Func<IHaveValueNode> DelayedValueNode { set { delayed = value; } }
+    public void UseDelayedValueNode()
+    {
+        if (delayed != null)
+        {
+            IHaveValueNode d = delayed();
+            Value = d.Value.GetString();
+            Link = d.Node;
+        }
+    }
+
     public void AssignPath()
     {
         AssignPath(null);

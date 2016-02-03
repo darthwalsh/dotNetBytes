@@ -485,6 +485,7 @@ sealed class Section : ICanRead
                             case "#~":
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
+                                TildeStream.Instance = TildeStream;
                                 break;
                             default:
                                 node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
@@ -893,10 +894,10 @@ sealed class TildeStream : ICanRead
     public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
     public AssemblyRef[] AssemblyRefs;
-    
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        var node = new CodeNode
         {
             stream.ReadStruct(out TildeData),
             stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
@@ -905,6 +906,13 @@ sealed class TildeStream : ICanRead
                 .Where(flag => TildeData.Valid.HasFlag(flag))
                 .SelectMany((flag, row) => ReadTable(stream, flag, row))
         };
+
+        if (TildeData.HeapSizes != 0)
+            throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
+        if (Rows.Max() >= (1 << 11))
+            throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
+
+        return node;
     }
 
     IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
@@ -938,6 +946,8 @@ sealed class TildeStream : ICanRead
                 } };
         }
     }
+
+    public static TildeStream Instance;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -1023,7 +1033,8 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
     public int Index => (int)(intIndex ?? shortIndex);
 
-    public object Value => StringHeap.Get(this);
+    public string StringValue => StringHeap.Get(this);
+    public object Value => StringValue;
 
     public CodeNode Read(Stream stream)
     {
@@ -1033,7 +1044,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
         node.Link = StringHeap.Node;
         node.Description = $"String Heap index {index:X}";
-        
+
         return node;
     }
 }
@@ -1104,6 +1115,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
 }
 
 //TODO various kinds of CodedInded...
+//TODO make this a static wrapper class
 sealed class CodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
@@ -1113,10 +1125,57 @@ sealed class CodedIndex : ICanRead
         ushort index;
         return stream.ReadStruct(out index, "index");
     }
+
+    // II.24.2.6
+    public class ResolutionScope : ICanRead
+    {
+        ushort? shortIndex;
+        uint? intIndex;
+
+        Tag tag;
+
+        public int Index => (int)(intIndex ?? shortIndex);
+
+        public CodeNode Read(Stream stream)
+        {
+            ushort index;
+            var node = stream.ReadStruct(out index, "index");
+
+            tag = (Tag)(index & 0x3);
+
+            index >>= 2;
+            --index;
+            shortIndex = index;
+
+            node.DelayedValueNode = GetLink;
+
+            return node;
+        }
+
+        IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Module: return TildeStream.Instance.Modules[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Module = 0,
+            ModuleRef = 1,
+            AssemblyRef = 2,
+            TypeRef = 3,
+        }
+    }
 }
 
 // II.22.30
-sealed class Module : ICanRead
+sealed class Module : ICanRead, IHaveValueNode
 {
     public ushort Generation;
     public StringHeapIndex Name;
@@ -1124,9 +1183,13 @@ sealed class Module : ICanRead
     public GuidHeapIndex EncId;
     public GuidHeapIndex EncBaseId;
 
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadStruct(out Generation, "Generation"),
             stream.ReadClass(ref Name, "Name"),
@@ -1138,17 +1201,19 @@ sealed class Module : ICanRead
 }
 
 // II.22.38
-sealed class TypeRef : ICanRead, IHaveValue
+sealed class TypeRef : ICanRead, IHaveValueNode
 {
-    public CodedIndex ResolutionScope;
+    public CodedIndex.ResolutionScope ResolutionScope;
     public StringHeapIndex TypeName;
     public StringHeapIndex TypeNamespace;
 
-    public object Value => (string)TypeNamespace.Value + "." + (string)TypeName.Value;
+    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
+
+    public CodeNode Node { get; private set; }
 
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadClass(ref ResolutionScope, "ResolutionScope"),
             stream.ReadClass(ref TypeName, "TypeName"),
@@ -1168,7 +1233,7 @@ sealed class TypeDef : ICanRead, IHaveValue
     public CodedIndex FieldList;
     public CodedIndex MethodList;
 
-    public object Value => (string)TypeNamespace.Value + "." + (string)TypeName.Value;
+    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
     public CodeNode Read(Stream stream)
     {
@@ -1214,7 +1279,7 @@ sealed class MemberRef : ICanRead
     public CodedIndex Class;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
-    
+
     public CodeNode Read(Stream stream)
     {
         return new CodeNode
@@ -1378,7 +1443,7 @@ sealed class Assembly : ICanRead
 }
 
 // II.22.5
-sealed class AssemblyRef : ICanRead
+sealed class AssemblyRef : ICanRead, IHaveValueNode
 {
     public ushort MajorVersion;
     public ushort MinorVersion;
@@ -1390,9 +1455,13 @@ sealed class AssemblyRef : ICanRead
     public StringHeapIndex Culture;
     public BlobHeapIndex HashValue;
 
+    public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadStruct(out MajorVersion, "MajorVersion"),
             stream.ReadStruct(out MinorVersion, "MinorVersion"),
