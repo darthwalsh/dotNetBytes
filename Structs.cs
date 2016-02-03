@@ -1114,14 +1114,11 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
     }
 }
 
-//TODO various kinds of CodedInded...
-//TODO make this a static wrapper class
+//TODO implement all CodedIndex
 sealed class UnknownCodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
-        //TODO make link
-
         ushort index;
         return stream.ReadStruct(out index, "index");
     }
@@ -1229,6 +1226,40 @@ abstract class CodedIndex : ICanRead
             public CodeNode Node => null;
         }
     }
+    
+    // II.24.2.6
+    public class MemberRefParent : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x7);
+            return (readData >> 3) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            TypeRef = 1,
+            ModuleRef = 2,
+            MethodDef = 3,
+            TypeSpec = 4,
+        }
+    }
 }
 
 // II.22.30
@@ -1309,7 +1340,7 @@ sealed class TypeDef : ICanRead, IHaveValueNode
 }
 
 // II.22.26
-sealed class MethodDef : ICanRead
+sealed class MethodDef : ICanRead, IHaveValueNode
 {
     public uint RVA;
     public ushort ImplFlags;
@@ -1318,9 +1349,13 @@ sealed class MethodDef : ICanRead
     public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
     public UnknownCodedIndex ParamList;
 
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadStruct(out RVA, "RVA"),
             stream.ReadStruct(out ImplFlags, "ImplFlags"),
@@ -1333,11 +1368,15 @@ sealed class MethodDef : ICanRead
 }
 
 // II 22.26
-sealed class MemberRef : ICanRead
+sealed class MemberRef : ICanRead, IHaveValueNode
 {
-    public UnknownCodedIndex Class;
+    public CodedIndex.MemberRefParent Class;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
 
     public CodeNode Read(Stream stream)
     {
