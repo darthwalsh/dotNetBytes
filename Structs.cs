@@ -41,7 +41,8 @@ sealed class FileFormat : ICanRead
             stream.ReadClass(ref PEHeader),
         };
 
-        Sections = PEHeader.SectionHeaders.Select(header => new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories)).ToArray();
+        Sections = PEHeader.SectionHeaders.Select(header => 
+            new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
         IEnumerable<CodeNode> sections;
         node.Add(sections = stream.ReadClasses(ref Sections));
@@ -338,7 +339,7 @@ struct PEHeaderHeaderDataDirectories
     [Expected(0)]
     public ulong BoundImport;
     [Description("RVA and Size of Import Address Table,(§II.25.3.1).")]
-    public RVAandSize ImportAddressTableDirectory;
+    public RVAandSize ImportAddressTable;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong DelayImportDescriptor;
@@ -414,16 +415,18 @@ sealed class Section : ICanRead
     int rva;
     string name;
     PEHeaderHeaderDataDirectories data;
+    uint entryPointRVA;
 
     public object[] Members;
 
-    public Section(SectionHeader header, PEHeaderHeaderDataDirectories data)
+    public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA)
     {
         start = (int)header.PointerToRawData;
         end = start + (int)header.SizeOfRawData;
         rva = (int)header.VirtualAddress;
         name = new string(header.Name);
         this.data = data;
+        this.entryPointRVA = entryPointRVA;
 
         sections.Add(this);
     }
@@ -497,10 +500,26 @@ sealed class Section : ICanRead
                 case "ImportTable":
                     ImportTable ImportTable;
                     node.Add(stream.ReadStruct(out ImportTable));
+
+                    Reposition(stream, ImportTable.ImportLookupTable);
+                    ImportLookupTable ImportLookupTable;
+                    node.Add(stream.ReadStruct(out ImportLookupTable));
+
+                    Reposition(stream, ImportLookupTable.HintNameTableRVA);
+                    ImportAddressHintNameTable ImportAddressHintNameTable;
+                    node.Add(stream.ReadStruct(out ImportAddressHintNameTable));
+
+                    Reposition(stream, ImportTable.Name);
+                    string RuntimeEngineName;
+                    node.Add(stream.ReadAnything(out RuntimeEngineName, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 1), "RuntimeEngineName"));
+
+                    Reposition(stream, entryPointRVA);
+                    NativeEntryPoint NativeEntryPoint;
+                    node.Add(stream.ReadStruct(out NativeEntryPoint));
                     break;
-                case "ImportAddressTableDirectory":
-                    ImportAddressTableDirectory ImportAddressTableDirectory;
-                    node.Add(stream.ReadStruct(out ImportAddressTableDirectory));
+                case "ImportAddressTable":
+                    ImportAddressTable ImportAddressTable;
+                    node.Add(stream.ReadStruct(out ImportAddressTable));
                     break;
                 case "BaseRelocationTable":
                     Relocations Relocations = null;
@@ -534,16 +553,6 @@ sealed class Section : ICanRead
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ImportTable
 {
-    public uint HintNameTableRVA;
-    [Expected(0)]
-    public uint NullTerminated;
-}
-
-//TODO use
-// II.25.3.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportAddressTable
-{
     [Description("RVA of the Import Lookup Table")]
     public uint ImportLookupTable;
     [Description("Always 0 (§II.24.1).")]
@@ -564,14 +573,47 @@ struct ImportAddressTable
     public byte[] Reserved;
 }
 
-
 // II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportAddressTableDirectory
+struct ImportAddressTable
 {
     public uint HintNameTableRVA;
     [Expected(0)]
     public uint NullTerminated;
+}
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ImportLookupTable
+{
+    public uint HintNameTableRVA;
+    [Expected(0)]
+    public uint NullTerminated;
+}
+
+// II.25.3.1
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ImportAddressHintNameTable
+{
+    [Description("Shall be 0.")]
+    [Expected(0)]
+    public ushort Hint;
+    [Description("Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.")]
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
+    public char[] Message;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct NativeEntryPoint
+{
+    [Description("JMP op code in X86")]
+    [Expected(0xFF)]
+    public byte JMP;
+    [Description("Specifies the jump is in absolute indirect mode")]
+    [Expected(0x25)]
+    public byte Mod;
+    [Description("Jump target RVA.")]
+    public uint JumpTarget;
 }
 
 // II.25.3.1
@@ -601,6 +643,8 @@ struct BaseRelocationTable
 // II.25.3.2
 class Fixup : ICanRead
 {
+    //TODO (Descriptions)
+
     [Description("Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).")]
     public byte Type;
     [Description("Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
