@@ -1116,7 +1116,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
 
 //TODO various kinds of CodedInded...
 //TODO make this a static wrapper class
-sealed class CodedIndex : ICanRead
+sealed class UnknownCodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
     {
@@ -1125,34 +1125,43 @@ sealed class CodedIndex : ICanRead
         ushort index;
         return stream.ReadStruct(out index, "index");
     }
+}
+
+abstract class CodedIndex : ICanRead
+{
+    private CodedIndex() { } // Don't allow subclassing 
+
+    public int Index { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort readData;
+        var node = stream.ReadStruct(out readData, "index");
+
+        Index = GetIndex(readData);
+
+        node.DelayedValueNode = GetLink;
+
+        return node;
+    }
+
+    protected abstract int GetIndex(int readData);
+
+    protected abstract IHaveValueNode GetLink();
+
 
     // II.24.2.6
-    public class ResolutionScope : ICanRead
+    public class ResolutionScope : CodedIndex
     {
-        ushort? shortIndex;
-        uint? intIndex;
-
         Tag tag;
 
-        public int Index => (int)(intIndex ?? shortIndex);
-
-        public CodeNode Read(Stream stream)
+        protected override int GetIndex(int readData)
         {
-            ushort index;
-            var node = stream.ReadStruct(out index, "index");
-
-            tag = (Tag)(index & 0x3);
-
-            index >>= 2;
-            --index;
-            shortIndex = index;
-
-            node.DelayedValueNode = GetLink;
-
-            return node;
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
         }
 
-        IHaveValueNode GetLink()
+        protected override IHaveValueNode GetLink()
         {
             switch (tag)
             {
@@ -1170,6 +1179,54 @@ sealed class CodedIndex : ICanRead
             ModuleRef = 1,
             AssemblyRef = 2,
             TypeRef = 3,
+        }
+    }
+
+    public class TypeDefOrRef : CodedIndex
+    {
+        IHaveValueNode extendsNothing;
+
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            if (readData == 0)
+            {
+                extendsNothing = new ExtendsNothing();
+                return -1;
+            }
+
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            if (extendsNothing != null)
+            {
+                return extendsNothing;
+            }
+
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            TypeRef = 1,
+            TypeSpec = 2,
+        }
+
+        class ExtendsNothing : IHaveValueNode
+        {
+            public object Value => "(Nothing)";
+            public CodeNode Node => null;
         }
     }
 }
@@ -1224,20 +1281,22 @@ sealed class TypeRef : ICanRead, IHaveValueNode
 
 
 // II.22.38
-sealed class TypeDef : ICanRead, IHaveValue
+sealed class TypeDef : ICanRead, IHaveValueNode
 {
     public TypeAttributes Flags;
     public StringHeapIndex TypeName;
     public StringHeapIndex TypeNamespace;
-    public CodedIndex Extends;
-    public CodedIndex FieldList;
-    public CodedIndex MethodList;
+    public CodedIndex.TypeDefOrRef Extends;
+    public UnknownCodedIndex FieldList;
+    public UnknownCodedIndex MethodList;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadClass(ref Flags, "Flags"),
             stream.ReadClass(ref TypeName, "TypeName"),
@@ -1257,7 +1316,7 @@ sealed class MethodDef : ICanRead
     public ushort Flags;  //TODO(flags)
     public StringHeapIndex Name;
     public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
-    public CodedIndex ParamList;
+    public UnknownCodedIndex ParamList;
 
     public CodeNode Read(Stream stream)
     {
@@ -1276,7 +1335,7 @@ sealed class MethodDef : ICanRead
 // II 22.26
 sealed class MemberRef : ICanRead
 {
-    public CodedIndex Class;
+    public UnknownCodedIndex Class;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
 
@@ -1292,13 +1351,17 @@ sealed class MemberRef : ICanRead
 }
 
 // II 22.39
-sealed class TypeSpec : ICanRead
+sealed class TypeSpec : ICanRead, IHaveValueNode
 {
     public BlobHeapIndex Signature;
 
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadClass(ref Signature, "Signature"),
         };
