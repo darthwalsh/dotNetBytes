@@ -38,6 +38,12 @@
     <Compile Include="AssemblyBytesTests.cs" />
     <Compile Include="Asserts.cs" />
     <Compile Include="DelegatingStream.cs" />
+    <Compile Include="Samples\TwoMethods.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Samples\Simple.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dotNetBytes.csproj">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +10,42 @@ namespace Tests
     [TestClass]
     public class AssemblyBytesTests
     {
+        [TestMethod]
+        public void Simple()
+        {
+            Run(File.OpenRead(Compile(@"Samples\Simple.cs")));
+        }
+
+        [TestMethod]
+        public void TwoMethods()
+        {
+            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs")));
+        }
+
+        static string Compile(string path, string args = "")
+        {
+            string output = path + ".exe";
+
+            using (var p = Process.Start(new ProcessStartInfo
+            {
+                FileName = "csc.exe",
+                Arguments = $@"""{path}"" /out:""{output}""",
+
+                WorkingDirectory = Directory.GetCurrentDirectory(),
+
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+            }))
+            {
+                p.WaitForExit();
+
+                Assert.AreEqual(0, p.ExitCode, "exit code");
+            }
+
+            return output;
+        }
+
         [TestMethod]
         public void TestExample()
         {
