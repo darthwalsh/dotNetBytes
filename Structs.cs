@@ -7,8 +7,6 @@ using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
-//TODO reorder by spec reference
-
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
@@ -27,6 +25,952 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
+// II.22
+[Flags]
+public enum MetadataTableFlags : ulong
+{
+    Module = 1L << 0x00,
+    TypeRef = 1L << 0x01,
+    TypeDef = 1L << 0x02,
+    Field = 1L << 0x04,
+    MethodDef = 1L << 0x06,
+    Param = 1L << 0x08,
+    InterfaceImpl = 1L << 0x09,
+    MemberRef = 1L << 0x0A,
+    Constant = 1L << 0x0B,
+    CustomAttribute = 1L << 0x0C,
+    FieldMarshal = 1L << 0x0D,
+    DeclSecurity = 1L << 0x0E,
+    ClassLayout = 1L << 0x0F,
+    FieldLayout = 1L << 0x10,
+    StandAloneSig = 1L << 0x11,
+    EventMap = 1L << 0x12,
+    Event = 1L << 0x14,
+    PropertyMap = 1L << 0x15,
+    Property = 1L << 0x17,
+    MethodSemantics = 1L << 0x18,
+    MethodImpl = 1L << 0x19,
+    ModuleRef = 1L << 0x1A,
+    TypeSpec = 1L << 0x1B,
+    ImplMap = 1L << 0x1C,
+    FieldRVA = 1L << 0x1D,
+    Assembly = 1L << 0x20,
+    AssemblyProcessor = 1L << 0x21,
+    AssemblyOS = 1L << 0x22,
+    AssemblyRef = 1L << 0x23,
+    AssemblyRefProcessor = 1L << 0x24,
+    AssemblyRefOS = 1L << 0x25,
+    File = 1L << 0x26,
+    ExportedType = 1L << 0x27,
+    ManifestResource = 1L << 0x28,
+    NestedClass = 1L << 0x29,
+    GenericParam = 1L << 0x2A,
+    MethodSpec = 1L << 0x2B,
+    GenericParamConstraint = 1L << 0x2C,
+}
+
+// II.22.2
+sealed class Assembly : ICanRead
+{
+    public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
+    public ushort MajorVersion;
+    public ushort MinorVersion;
+    public ushort BuildNumber;
+    public ushort RevisionNumber;
+    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public BlobHeapIndex PublicKey;
+    public StringHeapIndex Name;
+    public StringHeapIndex Culture;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out HashAlgId, "HashAlgId"),
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out BuildNumber, "BuildNumber"),
+            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref PublicKey, "PublicKey"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Culture, "Culture"),
+        };
+    }
+}
+
+// II.22.5
+sealed class AssemblyRef : ICanRead, IHaveValueNode
+{
+    public ushort MajorVersion;
+    public ushort MinorVersion;
+    public ushort BuildNumber;
+    public ushort RevisionNumber;
+    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public BlobHeapIndex PublicKeyOrToken;
+    public StringHeapIndex Name;
+    public StringHeapIndex Culture;
+    public BlobHeapIndex HashValue;
+
+    public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out BuildNumber, "BuildNumber"),
+            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref PublicKeyOrToken, "PublicKeyOrToken"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Culture, "Culture"),
+            stream.ReadClass(ref HashValue, "HashValue"),
+        };
+    }
+}
+
+// II.22.25
+sealed class MemberRef : ICanRead, IHaveValueNode
+{
+    public CodedIndex.MemberRefParent Class;
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref Class, "Class"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
+        };
+    }
+}
+
+// II.22.26
+sealed class MethodDef : ICanRead, IHaveValueNode
+{
+    public uint RVA;
+    public ushort ImplFlags;
+    public ushort Flags;  //TODO(flags)
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
+    public UnknownCodedIndex ParamList;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        Node = new CodeNode
+        {
+            stream.ReadStruct(out RVA, "RVA"),
+            stream.ReadStruct(out ImplFlags, "ImplFlags"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadClass(ref ParamList, "ParamList"),
+        };
+
+        OnRead(this);
+
+        return Node;
+    }
+
+    public static Action<MethodDef> OnRead;
+}
+
+// II.22.30
+sealed class Module : ICanRead, IHaveValueNode
+{
+    public ushort Generation;
+    public StringHeapIndex Name;
+    public GuidHeapIndex Mvid;
+    public GuidHeapIndex EncId;
+    public GuidHeapIndex EncBaseId;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Generation, "Generation"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Mvid, "Mvid"),
+            stream.ReadClass(ref EncId, "EncId"),
+            stream.ReadClass(ref EncBaseId, "EncBaseId"),
+        };
+    }
+}
+
+// II.22.37
+sealed class TypeDef : ICanRead, IHaveValueNode
+{
+    public TypeAttributes Flags;
+    public StringHeapIndex TypeName;
+    public StringHeapIndex TypeNamespace;
+    public CodedIndex.TypeDefOrRef Extends;
+    public UnknownCodedIndex FieldList;
+    public UnknownCodedIndex MethodList;
+
+    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Flags, "Flags"),
+            stream.ReadClass(ref TypeName, "TypeName"),
+            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
+            stream.ReadClass(ref Extends, "Extends"),
+            stream.ReadClass(ref FieldList, "FieldList"),
+            stream.ReadClass(ref MethodList, "MethodList"),
+        };
+    }
+}
+
+// II.22.38
+sealed class TypeRef : ICanRead, IHaveValueNode
+{
+    public CodedIndex.ResolutionScope ResolutionScope;
+    public StringHeapIndex TypeName;
+    public StringHeapIndex TypeNamespace;
+
+    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref ResolutionScope, "ResolutionScope"),
+            stream.ReadClass(ref TypeName, "TypeName"),
+            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
+        };
+    }
+}
+
+// II.22.39
+sealed class TypeSpec : ICanRead, IHaveValueNode
+{
+    public BlobHeapIndex Signature;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Signature, "Signature"),
+        };
+    }
+}
+
+//TODO remove from graph, or make a ReadStruct overload that reads inner enum type
+// Makes the enum blittable. 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct AssemblyHashAlgorithmBlittableWrapper
+{
+    AssemblyHashAlgorithm AssemblyHashAlgorithm;
+}
+
+// II.23.1.1
+enum AssemblyHashAlgorithm : uint
+{
+    None = 0x0000,
+    Reserved_MD5 = 0x8003,
+    SHA1 = 0x8004,
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct AssemblyFlagsHolderBlittableWrapper
+{
+    AssemblyFlags AssemblyFlags;
+}
+
+// II.23.1.2 
+[Flags]
+enum AssemblyFlags : uint
+{
+    [Description("The assembly reference holds the full (unhashed) public key.")]
+    PublicKey = 0x0001,
+    [Description("The implementation of this assembly used at runtime is not expected to match the version seen at compile time. (See the text following this table.)")]
+    Retargetable = 0x0100,
+    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should not generate optimized code)")]
+    DisableJITcompileOptimizer = 0x4000,
+    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)")]
+    EnableJITcompileTracking = 0x8000,
+}
+
+// II.23.1.15
+class TypeAttributes : ICanRead, IHaveValue
+{
+    public Visibility visibility;
+    public Layout layout;
+    public ClassSemantics classSemantics;
+    public StringInteropFormat stringInteropFormat;
+    public Flags flags;
+
+    public CodeNode Read(Stream stream)
+    {
+        uint value;
+        var node = stream.ReadStruct(out value, "data");
+
+        visibility = (Visibility)(value & VisibilityMask);
+        layout = (Layout)(value & LayoutMask);
+        classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
+        stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
+        flags = (Flags)(value & FlagsMask);
+
+        return node;
+    }
+
+    public object Value => new Enum[] { visibility, layout, classSemantics, stringInteropFormat, flags };
+
+    const uint VisibilityMask = 0x00000007;
+
+    public enum Visibility : uint
+    {
+        [Description("Class has no public scope")]
+        NotPublic = 0x00000000,
+        [Description("Class has public scope")]
+        Public = 0x00000001,
+        [Description("Class is nested with public visibility")]
+        NestedPublic = 0x00000002,
+        [Description("Class is nested with private visibility")]
+        NestedPrivate = 0x00000003,
+        [Description("Class is nested with family visibility")]
+        NestedFamily = 0x00000004,
+        [Description("Class is nested with assembly visibility")]
+        NestedAssembly = 0x00000005,
+        [Description("Class is nested with family and assembly visibility")]
+        NestedFamANDAssem = 0x00000006,
+        [Description("Class is nested with family or assembly visibility")]
+        NestedFamORAssem = 0x00000007,
+    }
+
+    const uint LayoutMask = 0x00000018;
+
+    public enum Layout : uint
+    {
+        [Description("Class fields are auto-laid out")]
+        AutoLayout = 0x00000000,
+        [Description("Class fields are laid out sequentially")]
+        SequentialLayout = 0x00000008,
+        [Description("Layout is supplied explicitly")]
+        ExplicitLayout = 0x00000010,
+    }
+
+    const uint ClassSemanticsMask = 0x00000020;
+
+    public enum ClassSemantics : uint
+    {
+        [Description("Type is a class")]
+        Class = 0x00000000,
+        [Description("Type is an interface")]
+        Interface = 0x00000020,
+    }
+
+    const uint StringInteropFormatMask = 0x00030000;
+    public enum StringInteropFormat : uint
+    {
+        [Description("LPSTR is interpreted as ANSI")]
+        AnsiClass = 0x00000000,
+        [Description("LPSTR is interpreted as Unicode")]
+        UnicodeClass = 0x00010000,
+        [Description("LPSTR is interpreted automatically")]
+        AutoClass = 0x00020000,
+        [Description("A non-standard encoding specified by CustomStringFormatMask, look at bits masked by 0x00C00000 for meaning, unspecified")]
+        CustomFormatClass = 0x00030000,
+    }
+
+    const uint FlagsMask = ~VisibilityMask & ~LayoutMask & ~ClassSemanticsMask & ~StringInteropFormatMask;
+    [Flags]
+    public enum Flags : uint
+    {
+        [Description("Class is abstract")]
+        Abstract = 0x00000080,
+        [Description("Class cannot be extended")]
+        Sealed = 0x00000100,
+        [Description("Class name is special")]
+        SpecialName = 0x00000400,
+        [Description("Class/Interface is imported")]
+        Import = 0x00001000,
+        [Description("Reserved (Class is serializable)")]
+        Serializable = 0x00002000,
+        [Description("Initialize the class before first static field access")]
+        BeforeFieldInit = 0x00100000,
+        [Description("CLI provides 'special' behavior, depending upon the name of the Type")]
+        RTSpecialName = 0x00000800,
+        [Description("Type has security associate with it")]
+        HasSecurity = 0x00040000,
+        [Description("This ExportedType entry is a type forwarder")]
+        IsTypeForwarder = 0x00200000,
+    }
+}
+
+// II.24.2.1
+sealed class MetadataRoot : ICanRead
+{
+    //TODO(descriptions)
+
+    [Description("Magic signature for physical metadata : 0x424A5342.")]
+    public uint Signature;
+    [Description("Major version, 1 (ignore on read)")]
+    [Expected(1)]
+    public ushort MajorVersion;
+    [Description("Minor version, 1 (ignore on read)")]
+    [Expected(1)]
+    public ushort MinorVersion;
+    [Description("Reserved, always 0 (§II.24.1).")]
+    public uint Reserved;
+    [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
+    public uint Length;
+    [Description("UTF8-encoded null-terminated version string.")]
+    public string Version;
+    [Description("Reserved, always 0 (§II.24.1).")]
+    [Expected(0)]
+    public ushort Flags;
+    [Description("Number of streams.")]
+    public ushort Streams;
+    public StreamHeader[] StreamHeaders;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Signature, "Signature"),
+            stream.ReadStruct(out MajorVersion, "MajorVersion"),
+            stream.ReadStruct(out MinorVersion, "MinorVersion"),
+            stream.ReadStruct(out Reserved, "Reserved"),
+            stream.ReadStruct(out Length, "Length"),
+            stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadStruct(out Streams, "Streams"),
+            stream.ReadClasses(ref StreamHeaders, Streams),
+        };
+    }
+}
+
+// II.24.2.2
+sealed class StreamHeader : ICanRead
+{
+    //TODO(descriptions)
+
+    [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
+    public uint Offset;
+    [Description("Size of this stream in bytes, shall be a multiple of 4.")]
+    public uint Size;
+    [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
+    public string Name;
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Offset, "Offset"),
+            stream.ReadStruct(out Size, "Size"),
+            stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
+        };
+    }
+}
+
+// II.24.2.3
+sealed class StringHeap : ICanRead
+{
+    byte[] data;
+
+    public StringHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return Node = new CodeNode();
+    }
+
+    public static CodeNode Node { get; private set; }
+
+    static StringHeap instance;
+    public static string Get(StringHeapIndex i)
+    {
+        var stream = new MemoryStream(instance.data);
+        stream.Position = i.Index;
+        return StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1)(stream);
+    }
+}
+
+
+// II.24.2.4
+sealed class UserStringHeap : ICanRead
+{
+    byte[] data;
+
+    public UserStringHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return Node = new CodeNode();
+    }
+
+    public static CodeNode Node { get; private set; }
+
+    static UserStringHeap instance;
+    public static string Get(UserStringHeapIndex i)
+    {
+        throw new NotImplementedException(); //TODO(implement UserStringHeap)
+    }
+}
+
+sealed class BlobHeap : ICanRead
+{
+    byte[] data;
+
+    public BlobHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return Node = new CodeNode();
+    }
+
+    public static CodeNode Node { get; private set; }
+
+    static BlobHeap instance;
+    public static byte[] Get(BlobHeapIndex i)
+    {
+        int length;
+        int offset;
+        byte firstByte = instance.data[i.Index];
+        if ((firstByte & 0x80) == 0)
+        {
+            length = firstByte & 0x7F;
+            offset = 1;
+        }
+        else if ((firstByte & 0xC0) == 0x80)
+        {
+            length = ((firstByte & 0x3F) << 8) + instance.data[i.Index + 1];
+            offset = 2;
+        }
+        else if ((firstByte & 0xE0) == 0xC0)
+        {
+            length = ((firstByte & 0x1F) << 24) + (instance.data[i.Index + 1] << 16) + (instance.data[i.Index + 2] << 8) + instance.data[i.Index + 3];
+            offset = 4;
+        }
+        else
+        {
+            throw new InvalidOperationException("Blob heap byte " + i.Index + " can't start with 1111...");
+        }
+
+        var ans = new byte[length];
+        Array.Copy(instance.data, i.Index + offset, ans, 0, length);
+        return ans;
+    }
+}
+
+sealed class GuidHeap : ICanRead
+{
+    byte[] data;
+
+    public GuidHeap(int size)
+    {
+        data = new byte[size];
+
+        instance = this;
+    }
+
+    public CodeNode Read(Stream stream)
+    {
+        // Parsing the whole array now isn't sensible
+        stream.ReadWholeArray(data);
+
+        return Node = new CodeNode();
+    }
+
+    public static CodeNode Node { get; private set; }
+
+    static GuidHeap instance;
+    public static Guid Get(GuidHeapIndex i)
+    {
+        const int size = 16;
+        int startAt = (i.Index - 1) * size; // GuidHeap is indexed from 1
+
+        return new Guid(instance.data.Skip(startAt).Take(size).ToArray());
+    }
+}
+
+// II.24.2.6
+sealed class TildeStream : ICanRead
+{
+    public TildeData TildeData;
+    public uint[] Rows;
+
+    public Module[] Modules;
+    public TypeRef[] TypeRefs;
+    public TypeDef[] TypeDefs;
+    public MethodDef[] MethodDefs;
+    public MemberRef[] MemberRefs;
+    public TypeSpec[] TypeSpecs;
+    public Assembly[] Assemblies;
+    public AssemblyRef[] AssemblyRefs;
+
+    public CodeNode Read(Stream stream)
+    {
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out TildeData),
+            stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+            Enum.GetValues(typeof(MetadataTableFlags))
+                .Cast<MetadataTableFlags>()
+                .Where(flag => TildeData.Valid.HasFlag(flag))
+                .SelectMany((flag, row) => ReadTable(stream, flag, row))
+        };
+
+        if (TildeData.HeapSizes != 0)
+            throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
+        if (Rows.Max() >= (1 << 11))
+            throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
+
+        return node;
+    }
+
+    IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
+    {
+        int count = (int)Rows[row];
+
+        switch (flag)
+        {
+            case MetadataTableFlags.Module:
+                return stream.ReadClasses(ref Modules, count);
+            case MetadataTableFlags.TypeRef:
+                return stream.ReadClasses(ref TypeRefs, count);
+            case MetadataTableFlags.TypeDef:
+                return stream.ReadClasses(ref TypeDefs, count);
+            case MetadataTableFlags.MethodDef:
+                return stream.ReadClasses(ref MethodDefs, count);
+            case MetadataTableFlags.MemberRef:
+                return stream.ReadClasses(ref MemberRefs, count);
+            case MetadataTableFlags.TypeSpec:
+                return stream.ReadClasses(ref TypeSpecs, count);
+            case MetadataTableFlags.Assembly:
+                return stream.ReadClasses(ref Assemblies, count, "Assemblies");
+            case MetadataTableFlags.AssemblyRef:
+                return stream.ReadClasses(ref AssemblyRefs, count);
+            default:
+                return new[] { new CodeNode {
+                    Name = flag.ToString(),
+                    Start = (int)stream.Position,
+                    End = (int)stream.Position,
+                    Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() }
+                } };
+        }
+    }
+
+    public static TildeStream Instance;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct TildeData
+{
+    [Description("Reserved, always 0 (§II.24.1).")]
+    [Expected(0)]
+    public uint Reserved;
+    [Description("Major version of table schemata; shall be 2 (§II.24.1).")]
+    [Expected(2)]
+    public byte MajorVersion;
+    [Description("Minor version of table schemata; shall be 0 (§II.24.1).")]
+    [Expected(0)]
+    public byte MinorVersion;
+    [Description("Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)")]
+    [Expected(0)]
+    public TildeDateHeapSizes HeapSizes;
+    [Description("Reserved, always 1 (§II.24.1).")]
+    [Expected(1)]
+    public byte Reserved2;
+    [Description("Bit vector of present tables, let n be the number of bits that are 1.")]
+    public MetadataTableFlags Valid;
+    [Description("Bit vector of sorted tables.")]
+    public MetadataTableFlags Sorted;
+}
+
+[Flags]
+enum TildeDateHeapSizes : byte
+{
+    StringHeapIndexWide = 0x01,
+    GuidHeapIndexWide = 0x02,
+    BlobHeapIndexWide = 0x04,
+}
+
+sealed class StringHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index => (int)(intIndex ?? shortIndex);
+
+    public string StringValue => StringHeap.Get(this);
+    public object Value => StringValue;
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort index;
+        var node = stream.ReadStruct(out index, "index");
+        shortIndex = index;
+
+        node.Link = StringHeap.Node;
+        node.Description = $"String Heap index {index:X}";
+
+        return node;
+    }
+}
+
+sealed class UserStringHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index => (int)(intIndex ?? shortIndex);
+
+    public object Value => UserStringHeap.Get(this);
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort index;
+        var node = stream.ReadStruct(out index, "index");
+        shortIndex = index;
+
+        node.Link = UserStringHeap.Node;
+        node.Description = $"User String Heap index {index:X}";
+
+        return node;
+    }
+}
+
+sealed class BlobHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index => (int)(intIndex ?? shortIndex);
+
+    public object Value => BlobHeap.Get(this);
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort index;
+        var node = stream.ReadStruct(out index, "index");
+        shortIndex = index;
+
+        node.Link = BlobHeap.Node;
+        node.Description = $"Blob Heap index {index:X}";
+
+        return node;
+    }
+}
+
+sealed class GuidHeapIndex : ICanRead, IHaveValue
+{
+    ushort? shortIndex;
+    uint? intIndex;
+
+    public int Index => (int)(intIndex ?? shortIndex);
+    public object Value => GuidHeap.Get(this);
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort index;
+        var node = stream.ReadStruct(out index, "index");
+        shortIndex = index;
+
+        node.Link = GuidHeap.Node;
+        node.Description = $"Guid Heap index {index:X}";
+
+        return node;
+    }
+}
+
+//TODO implement all CodedIndex
+sealed class UnknownCodedIndex : ICanRead
+{
+    public CodeNode Read(Stream stream)
+    {
+        ushort index;
+        return stream.ReadStruct(out index, "index");
+    }
+}
+
+abstract class CodedIndex : ICanRead
+{
+    private CodedIndex() { } // Don't allow subclassing 
+
+    public int Index { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort readData;
+        var node = stream.ReadStruct(out readData, "index");
+
+        Index = GetIndex(readData);
+
+        node.DelayedValueNode = GetLink;
+
+        return node;
+    }
+
+    protected abstract int GetIndex(int readData);
+
+    protected abstract IHaveValueNode GetLink();
+
+    public class ResolutionScope : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Module: return TildeStream.Instance.Modules[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Module = 0,
+            ModuleRef = 1,
+            AssemblyRef = 2,
+            TypeRef = 3,
+        }
+    }
+
+    public class TypeDefOrRef : CodedIndex
+    {
+        IHaveValueNode extendsNothing;
+
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            if (readData == 0)
+            {
+                extendsNothing = new ExtendsNothing();
+                return -1;
+            }
+
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            if (extendsNothing != null)
+            {
+                return extendsNothing;
+            }
+
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            TypeRef = 1,
+            TypeSpec = 2,
+        }
+
+        class ExtendsNothing : IHaveValueNode
+        {
+            public object Value => "(Nothing)";
+            public CodeNode Node => null;
+        }
+    }
+
+    public class MemberRefParent : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x7);
+            return (readData >> 3) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            TypeRef = 1,
+            ModuleRef = 2,
+            MethodDef = 3,
+            TypeSpec = 4,
+        }
+    }
+}
 
 // II.25
 sealed class FileFormat : ICanRead
@@ -41,7 +985,7 @@ sealed class FileFormat : ICanRead
             stream.ReadClass(ref PEHeader),
         };
 
-        Sections = PEHeader.SectionHeaders.Select(header => 
+        Sections = PEHeader.SectionHeaders.Select(header =>
             new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
         IEnumerable<CodeNode> sections;
@@ -752,950 +1696,4 @@ enum MethodHeaderType : byte
 {
     Tiny = 0x02,
     Fat = 0x03,
-}
-
-// II.24.2.1
-sealed class MetadataRoot : ICanRead
-{
-    //TODO(descriptions)
-
-    [Description("Magic signature for physical metadata : 0x424A5342.")]
-    public uint Signature;
-    [Description("Major version, 1 (ignore on read)")]
-    [Expected(1)]
-    public ushort MajorVersion;
-    [Description("Minor version, 1 (ignore on read)")]
-    [Expected(1)]
-    public ushort MinorVersion;
-    [Description("Reserved, always 0 (§II.24.1).")]
-    public uint Reserved;
-    [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
-    public uint Length;
-    [Description("UTF8-encoded null-terminated version string.")]
-    public string Version;
-    [Description("Reserved, always 0 (§II.24.1).")]
-    [Expected(0)]
-    public ushort Flags;
-    [Description("Number of streams.")]
-    public ushort Streams;
-    public StreamHeader[] StreamHeaders;
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadStruct(out Signature, "Signature"),
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out Reserved, "Reserved"),
-            stream.ReadStruct(out Length, "Length"),
-            stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadStruct(out Streams, "Streams"),
-            stream.ReadClasses(ref StreamHeaders, Streams),
-        };
-    }
-}
-
-// II.24.2.2
-sealed class StreamHeader : ICanRead
-{
-    //TODO(descriptions)
-
-    [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
-    public uint Offset;
-    [Description("Size of this stream in bytes, shall be a multiple of 4.")]
-    public uint Size;
-    [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
-    public string Name;
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadStruct(out Offset, "Offset"),
-            stream.ReadStruct(out Size, "Size"),
-            stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
-        };
-    }
-}
-
-// II.24.2.3
-sealed class StringHeap : ICanRead
-{
-    byte[] data;
-
-    public StringHeap(int size)
-    {
-        data = new byte[size];
-
-        instance = this;
-    }
-
-    public CodeNode Read(Stream stream)
-    {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
-    }
-
-    public static CodeNode Node { get; private set; }
-
-    static StringHeap instance;
-    public static string Get(StringHeapIndex i)
-    {
-        var stream = new MemoryStream(instance.data);
-        stream.Position = i.Index;
-        return StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1)(stream);
-    }
-}
-
-
-// II.24.2.4
-sealed class UserStringHeap : ICanRead
-{
-    byte[] data;
-
-    public UserStringHeap(int size)
-    {
-        data = new byte[size];
-
-        instance = this;
-    }
-
-    public CodeNode Read(Stream stream)
-    {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
-    }
-
-    public static CodeNode Node { get; private set; }
-
-    static UserStringHeap instance;
-    public static string Get(UserStringHeapIndex i)
-    {
-        throw new NotImplementedException(); //TODO(implement UserStringHeap)
-    }
-}
-
-sealed class BlobHeap : ICanRead
-{
-    byte[] data;
-
-    public BlobHeap(int size)
-    {
-        data = new byte[size];
-
-        instance = this;
-    }
-
-    public CodeNode Read(Stream stream)
-    {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
-    }
-
-    public static CodeNode Node { get; private set; }
-
-    static BlobHeap instance;
-    public static byte[] Get(BlobHeapIndex i)
-    {
-        int length;
-        int offset;
-        byte firstByte = instance.data[i.Index];
-        if ((firstByte & 0x80) == 0)
-        {
-            length = firstByte & 0x7F;
-            offset = 1;
-        }
-        else if ((firstByte & 0xC0) == 0x80)
-        {
-            length = ((firstByte & 0x3F) << 8) + instance.data[i.Index + 1];
-            offset = 2;
-        }
-        else if ((firstByte & 0xE0) == 0xC0)
-        {
-            length = ((firstByte & 0x1F) << 24) + (instance.data[i.Index + 1] << 16) + (instance.data[i.Index + 2] << 8) + instance.data[i.Index + 3];
-            offset = 4;
-        }
-        else
-        {
-            throw new InvalidOperationException("Blob heap byte " + i.Index + " can't start with 1111...");
-        }
-
-        var ans = new byte[length];
-        Array.Copy(instance.data, i.Index + offset, ans, 0, length);
-        return ans;
-    }
-}
-
-sealed class GuidHeap : ICanRead
-{
-    byte[] data;
-
-    public GuidHeap(int size)
-    {
-        data = new byte[size];
-
-        instance = this;
-    }
-
-    public CodeNode Read(Stream stream)
-    {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
-    }
-
-    public static CodeNode Node { get; private set; }
-
-    static GuidHeap instance;
-    public static Guid Get(GuidHeapIndex i)
-    {
-        const int size = 16;
-        int startAt = (i.Index - 1) * size; // GuidHeap is indexed from 1
-
-        return new Guid(instance.data.Skip(startAt).Take(size).ToArray());
-    }
-}
-
-// II.24.2.6
-sealed class TildeStream : ICanRead
-{
-    public TildeData TildeData;
-    public uint[] Rows;
-
-    public Module[] Modules;
-    public TypeRef[] TypeRefs;
-    public TypeDef[] TypeDefs;
-    public MethodDef[] MethodDefs;
-    public MemberRef[] MemberRefs;
-    public TypeSpec[] TypeSpecs;
-    public Assembly[] Assemblies;
-    public AssemblyRef[] AssemblyRefs;
-
-    public CodeNode Read(Stream stream)
-    {
-        var node = new CodeNode
-        {
-            stream.ReadStruct(out TildeData),
-            stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
-            Enum.GetValues(typeof(MetadataTableFlags))
-                .Cast<MetadataTableFlags>()
-                .Where(flag => TildeData.Valid.HasFlag(flag))
-                .SelectMany((flag, row) => ReadTable(stream, flag, row))
-        };
-
-        if (TildeData.HeapSizes != 0)
-            throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
-        if (Rows.Max() >= (1 << 11))
-            throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
-
-        return node;
-    }
-
-    IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
-    {
-        int count = (int)Rows[row];
-
-        switch (flag)
-        {
-            case MetadataTableFlags.Module:
-                return stream.ReadClasses(ref Modules, count);
-            case MetadataTableFlags.TypeRef:
-                return stream.ReadClasses(ref TypeRefs, count);
-            case MetadataTableFlags.TypeDef:
-                return stream.ReadClasses(ref TypeDefs, count);
-            case MetadataTableFlags.MethodDef:
-                return stream.ReadClasses(ref MethodDefs, count);
-            case MetadataTableFlags.MemberRef:
-                return stream.ReadClasses(ref MemberRefs, count);
-            case MetadataTableFlags.TypeSpec:
-                return stream.ReadClasses(ref TypeSpecs, count);
-            case MetadataTableFlags.Assembly:
-                return stream.ReadClasses(ref Assemblies, count, "Assemblies");
-            case MetadataTableFlags.AssemblyRef:
-                return stream.ReadClasses(ref AssemblyRefs, count);
-            default:
-                return new[] { new CodeNode {
-                    Name = flag.ToString(),
-                    Start = (int)stream.Position,
-                    End = (int)stream.Position,
-                    Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() }
-                } };
-        }
-    }
-
-    public static TildeStream Instance;
-}
-
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct TildeData
-{
-    [Description("Reserved, always 0 (§II.24.1).")]
-    [Expected(0)]
-    public uint Reserved;
-    [Description("Major version of table schemata; shall be 2 (§II.24.1).")]
-    [Expected(2)]
-    public byte MajorVersion;
-    [Description("Minor version of table schemata; shall be 0 (§II.24.1).")]
-    [Expected(0)]
-    public byte MinorVersion;
-    [Description("Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)")]
-    [Expected(0)]
-    public TildeDateHeapSizes HeapSizes;
-    [Description("Reserved, always 1 (§II.24.1).")]
-    [Expected(1)]
-    public byte Reserved2;
-    [Description("Bit vector of present tables, let n be the number of bits that are 1.")]
-    public MetadataTableFlags Valid;
-    [Description("Bit vector of sorted tables.")]
-    public MetadataTableFlags Sorted;
-}
-
-[Flags]
-enum TildeDateHeapSizes : byte
-{
-    StringHeapIndexWide = 0x01,
-    GuidHeapIndexWide = 0x02,
-    BlobHeapIndexWide = 0x04,
-}
-
-sealed class StringHeapIndex : ICanRead, IHaveValue
-{
-    ushort? shortIndex;
-    uint? intIndex;
-
-    public int Index => (int)(intIndex ?? shortIndex);
-
-    public string StringValue => StringHeap.Get(this);
-    public object Value => StringValue;
-
-    public CodeNode Read(Stream stream)
-    {
-        ushort index;
-        var node = stream.ReadStruct(out index, "index");
-        shortIndex = index;
-
-        node.Link = StringHeap.Node;
-        node.Description = $"String Heap index {index:X}";
-
-        return node;
-    }
-}
-
-sealed class UserStringHeapIndex : ICanRead, IHaveValue
-{
-    ushort? shortIndex;
-    uint? intIndex;
-
-    public int Index => (int)(intIndex ?? shortIndex);
-
-    public object Value => UserStringHeap.Get(this);
-
-    public CodeNode Read(Stream stream)
-    {
-        ushort index;
-        var node = stream.ReadStruct(out index, "index");
-        shortIndex = index;
-
-        node.Link = UserStringHeap.Node;
-        node.Description = $"User String Heap index {index:X}";
-
-        return node;
-    }
-}
-
-sealed class BlobHeapIndex : ICanRead, IHaveValue
-{
-    ushort? shortIndex;
-    uint? intIndex;
-
-    public int Index => (int)(intIndex ?? shortIndex);
-
-    public object Value => BlobHeap.Get(this);
-
-    public CodeNode Read(Stream stream)
-    {
-        ushort index;
-        var node = stream.ReadStruct(out index, "index");
-        shortIndex = index;
-
-        node.Link = BlobHeap.Node;
-        node.Description = $"Blob Heap index {index:X}";
-
-        return node;
-    }
-}
-
-sealed class GuidHeapIndex : ICanRead, IHaveValue
-{
-    ushort? shortIndex;
-    uint? intIndex;
-
-    public int Index => (int)(intIndex ?? shortIndex);
-    public object Value => GuidHeap.Get(this);
-
-    public CodeNode Read(Stream stream)
-    {
-        ushort index;
-        var node = stream.ReadStruct(out index, "index");
-        shortIndex = index;
-
-        node.Link = GuidHeap.Node;
-        node.Description = $"Guid Heap index {index:X}";
-
-        return node;
-    }
-}
-
-//TODO implement all CodedIndex
-sealed class UnknownCodedIndex : ICanRead
-{
-    public CodeNode Read(Stream stream)
-    {
-        ushort index;
-        return stream.ReadStruct(out index, "index");
-    }
-}
-
-abstract class CodedIndex : ICanRead
-{
-    private CodedIndex() { } // Don't allow subclassing 
-
-    public int Index { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        ushort readData;
-        var node = stream.ReadStruct(out readData, "index");
-
-        Index = GetIndex(readData);
-
-        node.DelayedValueNode = GetLink;
-
-        return node;
-    }
-
-    protected abstract int GetIndex(int readData);
-
-    protected abstract IHaveValueNode GetLink();
-
-    public class ResolutionScope : CodedIndex
-    {
-        Tag tag;
-
-        protected override int GetIndex(int readData)
-        {
-            tag = (Tag)(readData & 0x3);
-            return (readData >> 2) - 1;
-        }
-
-        protected override IHaveValueNode GetLink()
-        {
-            switch (tag)
-            {
-                case Tag.Module: return TildeStream.Instance.Modules[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-            }
-            throw new NotImplementedException(tag.ToString());
-        }
-
-        enum Tag
-        {
-            Module = 0,
-            ModuleRef = 1,
-            AssemblyRef = 2,
-            TypeRef = 3,
-        }
-    }
-
-    public class TypeDefOrRef : CodedIndex
-    {
-        IHaveValueNode extendsNothing;
-
-        Tag tag;
-
-        protected override int GetIndex(int readData)
-        {
-            if (readData == 0)
-            {
-                extendsNothing = new ExtendsNothing();
-                return -1;
-            }
-
-            tag = (Tag)(readData & 0x3);
-            return (readData >> 2) - 1;
-        }
-
-        protected override IHaveValueNode GetLink()
-        {
-            if (extendsNothing != null)
-            {
-                return extendsNothing;
-            }
-
-            switch (tag)
-            {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
-            }
-            throw new InvalidOperationException(tag.ToString());
-        }
-
-        enum Tag
-        {
-            TypeDef = 0,
-            TypeRef = 1,
-            TypeSpec = 2,
-        }
-
-        class ExtendsNothing : IHaveValueNode
-        {
-            public object Value => "(Nothing)";
-            public CodeNode Node => null;
-        }
-    }
-    
-    public class MemberRefParent : CodedIndex
-    {
-        Tag tag;
-
-        protected override int GetIndex(int readData)
-        {
-            tag = (Tag)(readData & 0x7);
-            return (readData >> 3) - 1;
-        }
-
-        protected override IHaveValueNode GetLink()
-        {
-            switch (tag)
-            {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
-            }
-            throw new NotImplementedException(tag.ToString());
-        }
-
-        enum Tag
-        {
-            TypeDef = 0,
-            TypeRef = 1,
-            ModuleRef = 2,
-            MethodDef = 3,
-            TypeSpec = 4,
-        }
-    }
-}
-
-// II.22
-[Flags]
-public enum MetadataTableFlags : ulong
-{
-    Module = 1L << 0x00,
-    TypeRef = 1L << 0x01,
-    TypeDef = 1L << 0x02,
-    Field = 1L << 0x04,
-    MethodDef = 1L << 0x06,
-    Param = 1L << 0x08,
-    InterfaceImpl = 1L << 0x09,
-    MemberRef = 1L << 0x0A,
-    Constant = 1L << 0x0B,
-    CustomAttribute = 1L << 0x0C,
-    FieldMarshal = 1L << 0x0D,
-    DeclSecurity = 1L << 0x0E,
-    ClassLayout = 1L << 0x0F,
-    FieldLayout = 1L << 0x10,
-    StandAloneSig = 1L << 0x11,
-    EventMap = 1L << 0x12,
-    Event = 1L << 0x14,
-    PropertyMap = 1L << 0x15,
-    Property = 1L << 0x17,
-    MethodSemantics = 1L << 0x18,
-    MethodImpl = 1L << 0x19,
-    ModuleRef = 1L << 0x1A,
-    TypeSpec = 1L << 0x1B,
-    ImplMap = 1L << 0x1C,
-    FieldRVA = 1L << 0x1D,
-    Assembly = 1L << 0x20,
-    AssemblyProcessor = 1L << 0x21,
-    AssemblyOS = 1L << 0x22,
-    AssemblyRef = 1L << 0x23,
-    AssemblyRefProcessor = 1L << 0x24,
-    AssemblyRefOS = 1L << 0x25,
-    File = 1L << 0x26,
-    ExportedType = 1L << 0x27,
-    ManifestResource = 1L << 0x28,
-    NestedClass = 1L << 0x29,
-    GenericParam = 1L << 0x2A,
-    MethodSpec = 1L << 0x2B,
-    GenericParamConstraint = 1L << 0x2C,
-}
-
-// II.22.2
-sealed class Assembly : ICanRead
-{
-    public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
-    public ushort MajorVersion;
-    public ushort MinorVersion;
-    public ushort BuildNumber;
-    public ushort RevisionNumber;
-    public AssemblyFlagsHolderBlittableWrapper Flags;
-    public BlobHeapIndex PublicKey;
-    public StringHeapIndex Name;
-    public StringHeapIndex Culture;
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadStruct(out HashAlgId, "HashAlgId"),
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out BuildNumber, "BuildNumber"),
-            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref PublicKey, "PublicKey"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Culture, "Culture"),
-        };
-    }
-}
-
-// II.22.5
-sealed class AssemblyRef : ICanRead, IHaveValueNode
-{
-    public ushort MajorVersion;
-    public ushort MinorVersion;
-    public ushort BuildNumber;
-    public ushort RevisionNumber;
-    public AssemblyFlagsHolderBlittableWrapper Flags;
-    public BlobHeapIndex PublicKeyOrToken;
-    public StringHeapIndex Name;
-    public StringHeapIndex Culture;
-    public BlobHeapIndex HashValue;
-
-    public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out BuildNumber, "BuildNumber"),
-            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref PublicKeyOrToken, "PublicKeyOrToken"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Culture, "Culture"),
-            stream.ReadClass(ref HashValue, "HashValue"),
-        };
-    }
-}
-
-// II.22.30
-sealed class Module : ICanRead, IHaveValueNode
-{
-    public ushort Generation;
-    public StringHeapIndex Name;
-    public GuidHeapIndex Mvid;
-    public GuidHeapIndex EncId;
-    public GuidHeapIndex EncBaseId;
-
-    public object Value => Name.Value;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Generation, "Generation"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Mvid, "Mvid"),
-            stream.ReadClass(ref EncId, "EncId"),
-            stream.ReadClass(ref EncBaseId, "EncBaseId"),
-        };
-    }
-}
-
-
-// II.22.25
-sealed class MemberRef : ICanRead, IHaveValueNode
-{
-    public CodedIndex.MemberRefParent Class;
-    public StringHeapIndex Name;
-    public BlobHeapIndex Signature;
-
-    public object Value => Name.Value;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadClass(ref Class, "Class"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
-        };
-    }
-}
-
-// II.22.26
-sealed class MethodDef : ICanRead, IHaveValueNode
-{
-    public uint RVA;
-    public ushort ImplFlags;
-    public ushort Flags;  //TODO(flags)
-    public StringHeapIndex Name;
-    public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
-    public UnknownCodedIndex ParamList;
-
-    public object Value => Name.Value;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        Node = new CodeNode
-        {
-            stream.ReadStruct(out RVA, "RVA"),
-            stream.ReadStruct(out ImplFlags, "ImplFlags"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
-            stream.ReadClass(ref ParamList, "ParamList"),
-        };
-
-        OnRead(this);
-
-        return Node;
-    }
-
-    public static Action<MethodDef> OnRead;
-}
-
-// II.22.37
-sealed class TypeDef : ICanRead, IHaveValueNode
-{
-    public TypeAttributes Flags;
-    public StringHeapIndex TypeName;
-    public StringHeapIndex TypeNamespace;
-    public CodedIndex.TypeDefOrRef Extends;
-    public UnknownCodedIndex FieldList;
-    public UnknownCodedIndex MethodList;
-
-    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Flags, "Flags"),
-            stream.ReadClass(ref TypeName, "TypeName"),
-            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
-            stream.ReadClass(ref Extends, "Extends"),
-            stream.ReadClass(ref FieldList, "FieldList"),
-            stream.ReadClass(ref MethodList, "MethodList"),
-        };
-    }
-}
-
-// II.22.38
-sealed class TypeRef : ICanRead, IHaveValueNode
-{
-    public CodedIndex.ResolutionScope ResolutionScope;
-    public StringHeapIndex TypeName;
-    public StringHeapIndex TypeNamespace;
-
-    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref ResolutionScope, "ResolutionScope"),
-            stream.ReadClass(ref TypeName, "TypeName"),
-            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
-        };
-    }
-}
-
-// II.22.39
-sealed class TypeSpec : ICanRead, IHaveValueNode
-{
-    public BlobHeapIndex Signature;
-
-    public object Value => "";
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Signature, "Signature"),
-        };
-    }
-}
-
-// II.23.1.15
-class TypeAttributes : ICanRead, IHaveValue
-{
-    public Visibility visibility;
-    public Layout layout;
-    public ClassSemantics classSemantics;
-    public StringInteropFormat stringInteropFormat;
-    public Flags flags;
-
-    public CodeNode Read(Stream stream)
-    {
-        uint value;
-        var node = stream.ReadStruct(out value, "data");
-
-        visibility = (Visibility)(value & VisibilityMask);
-        layout = (Layout)(value & LayoutMask);
-        classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
-        stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
-        flags = (Flags)(value & FlagsMask);
-
-        return node;
-    }
-
-    public object Value => new Enum[] { visibility, layout, classSemantics, stringInteropFormat, flags };
-
-    const uint VisibilityMask = 0x00000007;
-
-    public enum Visibility : uint
-    {
-        [Description("Class has no public scope")]
-        NotPublic = 0x00000000,
-        [Description("Class has public scope")]
-        Public = 0x00000001,
-        [Description("Class is nested with public visibility")]
-        NestedPublic = 0x00000002,
-        [Description("Class is nested with private visibility")]
-        NestedPrivate = 0x00000003,
-        [Description("Class is nested with family visibility")]
-        NestedFamily = 0x00000004,
-        [Description("Class is nested with assembly visibility")]
-        NestedAssembly = 0x00000005,
-        [Description("Class is nested with family and assembly visibility")]
-        NestedFamANDAssem = 0x00000006,
-        [Description("Class is nested with family or assembly visibility")]
-        NestedFamORAssem = 0x00000007,
-    }
-
-    const uint LayoutMask = 0x00000018;
-
-    public enum Layout : uint
-    {
-        [Description("Class fields are auto-laid out")]
-        AutoLayout = 0x00000000,
-        [Description("Class fields are laid out sequentially")]
-        SequentialLayout = 0x00000008,
-        [Description("Layout is supplied explicitly")]
-        ExplicitLayout = 0x00000010,
-    }
-
-    const uint ClassSemanticsMask = 0x00000020;
-
-    public enum ClassSemantics : uint
-    {
-        [Description("Type is a class")]
-        Class = 0x00000000,
-        [Description("Type is an interface")]
-        Interface = 0x00000020,
-    }
-
-    const uint StringInteropFormatMask = 0x00030000;
-    public enum StringInteropFormat : uint
-    {
-        [Description("LPSTR is interpreted as ANSI")]
-        AnsiClass = 0x00000000,
-        [Description("LPSTR is interpreted as Unicode")]
-        UnicodeClass = 0x00010000,
-        [Description("LPSTR is interpreted automatically")]
-        AutoClass = 0x00020000,
-        [Description("A non-standard encoding specified by CustomStringFormatMask, look at bits masked by 0x00C00000 for meaning, unspecified")]
-        CustomFormatClass = 0x00030000,
-    }
-
-    const uint FlagsMask = ~VisibilityMask & ~LayoutMask & ~ClassSemanticsMask & ~StringInteropFormatMask;
-    [Flags]
-    public enum Flags : uint
-    {
-        [Description("Class is abstract")]
-        Abstract = 0x00000080,
-        [Description("Class cannot be extended")]
-        Sealed = 0x00000100,
-        [Description("Class name is special")]
-        SpecialName = 0x00000400,
-        [Description("Class/Interface is imported")]
-        Import = 0x00001000,
-        [Description("Reserved (Class is serializable)")]
-        Serializable = 0x00002000,
-        [Description("Initialize the class before first static field access")]
-        BeforeFieldInit = 0x00100000,
-        [Description("CLI provides 'special' behavior, depending upon the name of the Type")]
-        RTSpecialName = 0x00000800,
-        [Description("Type has security associate with it")]
-        HasSecurity = 0x00040000,
-        [Description("This ExportedType entry is a type forwarder")]
-        IsTypeForwarder = 0x00200000,
-    }
-}
-
-// Makes the enum blittable. 
-//TODO remove from graph, or make a ReadStruct overload that reads inner enum type
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyHashAlgorithmBlittableWrapper
-{
-    AssemblyHashAlgorithm AssemblyHashAlgorithm;
-}
-
-enum AssemblyHashAlgorithm : uint
-{
-    None = 0x0000,
-    Reserved_MD5 = 0x8003,
-    SHA1 = 0x8004,
-}
-
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyFlagsHolderBlittableWrapper
-{
-    AssemblyFlags AssemblyFlags;
-}
-
-[Flags]
-enum AssemblyFlags : uint
-{
-    [Description("The assembly reference holds the full (unhashed) public key.")]
-    PublicKey = 0x0001,
-    [Description("The implementation of this assembly used at runtime is not expected to match the version seen at compile time. (See the text following this table.)")]
-    Retargetable = 0x0100,
-    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should not generate optimized code)")]
-    DisableJITcompileOptimizer = 0x4000,
-    [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)")]
-    EnableJITcompileTracking = 0x8000,
 }
