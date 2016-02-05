@@ -57,7 +57,7 @@ sealed class FileFormat : ICanRead
     }
 }
 
-// II.25.2.2
+// II.25.2
 sealed class PEHeader : ICanRead
 {
     public DosHeader DosHeader;
@@ -347,7 +347,6 @@ struct PEHeaderHeaderDataDirectories
     public ulong Reserved;
 }
 
-// II.25.3
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct RVAandSize
 {
@@ -588,7 +587,6 @@ struct ImportTable
     public byte[] Reserved;
 }
 
-// II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ImportAddressTable
 {
@@ -597,7 +595,6 @@ struct ImportAddressTable
     public uint NullTerminated;
 }
 
-// II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ImportLookupTable
 {
@@ -606,7 +603,6 @@ struct ImportLookupTable
     public uint NullTerminated;
 }
 
-// II.25.3.1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ImportAddressHintNameTable
 {
@@ -631,7 +627,7 @@ struct NativeEntryPoint
     public uint JumpTarget;
 }
 
-// II.25.3.1
+// II.25.3.2
 class Relocations : ICanRead
 {
     public BaseRelocationTable BaseRelocationTable;
@@ -647,7 +643,6 @@ class Relocations : ICanRead
     }
 }
 
-// II.25.3.2
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct BaseRelocationTable
 {
@@ -655,7 +650,6 @@ struct BaseRelocationTable
     public uint BlockSize;
 }
 
-// II.25.3.2
 class Fixup : ICanRead
 {
     //TODO (Descriptions)
@@ -1073,50 +1067,6 @@ enum TildeDateHeapSizes : byte
     BlobHeapIndexWide = 0x04,
 }
 
-// II.22
-[Flags]
-public enum MetadataTableFlags : ulong
-{
-    Module = 1L << 0x00,
-    TypeRef = 1L << 0x01,
-    TypeDef = 1L << 0x02,
-    Field = 1L << 0x04,
-    MethodDef = 1L << 0x06,
-    Param = 1L << 0x08,
-    InterfaceImpl = 1L << 0x09,
-    MemberRef = 1L << 0x0A,
-    Constant = 1L << 0x0B,
-    CustomAttribute = 1L << 0x0C,
-    FieldMarshal = 1L << 0x0D,
-    DeclSecurity = 1L << 0x0E,
-    ClassLayout = 1L << 0x0F,
-    FieldLayout = 1L << 0x10,
-    StandAloneSig = 1L << 0x11,
-    EventMap = 1L << 0x12,
-    Event = 1L << 0x14,
-    PropertyMap = 1L << 0x15,
-    Property = 1L << 0x17,
-    MethodSemantics = 1L << 0x18,
-    MethodImpl = 1L << 0x19,
-    ModuleRef = 1L << 0x1A,
-    TypeSpec = 1L << 0x1B,
-    ImplMap = 1L << 0x1C,
-    FieldRVA = 1L << 0x1D,
-    Assembly = 1L << 0x20,
-    AssemblyProcessor = 1L << 0x21,
-    AssemblyOS = 1L << 0x22,
-    AssemblyRef = 1L << 0x23,
-    AssemblyRefProcessor = 1L << 0x24,
-    AssemblyRefOS = 1L << 0x25,
-    File = 1L << 0x26,
-    ExportedType = 1L << 0x27,
-    ManifestResource = 1L << 0x28,
-    NestedClass = 1L << 0x29,
-    GenericParam = 1L << 0x2A,
-    MethodSpec = 1L << 0x2B,
-    GenericParamConstraint = 1L << 0x2C,
-}
-
 sealed class StringHeapIndex : ICanRead, IHaveValue
 {
     ushort? shortIndex;
@@ -1237,8 +1187,6 @@ abstract class CodedIndex : ICanRead
 
     protected abstract IHaveValueNode GetLink();
 
-
-    // II.24.2.6
     public class ResolutionScope : CodedIndex
     {
         Tag tag;
@@ -1318,7 +1266,6 @@ abstract class CodedIndex : ICanRead
         }
     }
     
-    // II.24.2.6
     public class MemberRefParent : CodedIndex
     {
         Tag tag;
@@ -1351,6 +1298,50 @@ abstract class CodedIndex : ICanRead
             TypeSpec = 4,
         }
     }
+}
+
+// II.22
+[Flags]
+public enum MetadataTableFlags : ulong
+{
+    Module = 1L << 0x00,
+    TypeRef = 1L << 0x01,
+    TypeDef = 1L << 0x02,
+    Field = 1L << 0x04,
+    MethodDef = 1L << 0x06,
+    Param = 1L << 0x08,
+    InterfaceImpl = 1L << 0x09,
+    MemberRef = 1L << 0x0A,
+    Constant = 1L << 0x0B,
+    CustomAttribute = 1L << 0x0C,
+    FieldMarshal = 1L << 0x0D,
+    DeclSecurity = 1L << 0x0E,
+    ClassLayout = 1L << 0x0F,
+    FieldLayout = 1L << 0x10,
+    StandAloneSig = 1L << 0x11,
+    EventMap = 1L << 0x12,
+    Event = 1L << 0x14,
+    PropertyMap = 1L << 0x15,
+    Property = 1L << 0x17,
+    MethodSemantics = 1L << 0x18,
+    MethodImpl = 1L << 0x19,
+    ModuleRef = 1L << 0x1A,
+    TypeSpec = 1L << 0x1B,
+    ImplMap = 1L << 0x1C,
+    FieldRVA = 1L << 0x1D,
+    Assembly = 1L << 0x20,
+    AssemblyProcessor = 1L << 0x21,
+    AssemblyOS = 1L << 0x22,
+    AssemblyRef = 1L << 0x23,
+    AssemblyRefProcessor = 1L << 0x24,
+    AssemblyRefOS = 1L << 0x25,
+    File = 1L << 0x26,
+    ExportedType = 1L << 0x27,
+    ManifestResource = 1L << 0x28,
+    NestedClass = 1L << 0x29,
+    GenericParam = 1L << 0x2A,
+    MethodSpec = 1L << 0x2B,
+    GenericParamConstraint = 1L << 0x2C,
 }
 
 // II.22.2
