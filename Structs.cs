@@ -70,7 +70,7 @@ public enum MetadataTableFlags : ulong
 }
 
 // II.22.2
-sealed class Assembly : ICanRead
+sealed class Assembly : ICanRead, IHaveValueNode
 {
     public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
     public ushort MajorVersion;
@@ -82,9 +82,13 @@ sealed class Assembly : ICanRead
     public StringHeapIndex Name;
     public StringHeapIndex Culture;
 
+    public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+
+    public CodeNode Node { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        return new CodeNode
+        return Node = new CodeNode
         {
             stream.ReadStruct(out HashAlgId, "HashAlgId"),
             stream.ReadStruct(out MajorVersion, "MajorVersion"),
@@ -129,6 +133,28 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
             stream.ReadClass(ref Name, "Name"),
             stream.ReadClass(ref Culture, "Culture"),
             stream.ReadClass(ref HashValue, "HashValue"),
+        };
+    }
+}
+
+// II.22.10
+sealed class CustomAttribute : ICanRead, IHaveValueNode
+{
+    public CodedIndex.HasCustomAttribute Parent;
+    public CodedIndex.CustomAttributeType Type;
+    public BlobHeapIndex _Value;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref Parent, "Parent"),
+            stream.ReadClass(ref Type, "Type"),
+            stream.ReadClass(ref _Value, "Value"),
         };
     }
 }
@@ -648,6 +674,7 @@ sealed class TildeStream : ICanRead
     public TypeDef[] TypeDefs;
     public MethodDef[] MethodDefs;
     public MemberRef[] MemberRefs;
+    public CustomAttribute[] CustomAttributes;
     public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
     public AssemblyRef[] AssemblyRefs;
@@ -688,6 +715,8 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref MethodDefs, count);
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
+            case MetadataTableFlags.CustomAttribute:
+                return stream.ReadClasses(ref CustomAttributes, count);
             case MetadataTableFlags.TypeSpec:
                 return stream.ReadClasses(ref TypeSpecs, count);
             case MetadataTableFlags.Assembly:
@@ -795,6 +824,8 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
+        // TODO add sub-children as signatures are read
+
         ushort index;
         var node = stream.ReadStruct(out index, "index");
         shortIndex = index;
@@ -938,6 +969,73 @@ abstract class CodedIndex : ICanRead
         }
     }
 
+    public class HasCustomAttribute : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1F);
+            return (readData >> 5) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                //case Tag.Field: return TildeStream.Instance.Fields[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                //case Tag.Param: return TildeStream.Instance.Params[Index];
+                //case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
+                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
+                case Tag.Module: return TildeStream.Instance.Modules[Index];
+                //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
+                //case Tag.Property: return TildeStream.Instance.Propertys[Index];
+                //case Tag.Event: return TildeStream.Instance.Events[Index];
+                //case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+                case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
+                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
+                //case Tag.File: return TildeStream.Instance.Files[Index];
+                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
+                //case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
+                //case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
+                //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            MethodDef = 0,
+            Field = 1,
+            TypeRef = 2,
+            TypeDef = 3,
+            Param = 4,
+            InterfaceImpl = 5,
+            MemberRef = 6,
+            Module = 7,
+            Permission = 8,
+            Property = 9,
+            Event = 10,
+            StandAloneSig = 11,
+            ModuleRef = 12,
+            TypeSpec = 13,
+            Assembly = 14,
+            AssemblyRef = 15,
+            File = 16,
+            ExportedType = 17,
+            ManifestResource = 18,
+            GenericParam = 19,
+            GenericParamConstraint = 20,
+            MethodSpec = 21,
+        }
+    }
+
     public class MemberRefParent : CodedIndex
     {
         Tag tag;
@@ -968,6 +1066,33 @@ abstract class CodedIndex : ICanRead
             ModuleRef = 2,
             MethodDef = 3,
             TypeSpec = 4,
+        }
+    }
+
+    public class CustomAttributeType : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x7);
+            return (readData >> 3) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            MethodDef = 2,
+            MemberRef = 3,
         }
     }
 }
@@ -1371,7 +1496,6 @@ sealed class Section : ICanRead
         sections.Add(this);
     }
 
-    // TODO provide RVA to Raw mapping
     static List<Section> sections = new List<Section>();
 
     //TODO reorder children in order 

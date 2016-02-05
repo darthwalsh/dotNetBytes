@@ -1,4 +1,4 @@
-﻿public class SimpleProgram
+﻿public static class SimpleProgram
 {
     static void Main()
     {
