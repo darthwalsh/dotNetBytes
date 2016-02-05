@@ -111,8 +111,35 @@ function scrollIntoView(o) {
   }
 }
 
-function setFocusObject(o)
-{
+function Search() {
+  var text = $("tocSearch").value.toLowerCase();
+    
+  // Hide all the ToC
+  for (var i = 0; i < allTocUL.length; ++i) {
+    allTocUL[i].style.display = "none";
+  }
+  for (var i = 0; i < allTocLI.length; ++i) {
+    allTocLI[i].style.display = "none";
+  }
+  
+  // Unhide all the ToC up the parents
+  var tocDiv = $("toc");
+  for (var i = 0; i < allTocLI.length; ++i) {
+    var li = allTocLI[i];
+    if (li.innerText.toLowerCase().indexOf(text) === -1)
+      continue;
+    
+    while (li !== tocDiv) {
+      li.style.display = "";
+      if (li.previousElementSibling)
+        li.previousElementSibling.style.display = "";
+      li = li.parentElement;
+    }
+    li.style.display = "";
+  }
+}
+
+function setFocusObject(o) {
   var hash = "";
   for (var hashParent = o; hashParent; hashParent = hashParent.parent) {
     hash = hashParent.Name + "/" + hash;
@@ -120,11 +147,14 @@ function setFocusObject(o)
   window.location.hash = hash.substring(0, hash.length - 1);
 }
 
-function setFocus(o)
-{
+function setFocus(o) {
   // Hide all lists in the ToC
   for (var i = 0; i < allTocUL.length; ++i) {
     allTocUL[i].style.display = "none";
+  }
+  // Unhid all the text elements
+  for (var i = 0; i < allTocLI.length; ++i) {
+    allTocLI[i].style.display = "";
   }
   
   // Unhide all the ToC up the parents
@@ -361,6 +391,8 @@ window.onload = function() {
       findErrors(json);
 
       window.onhashchange = makeOnHashChange(json);
+      
+      $("tocSearch").oninput = Search;
 
       if (window.location.href.indexOf("#") === -1) {
         setFocusObject(json);
@@ -372,7 +404,6 @@ window.onload = function() {
 };
 
 //TODO smart colors
-//TODO ToC text search filter
 //TODO hover preview
 //TODO keyboarding through ToC
 //TODO favorites "shortcut" pinning
