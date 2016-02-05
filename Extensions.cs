@@ -141,8 +141,15 @@ static class StreamExtensions
 
         node.End = (int)stream.Position;
 
-        if (t is IHaveValue)
-            node.Value = t.GetString();
+        try
+        {
+            if (t is IHaveValue)
+                node.Value = t.GetString();
+        }
+        catch (Exception e)
+        {
+            node.Errors.Add(e.ToString());
+        }
 
         return node;
     }
@@ -319,10 +326,16 @@ static class TypeExtensions
             {
                 continue;
             }
-            if (!SmartEquals(expected.Value, actual))
+            try
             {
-                Fail(current, string.Format("Expected {0} to be {1} but instead found {2} at address {3}",
-                    name, expected.Value, actual, current.Start));
+                if (!SmartEquals(expected.Value, actual))
+                {
+                    Fail(current, $"Expected {name} to be {expected.Value} but instead found {actual} at address {current.Start}");
+                }
+            }
+            catch (Exception e)
+            {
+                Fail(current, $"Expected {name} to be {expected.Value} but instead found {actual} at address {current.Start} {e}");
             }
         }
     }
@@ -336,6 +349,11 @@ static class TypeExtensions
 
         if (expected is int && !(actual is int))
         {
+            if (actual is ulong)
+            {
+                return ((ulong)(int)expected) == ((ulong)actual);
+            }
+
             return ((int)expected).Equals(actual.GetInt32());
         }
 

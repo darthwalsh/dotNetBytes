@@ -190,8 +190,7 @@ struct PEHeaderStandardFields
     [Description("Always 0x10B.")]
     [Expected(0x10B)]
     public ushort Magic;
-    [Description("Always 6 (§II.24.1).")]
-    [Expected(6)]
+    [Description("Sepc says always 6, sometimes more (§II.24.1).")]
     public byte LMajor;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
@@ -222,7 +221,6 @@ struct PEHeaderWindowsNtSpecificFields
     [Expected(0x200)]
     public uint FileAlignment;
     [Description("Should be 5 (§II.24.1).")]
-    //[Expected(5)]
     public ushort OSMajor;
     [Description("Should be 0 (§II.24.1).")]
     [Expected(0)]
@@ -309,8 +307,7 @@ struct PEHeaderHeaderDataDirectories
     public ulong ExportTable;
     [Description("RVA and Size of Import Table, (§II.25.3.1).")]
     public RVAandSize ImportTable;
-    [Description("Always 0 (§II.24.1).")]
-    [Expected(0)]
+    [Description("Always 0, unless resources are compiled in (§II.24.1).")]
     public ulong ResourceTable;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
