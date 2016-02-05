@@ -23,6 +23,18 @@ interface IHaveValueNode : IHaveValue
     CodeNode Node { get; }
 }
 
+sealed class DefaultValueNode : IHaveValueNode
+{
+    public DefaultValueNode(object value, CodeNode node)
+    {
+        Value = value;
+        Node = node;
+    }
+
+    public object Value { get; private set; }
+    public CodeNode Node { get; private set; }
+}
+
 static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html

@@ -8,7 +8,7 @@ namespace Tests
         {
             if (a <= b) return;
 
-            throw new Exception($"Unexpected {a} < {b}");
+            throw new Exception($"Unexpected 0x{a:X} < 0x{b:X}");
         }
     }
 }

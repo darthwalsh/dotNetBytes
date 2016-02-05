@@ -9,8 +9,10 @@ public class CodeNode : IEnumerable<string>
     public string Description = "";
     public string Value = "";
 
-    public int Start;
-    public int End;
+    // will be widened later
+    public int Start = int.MaxValue;
+    public int End = int.MinValue;
+
     public List<CodeNode> Children = new List<CodeNode>();
     public List<string> Errors = new List<string>();
 

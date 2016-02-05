@@ -197,9 +197,11 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 
     public CodeNode Read(Stream stream)
     {
+        CodeNode rva;
+
         Node = new CodeNode
         {
-            stream.ReadStruct(out RVA, "RVA"),
+            (rva = stream.ReadStruct(out RVA, "RVA")),
             stream.ReadStruct(out ImplFlags, "ImplFlags"),
             stream.ReadStruct(out Flags, "Flags"),
             stream.ReadClass(ref Name, "Name"),
@@ -207,12 +209,22 @@ sealed class MethodDef : ICanRead, IHaveValueNode
             stream.ReadClass(ref ParamList, "ParamList"),
         };
 
-        OnRead(this);
+        Method method;
+        if (MethodsToRead.TryGetValue(RVA, out method))
+        {
+            throw new NotImplementedException("Need to merge definitons?");
+        } 
+        else
+        {
+            MethodsToRead.Add(RVA, method = new Method(Name.StringValue));
+        }
+
+        rva.DelayedValueNode = () => new DefaultValueNode(rva.Value, method.Node);
 
         return Node;
     }
 
-    public static Action<MethodDef> OnRead;
+    public static Dictionary<uint, Method> MethodsToRead { get; } = new Dictionary<uint, Method>();
 }
 
 // II.22.30
@@ -1550,8 +1562,6 @@ sealed class Section : ICanRead
                                 node.Add(stream.ReadClass(ref GuidHeap));
                                 break;
                             case "#~":
-                                MethodDef.OnRead = CreateMethodDefOnRead(node, stream);
-
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 TildeStream.Instance = TildeStream;
@@ -1597,6 +1607,27 @@ sealed class Section : ICanRead
             }
         }
 
+        CodeNode methods = new CodeNode
+        {
+            Name = "Methods",
+        };
+
+        foreach (var kvp in MethodDef.MethodsToRead)
+        {
+            uint rva = kvp.Key;
+            Method method = kvp.Value;
+
+            Reposition(stream, rva);
+
+            methods.Add(stream.ReadClass(ref method, (string)method.Value));
+        }
+        MethodDef.MethodsToRead.Clear();
+
+        if (methods.Children.Any())
+        {
+            node.Add(methods);
+        }
+
         Members = ss.ToArray();
 
         return node;
@@ -1611,22 +1642,6 @@ sealed class Section : ICanRead
     {
         node.Start = start;
         node.End = end;
-    }
-
-    Action<MethodDef> CreateMethodDefOnRead(CodeNode sectionNode, Stream stream)
-    {
-        return methodDef =>
-        {
-            long oldPosition = stream.Position;
-            Reposition(stream, methodDef.RVA);
-
-            Method method = null;
-            sectionNode.Add(stream.ReadClass(ref method));
-
-            methodDef.Node.Children.Where(child => child.Name == "RVA").Single().Link = method.Node;
-
-            stream.Position = oldPosition;
-        };
     }
 }
 
@@ -1795,7 +1810,14 @@ sealed class Method : ICanRead, IHaveValueNode
     public byte Header;
     public byte[] CilOps;
 
-    public object Value => "Main"; //TODO Name methods... somehow...
+    string name;
+
+    public Method(string name)
+    {
+        this.name = name;
+    }
+
+    public object Value => name;
 
     public CodeNode Node { get; private set; }
 

@@ -19,8 +19,12 @@ namespace Tests
         [TestMethod]
         public void TwoMethods()
         {
-            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs")));
+            // TODO also test non-default without /o without /config?
+            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs", "/o")));
         }
+
+        // TODO test two methods with the same RVA
+        // TODO test parameters, return values
 
         static string Compile(string path, string args = "")
         {
@@ -29,7 +33,7 @@ namespace Tests
             using (var p = Process.Start(new ProcessStartInfo
             {
                 FileName = "csc.exe",
-                Arguments = $@"""{path}"" /out:""{output}""",
+                Arguments = $@"""{path}"" /out:""{output}"" {args}",
 
                 WorkingDirectory = Directory.GetCurrentDirectory(),
 
@@ -95,7 +99,7 @@ namespace Tests
         static void AssertUniqueNames(CodeNode node)
         {
             string name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
-            Assert.IsNull(name, name);
+            Assert.IsNull(name, $"multiple {name} under {node.Name}");
         }
 
         static void AssertLinkOrChildren(CodeNode node)
@@ -106,13 +110,13 @@ namespace Tests
             }
         }
 
+        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods" };
         static void AssertParentDifferentSizeThanChild(CodeNode node)
         {
             if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End)
             {
-                if (node.Name.Contains("TypeSpecs"))
+                if (exceptions.Any(sub => node.Name.Contains(sub)))
                 {
-                    System.Diagnostics.Trace.WriteLine("TypeSpecs expected to be same size as child..." + string.Join("\r\n", node));
                     return;
                 }
                 Assert.Fail(string.Join("\r\n", node));
