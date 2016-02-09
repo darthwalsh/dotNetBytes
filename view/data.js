@@ -219,7 +219,7 @@ function drawDetails(o) {
       var li = create("li");
       
       var a = create("a");
-      a.setAttribute("href", "#" + o.ReverseLinks[i]);
+      a.href = "#" + o.ReverseLinks[i];
       var matchingPrefix = 0;
       for (; matchingPrefix < o.ReverseLinks[i].length && matchingPrefix < o.NodePath.length; ++matchingPrefix) {
         if (o.NodePath[matchingPrefix] !== o.ReverseLinks[i][matchingPrefix])
@@ -440,7 +440,7 @@ window.onload = function() {
       for (var i = j; i - j < width; i++) {
         var a = create("code");
         a.textContent = ToHex(arr[i], 2) + " ";
-        a.setAttribute("id", byteID(i));
+        a.id = byteID(i);
         div.appendChild(a);
       }
       
@@ -452,7 +452,7 @@ window.onload = function() {
         var lit = String.fromCharCode(arr[i]);
         var ll = create("code");
         ll.textContent = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
-        ll.setAttribute("id", litID(i));
+        ll.id = litID(i);
         div.appendChild(ll);
       }
       
