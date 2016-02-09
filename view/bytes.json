@@ -1,1 +1,2936 @@
-{"Name":"FileFormat","Description":"","Value":"","Start":0,"End":2048,"Children":[{"Name":"PEHeader","Description":"","Value":"","Start":0,"End":456,"Children":[{"Name":"DosHeader","Description":"","Value":"","Start":0,"End":128,"Children":[{"Name":"MagicM","Description":"","Value":"M","Start":0,"End":1,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MagicZ","Description":"","Value":"Z","Start":1,"End":2,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BytesOnLastPageOfFile","Description":"","Value":"0x90","Start":2,"End":4,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PagesInFile","Description":"","Value":"0x3","Start":4,"End":6,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Relocations","Description":"","Value":"0x0","Start":6,"End":8,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SizeOfHeaderInParagraphs","Description":"","Value":"0x4","Start":8,"End":10,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinimumExtraParagraphsNeeded","Description":"","Value":"0x0","Start":10,"End":12,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MaximumExtraParagraphsNeeded","Description":"","Value":"0xFFFF","Start":12,"End":14,"Children":[],"Errors":[],"LinkPath":null},{"Name":"InitialRelativeStackSegmentValue","Description":"","Value":"0x0","Start":14,"End":16,"Children":[],"Errors":[],"LinkPath":null},{"Name":"InitialSP","Description":"","Value":"0xB8","Start":16,"End":18,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Checksum","Description":"","Value":"0x0","Start":18,"End":20,"Children":[],"Errors":[],"LinkPath":null},{"Name":"InitialIP","Description":"","Value":"0x0","Start":20,"End":22,"Children":[],"Errors":[],"LinkPath":null},{"Name":"InitialRelativeCS","Description":"","Value":"0x0","Start":22,"End":24,"Children":[],"Errors":[],"LinkPath":null},{"Name":"RawAddressOfRelocation","Description":"","Value":"0x40","Start":24,"End":26,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OverlayNumber","Description":"","Value":"0x0","Start":26,"End":28,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"","Value":"0x0","Start":28,"End":36,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OemIdentifier","Description":"","Value":"0x0","Start":36,"End":38,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OemInformation","Description":"","Value":"0x0","Start":38,"End":40,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved2","Description":"","Value":"{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}","Start":40,"End":60,"Children":[],"Errors":[],"LinkPath":null},{"Name":"LfaNew","Description":"","Value":"0x80","Start":60,"End":64,"Children":[],"Errors":[],"LinkPath":null},{"Name":"DosCode","Description":"","Value":"{0xE, 0x1F, 0xBA, 0xE, 0x0, 0xB4, 0x9, 0xCD, 0x21, 0xB8, 0x1, 0x4C, 0xCD, 0x21}","Start":64,"End":78,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Message","Description":"","Value":"\"This program cannot be run in DOS mode.\\r\\r\\n$\"","Start":78,"End":121,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved3","Description":"","Value":"{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}","Start":121,"End":128,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"PESignature","Description":"","Value":"","Start":128,"End":132,"Children":[{"Name":"MagicP","Description":"","Value":"P","Start":128,"End":129,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MagicE","Description":"","Value":"E","Start":129,"End":130,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"","Value":"0x0","Start":130,"End":132,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"PEFileHeader","Description":"","Value":"","Start":132,"End":152,"Children":[{"Name":"Machine","Description":"Always 0x14c.","Value":"0x14C","Start":132,"End":134,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfSections","Description":"Number of sections; indicates size of the Section Table, which immediately follows the headers.","Value":"0x2","Start":134,"End":136,"Children":[],"Errors":[],"LinkPath":null},{"Name":"TimeDateStamp","Description":"Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.","Value":"0x565CF4B1","Start":136,"End":140,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToSymbolTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":140,"End":144,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfSymbols","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":144,"End":148,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OptionalHeader","Description":"Size Size of the optional header, the format is described below.","Value":"0xE0","Start":148,"End":150,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Characteristics","Description":"Flags indicating attributes of the file, see §II.25.2.2.1.","Value":"0x10E","Start":150,"End":152,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"PEOptionalHeader","Description":"","Value":"","Start":152,"End":376,"Children":[{"Name":"PEHeaderStandardFields","Description":"","Value":"PEHeaderStandardFields","Start":152,"End":180,"Children":[{"Name":"Magic","Description":"Always 0x10B.","Value":"0x10B","Start":152,"End":154,"Children":[],"Errors":[],"LinkPath":null},{"Name":"LMajor","Description":"Always 6 (§II.24.1).","Value":"0x6","Start":154,"End":155,"Children":[],"Errors":[],"LinkPath":null},{"Name":"LMinor","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":155,"End":156,"Children":[],"Errors":[],"LinkPath":null},{"Name":"CodeSize","Description":"Size of the code (text) section, or the sum of all code sections if there are multiple sections.","Value":"0x400","Start":156,"End":160,"Children":[],"Errors":[],"LinkPath":null},{"Name":"InitializedDataSize","Description":"Size of the initialized data section, or the sum of all such sections if there are multiple data sections.","Value":"0x200","Start":160,"End":164,"Children":[],"Errors":[],"LinkPath":null},{"Name":"UninitializedDataSize","Description":"Size of the uninitialized data section, or the sum of all such sections if there are multiple unitinitalized data sections.","Value":"0x0","Start":164,"End":168,"Children":[],"Errors":[],"LinkPath":null},{"Name":"EntryPointRVA","Description":"RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs","Value":"0x228E","Start":168,"End":172,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BaseOfCode","Description":"RVA of the code section. (This is a hint to the loader.)","Value":"0x2000","Start":172,"End":176,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BaseOfData","Description":"RVA of the data section. (This is a hint to the loader.)","Value":"0x4000","Start":176,"End":180,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"PEHeaderWindowsNtSpecificFields","Description":"","Value":"PEHeaderWindowsNtSpecificFields","Start":180,"End":248,"Children":[{"Name":"ImageBase","Description":"Shall be a multiple of 0x10000.","Value":"0x400000","Start":180,"End":184,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SectionAlignment","Description":"Shall be greater than File Alignment.","Value":"0x2000","Start":184,"End":188,"Children":[],"Errors":[],"LinkPath":null},{"Name":"FileAlignment","Description":"Should be 0x200 (§II.24.1).","Value":"0x200","Start":188,"End":192,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OSMajor","Description":"Should be 5 (§II.24.1).","Value":"0x4","Start":192,"End":194,"Children":[],"Errors":[],"LinkPath":null},{"Name":"OSMinor","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":194,"End":196,"Children":[],"Errors":[],"LinkPath":null},{"Name":"UserMajor","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":196,"End":198,"Children":[],"Errors":[],"LinkPath":null},{"Name":"UserMinor","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":198,"End":200,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SubSysMajor","Description":"Should be 5 (§II.24.1).","Value":"0x4","Start":200,"End":202,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SubSysMinor","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":202,"End":204,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"Shall be zero","Value":"0x0","Start":204,"End":208,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ImageSize","Description":"Size, in bytes, of image, including all headers and padding; shall be a multiple of Section Alignment.","Value":"0x6000","Start":208,"End":212,"Children":[],"Errors":[],"LinkPath":null},{"Name":"HeaderSize","Description":"Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.","Value":"0x200","Start":212,"End":216,"Children":[],"Errors":[],"LinkPath":null},{"Name":"FileChecksum","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":216,"End":220,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SubSystem","Description":"Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).","Value":"0x3","Start":220,"End":222,"Children":[],"Errors":[],"LinkPath":null},{"Name":"DLLFlags","Description":"Bits 0x100f shall be zero.","Value":"0x0000 0","Start":222,"End":224,"Children":[],"Errors":[],"LinkPath":null},{"Name":"StackReserveSize","Description":"Should be 0x100000 (1Mb) (§II.24.1).","Value":"0x100000","Start":224,"End":228,"Children":[],"Errors":[],"LinkPath":null},{"Name":"StackCommitSize","Description":"Should be 0x1000 (4Kb) (§II.24.1).","Value":"0x1000","Start":228,"End":232,"Children":[],"Errors":[],"LinkPath":null},{"Name":"HeapReserveSize","Description":"Should be 0x100000 (1Mb) (§II.24.1).","Value":"0x100000","Start":232,"End":236,"Children":[],"Errors":[],"LinkPath":null},{"Name":"HeapCommitSize","Description":"Should be 0x1000 (4Kb) (§II.24.1).","Value":"0x1000","Start":236,"End":240,"Children":[],"Errors":[],"LinkPath":null},{"Name":"LoaderFlags","Description":"Shall be 0","Value":"0x0","Start":240,"End":244,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfDataDirectories","Description":"Shall be 0x10","Value":"0x10","Start":244,"End":248,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"PEHeaderHeaderDataDirectories","Description":"","Value":"PEHeaderHeaderDataDirectories","Start":248,"End":376,"Children":[{"Name":"ExportTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":248,"End":256,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ImportTable","Description":"RVA and Size of Import Table, (§II.25.3.1).","Value":"RVAandSize","Start":256,"End":264,"Children":[{"Name":"RVA","Description":"","Value":"0x2240","Start":256,"End":260,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x4B","Start":260,"End":264,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"ResourceTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":264,"End":272,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ExceptionTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":272,"End":280,"Children":[],"Errors":[],"LinkPath":null},{"Name":"CertificateTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":280,"End":288,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BaseRelocationTable","Description":"Relocation Table; set to 0 if unused (§).","Value":"RVAandSize","Start":288,"End":296,"Children":[{"Name":"RVA","Description":"","Value":"0x4000","Start":288,"End":292,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0xC","Start":292,"End":296,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Debug","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":296,"End":304,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Copyright","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":304,"End":312,"Children":[],"Errors":[],"LinkPath":null},{"Name":"GlobalPtr","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":312,"End":320,"Children":[],"Errors":[],"LinkPath":null},{"Name":"TLSTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":320,"End":328,"Children":[],"Errors":[],"LinkPath":null},{"Name":"LoadConfigTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":328,"End":336,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BoundImport","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":336,"End":344,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ImportAddressTable","Description":"RVA and Size of Import Address Table,(§II.25.3.1).","Value":"RVAandSize","Start":344,"End":352,"Children":[{"Name":"RVA","Description":"","Value":"0x2000","Start":344,"End":348,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x8","Start":348,"End":352,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"DelayImportDescriptor","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":352,"End":360,"Children":[],"Errors":[],"LinkPath":null},{"Name":"CLIHeader","Description":"CLI Header with directories for runtime data,(§II.25.3.1).","Value":"RVAandSize","Start":360,"End":368,"Children":[{"Name":"RVA","Description":"","Value":"0x2008","Start":360,"End":364,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x48","Start":364,"End":368,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"Always 0 (§II.24.1)","Value":"0x0","Start":368,"End":376,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"SectionHeaders[0]","Description":"","Value":"","Start":376,"End":416,"Children":[{"Name":"Name","Description":"An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.","Value":"\".text\\0\\0\\0\"","Start":376,"End":384,"Children":[],"Errors":[],"LinkPath":null},{"Name":"VirtualSize","Description":"Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.","Value":"0x294","Start":384,"End":388,"Children":[],"Errors":[],"LinkPath":null},{"Name":"VirtualAddress","Description":"For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.","Value":"0x2000","Start":388,"End":392,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SizeOfRawData","Description":"Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.","Value":"0x400","Start":392,"End":396,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToRawData","Description":"Offset of section\u0027s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.","Value":"0x200","Start":396,"End":400,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToRelocations","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":400,"End":404,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToLinenumbers","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":404,"End":408,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfRelocations","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":408,"End":410,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfLinenumbers","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":410,"End":412,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Characteristics","Description":"Flags describing section’s characteristics.","Value":"0x60000020 ContainsCode, MemoryCanBeExecutedAsCode, MemoryCanBeRead","Start":412,"End":416,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"SectionHeaders[1]","Description":"","Value":"","Start":416,"End":456,"Children":[{"Name":"Name","Description":"An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.","Value":"\".reloc\\0\\0\"","Start":416,"End":424,"Children":[],"Errors":[],"LinkPath":null},{"Name":"VirtualSize","Description":"Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.","Value":"0xC","Start":424,"End":428,"Children":[],"Errors":[],"LinkPath":null},{"Name":"VirtualAddress","Description":"For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.","Value":"0x4000","Start":428,"End":432,"Children":[],"Errors":[],"LinkPath":null},{"Name":"SizeOfRawData","Description":"Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.","Value":"0x200","Start":432,"End":436,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToRawData","Description":"Offset of section\u0027s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.","Value":"0x600","Start":436,"End":440,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToRelocations","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":440,"End":444,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PointerToLinenumbers","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":444,"End":448,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfRelocations","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":448,"End":450,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NumberOfLinenumbers","Description":"Should be 0 (§II.24.1).","Value":"0x0","Start":450,"End":452,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Characteristics","Description":"Flags describing section’s characteristics.","Value":"0x42000040 ContainsInitializedData, MemoryCanBeDiscarded, MemoryCanBeRead","Start":452,"End":456,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Sections[0]","Description":".text\u0000\u0000\u0000","Value":"","Start":512,"End":1536,"Children":[{"Name":"ImportAddressTable","Description":"","Value":"","Start":512,"End":520,"Children":[{"Name":"HintNameTableRVA","Description":"","Value":"0x2270","Start":512,"End":516,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NullTerminated","Description":"","Value":"0x0","Start":516,"End":520,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"CLIHeader","Description":"","Value":"","Start":520,"End":592,"Children":[{"Name":"Cb","Description":"Size of the header in bytes","Value":"0x48","Start":520,"End":524,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MajorRuntimeVersion","Description":"The minimum version of the runtime required to run this program, currently 2.","Value":"0x2","Start":524,"End":526,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinorRuntimeVersion","Description":"The minor portion of the version, currently 0.","Value":"0x0","Start":526,"End":528,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MetaData","Description":"RVA and size of the physical metadata (§II.24).","Value":"RVAandSize","Start":528,"End":536,"Children":[{"Name":"RVA","Description":"","Value":"0x2068","Start":528,"End":532,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x1D0","Start":532,"End":536,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Flags","Description":"Flags describing this runtime image. (§II.25.3.3.1).","Value":"0x00000001 ILOnly","Start":536,"End":540,"Children":[],"Errors":[],"LinkPath":null},{"Name":"EntryPointToken","Description":"Token for the MethodDef or File of the entry point for the image","Value":"0x6000001","Start":540,"End":544,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Resources","Description":"RVA and size of implementation-specific resources.","Value":"RVAandSize","Start":544,"End":552,"Children":[{"Name":"RVA","Description":"","Value":"0x0","Start":544,"End":548,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x0","Start":548,"End":552,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StrongNameSignature","Description":"RVA of the hash data for this PE file used by the CLI loader for binding and versioning","Value":"RVAandSize","Start":552,"End":560,"Children":[{"Name":"RVA","Description":"","Value":"0x0","Start":552,"End":556,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x0","Start":556,"End":560,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"CodeManagerTable","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":560,"End":568,"Children":[],"Errors":[],"LinkPath":null},{"Name":"VTableFixups","Description":"RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.","Value":"RVAandSize","Start":568,"End":576,"Children":[{"Name":"RVA","Description":"","Value":"0x0","Start":568,"End":572,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x0","Start":572,"End":576,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"ExportAddressTableJumps","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":576,"End":584,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ManagedNativeHeader","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":584,"End":592,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Method","Description":"","Value":"\"Main\"","Start":592,"End":615,"Children":[{"Name":"Header","Description":"","Value":"0x5A","Start":592,"End":593,"Children":[],"Errors":[],"LinkPath":null},{"Name":"CilOps","Description":"","Value":"{0x72, 0x1, 0x0, 0x0, 0x70, 0x1F, 0x2C, 0x8C, 0x1, 0x0, 0x0, 0x1B, 0x28, 0x1, 0x0, 0x0, 0xA, 0x28, 0x2, 0x0, 0x0, 0xA}","Start":593,"End":615,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"MetadataRoot","Description":"","Value":"","Start":616,"End":724,"Children":[{"Name":"Signature","Description":"","Value":"0x424A5342","Start":616,"End":620,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MajorVersion","Description":"","Value":"0x1","Start":620,"End":622,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinorVersion","Description":"","Value":"0x1","Start":622,"End":624,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"","Value":"0x0","Start":624,"End":628,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Length","Description":"","Value":"0xC","Start":628,"End":632,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Version","Description":"","Value":"\"v4.0.30319\"","Start":632,"End":644,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Flags","Description":"","Value":"0x0","Start":644,"End":646,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Streams","Description":"","Value":"0x5","Start":646,"End":648,"Children":[],"Errors":[],"LinkPath":null},{"Name":"StreamHeaders[0]","Description":"","Value":"","Start":648,"End":660,"Children":[{"Name":"Offset","Description":"","Value":"0x6C","Start":648,"End":652,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0xBC","Start":652,"End":656,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"","Value":"\"#~\"","Start":656,"End":660,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StreamHeaders[1]","Description":"","Value":"","Start":660,"End":680,"Children":[{"Name":"Offset","Description":"","Value":"0x128","Start":660,"End":664,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x64","Start":664,"End":668,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"","Value":"\"#Strings\"","Start":668,"End":680,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StreamHeaders[2]","Description":"","Value":"","Start":680,"End":692,"Children":[{"Name":"Offset","Description":"","Value":"0x18C","Start":680,"End":684,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x20","Start":684,"End":688,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"","Value":"\"#US\"","Start":688,"End":692,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StreamHeaders[3]","Description":"","Value":"","Start":692,"End":708,"Children":[{"Name":"Offset","Description":"","Value":"0x1AC","Start":692,"End":696,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x10","Start":696,"End":700,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"","Value":"\"#GUID\"","Start":700,"End":708,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StreamHeaders[4]","Description":"","Value":"","Start":708,"End":724,"Children":[{"Name":"Offset","Description":"","Value":"0x1BC","Start":708,"End":712,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Size","Description":"","Value":"0x14","Start":712,"End":716,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"","Value":"\"#Blob\"","Start":716,"End":724,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"TildeStream","Description":"","Value":"","Start":724,"End":912,"Children":[{"Name":"TildeData","Description":"","Value":"","Start":724,"End":748,"Children":[{"Name":"Reserved","Description":"Reserved, always 0 (§II.24.1).","Value":"0x0","Start":724,"End":728,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MajorVersion","Description":"Major version of table schemata; shall be 2 (§II.24.1).","Value":"0x2","Start":728,"End":729,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinorVersion","Description":"Minor version of table schemata; shall be 0 (§II.24.1).","Value":"0x0","Start":729,"End":730,"Children":[],"Errors":[],"LinkPath":null},{"Name":"HeapSizes","Description":"Bit vector for heap sizes. (Allowed to be non-zero but I haven\u0027t implemented that...)","Value":"0x00 0","Start":730,"End":731,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved2","Description":"Reserved, always 1 (§II.24.1).","Value":"0x1","Start":731,"End":732,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Valid","Description":"Bit vector of present tables, let n be the number of bits that are 1.","Value":"0x0000000908000447 Module, TypeRef, TypeDef, MethodDef, MemberRef, TypeSpec, Assembly, AssemblyRef","Start":732,"End":740,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Sorted","Description":"Bit vector of sorted tables.","Value":"0x0000000000000000 0","Start":740,"End":748,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Rows[0]","Description":"","Value":"0x1","Start":748,"End":752,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[1]","Description":"","Value":"0x4","Start":752,"End":756,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[2]","Description":"","Value":"0x2","Start":756,"End":760,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[3]","Description":"","Value":"0x1","Start":760,"End":764,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[4]","Description":"","Value":"0x2","Start":764,"End":768,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[5]","Description":"","Value":"0x1","Start":768,"End":772,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[6]","Description":"","Value":"0x1","Start":772,"End":776,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Rows[7]","Description":"","Value":"0x1","Start":776,"End":780,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Modules[0]","Description":"","Value":"\"AddR.exe\"","Start":780,"End":790,"Children":[{"Name":"Generation","Description":"","Value":"0x0","Start":780,"End":782,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"String Heap index A","Value":"\"AddR.exe\"","Start":782,"End":784,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Mvid","Description":"Guid Heap index 1","Value":"69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3","Start":784,"End":786,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/GuidHeap"},{"Name":"EncId","Description":"Guid Heap index 0","Value":"69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3","Start":786,"End":788,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/GuidHeap"},{"Name":"EncBaseId","Description":"Guid Heap index 0","Value":"69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3","Start":788,"End":790,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/GuidHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeRefs[0]","Description":"","Value":"\"System.Object\"","Start":790,"End":796,"Children":[{"Name":"ResolutionScope","Description":"","Value":"\"mscorlib 0.0.0.0\"","Start":790,"End":792,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"},{"Name":"TypeName","Description":"String Heap index 28","Value":"\"Object\"","Start":792,"End":794,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 2F","Value":"\"System\"","Start":794,"End":796,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeRefs[1]","Description":"","Value":"\"System.Int32\"","Start":796,"End":802,"Children":[{"Name":"ResolutionScope","Description":"","Value":"\"mscorlib 0.0.0.0\"","Start":796,"End":798,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"},{"Name":"TypeName","Description":"String Heap index 36","Value":"\"Int32\"","Start":798,"End":800,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 2F","Value":"\"System\"","Start":800,"End":802,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeRefs[2]","Description":"","Value":"\"System.String\"","Start":802,"End":808,"Children":[{"Name":"ResolutionScope","Description":"","Value":"\"mscorlib 0.0.0.0\"","Start":802,"End":804,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"},{"Name":"TypeName","Description":"String Heap index 3C","Value":"\"String\"","Start":804,"End":806,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 2F","Value":"\"System\"","Start":806,"End":808,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeRefs[3]","Description":"","Value":"\"System.Console\"","Start":808,"End":814,"Children":[{"Name":"ResolutionScope","Description":"","Value":"\"mscorlib 0.0.0.0\"","Start":808,"End":810,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"},{"Name":"TypeName","Description":"String Heap index 43","Value":"\"Console\"","Start":810,"End":812,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 2F","Value":"\"System\"","Start":812,"End":814,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeDefs[0]","Description":"","Value":"\".\u003cModule\u003e\"","Start":814,"End":828,"Children":[{"Name":"Flags","Description":"","Value":"{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}","Start":814,"End":818,"Children":[],"Errors":[],"LinkPath":null},{"Name":"TypeName","Description":"String Heap index 19","Value":"\"\u003cModule\u003e\"","Start":818,"End":820,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 0","Value":"\"\"","Start":820,"End":822,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Extends","Description":"","Value":"\"(Nothing)\"","Start":822,"End":824,"Children":[],"Errors":[],"LinkPath":null},{"Name":"FieldList","Description":"","Value":"0x1","Start":824,"End":826,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MethodList","Description":"","Value":"0x1","Start":826,"End":828,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"TypeDefs[1]","Description":"","Value":"\".Hello\"","Start":828,"End":842,"Children":[{"Name":"Flags","Description":"","Value":"{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}","Start":828,"End":832,"Children":[],"Errors":[],"LinkPath":null},{"Name":"TypeName","Description":"String Heap index 22","Value":"\"Hello\"","Start":832,"End":834,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"TypeNamespace","Description":"String Heap index 0","Value":"\"\"","Start":834,"End":836,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Extends","Description":"","Value":"\"System.Object\"","Start":836,"End":838,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/TypeRefs[0]"},{"Name":"FieldList","Description":"","Value":"0x1","Start":838,"End":840,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MethodList","Description":"","Value":"0x1","Start":840,"End":842,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"MethodDefs[0]","Description":"","Value":"\"Main\"","Start":842,"End":856,"Children":[{"Name":"RVA","Description":"","Value":"0x2050","Start":842,"End":846,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/Method"},{"Name":"ImplFlags","Description":"","Value":"0x0","Start":846,"End":848,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Flags","Description":"","Value":"0x10","Start":848,"End":850,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"String Heap index 4B","Value":"\"Main\"","Start":850,"End":852,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Signature","Description":"Blob Heap index 3","Value":"{0x0, 0x0, 0x1}","Start":852,"End":854,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"},{"Name":"ParamList","Description":"","Value":"0x1","Start":854,"End":856,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"MemberRefs[0]","Description":"","Value":"\"Concat\"","Start":856,"End":862,"Children":[{"Name":"Class","Description":"","Value":"\"System.String\"","Start":856,"End":858,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/TypeRefs[2]"},{"Name":"Name","Description":"String Heap index 50","Value":"\"Concat\"","Start":858,"End":860,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Signature","Description":"Blob Heap index 7","Value":"{0x0, 0x2, 0xE, 0x1C, 0x1C}","Start":860,"End":862,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"}],"Errors":[],"LinkPath":null},{"Name":"MemberRefs[1]","Description":"","Value":"\"WriteLine\"","Start":862,"End":868,"Children":[{"Name":"Class","Description":"","Value":"\"System.Console\"","Start":862,"End":864,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/TildeStream/TypeRefs[3]"},{"Name":"Name","Description":"String Heap index 57","Value":"\"WriteLine\"","Start":864,"End":866,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Signature","Description":"Blob Heap index D","Value":"{0x0, 0x1, 0x1, 0xE}","Start":866,"End":868,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"}],"Errors":[],"LinkPath":null},{"Name":"TypeSpecs[0]","Description":"","Value":"\"\"","Start":868,"End":870,"Children":[{"Name":"Signature","Description":"Blob Heap index 1","Value":"{0x8}","Start":868,"End":870,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"}],"Errors":[],"LinkPath":null},{"Name":"Assemblies[0]","Description":"","Value":"","Start":870,"End":892,"Children":[{"Name":"HashAlgId","Description":"","Value":"","Start":870,"End":874,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MajorVersion","Description":"","Value":"0x0","Start":874,"End":876,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinorVersion","Description":"","Value":"0x0","Start":876,"End":878,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BuildNumber","Description":"","Value":"0x0","Start":878,"End":880,"Children":[],"Errors":[],"LinkPath":null},{"Name":"RevisionNumber","Description":"","Value":"0x0","Start":880,"End":882,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Flags","Description":"","Value":"","Start":882,"End":886,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PublicKey","Description":"Blob Heap index 0","Value":"{}","Start":886,"End":888,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"},{"Name":"Name","Description":"String Heap index 13","Value":"\"World\"","Start":888,"End":890,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Culture","Description":"String Heap index 0","Value":"\"\"","Start":890,"End":892,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"}],"Errors":[],"LinkPath":null},{"Name":"AssemblyRefs[0]","Description":"","Value":"\"mscorlib 0.0.0.0\"","Start":892,"End":912,"Children":[{"Name":"MajorVersion","Description":"","Value":"0x0","Start":892,"End":894,"Children":[],"Errors":[],"LinkPath":null},{"Name":"MinorVersion","Description":"","Value":"0x0","Start":894,"End":896,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BuildNumber","Description":"","Value":"0x0","Start":896,"End":898,"Children":[],"Errors":[],"LinkPath":null},{"Name":"RevisionNumber","Description":"","Value":"0x0","Start":898,"End":900,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Flags","Description":"","Value":"","Start":900,"End":904,"Children":[],"Errors":[],"LinkPath":null},{"Name":"PublicKeyOrToken","Description":"Blob Heap index 0","Value":"{}","Start":904,"End":906,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"},{"Name":"Name","Description":"String Heap index 1","Value":"\"mscorlib\"","Start":906,"End":908,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"Culture","Description":"String Heap index 0","Value":"\"\"","Start":908,"End":910,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/StringHeap"},{"Name":"HashValue","Description":"Blob Heap index 0","Value":"{}","Start":910,"End":912,"Children":[],"Errors":[],"LinkPath":"FileFormat/Sections[0]/BlobHeap"}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"StringHeap","Description":"","Value":"","Start":912,"End":1012,"Children":[],"Errors":[],"LinkPath":null},{"Name":"UserStringHeap","Description":"","Value":"","Start":1012,"End":1044,"Children":[],"Errors":[],"LinkPath":null},{"Name":"GuidHeap","Description":"","Value":"","Start":1044,"End":1060,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BlobHeap","Description":"","Value":"","Start":1060,"End":1080,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ImportTable","Description":"","Value":"","Start":1088,"End":1128,"Children":[{"Name":"ImportLookupTable","Description":"RVA of the Import Lookup Table","Value":"0x2268","Start":1088,"End":1092,"Children":[],"Errors":[],"LinkPath":null},{"Name":"DateTimeStamp","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":1092,"End":1096,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ForwarderChain","Description":"Always 0 (§II.24.1).","Value":"0x0","Start":1096,"End":1100,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Name","Description":"RVA of null-terminated ASCII string “mscoree.dll”.","Value":"0x227E","Start":1100,"End":1104,"Children":[],"Errors":[],"LinkPath":null},{"Name":"ImportAddressTableRVA","Description":"RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).","Value":"0x2000","Start":1104,"End":1108,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Reserved","Description":"End of Import Table. Shall be filled with zeros.","Value":"{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}","Start":1108,"End":1128,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"ImportLookupTable","Description":"","Value":"","Start":1128,"End":1136,"Children":[{"Name":"HintNameTableRVA","Description":"","Value":"0x2270","Start":1128,"End":1132,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NullTerminated","Description":"","Value":"0x0","Start":1132,"End":1136,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"ImportAddressHintNameTable","Description":"","Value":"","Start":1136,"End":1150,"Children":[{"Name":"Hint","Description":"Shall be 0.","Value":"0x0","Start":1136,"End":1138,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Message","Description":"Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.","Value":"\"_CorExeMain\\0\"","Start":1138,"End":1150,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"RuntimeEngineName","Description":"","Value":"\"mscoree.dll\"","Start":1150,"End":1162,"Children":[],"Errors":[],"LinkPath":null},{"Name":"NativeEntryPoint","Description":"","Value":"","Start":1166,"End":1172,"Children":[{"Name":"JMP","Description":"JMP op code in X86","Value":"0xFF","Start":1166,"End":1167,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Mod","Description":"Specifies the jump is in absolute indirect mode","Value":"0x25","Start":1167,"End":1168,"Children":[],"Errors":[],"LinkPath":null},{"Name":"JumpTarget","Description":"Jump target RVA.","Value":"0x402000","Start":1168,"End":1172,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Sections[1]","Description":".reloc\u0000\u0000","Value":"","Start":1536,"End":2048,"Children":[{"Name":"Relocations","Description":"","Value":"","Start":1536,"End":1548,"Children":[{"Name":"BaseRelocationTable","Description":"","Value":"","Start":1536,"End":1544,"Children":[{"Name":"PageRVA","Description":"","Value":"0x2000","Start":1536,"End":1540,"Children":[],"Errors":[],"LinkPath":null},{"Name":"BlockSize","Description":"","Value":"0xC","Start":1540,"End":1544,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Fixups[0]","Description":"","Value":"","Start":1544,"End":1546,"Children":[{"Name":"Type","Description":"","Value":"0x9","Start":1544,"End":1545,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Offset","Description":"","Value":"0x32","Start":1545,"End":1546,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null},{"Name":"Fixups[1]","Description":"","Value":"","Start":1546,"End":1548,"Children":[{"Name":"Type","Description":"","Value":"0x0","Start":1546,"End":1547,"Children":[],"Errors":[],"LinkPath":null},{"Name":"Offset","Description":"","Value":"0x0","Start":1547,"End":1548,"Children":[],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}],"Errors":[],"LinkPath":null}
+{
+	"Name": "FileFormat",
+	"Description": "",
+	"Value": "",
+	"Start": 0,
+	"End": 2048,
+	"Children": [{
+		"Name": "PEHeader",
+		"Description": "",
+		"Value": "",
+		"Start": 0,
+		"End": 456,
+		"Children": [{
+			"Name": "DosHeader",
+			"Description": "",
+			"Value": "",
+			"Start": 0,
+			"End": 128,
+			"Children": [{
+				"Name": "MagicM",
+				"Description": "",
+				"Value": "M",
+				"Start": 0,
+				"End": 1,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MagicZ",
+				"Description": "",
+				"Value": "Z",
+				"Start": 1,
+				"End": 2,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "BytesOnLastPageOfFile",
+				"Description": "",
+				"Value": "0x90",
+				"Start": 2,
+				"End": 4,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PagesInFile",
+				"Description": "",
+				"Value": "0x3",
+				"Start": 4,
+				"End": 6,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Relocations",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 6,
+				"End": 8,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "SizeOfHeaderInParagraphs",
+				"Description": "",
+				"Value": "0x4",
+				"Start": 8,
+				"End": 10,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MinimumExtraParagraphsNeeded",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 10,
+				"End": 12,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MaximumExtraParagraphsNeeded",
+				"Description": "",
+				"Value": "0xFFFF",
+				"Start": 12,
+				"End": 14,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "InitialRelativeStackSegmentValue",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 14,
+				"End": 16,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "InitialSP",
+				"Description": "",
+				"Value": "0xB8",
+				"Start": 16,
+				"End": 18,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Checksum",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 18,
+				"End": 20,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "InitialIP",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 20,
+				"End": 22,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "InitialRelativeCS",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 22,
+				"End": 24,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "RawAddressOfRelocation",
+				"Description": "",
+				"Value": "0x40",
+				"Start": 24,
+				"End": 26,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "OverlayNumber",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 26,
+				"End": 28,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 28,
+				"End": 36,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "OemIdentifier",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 36,
+				"End": 38,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "OemInformation",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 38,
+				"End": 40,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved2",
+				"Description": "",
+				"Value": "{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}",
+				"Start": 40,
+				"End": 60,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "LfaNew",
+				"Description": "",
+				"Value": "0x80",
+				"Start": 60,
+				"End": 64,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "DosCode",
+				"Description": "",
+				"Value": "{0xE, 0x1F, 0xBA, 0xE, 0x0, 0xB4, 0x9, 0xCD, 0x21, 0xB8, 0x1, 0x4C, 0xCD, 0x21}",
+				"Start": 64,
+				"End": 78,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Message",
+				"Description": "",
+				"Value": "\"This program cannot be run in DOS mode.\\r\\r\\n$\"",
+				"Start": 78,
+				"End": 121,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved3",
+				"Description": "",
+				"Value": "{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}",
+				"Start": 121,
+				"End": 128,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "PESignature",
+			"Description": "",
+			"Value": "",
+			"Start": 128,
+			"End": 132,
+			"Children": [{
+				"Name": "MagicP",
+				"Description": "",
+				"Value": "P",
+				"Start": 128,
+				"End": 129,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MagicE",
+				"Description": "",
+				"Value": "E",
+				"Start": 129,
+				"End": 130,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 130,
+				"End": 132,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "PEFileHeader",
+			"Description": "",
+			"Value": "",
+			"Start": 132,
+			"End": 152,
+			"Children": [{
+				"Name": "Machine",
+				"Description": "Always 0x14c.",
+				"Value": "0x14C",
+				"Start": 132,
+				"End": 134,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfSections",
+				"Description": "Number of sections; indicates size of the Section Table, which immediately follows the headers.",
+				"Value": "0x2",
+				"Start": 134,
+				"End": 136,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TimeDateStamp",
+				"Description": "Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.",
+				"Value": "0x565CF4B1",
+				"Start": 136,
+				"End": 140,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToSymbolTable",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 140,
+				"End": 144,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfSymbols",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 144,
+				"End": 148,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "OptionalHeader",
+				"Description": "Size Size of the optional header, the format is described below.",
+				"Value": "0xE0",
+				"Start": 148,
+				"End": 150,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Characteristics",
+				"Description": "Flags indicating attributes of the file, see §II.25.2.2.1.",
+				"Value": "0x10E",
+				"Start": 150,
+				"End": 152,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "PEOptionalHeader",
+			"Description": "",
+			"Value": "",
+			"Start": 152,
+			"End": 376,
+			"Children": [{
+				"Name": "PEHeaderStandardFields",
+				"Description": "",
+				"Value": "PEHeaderStandardFields",
+				"Start": 152,
+				"End": 180,
+				"Children": [{
+					"Name": "Magic",
+					"Description": "Always 0x10B.",
+					"Value": "0x10B",
+					"Start": 152,
+					"End": 154,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "LMajor",
+					"Description": "Sepc says always 6, sometimes more (§II.24.1).",
+					"Value": "0x6",
+					"Start": 154,
+					"End": 155,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "LMinor",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 155,
+					"End": 156,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "CodeSize",
+					"Description": "Size of the code (text) section, or the sum of all code sections if there are multiple sections.",
+					"Value": "0x400",
+					"Start": 156,
+					"End": 160,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "InitializedDataSize",
+					"Description": "Size of the initialized data section, or the sum of all such sections if there are multiple data sections.",
+					"Value": "0x200",
+					"Start": 160,
+					"End": 164,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "UninitializedDataSize",
+					"Description": "Size of the uninitialized data section, or the sum of all such sections if there are multiple unitinitalized data sections.",
+					"Value": "0x0",
+					"Start": 164,
+					"End": 168,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "EntryPointRVA",
+					"Description": "RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs",
+					"Value": "0x228E",
+					"Start": 168,
+					"End": 172,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BaseOfCode",
+					"Description": "RVA of the code section. (This is a hint to the loader.)",
+					"Value": "0x2000",
+					"Start": 172,
+					"End": 176,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BaseOfData",
+					"Description": "RVA of the data section. (This is a hint to the loader.)",
+					"Value": "0x4000",
+					"Start": 176,
+					"End": 180,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PEHeaderWindowsNtSpecificFields",
+				"Description": "",
+				"Value": "PEHeaderWindowsNtSpecificFields",
+				"Start": 180,
+				"End": 248,
+				"Children": [{
+					"Name": "ImageBase",
+					"Description": "Shall be a multiple of 0x10000.",
+					"Value": "0x400000",
+					"Start": 180,
+					"End": 184,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "SectionAlignment",
+					"Description": "Shall be greater than File Alignment.",
+					"Value": "0x2000",
+					"Start": 184,
+					"End": 188,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "FileAlignment",
+					"Description": "Should be 0x200 (§II.24.1).",
+					"Value": "0x200",
+					"Start": 188,
+					"End": 192,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "OSMajor",
+					"Description": "Should be 5 (§II.24.1).",
+					"Value": "0x4",
+					"Start": 192,
+					"End": 194,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "OSMinor",
+					"Description": "Should be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 194,
+					"End": 196,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "UserMajor",
+					"Description": "Should be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 196,
+					"End": 198,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "UserMinor",
+					"Description": "Should be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 198,
+					"End": 200,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "SubSysMajor",
+					"Description": "Should be 5 (§II.24.1).",
+					"Value": "0x4",
+					"Start": 200,
+					"End": 202,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "SubSysMinor",
+					"Description": "Should be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 202,
+					"End": 204,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Reserved",
+					"Description": "Shall be zero",
+					"Value": "0x0",
+					"Start": 204,
+					"End": 208,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "ImageSize",
+					"Description": "Size, in bytes, of image, including all headers and padding; shall be a multiple of Section Alignment.",
+					"Value": "0x6000",
+					"Start": 208,
+					"End": 212,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "HeaderSize",
+					"Description": "Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.",
+					"Value": "0x200",
+					"Start": 212,
+					"End": 216,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "FileChecksum",
+					"Description": "Should be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 216,
+					"End": 220,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "SubSystem",
+					"Description": "Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).",
+					"Value": "0x3",
+					"Start": 220,
+					"End": 222,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "DLLFlags",
+					"Description": "Bits 0x100f shall be zero.",
+					"Value": "0x0000 0",
+					"Start": 222,
+					"End": 224,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "StackReserveSize",
+					"Description": "Should be 0x100000 (1Mb) (§II.24.1).",
+					"Value": "0x100000",
+					"Start": 224,
+					"End": 228,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "StackCommitSize",
+					"Description": "Should be 0x1000 (4Kb) (§II.24.1).",
+					"Value": "0x1000",
+					"Start": 228,
+					"End": 232,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "HeapReserveSize",
+					"Description": "Should be 0x100000 (1Mb) (§II.24.1).",
+					"Value": "0x100000",
+					"Start": 232,
+					"End": 236,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "HeapCommitSize",
+					"Description": "Should be 0x1000 (4Kb) (§II.24.1).",
+					"Value": "0x1000",
+					"Start": 236,
+					"End": 240,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "LoaderFlags",
+					"Description": "Shall be 0",
+					"Value": "0x0",
+					"Start": 240,
+					"End": 244,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "NumberOfDataDirectories",
+					"Description": "Shall be 0x10",
+					"Value": "0x10",
+					"Start": 244,
+					"End": 248,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PEHeaderHeaderDataDirectories",
+				"Description": "",
+				"Value": "PEHeaderHeaderDataDirectories",
+				"Start": 248,
+				"End": 376,
+				"Children": [{
+					"Name": "ExportTable",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 248,
+					"End": 256,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "ImportTable",
+					"Description": "RVA and Size of Import Table, (§II.25.3.1).",
+					"Value": "RVAandSize",
+					"Start": 256,
+					"End": 264,
+					"Children": [{
+						"Name": "RVA",
+						"Description": "",
+						"Value": "0x2240",
+						"Start": 256,
+						"End": 260,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					},
+					{
+						"Name": "Size",
+						"Description": "",
+						"Value": "0x4B",
+						"Start": 260,
+						"End": 264,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					}],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "ResourceTable",
+					"Description": "Always 0, unless resources are compiled in (§II.24.1).",
+					"Value": "0x0",
+					"Start": 264,
+					"End": 272,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "ExceptionTable",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 272,
+					"End": 280,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "CertificateTable",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 280,
+					"End": 288,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BaseRelocationTable",
+					"Description": "Relocation Table; set to 0 if unused (§).",
+					"Value": "RVAandSize",
+					"Start": 288,
+					"End": 296,
+					"Children": [{
+						"Name": "RVA",
+						"Description": "",
+						"Value": "0x4000",
+						"Start": 288,
+						"End": 292,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					},
+					{
+						"Name": "Size",
+						"Description": "",
+						"Value": "0xC",
+						"Start": 292,
+						"End": 296,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					}],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Debug",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 296,
+					"End": 304,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Copyright",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 304,
+					"End": 312,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "GlobalPtr",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 312,
+					"End": 320,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "TLSTable",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 320,
+					"End": 328,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "LoadConfigTable",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 328,
+					"End": 336,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BoundImport",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 336,
+					"End": 344,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "ImportAddressTable",
+					"Description": "RVA and Size of Import Address Table,(§II.25.3.1).",
+					"Value": "RVAandSize",
+					"Start": 344,
+					"End": 352,
+					"Children": [{
+						"Name": "RVA",
+						"Description": "",
+						"Value": "0x2000",
+						"Start": 344,
+						"End": 348,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					},
+					{
+						"Name": "Size",
+						"Description": "",
+						"Value": "0x8",
+						"Start": 348,
+						"End": 352,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					}],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "DelayImportDescriptor",
+					"Description": "Always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 352,
+					"End": 360,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "CLIHeader",
+					"Description": "CLI Header with directories for runtime data,(§II.25.3.1).",
+					"Value": "RVAandSize",
+					"Start": 360,
+					"End": 368,
+					"Children": [{
+						"Name": "RVA",
+						"Description": "",
+						"Value": "0x2008",
+						"Start": 360,
+						"End": 364,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					},
+					{
+						"Name": "Size",
+						"Description": "",
+						"Value": "0x48",
+						"Start": 364,
+						"End": 368,
+						"Children": [],
+						"Errors": [],
+						"LinkPath": null
+					}],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Reserved",
+					"Description": "Always 0 (§II.24.1)",
+					"Value": "0x0",
+					"Start": 368,
+					"End": 376,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "SectionHeaders[0]",
+			"Description": "",
+			"Value": "",
+			"Start": 376,
+			"End": 416,
+			"Children": [{
+				"Name": "Name",
+				"Description": "An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.",
+				"Value": "\".text\\0\\0\\0\"",
+				"Start": 376,
+				"End": 384,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "VirtualSize",
+				"Description": "Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.",
+				"Value": "0x294",
+				"Start": 384,
+				"End": 388,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "VirtualAddress",
+				"Description": "For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.",
+				"Value": "0x2000",
+				"Start": 388,
+				"End": 392,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "SizeOfRawData",
+				"Description": "Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.",
+				"Value": "0x400",
+				"Start": 392,
+				"End": 396,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToRawData",
+				"Description": "Offset of section\u0027s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.",
+				"Value": "0x200",
+				"Start": 396,
+				"End": 400,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToRelocations",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 400,
+				"End": 404,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToLinenumbers",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 404,
+				"End": 408,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfRelocations",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 408,
+				"End": 410,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfLinenumbers",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 410,
+				"End": 412,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Characteristics",
+				"Description": "Flags describing section’s characteristics.",
+				"Value": "0x60000020 ContainsCode, MemoryCanBeExecutedAsCode, MemoryCanBeRead",
+				"Start": 412,
+				"End": 416,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "SectionHeaders[1]",
+			"Description": "",
+			"Value": "",
+			"Start": 416,
+			"End": 456,
+			"Children": [{
+				"Name": "Name",
+				"Description": "An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.",
+				"Value": "\".reloc\\0\\0\"",
+				"Start": 416,
+				"End": 424,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "VirtualSize",
+				"Description": "Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.",
+				"Value": "0xC",
+				"Start": 424,
+				"End": 428,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "VirtualAddress",
+				"Description": "For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.",
+				"Value": "0x4000",
+				"Start": 428,
+				"End": 432,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "SizeOfRawData",
+				"Description": "Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.",
+				"Value": "0x200",
+				"Start": 432,
+				"End": 436,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToRawData",
+				"Description": "Offset of section\u0027s first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.",
+				"Value": "0x600",
+				"Start": 436,
+				"End": 440,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToRelocations",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 440,
+				"End": 444,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "PointerToLinenumbers",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 444,
+				"End": 448,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfRelocations",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 448,
+				"End": 450,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NumberOfLinenumbers",
+				"Description": "Should be 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 450,
+				"End": 452,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Characteristics",
+				"Description": "Flags describing section’s characteristics.",
+				"Value": "0x42000040 ContainsInitializedData, MemoryCanBeDiscarded, MemoryCanBeRead",
+				"Start": 452,
+				"End": 456,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		}],
+		"Errors": [],
+		"LinkPath": null
+	},
+	{
+		"Name": "Sections[0]",
+		"Description": ".text\u0000\u0000\u0000",
+		"Value": "",
+		"Start": 512,
+		"End": 1536,
+		"Children": [{
+			"Name": "ImportAddressTable",
+			"Description": "",
+			"Value": "",
+			"Start": 512,
+			"End": 520,
+			"Children": [{
+				"Name": "HintNameTableRVA",
+				"Description": "",
+				"Value": "0x2270",
+				"Start": 512,
+				"End": 516,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NullTerminated",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 516,
+				"End": 520,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "CLIHeader",
+			"Description": "",
+			"Value": "",
+			"Start": 520,
+			"End": 592,
+			"Children": [{
+				"Name": "Cb",
+				"Description": "Size of the header in bytes",
+				"Value": "0x48",
+				"Start": 520,
+				"End": 524,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MajorRuntimeVersion",
+				"Description": "The minimum version of the runtime required to run this program, currently 2.",
+				"Value": "0x2",
+				"Start": 524,
+				"End": 526,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MinorRuntimeVersion",
+				"Description": "The minor portion of the version, currently 0.",
+				"Value": "0x0",
+				"Start": 526,
+				"End": 528,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MetaData",
+				"Description": "RVA and size of the physical metadata (§II.24).",
+				"Value": "RVAandSize",
+				"Start": 528,
+				"End": 536,
+				"Children": [{
+					"Name": "RVA",
+					"Description": "",
+					"Value": "0x2068",
+					"Start": 528,
+					"End": 532,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x1D0",
+					"Start": 532,
+					"End": 536,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Flags",
+				"Description": "Flags describing this runtime image. (§II.25.3.3.1).",
+				"Value": "0x00000001 ILOnly",
+				"Start": 536,
+				"End": 540,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "EntryPointToken",
+				"Description": "Token for the MethodDef or File of the entry point for the image",
+				"Value": "0x6000001",
+				"Start": 540,
+				"End": 544,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Resources",
+				"Description": "RVA and size of implementation-specific resources.",
+				"Value": "RVAandSize",
+				"Start": 544,
+				"End": 552,
+				"Children": [{
+					"Name": "RVA",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 544,
+					"End": 548,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 548,
+					"End": 552,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StrongNameSignature",
+				"Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning",
+				"Value": "RVAandSize",
+				"Start": 552,
+				"End": 560,
+				"Children": [{
+					"Name": "RVA",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 552,
+					"End": 556,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 556,
+					"End": 560,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "CodeManagerTable",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 560,
+				"End": 568,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "VTableFixups",
+				"Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.",
+				"Value": "RVAandSize",
+				"Start": 568,
+				"End": 576,
+				"Children": [{
+					"Name": "RVA",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 568,
+					"End": 572,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 572,
+					"End": 576,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "ExportAddressTableJumps",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 576,
+				"End": 584,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "ManagedNativeHeader",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 584,
+				"End": 592,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "Methods",
+			"Description": "",
+			"Value": "",
+			"Start": 592,
+			"End": 615,
+			"Children": [{
+				"Name": "Main",
+				"Description": "",
+				"Value": "\"Main\"",
+				"Start": 592,
+				"End": 615,
+				"Children": [{
+					"Name": "Header",
+					"Description": "",
+					"Value": "0x5A",
+					"Start": 592,
+					"End": 593,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "CilOps",
+					"Description": "",
+					"Value": "{0x72, 0x1, 0x0, 0x0, 0x70, 0x1F, 0x2C, 0x8C, 0x1, 0x0, 0x0, 0x1B, 0x28, 0x1, 0x0, 0x0, 0xA, 0x28, 0x2, 0x0, 0x0, 0xA}",
+					"Start": 593,
+					"End": 615,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "MetadataRoot",
+			"Description": "",
+			"Value": "",
+			"Start": 616,
+			"End": 724,
+			"Children": [{
+				"Name": "Signature",
+				"Description": "",
+				"Value": "0x424A5342",
+				"Start": 616,
+				"End": 620,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MajorVersion",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 620,
+				"End": 622,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MinorVersion",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 622,
+				"End": 624,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 624,
+				"End": 628,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Length",
+				"Description": "",
+				"Value": "0xC",
+				"Start": 628,
+				"End": 632,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Version",
+				"Description": "",
+				"Value": "\"v4.0.30319\"",
+				"Start": 632,
+				"End": 644,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Flags",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 644,
+				"End": 646,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Streams",
+				"Description": "",
+				"Value": "0x5",
+				"Start": 646,
+				"End": 648,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StreamHeaders[0]",
+				"Description": "",
+				"Value": "",
+				"Start": 648,
+				"End": 660,
+				"Children": [{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x6C",
+					"Start": 648,
+					"End": 652,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0xBC",
+					"Start": 652,
+					"End": 656,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "",
+					"Value": "\"#~\"",
+					"Start": 656,
+					"End": 660,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StreamHeaders[1]",
+				"Description": "",
+				"Value": "",
+				"Start": 660,
+				"End": 680,
+				"Children": [{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x128",
+					"Start": 660,
+					"End": 664,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x64",
+					"Start": 664,
+					"End": 668,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "",
+					"Value": "\"#Strings\"",
+					"Start": 668,
+					"End": 680,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StreamHeaders[2]",
+				"Description": "",
+				"Value": "",
+				"Start": 680,
+				"End": 692,
+				"Children": [{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x18C",
+					"Start": 680,
+					"End": 684,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x20",
+					"Start": 684,
+					"End": 688,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "",
+					"Value": "\"#US\"",
+					"Start": 688,
+					"End": 692,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StreamHeaders[3]",
+				"Description": "",
+				"Value": "",
+				"Start": 692,
+				"End": 708,
+				"Children": [{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x1AC",
+					"Start": 692,
+					"End": 696,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x10",
+					"Start": 696,
+					"End": 700,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "",
+					"Value": "\"#GUID\"",
+					"Start": 700,
+					"End": 708,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "StreamHeaders[4]",
+				"Description": "",
+				"Value": "",
+				"Start": 708,
+				"End": 724,
+				"Children": [{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x1BC",
+					"Start": 708,
+					"End": 712,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Size",
+					"Description": "",
+					"Value": "0x14",
+					"Start": 712,
+					"End": 716,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "",
+					"Value": "\"#Blob\"",
+					"Start": 716,
+					"End": 724,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "TildeStream",
+			"Description": "",
+			"Value": "",
+			"Start": 724,
+			"End": 912,
+			"Children": [{
+				"Name": "TildeData",
+				"Description": "",
+				"Value": "",
+				"Start": 724,
+				"End": 748,
+				"Children": [{
+					"Name": "Reserved",
+					"Description": "Reserved, always 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 724,
+					"End": 728,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MajorVersion",
+					"Description": "Major version of table schemata; shall be 2 (§II.24.1).",
+					"Value": "0x2",
+					"Start": 728,
+					"End": 729,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MinorVersion",
+					"Description": "Minor version of table schemata; shall be 0 (§II.24.1).",
+					"Value": "0x0",
+					"Start": 729,
+					"End": 730,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "HeapSizes",
+					"Description": "Bit vector for heap sizes. (Allowed to be non-zero but I haven\u0027t implemented that...)",
+					"Value": "0x00 0",
+					"Start": 730,
+					"End": 731,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Reserved2",
+					"Description": "Reserved, always 1 (§II.24.1).",
+					"Value": "0x1",
+					"Start": 731,
+					"End": 732,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Valid",
+					"Description": "Bit vector of present tables, let n be the number of bits that are 1.",
+					"Value": "0x0000000908000447 Module, TypeRef, TypeDef, MethodDef, MemberRef, TypeSpec, Assembly, AssemblyRef",
+					"Start": 732,
+					"End": 740,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Sorted",
+					"Description": "Bit vector of sorted tables.",
+					"Value": "0x0000000000000000 0",
+					"Start": 740,
+					"End": 748,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[0]",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 748,
+				"End": 752,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[1]",
+				"Description": "",
+				"Value": "0x4",
+				"Start": 752,
+				"End": 756,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[2]",
+				"Description": "",
+				"Value": "0x2",
+				"Start": 756,
+				"End": 760,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[3]",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 760,
+				"End": 764,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[4]",
+				"Description": "",
+				"Value": "0x2",
+				"Start": 764,
+				"End": 768,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[5]",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 768,
+				"End": 772,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[6]",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 772,
+				"End": 776,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Rows[7]",
+				"Description": "",
+				"Value": "0x1",
+				"Start": 776,
+				"End": 780,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Modules[0]",
+				"Description": "",
+				"Value": "\"AddR.exe\"",
+				"Start": 780,
+				"End": 790,
+				"Children": [{
+					"Name": "Generation",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 780,
+					"End": 782,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index A",
+					"Value": "\"AddR.exe\"",
+					"Start": 782,
+					"End": 784,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Mvid",
+					"Description": "Guid Heap index 1",
+					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+					"Start": 784,
+					"End": 786,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/GuidHeap"
+				},
+				{
+					"Name": "EncId",
+					"Description": "Guid Heap index 0",
+					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+					"Start": 786,
+					"End": 788,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/GuidHeap"
+				},
+				{
+					"Name": "EncBaseId",
+					"Description": "Guid Heap index 0",
+					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+					"Start": 788,
+					"End": 790,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/GuidHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeRefs[0]",
+				"Description": "",
+				"Value": "\"System.Object\"",
+				"Start": 790,
+				"End": 796,
+				"Children": [{
+					"Name": "ResolutionScope",
+					"Description": "",
+					"Value": "\"mscorlib 0.0.0.0\"",
+					"Start": 790,
+					"End": 792,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 28",
+					"Value": "\"Object\"",
+					"Start": 792,
+					"End": 794,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 2F",
+					"Value": "\"System\"",
+					"Start": 794,
+					"End": 796,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeRefs[1]",
+				"Description": "",
+				"Value": "\"System.Int32\"",
+				"Start": 796,
+				"End": 802,
+				"Children": [{
+					"Name": "ResolutionScope",
+					"Description": "",
+					"Value": "\"mscorlib 0.0.0.0\"",
+					"Start": 796,
+					"End": 798,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 36",
+					"Value": "\"Int32\"",
+					"Start": 798,
+					"End": 800,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 2F",
+					"Value": "\"System\"",
+					"Start": 800,
+					"End": 802,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeRefs[2]",
+				"Description": "",
+				"Value": "\"System.String\"",
+				"Start": 802,
+				"End": 808,
+				"Children": [{
+					"Name": "ResolutionScope",
+					"Description": "",
+					"Value": "\"mscorlib 0.0.0.0\"",
+					"Start": 802,
+					"End": 804,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 3C",
+					"Value": "\"String\"",
+					"Start": 804,
+					"End": 806,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 2F",
+					"Value": "\"System\"",
+					"Start": 806,
+					"End": 808,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeRefs[3]",
+				"Description": "",
+				"Value": "\"System.Console\"",
+				"Start": 808,
+				"End": 814,
+				"Children": [{
+					"Name": "ResolutionScope",
+					"Description": "",
+					"Value": "\"mscorlib 0.0.0.0\"",
+					"Start": 808,
+					"End": 810,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]"
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 43",
+					"Value": "\"Console\"",
+					"Start": 810,
+					"End": 812,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 2F",
+					"Value": "\"System\"",
+					"Start": 812,
+					"End": 814,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeDefs[0]",
+				"Description": "",
+				"Value": "\".\u003cModule\u003e\"",
+				"Start": 814,
+				"End": 828,
+				"Children": [{
+					"Name": "Flags",
+					"Description": "",
+					"Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
+					"Start": 814,
+					"End": 818,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 19",
+					"Value": "\"\u003cModule\u003e\"",
+					"Start": 818,
+					"End": 820,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 0",
+					"Value": "\"\"",
+					"Start": 820,
+					"End": 822,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Extends",
+					"Description": "",
+					"Value": "\"(Nothing)\"",
+					"Start": 822,
+					"End": 824,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "FieldList",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 824,
+					"End": 826,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MethodList",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 826,
+					"End": 828,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeDefs[1]",
+				"Description": "",
+				"Value": "\".Hello\"",
+				"Start": 828,
+				"End": 842,
+				"Children": [{
+					"Name": "Flags",
+					"Description": "",
+					"Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
+					"Start": 828,
+					"End": 832,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "TypeName",
+					"Description": "String Heap index 22",
+					"Value": "\"Hello\"",
+					"Start": 832,
+					"End": 834,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "TypeNamespace",
+					"Description": "String Heap index 0",
+					"Value": "\"\"",
+					"Start": 834,
+					"End": 836,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Extends",
+					"Description": "",
+					"Value": "\"System.Object\"",
+					"Start": 836,
+					"End": 838,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[0]"
+				},
+				{
+					"Name": "FieldList",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 838,
+					"End": 840,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MethodList",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 840,
+					"End": 842,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MethodDefs[0]",
+				"Description": "",
+				"Value": "\"Main\"",
+				"Start": 842,
+				"End": 856,
+				"Children": [{
+					"Name": "RVA",
+					"Description": "",
+					"Value": "\"0x2050\"",
+					"Start": 842,
+					"End": 846,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/Methods/Main"
+				},
+				{
+					"Name": "ImplFlags",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 846,
+					"End": 848,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Flags",
+					"Description": "",
+					"Value": "0x10",
+					"Start": 848,
+					"End": 850,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index 4B",
+					"Value": "\"Main\"",
+					"Start": 850,
+					"End": 852,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Signature",
+					"Description": "Blob Heap index 3",
+					"Value": "{0x0, 0x0, 0x1}",
+					"Start": 852,
+					"End": 854,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				},
+				{
+					"Name": "ParamList",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 854,
+					"End": 856,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MemberRefs[0]",
+				"Description": "",
+				"Value": "\"Concat\"",
+				"Start": 856,
+				"End": 862,
+				"Children": [{
+					"Name": "Class",
+					"Description": "",
+					"Value": "\"System.String\"",
+					"Start": 856,
+					"End": 858,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[2]"
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index 50",
+					"Value": "\"Concat\"",
+					"Start": 858,
+					"End": 860,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Signature",
+					"Description": "Blob Heap index 7",
+					"Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+					"Start": 860,
+					"End": 862,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "MemberRefs[1]",
+				"Description": "",
+				"Value": "\"WriteLine\"",
+				"Start": 862,
+				"End": 868,
+				"Children": [{
+					"Name": "Class",
+					"Description": "",
+					"Value": "\"System.Console\"",
+					"Start": 862,
+					"End": 864,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[3]"
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index 57",
+					"Value": "\"WriteLine\"",
+					"Start": 864,
+					"End": 866,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Signature",
+					"Description": "Blob Heap index D",
+					"Value": "{0x0, 0x1, 0x1, 0xE}",
+					"Start": 866,
+					"End": 868,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "TypeSpecs[0]",
+				"Description": "",
+				"Value": "\"\"",
+				"Start": 868,
+				"End": 870,
+				"Children": [{
+					"Name": "Signature",
+					"Description": "Blob Heap index 1",
+					"Value": "{0x8}",
+					"Start": 868,
+					"End": 870,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Assemblies[0]",
+				"Description": "",
+				"Value": "\"World 0.0.0.0\"",
+				"Start": 870,
+				"End": 892,
+				"Children": [{
+					"Name": "HashAlgId",
+					"Description": "",
+					"Value": "",
+					"Start": 870,
+					"End": 874,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MajorVersion",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 874,
+					"End": 876,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MinorVersion",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 876,
+					"End": 878,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BuildNumber",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 878,
+					"End": 880,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "RevisionNumber",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 880,
+					"End": 882,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Flags",
+					"Description": "",
+					"Value": "",
+					"Start": 882,
+					"End": 886,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "PublicKey",
+					"Description": "Blob Heap index 0",
+					"Value": "{}",
+					"Start": 886,
+					"End": 888,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index 13",
+					"Value": "\"World\"",
+					"Start": 888,
+					"End": 890,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Culture",
+					"Description": "String Heap index 0",
+					"Value": "\"\"",
+					"Start": 890,
+					"End": 892,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "AssemblyRefs[0]",
+				"Description": "",
+				"Value": "\"mscorlib 0.0.0.0\"",
+				"Start": 892,
+				"End": 912,
+				"Children": [{
+					"Name": "MajorVersion",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 892,
+					"End": 894,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "MinorVersion",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 894,
+					"End": 896,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BuildNumber",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 896,
+					"End": 898,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "RevisionNumber",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 898,
+					"End": 900,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Flags",
+					"Description": "",
+					"Value": "",
+					"Start": 900,
+					"End": 904,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "PublicKeyOrToken",
+					"Description": "Blob Heap index 0",
+					"Value": "{}",
+					"Start": 904,
+					"End": 906,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				},
+				{
+					"Name": "Name",
+					"Description": "String Heap index 1",
+					"Value": "\"mscorlib\"",
+					"Start": 906,
+					"End": 908,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "Culture",
+					"Description": "String Heap index 0",
+					"Value": "\"\"",
+					"Start": 908,
+					"End": 910,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/StringHeap"
+				},
+				{
+					"Name": "HashValue",
+					"Description": "Blob Heap index 0",
+					"Value": "{}",
+					"Start": 910,
+					"End": 912,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap"
+				}],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "StringHeap",
+			"Description": "",
+			"Value": "",
+			"Start": 912,
+			"End": 1012,
+			"Children": [],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "UserStringHeap",
+			"Description": "",
+			"Value": "",
+			"Start": 1012,
+			"End": 1044,
+			"Children": [],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "GuidHeap",
+			"Description": "",
+			"Value": "",
+			"Start": 1044,
+			"End": 1060,
+			"Children": [],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "BlobHeap",
+			"Description": "",
+			"Value": "",
+			"Start": 1060,
+			"End": 1080,
+			"Children": [],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "ImportTable",
+			"Description": "",
+			"Value": "",
+			"Start": 1088,
+			"End": 1128,
+			"Children": [{
+				"Name": "ImportLookupTable",
+				"Description": "RVA of the Import Lookup Table",
+				"Value": "0x2268",
+				"Start": 1088,
+				"End": 1092,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "DateTimeStamp",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 1092,
+				"End": 1096,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "ForwarderChain",
+				"Description": "Always 0 (§II.24.1).",
+				"Value": "0x0",
+				"Start": 1096,
+				"End": 1100,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Name",
+				"Description": "RVA of null-terminated ASCII string “mscoree.dll”.",
+				"Value": "0x227E",
+				"Start": 1100,
+				"End": 1104,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "ImportAddressTableRVA",
+				"Description": "RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).",
+				"Value": "0x2000",
+				"Start": 1104,
+				"End": 1108,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Reserved",
+				"Description": "End of Import Table. Shall be filled with zeros.",
+				"Value": "{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}",
+				"Start": 1108,
+				"End": 1128,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "ImportLookupTable",
+			"Description": "",
+			"Value": "",
+			"Start": 1128,
+			"End": 1136,
+			"Children": [{
+				"Name": "HintNameTableRVA",
+				"Description": "",
+				"Value": "0x2270",
+				"Start": 1128,
+				"End": 1132,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "NullTerminated",
+				"Description": "",
+				"Value": "0x0",
+				"Start": 1132,
+				"End": 1136,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "ImportAddressHintNameTable",
+			"Description": "",
+			"Value": "",
+			"Start": 1136,
+			"End": 1150,
+			"Children": [{
+				"Name": "Hint",
+				"Description": "Shall be 0.",
+				"Value": "0x0",
+				"Start": 1136,
+				"End": 1138,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Message",
+				"Description": "Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.",
+				"Value": "\"_CorExeMain\\0\"",
+				"Start": 1138,
+				"End": 1150,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "RuntimeEngineName",
+			"Description": "",
+			"Value": "\"mscoree.dll\"",
+			"Start": 1150,
+			"End": 1162,
+			"Children": [],
+			"Errors": [],
+			"LinkPath": null
+		},
+		{
+			"Name": "NativeEntryPoint",
+			"Description": "",
+			"Value": "",
+			"Start": 1166,
+			"End": 1172,
+			"Children": [{
+				"Name": "JMP",
+				"Description": "JMP op code in X86",
+				"Value": "0xFF",
+				"Start": 1166,
+				"End": 1167,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Mod",
+				"Description": "Specifies the jump is in absolute indirect mode",
+				"Value": "0x25",
+				"Start": 1167,
+				"End": 1168,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "JumpTarget",
+				"Description": "Jump target RVA.",
+				"Value": "0x402000",
+				"Start": 1168,
+				"End": 1172,
+				"Children": [],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		}],
+		"Errors": [],
+		"LinkPath": null
+	},
+	{
+		"Name": "Sections[1]",
+		"Description": ".reloc\u0000\u0000",
+		"Value": "",
+		"Start": 1536,
+		"End": 2048,
+		"Children": [{
+			"Name": "Relocations",
+			"Description": "",
+			"Value": "",
+			"Start": 1536,
+			"End": 1548,
+			"Children": [{
+				"Name": "BaseRelocationTable",
+				"Description": "",
+				"Value": "",
+				"Start": 1536,
+				"End": 1544,
+				"Children": [{
+					"Name": "PageRVA",
+					"Description": "",
+					"Value": "0x2000",
+					"Start": 1536,
+					"End": 1540,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "BlockSize",
+					"Description": "",
+					"Value": "0xC",
+					"Start": 1540,
+					"End": 1544,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Fixups[0]",
+				"Description": "",
+				"Value": "",
+				"Start": 1544,
+				"End": 1546,
+				"Children": [{
+					"Name": "Type",
+					"Description": "",
+					"Value": "0x9",
+					"Start": 1544,
+					"End": 1545,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x32",
+					"Start": 1545,
+					"End": 1546,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			},
+			{
+				"Name": "Fixups[1]",
+				"Description": "",
+				"Value": "",
+				"Start": 1546,
+				"End": 1548,
+				"Children": [{
+					"Name": "Type",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 1546,
+					"End": 1547,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				},
+				{
+					"Name": "Offset",
+					"Description": "",
+					"Value": "0x0",
+					"Start": 1547,
+					"End": 1548,
+					"Children": [],
+					"Errors": [],
+					"LinkPath": null
+				}],
+				"Errors": [],
+				"LinkPath": null
+			}],
+			"Errors": [],
+			"LinkPath": null
+		}],
+		"Errors": [],
+		"LinkPath": null
+	}],
+	"Errors": [],
+	"LinkPath": null
+}
