@@ -10,6 +10,15 @@ namespace Tests
     [TestClass]
     public class AssemblyBytesTests
     {
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext ctx)
+        {
+            foreach (var path in Directory.GetFiles("Samples", "*.exe"))
+            {
+                File.Delete(path);
+            }
+        }
+
         [TestMethod]
         public void Simple()
         {
@@ -17,34 +26,55 @@ namespace Tests
         }
 
         [TestMethod]
+        public void NoConfig()
+        {
+            Run(File.OpenRead(Compile(@"Samples\Simple.cs", noconfig: "")));
+        }
+
+        [TestMethod]
+        public void NonOptimized()
+        {
+            Run(File.OpenRead(Compile(@"Samples\Simple.cs", optimize: "")));
+        }
+
+        [TestMethod]
+        public void Library()
+        {
+            Run(File.OpenRead(Compile(@"Samples\Simple.cs", "/t:library")));
+        }
+
+        [TestMethod]
         public void TwoMethods()
         {
-            // TODO also test non-default without /o without /config?
-            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs", "/o")));
+            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs")));
         }
 
         // TODO test two methods with the same RVA
         // TODO test parameters, return values
 
-        static string Compile(string path, string args = "")
+        static string Compile(string path, string args = "", string optimize = "/o", string noconfig = "/noconfig")
         {
-            string output = path + ".exe";
+            string output = path.Replace(".cs", "." + Guid.NewGuid().GetHashCode().ToString("X")) + ".exe";
 
             using (var p = Process.Start(new ProcessStartInfo
             {
                 FileName = "csc.exe",
-                Arguments = $@"""{path}"" /out:""{output}"" {args}",
+                Arguments = $@"""{path}"" /out:""{output}"" {optimize} {noconfig} {args}",
 
                 WorkingDirectory = Directory.GetCurrentDirectory(),
 
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
+
+                RedirectStandardOutput = true,
             }))
             {
                 p.WaitForExit();
 
-                Assert.AreEqual(0, p.ExitCode, "exit code");
+                string stdout = p.StandardOutput.ReadToEnd();
+
+                Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
             }
 
             return output;
