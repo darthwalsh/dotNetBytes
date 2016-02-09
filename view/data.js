@@ -246,7 +246,7 @@ function setFocusHelper(o, currentChild) {
   }
   
   if (!currentChild && !ch.length) {
-    var col = getColor(0); //TODO in-order coloring 
+    col = getColor(0); //TODO in-order coloring 
     var onclick = null;
     var cursor = "auto";
     if (o.LinkPath) {
