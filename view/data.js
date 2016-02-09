@@ -1,7 +1,17 @@
 "use strict";
 
 function $(id) { return document.getElementById(id); }
-function create(el) { return document.createElement(el); }
+function create(tag, attr) { 
+  var el = document.createElement(tag);
+  
+  if (attr) {
+    for (var key in attr) {
+      el[key] = attr[key];
+    }
+  }
+  
+  return el; 
+}
 
 // http://stackoverflow.com/a/8023734/771768
 // 0 <= h, s, v <= 1
@@ -205,14 +215,10 @@ function drawDetails(o) {
     focusDetail.removeChild(focusDetail.firstChild);
   
   var detailDiv = createBasicDetailsDOM(focusDetail, o);
-  var description = create("p");
-  description.textContent = o.Description;
-  detailDiv.appendChild(description);
+  detailDiv.appendChild(create("p", { textContent: o.Description }));
   
   if (o.ReverseLinks) {
-    var referencesText = create("p");
-    referencesText.textContent = "Referenced by:";
-    detailDiv.appendChild(referencesText);
+    detailDiv.appendChild(create("p", { textContent: "Referenced by:" }));
     
     var ul = create("ul");
     for (var i = 0; i < o.ReverseLinks.length; ++i) {
@@ -375,13 +381,8 @@ function createBasicDetailsDOM(parent, o) {
   
   details.onclick = makeOnClick(o);
   
-  var p = create("p");
-  p.textContent = o.Name;
-  details.appendChild(p);
-  
-  p = create("p");
-  p.textContent = o.Value;
-  details.appendChild(p);
+  details.appendChild(create("p", { textContent: o.Name }));
+  details.appendChild(create("p", { textContent: o.Value }));
   
   parent.appendChild(details);
   
@@ -393,9 +394,7 @@ function findErrors(o) {
     var errorDiv = createBasicDetailsDOM($("details"), o);
     errorDiv.classList.add("error");
     
-    var p = create("p");
-    p.textContent = o.Errors[i];
-    errorDiv.appendChild(p);
+    errorDiv.appendChild(create("p", { textContent: o.Errors[i] }));
   }
   
   for (var i = 0; i < o.Children.length; ++i) {
