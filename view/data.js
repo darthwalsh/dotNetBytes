@@ -38,6 +38,12 @@ var hexEncodeArray = [
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 ];
+
+function assertThrow(message) {
+  debugger;
+  alert(message);
+  throw message;
+}
         
 function readBytes(file, callback)
 {
@@ -49,7 +55,7 @@ function readBytes(file, callback)
     if (this.status == 200 && oReq.response) {
       callback(new Uint8Array(oReq.response));
     } else {
-      alert("Couldn't find " + file)
+      assertThrow("Couldn't find " + file)
     }
   };
   
@@ -65,7 +71,7 @@ function readJson(file, callback)
     if (this.status == 200 && oReq.responseText) {
       callback(JSON.parse(oReq.responseText));
     } else {
-      alert("Couldn't find " + file)
+      assertThrow("Couldn't find " + file)
     }
   };
   
@@ -190,9 +196,42 @@ function setFocus(o) {
   
   scrollIntoView(o);
   
-  $("detailName").innerText = o.Name;
-  $("detailValue").innerText = o.Value;
-  $("detailDescription").innerText = o.Description;
+  drawDetails(o); 
+}
+
+function drawDetails(o) {
+  var focusDetail = $("focusDetail");
+  while (focusDetail.firstChild)
+    focusDetail.removeChild(focusDetail.firstChild);
+  
+  var detailDiv = createBasicDetailsDOM(focusDetail, o);
+  var description = create("p");
+  description.innerText = o.Description;
+  detailDiv.appendChild(description);
+  
+  if (o.ReverseLinks) {
+    var referencesText = create("p");
+    referencesText.innerText = "Referenced by:";
+    detailDiv.appendChild(referencesText);
+    
+    var ul = create("ul");
+    for (var i = 0; i < o.ReverseLinks.length; ++i) {
+      var li = create("li");
+      
+      var a = create("a");
+      a.setAttribute("href", "#" + o.ReverseLinks[i]);
+      var matchingPrefix = 0;
+      for (; matchingPrefix < o.ReverseLinks[i].length && matchingPrefix < o.NodePath.length; ++matchingPrefix) {
+        if (o.NodePath[matchingPrefix] !== o.ReverseLinks[i][matchingPrefix])
+          break;
+      }
+      a.innerText = o.ReverseLinks[i].substring(matchingPrefix);
+      li.appendChild(a);
+            
+      ul.appendChild(li);
+    }
+    detailDiv.appendChild(ul);
+  }
 }
 
 function makeOnClick(o) {
@@ -210,7 +249,7 @@ function makeOnHashChange(json) {
     for (var i = 1; i < names.length; ++i) {
       for (var chi = 0; ; ++chi) {
         if (chi == o.Children.length) {
-          alert("Couldn't find " + names[i] + " under " + o.Name);
+          assertThrow("Couldn't find " + names[i] + " under " + o.Name);
           return;
         }
 
@@ -267,6 +306,36 @@ function addParent(json) {
   }
 }
 
+var pathIndex = {};
+
+function indexPaths(json, prefix) {
+  if (prefix) prefix += "/";
+  prefix = prefix || "";
+  prefix += json.Name;
+  
+  pathIndex[prefix] = json;
+  json.NodePath = prefix;
+  
+  for (var i = 0; i < json.Children.length; ++i) {
+    indexPaths(json.Children[i], prefix);
+  }
+}
+
+function findLinkReferences(json) {
+  if (json.LinkPath) {
+    var linked = pathIndex[json.LinkPath];
+    if (!linked)
+      assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
+    
+    linked.ReverseLinks = linked.ReverseLinks || [];
+    linked.ReverseLinks.push(json.NodePath);
+  }
+  
+  for (var i = 0; i < json.Children.length; ++i) {
+    findLinkReferences(json.Children[i]);
+  }
+}
+
 function drawToc(json) {
   var ul = create("ul");
   $("toc").appendChild(ul);
@@ -301,27 +370,32 @@ function drawTocHelper(o, parentUL) {
   }
 }
 
+function createBasicDetailsDOM(parent, o) {
+  var details = create("div");
+  
+  details.onclick = makeOnClick(o);
+  
+  var p = create("p");
+  p.innerText = o.Name;
+  details.appendChild(p);
+  
+  p = create("p");
+  p.innerText = o.Value;
+  details.appendChild(p);
+  
+  parent.appendChild(details);
+  
+  return details;
+}
+
 function findErrors(o) {
   for (var i = 0; i < o.Errors.length; ++i) {
-    
-    var errorDiv = create("div");
+    var errorDiv = createBasicDetailsDOM($("details"), o);
     errorDiv.classList.add("error");
     
-    errorDiv.onclick = makeOnClick(o);
-    
     var p = create("p");
-    p.innerText = o.Name;
-    errorDiv.appendChild(p);
-    
-    p = create("p");
-    p.innerText = o.Value;
-    errorDiv.appendChild(p);
-    
-    p = create("p");
     p.innerText = o.Errors[i];
     errorDiv.appendChild(p);
-    
-    $("details").appendChild(errorDiv)
   }
   
   for (var i = 0; i < o.Children.length; ++i) {
@@ -387,6 +461,8 @@ window.onload = function() {
     
     readJson("bytes.json", function(json) {
       addParent(json);
+      indexPaths(json);
+      findLinkReferences(json);
       drawToc(json);
       findErrors(json);
 
