@@ -132,7 +132,7 @@ function Search() {
   var tocDiv = $("toc");
   for (var i = 0; i < allTocLI.length; ++i) {
     var li = allTocLI[i];
-    if (li.innerText.toLowerCase().indexOf(text) === -1)
+    if (li.textContent.toLowerCase().indexOf(text) === -1)
       continue;
     
     while (li !== tocDiv) {
@@ -206,12 +206,12 @@ function drawDetails(o) {
   
   var detailDiv = createBasicDetailsDOM(focusDetail, o);
   var description = create("p");
-  description.innerText = o.Description;
+  description.textContent = o.Description;
   detailDiv.appendChild(description);
   
   if (o.ReverseLinks) {
     var referencesText = create("p");
-    referencesText.innerText = "Referenced by:";
+    referencesText.textContent = "Referenced by:";
     detailDiv.appendChild(referencesText);
     
     var ul = create("ul");
@@ -225,7 +225,7 @@ function drawDetails(o) {
         if (o.NodePath[matchingPrefix] !== o.ReverseLinks[i][matchingPrefix])
           break;
       }
-      a.innerText = o.ReverseLinks[i].substring(matchingPrefix);
+      a.textContent = o.ReverseLinks[i].substring(matchingPrefix);
       li.appendChild(a);
             
       ul.appendChild(li);
@@ -351,7 +351,7 @@ var allTocLI = [];
 function drawTocHelper(o, parentUL) {
   var li = create("li");
   allTocLI.push(li);
-  li.innerText = o.Name;
+  li.textContent = o.Name;
   li.onclick = makeOnClick(o);
   
   o.tocDom = li;
@@ -376,11 +376,11 @@ function createBasicDetailsDOM(parent, o) {
   details.onclick = makeOnClick(o);
   
   var p = create("p");
-  p.innerText = o.Name;
+  p.textContent = o.Name;
   details.appendChild(p);
   
   p = create("p");
-  p.innerText = o.Value;
+  p.textContent = o.Value;
   details.appendChild(p);
   
   parent.appendChild(details);
@@ -394,7 +394,7 @@ function findErrors(o) {
     errorDiv.classList.add("error");
     
     var p = create("p");
-    p.innerText = o.Errors[i];
+    p.textContent = o.Errors[i];
     errorDiv.appendChild(p);
   }
   
@@ -421,12 +421,12 @@ window.onload = function() {
     var rowLabelWidth = ToHex(arr.byteLength - 1).length;
     
     var corner = create("code");
-    corner.innerText = Array(rowLabelWidth + 1).join("-") + "    ";
+    corner.textContent = Array(rowLabelWidth + 1).join("-") + "    ";
     div.appendChild(corner);
   
     for (var i = 0; i < width; i++) {
       var col = create("code");
-      col.innerText = ToHex(i, 2) + " ";
+      col.textContent = ToHex(i, 2) + " ";
       div.appendChild(col);
     }
     
@@ -434,12 +434,12 @@ window.onload = function() {
     
     for (var j = 0; j < arr.byteLength; j += width) {
       var rowLabel = create("code");
-      rowLabel.innerText = ToHex(j, rowLabelWidth) + "    ";
+      rowLabel.textContent = ToHex(j, rowLabelWidth) + "    ";
       div.appendChild(rowLabel);
       
       for (var i = j; i - j < width; i++) {
         var a = create("code");
-        a.innerText = ToHex(arr[i], 2) + " ";
+        a.textContent = ToHex(arr[i], 2) + " ";
         a.setAttribute("id", byteID(i));
         div.appendChild(a);
       }
@@ -451,7 +451,7 @@ window.onload = function() {
       for (var i = j; i - j < width; i++) {
         var lit = String.fromCharCode(arr[i]);
         var ll = create("code");
-        ll.innerText = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
+        ll.textContent = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
         ll.setAttribute("id", litID(i));
         div.appendChild(ll);
       }
