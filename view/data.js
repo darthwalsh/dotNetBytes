@@ -224,15 +224,15 @@ function drawDetails(o) {
     for (var i = 0; i < o.ReverseLinks.length; ++i) {
       var li = create("li");
       
-      var a = create("a");
-      a.href = "#" + o.ReverseLinks[i];
       var matchingPrefix = 0;
       for (; matchingPrefix < o.ReverseLinks[i].length && matchingPrefix < o.NodePath.length; ++matchingPrefix) {
         if (o.NodePath[matchingPrefix] !== o.ReverseLinks[i][matchingPrefix])
           break;
       }
-      a.textContent = o.ReverseLinks[i].substring(matchingPrefix);
-      li.appendChild(a);
+      li.appendChild(create("a", { 
+        href: "#" + o.ReverseLinks[i], 
+        textContent: o.ReverseLinks[i].substring(matchingPrefix) 
+      }));
             
       ul.appendChild(li);
     }
@@ -355,10 +355,9 @@ var allTocUL = [];
 var allTocLI = [];
 
 function drawTocHelper(o, parentUL) {
-  var li = create("li");
+  var li = create("li", { textContent: o.Name, onclick: makeOnClick(o) });
+  
   allTocLI.push(li);
-  li.textContent = o.Name;
-  li.onclick = makeOnClick(o);
   
   o.tocDom = li;
   
@@ -377,9 +376,7 @@ function drawTocHelper(o, parentUL) {
 }
 
 function createBasicDetailsDOM(parent, o) {
-  var details = create("div");
-  
-  details.onclick = makeOnClick(o);
+  var details = create("div", { onclick: makeOnClick(o) });
   
   details.appendChild(create("p", { textContent: o.Name }));
   details.appendChild(create("p", { textContent: o.Value }));
@@ -419,40 +416,29 @@ window.onload = function() {
   readBytes("Program.dat", function(arr) {
     var rowLabelWidth = ToHex(arr.byteLength - 1).length;
     
-    var corner = create("code");
-    corner.textContent = Array(rowLabelWidth + 1).join("-") + "    ";
-    div.appendChild(corner);
+    div.appendChild(create("code", { textContent: Array(rowLabelWidth + 1).join("-") + "    " }));
   
     for (var i = 0; i < width; i++) {
-      var col = create("code");
-      col.textContent = ToHex(i, 2) + " ";
-      div.appendChild(col);
+      div.appendChild(create("code", { textContent: ToHex(i, 2) + " " }));
     }
     
     div.appendChild(create("br"));
     
     for (var j = 0; j < arr.byteLength; j += width) {
-      var rowLabel = create("code");
-      rowLabel.textContent = ToHex(j, rowLabelWidth) + "    ";
-      div.appendChild(rowLabel);
+      div.appendChild(create("code", { textContent: ToHex(j, rowLabelWidth) + "    " }));
       
       for (var i = j; i - j < width; i++) {
-        var a = create("code");
-        a.textContent = ToHex(arr[i], 2) + " ";
-        a.id = byteID(i);
-        div.appendChild(a);
+        div.appendChild(create("code", { 
+          textContent: ToHex(arr[i], 2) + " ", 
+          id: byteID(i) 
+        }));
       }
       
-      var sp = create("code");
-      sp.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;";
-      div.appendChild(sp);
+      div.appendChild(create("code", { innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;" }));
       
       for (var i = j; i - j < width; i++) {
-        var lit = String.fromCharCode(arr[i]);
-        var ll = create("code");
-        ll.textContent = lit.replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
-        ll.id = litID(i);
-        div.appendChild(ll);
+        var lit = String.fromCharCode(arr[i]).replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
+        div.appendChild(create("code", { textContent: lit, id: litID(i)}));
       }
       
       div.appendChild(create("br"));
