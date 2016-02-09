@@ -13,6 +13,11 @@ interface ICanRead
     CodeNode Read(Stream stream);
 }
 
+interface IHaveAName
+{
+    string Name { get; }
+}
+
 interface IHaveValue
 {
     object Value { get; }
@@ -148,6 +153,13 @@ static class StreamExtensions
 
         t = t ?? Activator.CreateInstance<T>();
         CodeNode node = t.Read(stream);
+
+        var haveName = t as IHaveAName;
+        if (haveName != null)
+        {
+            name = name ?? haveName.Name;
+        }
+
         node.Name = name ?? typeof(T).Name;
         node.Start = start;
 

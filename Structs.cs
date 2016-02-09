@@ -209,22 +209,10 @@ sealed class MethodDef : ICanRead, IHaveValueNode
             stream.ReadClass(ref ParamList, "ParamList"),
         };
 
-        Method method;
-        if (MethodsToRead.TryGetValue(RVA, out method))
-        {
-            throw new NotImplementedException("Need to merge definitons?");
-        } 
-        else
-        {
-            MethodsToRead.Add(RVA, method = new Method(Name.StringValue));
-        }
-
-        rva.DelayedValueNode = () => new DefaultValueNode(rva.Value, method.Node);
+        rva.DelayedValueNode = () => new DefaultValueNode(rva.Value, Method.MethodsByRVA[RVA].Node);
 
         return Node;
     }
-
-    public static Dictionary<uint, Method> MethodsToRead { get; } = new Dictionary<uint, Method>();
 }
 
 // II.22.30
@@ -836,7 +824,7 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        // TODO add sub-children as signatures are read
+        // TODO add sub-children as signatures are read (for all Heap*) (maybe use description to glob together entries if read out-of-band???)
 
         ushort index;
         var node = stream.ReadStruct(out index, "index");
@@ -1117,6 +1105,8 @@ sealed class FileFormat : ICanRead
 
     public CodeNode Read(Stream stream)
     {
+        Method.MethodsByRVA.Clear();
+
         CodeNode node = new CodeNode
         {
             stream.ReadClass(ref PEHeader),
@@ -1494,8 +1484,6 @@ sealed class Section : ICanRead
     PEHeaderHeaderDataDirectories data;
     uint entryPointRVA;
 
-    public object[] Members;
-
     public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA)
     {
         start = (int)header.PointerToRawData;
@@ -1504,11 +1492,7 @@ sealed class Section : ICanRead
         name = new string(header.Name);
         this.data = data;
         this.entryPointRVA = entryPointRVA;
-
-        sections.Add(this);
     }
-
-    static List<Section> sections = new List<Section>();
 
     //TODO reorder children in order 
     public CodeNode Read(Stream stream)
@@ -1517,10 +1501,6 @@ sealed class Section : ICanRead
         {
             Description = name,
         };
-
-        var ss = new List<object>();
-
-        MethodDef.MethodsToRead.Clear();
 
         foreach (var nr in data.GetType().GetFields()
             .Where(field => field.FieldType == typeof(RVAandSize))
@@ -1567,6 +1547,25 @@ sealed class Section : ICanRead
                                 TildeStream TildeStream = null;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 TildeStream.Instance = TildeStream;
+
+                                CodeNode methods = new CodeNode
+                                {
+                                    Name = "Methods",
+                                };
+
+                                foreach (var rva in TildeStream.MethodDefs.Select(def => def.RVA).Distinct().OrderBy(rva => rva))
+                                {
+                                    Reposition(stream, rva);
+
+                                    Method method = null;
+                                    methods.Add(stream.ReadClass(ref method));
+                                    Method.MethodsByRVA.Add(rva, method);
+                                }
+
+                                if (methods.Children.Any())
+                                {
+                                    node.Add(methods);
+                                }
                                 break;
                             default:
                                 node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
@@ -1608,28 +1607,6 @@ sealed class Section : ICanRead
                     break;
             }
         }
-
-        CodeNode methods = new CodeNode
-        {
-            Name = "Methods",
-        };
-
-        foreach (var kvp in MethodDef.MethodsToRead)
-        {
-            uint rva = kvp.Key;
-            Method method = kvp.Value;
-
-            Reposition(stream, rva);
-
-            methods.Add(stream.ReadClass(ref method, (string)method.Value));
-        }
-
-        if (methods.Children.Any())
-        {
-            node.Add(methods);
-        }
-
-        Members = ss.ToArray();
 
         return node;
     }
@@ -1806,19 +1783,15 @@ enum CliHeaderFlags : uint
 }
 
 // II.25.4
-sealed class Method : ICanRead, IHaveValueNode
+sealed class Method : ICanRead, IHaveAName, IHaveValueNode
 {
     public byte Header;
     public byte[] CilOps;
 
-    string name;
+    static int count = 0;
+    public string Name { get; } = $"{nameof(Method)}[{count++}]";
 
-    public Method(string name)
-    {
-        this.name = name;
-    }
-
-    public object Value => name;
+    public object Value => ""; //TODO clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
 
     public CodeNode Node { get; private set; }
 
@@ -1836,6 +1809,8 @@ sealed class Method : ICanRead, IHaveValueNode
 
         return Node;
     }
+
+    public static Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
 }
 
 // II.25.4.1

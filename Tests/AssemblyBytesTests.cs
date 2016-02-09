@@ -10,6 +10,8 @@ namespace Tests
     [TestClass]
     public class AssemblyBytesTests
     {
+        // TODO make build clean step clean these, and test cases Compile() a no-op if the EXE exists (probably should re-compile on test case failure?)
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext ctx)
         {
@@ -49,12 +51,20 @@ namespace Tests
             Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs")));
         }
 
-        // TODO test two methods with the same RVA
+        [TestMethod]
+        public void TwoSameMethods()
+        {
+            Run(File.OpenRead(Compile(@"Samples\TwoSameMethods.cs")));
+        }
+
         // TODO test parameters, return values
+        // TODO Add test to exercise the various NotImplementedExceptions
 
         static string Compile(string path, string args = "", string optimize = "/o", string noconfig = "/noconfig")
         {
             string output = path.Replace(".cs", "." + Guid.NewGuid().GetHashCode().ToString("X")) + ".exe";
+
+            Console.Error.WriteLine($"Compiled {output}");
 
             using (var p = Process.Start(new ProcessStartInfo
             {
