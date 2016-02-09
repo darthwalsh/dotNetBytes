@@ -210,7 +210,7 @@ function makeOnHashChange(json) {
     for (var i = 1; i < names.length; ++i) {
       for (var chi = 0; ; ++chi) {
         if (chi == o.Children.length) {
-          throw "Couldn't find " + names[i];
+          alert("Couldn't find " + names[i] + " under " + o.Name);
           return;
         }
 
