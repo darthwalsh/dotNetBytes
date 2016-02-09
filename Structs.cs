@@ -1520,6 +1520,8 @@ sealed class Section : ICanRead
 
         var ss = new List<object>();
 
+        MethodDef.MethodsToRead.Clear();
+
         foreach (var nr in data.GetType().GetFields()
             .Where(field => field.FieldType == typeof(RVAandSize))
             .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
@@ -1621,7 +1623,6 @@ sealed class Section : ICanRead
 
             methods.Add(stream.ReadClass(ref method, (string)method.Value));
         }
-        MethodDef.MethodsToRead.Clear();
 
         if (methods.Children.Any())
         {
