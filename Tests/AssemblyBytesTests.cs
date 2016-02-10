@@ -33,6 +33,24 @@ namespace Tests
         {
             RunCompile(@"Samples\Simple.cs", "/t:library");
         }
+       
+        [TestMethod]
+        public void Platformx64()
+        {
+            RunCompile(@"Samples\Simple.cs", "/platform:x64");
+        }
+
+        [TestMethod]
+        public void Platformx86()
+        {
+            RunCompile(@"Samples\Simple.cs", "/platform:x86");
+        }
+
+        [TestMethod]
+        public void PlatformAnyCPU32()
+        {
+            RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
+        }
 
         [TestMethod]
         public void TwoMethods()
@@ -50,11 +68,11 @@ namespace Tests
         // TODO Add test to exercise the various NotImplementedExceptions
         // TODO test platforms (x64, AnyCPU)
 
-        static void RunCompile(string path, string args = "", string optimize = "/o", string noconfig = "/noconfig")
+        static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
             var allArgs = $"{optimize} {noconfig} {args}";
 
-            string outpath = path.Replace(".cs", "." + CleanFileName(allArgs) + ".exe");
+            string outpath = Path.GetFullPath(path.Replace(".cs", "." + CleanFileName(allArgs) + ".exe"));
 
             if (!File.Exists(outpath))
             {

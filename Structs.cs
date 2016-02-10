@@ -1239,8 +1239,8 @@ struct PEFileHeader
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public uint NumberOfSymbols;
-    [Description("Size Size of the optional header, the format is described below.")]
-    public ushort OptionalHeader;
+    [Description("Size of the optional header, the format is described below.")]
+    public ushort OptionalHeaderSize;
     [Description("Flags indicating attributes of the file, see §II.25.2.2.1.")]
     public ushort Characteristics;
 }
@@ -1261,7 +1261,7 @@ struct PEHeaderStandardFields
     [Description("Always 0x10B.")]
     [Expected(0x10B)]
     public ushort Magic;
-    [Description("Sepc says always 6, sometimes more (§II.24.1).")]
+    [Description("Spec says always 6, sometimes more (§II.24.1).")]
     public byte LMajor;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
@@ -1508,6 +1508,11 @@ sealed class Section : ICanRead
             .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
             .OrderBy(nr => nr.rva.RVA))
         {
+            if (nr.rva.RVA == 0)
+            {
+                throw new InvalidOperationException($"Data Directory {nr.name} was null!");
+            }
+
             Reposition(stream, nr.rva.RVA);
 
             switch (nr.name)
