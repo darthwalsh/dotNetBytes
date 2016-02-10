@@ -10,66 +10,72 @@ namespace Tests
     [TestClass]
     public class AssemblyBytesTests
     {
-        // TODO make build clean step clean these, and test cases Compile() a no-op if the EXE exists (probably should re-compile on test case failure?)
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext ctx)
-        {
-            foreach (var path in Directory.GetFiles("Samples", "*.exe"))
-            {
-                File.Delete(path);
-            }
-        }
-
         [TestMethod]
         public void Simple()
         {
-            Run(File.OpenRead(Compile(@"Samples\Simple.cs")));
+            RunCompile(@"Samples\Simple.cs");
         }
 
         [TestMethod]
         public void NoConfig()
         {
-            Run(File.OpenRead(Compile(@"Samples\Simple.cs", noconfig: "")));
+            RunCompile(@"Samples\Simple.cs", noconfig: "");
         }
 
         [TestMethod]
         public void NonOptimized()
         {
-            Run(File.OpenRead(Compile(@"Samples\Simple.cs", optimize: "")));
+            RunCompile(@"Samples\Simple.cs", optimize: "");
         }
 
         [TestMethod]
         public void Library()
         {
-            Run(File.OpenRead(Compile(@"Samples\Simple.cs", "/t:library")));
+            RunCompile(@"Samples\Simple.cs", "/t:library");
         }
 
         [TestMethod]
         public void TwoMethods()
         {
-            Run(File.OpenRead(Compile(@"Samples\TwoMethods.cs")));
+            RunCompile(@"Samples\TwoMethods.cs");
         }
 
         [TestMethod]
         public void TwoSameMethods()
         {
-            Run(File.OpenRead(Compile(@"Samples\TwoSameMethods.cs")));
+            RunCompile(@"Samples\TwoSameMethods.cs");
         }
 
         // TODO test parameters, return values
         // TODO Add test to exercise the various NotImplementedExceptions
+        // TODO test platforms (x64, AnyCPU)
 
-        static string Compile(string path, string args = "", string optimize = "/o", string noconfig = "/noconfig")
+        static void RunCompile(string path, string args = "", string optimize = "/o", string noconfig = "/noconfig")
         {
-            string output = path.Replace(".cs", "." + Guid.NewGuid().GetHashCode().ToString("X")) + ".exe";
+            var allArgs = $"{optimize} {noconfig} {args}";
 
-            Console.Error.WriteLine($"Compiled {output}");
+            string outpath = path.Replace(".cs", "." + CleanFileName(allArgs) + ".exe");
 
+            if (!File.Exists(outpath))
+            {
+                Console.Error.WriteLine($"Compiling {outpath}");
+
+                RunProcess("csc.exe", $@"""{path}"" /out:""{outpath}"" {allArgs}");
+            }
+            else
+            {
+                Console.Error.WriteLine($"Using existing {outpath}");
+            }
+
+            Run(File.OpenRead(outpath));
+        }
+
+        static void RunProcess(string filename, string processArgs)
+        {
             using (var p = Process.Start(new ProcessStartInfo
             {
-                FileName = "csc.exe",
-                Arguments = $@"""{path}"" /out:""{output}"" {optimize} {noconfig} {args}",
+                FileName = filename,
+                Arguments = processArgs,
 
                 WorkingDirectory = Directory.GetCurrentDirectory(),
 
@@ -86,8 +92,11 @@ namespace Tests
 
                 Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
             }
+        }
 
-            return output;
+        static string CleanFileName(string fileName)
+        {
+            return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
         }
 
         [TestMethod]
@@ -98,9 +107,19 @@ namespace Tests
 
         static void Run(Stream s)
         {
-            //TODO not valid? s = new ForwardOnlyStream(s);
+            //TODO delete s = new ForwardOnlyStream(s);
+            AssemblyBytes assm;
+            try
+            {
 
-            var assm = new AssemblyBytes(s);
+                assm = new AssemblyBytes(s);
+            }
+            catch
+            {
+                s.Dispose();
+                throw;
+            }
+
 
             assm.Node.CallBack(AssertChildrenDontOverlap);
 
