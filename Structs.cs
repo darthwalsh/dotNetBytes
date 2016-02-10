@@ -1183,7 +1183,7 @@ struct DosHeader
     [Expected(0)]
     public ushort InitialRelativeCS;
     [Expected(0x40)]
-    public ushort RawAddressOfRelocation;
+    public ushort RawAddressOfRelocation; // TODO link all Raw Address, RVA, (sizes?) from understandingCIL
     [Expected(0)]
     public ushort OverlayNumber;
     [Expected(0)]
