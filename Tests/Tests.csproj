@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{51E066FB-215F-4523-94F3-DDC414D37717}</ProjectGuid>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutputPath>bin\$(Configuration)\Tests\</OutputPath>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
@@ -35,11 +35,15 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Verify.cs" />
-    <Compile Include="CompileTests.cs" />
     <Compile Include="AssemblyBytesTests.cs" />
     <Compile Include="Asserts.cs" />
     <Compile Include="DelegatingStream.cs" />
+    <Compile Include="Samples\TwoSameMethods.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Samples\TwoMethods.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Samples\Simple.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -49,8 +53,6 @@
       <Project>{d1ffa0dc-0acc-4108-adc1-2a71122c09af}</Project>
       <Name>dotNetBytes</Name>
     </ProjectReference>
-    <ProjectReference Include="TwoMethods\TwoMethods.csproj" />
-    <ProjectReference Include="TwoSameMethods\TwoSameMethods.csproj" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
