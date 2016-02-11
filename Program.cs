@@ -18,6 +18,8 @@ static class Program
                 assm = new AssemblyBytes(fileStream); 
             }
 
+            Console.WriteLine(assm.Node.ToString());
+
             var assmJson = assm.Node.ToJson();
 
             string local = SetupFiles(path, assmJson);

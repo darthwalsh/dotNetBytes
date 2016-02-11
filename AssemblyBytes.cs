@@ -34,8 +34,6 @@ public class AssemblyBytes
 
         node.AssignPath();
         node.CallBack(CodeNode.AssignLink);
-
-        System.Console.Error.WriteLine(node.ToString()); // TODO move to Program, based on command line?
     }
 
     static void FindOverLength(Stream s, CodeNode node)

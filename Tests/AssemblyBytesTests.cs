@@ -155,24 +155,32 @@ namespace Tests
             }
 
 
-            assm.Node.CallBack(AssertChildrenDontOverlap);
-
-            assm.Node.CallBack(AssertNoErrors);
-
-            assm.Node.CallBack(AssertUniqueNames);
-
-            assm.Node.CallBack(AssertLinkOrChildren);
-
-            assm.Node.CallBack(AssertParentDifferentSizeThanChild);
-
-            byte[] data;
-            using (var memory = new MemoryStream())
+            try
             {
-                s.Position = 0;
-                s.CopyTo(memory);
-                data = memory.ToArray();
+                assm.Node.CallBack(AssertChildrenDontOverlap);
+
+                assm.Node.CallBack(AssertNoErrors);
+
+                assm.Node.CallBack(AssertUniqueNames);
+
+                assm.Node.CallBack(AssertLinkOrChildren);
+
+                assm.Node.CallBack(AssertParentDifferentSizeThanChild);
+
+                byte[] data;
+                using (var memory = new MemoryStream())
+                {
+                    s.Position = 0;
+                    s.CopyTo(memory);
+                    data = memory.ToArray();
+                }
+                assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
             }
-            assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
+            catch
+            {
+                System.Console.Error.WriteLine(assm.Node.ToString());
+                throw;
+            }
         }
 
         static void AssertChildrenDontOverlap(CodeNode node)
