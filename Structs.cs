@@ -159,6 +159,28 @@ sealed class CustomAttribute : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.16
+sealed class Field : ICanRead, IHaveValueNode
+{
+    public ushort Flags; // TODO (flags)
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
+        };
+    }
+}
+
 // II.22.25
 sealed class MemberRef : ICanRead, IHaveValueNode
 {
@@ -215,6 +237,28 @@ sealed class MethodDef : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.28
+sealed class MethodSemantics : ICanRead, IHaveValueNode
+{
+    public ushort Semantics; // TODO flags
+    public UnknownCodedIndex Method;
+    public UnknownCodedIndex Association;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Semantics, "Semantics"),
+            stream.ReadClass(ref Method, "Method"),
+            stream.ReadClass(ref Association, "Association"),
+        };
+    }
+}
+
 // II.22.30
 sealed class Module : ICanRead, IHaveValueNode
 {
@@ -259,6 +303,48 @@ sealed class Param : ICanRead, IHaveValueNode
             stream.ReadStruct(out Flags, "Flags"),
             stream.ReadStruct(out Sequence, "Sequence"),
             stream.ReadClass(ref Name, "Name"),
+        };
+    }
+}
+
+// II.22.34
+sealed class Property : ICanRead, IHaveValueNode
+{
+    public ushort Flags; // TODO (flags)
+    public StringHeapIndex Name;
+    public BlobHeapIndex Signature;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadClass(ref Name, "Name"),
+            stream.ReadClass(ref Signature, "Signature"),
+        };
+    }
+}
+
+// II.22.35
+sealed class PropertyMap : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Parent;
+    public UnknownCodedIndex PropertyList;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Parent, "Parent"),
+            stream.ReadClass(ref PropertyList, "PropertyList"),
         };
     }
 }
@@ -694,10 +780,14 @@ sealed class TildeStream : ICanRead
     public Module[] Modules;
     public TypeRef[] TypeRefs;
     public TypeDef[] TypeDefs;
+    public Field[] Fields;
     public MethodDef[] MethodDefs;
     public Param[] Params;
     public MemberRef[] MemberRefs;
     public CustomAttribute[] CustomAttributes;
+    public PropertyMap[] PropertyMaps;
+    public Property[] Properties;
+    public MethodSemantics[] MethodSemantics;
     public TypeSpec[] TypeSpecs;
     public Assembly[] Assemblies;
     public AssemblyRef[] AssemblyRefs;
@@ -734,6 +824,8 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref TypeRefs, count);
             case MetadataTableFlags.TypeDef:
                 return stream.ReadClasses(ref TypeDefs, count);
+            case MetadataTableFlags.Field:
+                return stream.ReadClasses(ref Fields, count);
             case MetadataTableFlags.MethodDef:
                 return stream.ReadClasses(ref MethodDefs, count);
             case MetadataTableFlags.Param:
@@ -742,6 +834,12 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref MemberRefs, count);
             case MetadataTableFlags.CustomAttribute:
                 return stream.ReadClasses(ref CustomAttributes, count);
+            case MetadataTableFlags.PropertyMap:
+                return stream.ReadClasses(ref PropertyMaps, count);
+            case MetadataTableFlags.Property:
+                return stream.ReadClasses(ref Properties, count);
+            case MetadataTableFlags.MethodSemantics:
+                return stream.ReadClasses(ref MethodSemantics, count);
             case MetadataTableFlags.TypeSpec:
                 return stream.ReadClasses(ref TypeSpecs, count);
             case MetadataTableFlags.Assembly:
@@ -1009,7 +1107,7 @@ abstract class CodedIndex : ICanRead
             switch (tag)
             {
                 case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                //case Tag.Field: return TildeStream.Instance.Fields[Index];
+                case Tag.Field: return TildeStream.Instance.Fields[Index];
                 case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
                 case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
                 case Tag.Param: return TildeStream.Instance.Params[Index];
@@ -1017,7 +1115,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
                 //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
-                //case Tag.Property: return TildeStream.Instance.Propertys[Index];
+                case Tag.Property: return TildeStream.Instance.Properties[Index];
                 //case Tag.Event: return TildeStream.Instance.Events[Index];
                 //case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
                 //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];

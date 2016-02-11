@@ -71,6 +71,18 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Field()
+        {
+            RunCompile(@"Samples\Field.cs");
+        }
+
+        [TestMethod]
+        public void Property()
+        {
+            RunCompile(@"Samples\Property.cs");
+        }
+
+        [TestMethod]
         public void ReturnValue()
         {
             RunCompile(@"Samples\ReturnValue.cs");
