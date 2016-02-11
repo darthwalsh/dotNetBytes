@@ -143,7 +143,6 @@ namespace Tests
         {
             CodeNode.OnError += error => Assert.Fail(error);
 
-            //TODO delete s = new ForwardOnlyStream(s);
             AssemblyBytes assm;
             try
             {
@@ -237,55 +236,6 @@ namespace Tests
 
                 Assert.Fail($"Interested byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
             }
-        }
-    }
-
-    class ForwardOnlyStream : DelegatingStream
-    {
-        public ForwardOnlyStream(Stream stream)
-            : base(stream)
-        { }
-
-        public override long Position
-        {
-            get
-            {
-                return base.Position;
-            }
-
-            set
-            {
-                if (value < Position)
-                    Assert.Fail($"Not allowed: set from {value} to {Position}");
-
-                base.Position = value;
-            }
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            long relative;
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    relative = 0;
-                    break;
-                case SeekOrigin.Current:
-                    relative = Position;
-                    break;
-                case SeekOrigin.End:
-                    relative = Length;
-                    break;
-                default:
-                    throw new InvalidOperationException(origin.ToString());
-            }
-
-            long newPos = offset + relative;
-
-            if (offset < Position)
-                Assert.Fail($"Not allowed: ${offset} < ${Position}");
-
-            return base.Seek(offset, origin);
         }
     }
 }
