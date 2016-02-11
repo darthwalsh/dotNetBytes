@@ -111,7 +111,15 @@ static class StreamExtensions
 
         return node;
     }
-    
+
+    public static CodeNode ReadStruct<T>(this Stream stream, out T? opt, string name = null) where T : struct
+    {
+        T t;
+        var node = stream.ReadStruct(out t, name);
+        opt = t;
+        return node;
+    }
+
     public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
         return stream.ReadStruct(out t, name ?? typeof(T).Name, (T f) => f);
@@ -223,11 +231,17 @@ static class TypeExtensions
     public static int GetSize(this Type type)
     {
         if (type.IsEnum)
-        {
-            type = Enum.GetUnderlyingType(type);
-        }
+            return Enum.GetUnderlyingType(type).GetSize();
 
-        return Marshal.SizeOf(type);
+        if (!type.IsConstructedGenericType)
+            return Marshal.SizeOf(type);
+
+        var generics = type.GetGenericArguments();
+
+        return type.GetFields(BindingFlags.Public | BindingFlags.Instance).Sum(field =>
+        {
+            return field.FieldType.GetSize();
+        });
     }
 
     static Dictionary<char, string> escapes = new Dictionary<char, string>
@@ -323,7 +337,7 @@ static class TypeExtensions
         if (type.IsEnum)
             return;
 
-        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance)) // TODO assert no private struct fields
         {
             var actual = field.GetValue(ans);
             var name = field.Name;
@@ -354,12 +368,12 @@ static class TypeExtensions
             {
                 if (!SmartEquals(expected.Value, actual))
                 {
-                    Fail(current, $"Expected {name} to be {expected.Value} but instead found {actual} at address {current.Start}");
+                    Fail(current, $"Expected {name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{current.Start:X}");
                 }
             }
             catch (Exception e)
             {
-                Fail(current, $"Expected {name} to be {expected.Value} but instead found {actual} at address {current.Start} {e}");
+                Fail(current, $"Expected {name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{current.Start:X} {e}");
             }
         }
     }

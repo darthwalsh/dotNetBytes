@@ -1139,16 +1139,14 @@ sealed class PEHeader : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        CodeNode node = new CodeNode
+        return new CodeNode
         {
             stream.ReadStruct(out DosHeader),
             stream.ReadStruct(out PESignature),
             stream.ReadStruct(out PEFileHeader),
-            stream.ReadStruct(out PEOptionalHeader),
+            stream.ReadClass(ref PEOptionalHeader),
             stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
         };
-
-        return node;
     }
 }
 
@@ -1226,9 +1224,8 @@ struct PESignature
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEFileHeader
 {
-    [Description("Always 0x14c.")]
-    [Expected(0x14c)]
-    public ushort Machine;
+    [Description("0x14c is I386.")]
+    public ushort Machine; //TODO enum
     [Description("Number of sections; indicates size of the Section Table, which immediately follows the headers.")]
     public ushort NumberOfSections;
     [Description("Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.")]
@@ -1246,12 +1243,41 @@ struct PEFileHeader
 }
 
 // II.25.2.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEOptionalHeader
+class PEOptionalHeader : ICanRead
 {
+    // TODO (Descriptions)
+
     public PEHeaderStandardFields PEHeaderStandardFields;
-    public PEHeaderWindowsNtSpecificFields PEHeaderWindowsNtSpecificFields;
+    [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
+    public int? BaseOfData;
+    public PEHeaderWindowsNtSpecificFields32? PEHeaderWindowsNtSpecificFields32;
+    public PEHeaderWindowsNtSpecificFields64? PEHeaderWindowsNtSpecificFields64;
     public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
+
+    public CodeNode Read(Stream stream)
+    {
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out PEHeaderStandardFields),
+        };
+
+        switch (PEHeaderStandardFields.Magic)
+        {
+            case 0x10B: //TODO enum
+                node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData))); // TODO use nameof()
+                node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
+                break;
+            case 0x20B:
+                node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields64).Children.Single());
+                break;
+            default:
+                throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
+        }
+
+        node.Add(stream.ReadStruct(out PEHeaderHeaderDataDirectories));
+
+        return node;
+    }
 }
 
 // II.25.2.3.1
@@ -1259,8 +1285,7 @@ struct PEOptionalHeader
 struct PEHeaderStandardFields
 {
     [Description("Always 0x10B.")]
-    [Expected(0x10B)]
-    public ushort Magic;
+    public ushort Magic; // TODO enum
     [Description("Spec says always 6, sometimes more (§II.24.1).")]
     public byte LMajor;
     [Description("Always 0 (§II.24.1).")]
@@ -1276,16 +1301,14 @@ struct PEHeaderStandardFields
     public uint EntryPointRVA;
     [Description("RVA of the code section. (This is a hint to the loader.)")]
     public uint BaseOfCode;
-    [Description("RVA of the data section. (This is a hint to the loader.)")]
-    public uint BaseOfData;
 }
 
 // II.25.2.3.2
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderWindowsNtSpecificFields
+struct PEHeaderWindowsNtSpecificFields<Tint>
 {
     [Description("Shall be a multiple of 0x10000.")]
-    public uint ImageBase;
+    public Tint ImageBase;
     [Description("Shall be greater than File Alignment.")]
     public uint SectionAlignment;
     [Description("Should be 0x200 (§II.24.1).")]
@@ -1322,24 +1345,34 @@ struct PEHeaderWindowsNtSpecificFields
     public ushort SubSystem;
     [Description("Bits 0x100f shall be zero.")]
     public DllCharacteristics DLLFlags;
+    [Description("Often 1Mb for x86 or 4Mb for x64 (§II.24.1).")]
+    public Tint StackReserveSize;
+    [Description("Often 4Kb for x86 or 16Kb for x64 (§II.24.1).")]
+    public Tint StackCommitSize;
     [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
     [Expected(0x100000)]
-    public uint StackReserveSize;
-    [Description("Should be 0x1000 (4Kb) (§II.24.1).")]
-    [Expected(0x1000)]
-    public uint StackCommitSize;
-    [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
-    [Expected(0x100000)]
-    public uint HeapReserveSize;
-    [Description("Should be 0x1000 (4Kb) (§II.24.1).")]
-    [Expected(0x1000)]
-    public uint HeapCommitSize;
+    public Tint HeapReserveSize;
+    [Description("Often 4Kb for x86 or 8Kb for x64 (§II.24.1).")]
+    public Tint HeapCommitSize;
     [Description("Shall be 0")]
     [Expected(0)]
     public uint LoaderFlags;
     [Description("Shall be 0x10")]
     [Expected(0x10)]
     public uint NumberOfDataDirectories;
+}
+
+// Generic structs aren't copyable by Marshal.PtrToStructure, so make non-generic "subclasses"
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct PEHeaderWindowsNtSpecificFields32
+{
+    public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct PEHeaderWindowsNtSpecificFields64
+{
+    public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields;
 }
 
 [Flags]
@@ -1373,6 +1406,8 @@ enum DllCharacteristics : ushort
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderHeaderDataDirectories
 {
+    // TODO RVAandSize all
+
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong ExportTable;
@@ -1505,14 +1540,10 @@ sealed class Section : ICanRead
         foreach (var nr in data.GetType().GetFields()
             .Where(field => field.FieldType == typeof(RVAandSize))
             .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
+            .Where(nr => nr.rva.RVA > 0)
             .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
             .OrderBy(nr => nr.rva.RVA))
         {
-            if (nr.rva.RVA == 0)
-            {
-                throw new InvalidOperationException($"Data Directory {nr.name} was null!");
-            }
-
             Reposition(stream, nr.rva.RVA);
 
             switch (nr.name)
