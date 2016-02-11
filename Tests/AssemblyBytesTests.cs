@@ -66,7 +66,6 @@ namespace Tests
 
         // TODO test parameters, return values
         // TODO Add test to exercise the various NotImplementedExceptions
-        // TODO test platforms (x64, AnyCPU)
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
