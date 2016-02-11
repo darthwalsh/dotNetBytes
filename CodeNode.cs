@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Script.Serialization;
 
 public class CodeNode : IEnumerable<string>
@@ -153,7 +152,7 @@ public class CodeNode : IEnumerable<string>
 
         public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
         public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
