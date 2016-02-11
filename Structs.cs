@@ -783,14 +783,38 @@ sealed class TildeStream : ICanRead
     public Field[] Fields;
     public MethodDef[] MethodDefs;
     public Param[] Params;
+    //public InterfaceImpl[] InterfaceImpls;
     public MemberRef[] MemberRefs;
+    //public Constant[] Constants;
     public CustomAttribute[] CustomAttributes;
+    //public FieldMarshal[] FieldMarshals;
+    //public DeclSecurity[] DeclSecuritys;
+    //public ClassLayout[] ClassLayouts;
+    //public FieldLayout[] FieldLayouts;
+    //public StandAloneSig[] StandAloneSigs;
+    //public EventMap[] EventMaps;
+    //public Event[] Events;
     public PropertyMap[] PropertyMaps;
     public Property[] Properties;
     public MethodSemantics[] MethodSemantics;
+    //public MethodImpl[] MethodImpls;
+    //public ModuleRef[] ModuleRefs;
     public TypeSpec[] TypeSpecs;
+    //public ImplMap[] ImplMaps;
+    //public FieldRVA[] FieldRVAs;
     public Assembly[] Assemblies;
+    //public AssemblyProcessor[] AssemblyProcessors;
+    //public AssemblyOS[] AssemblyOSs;
     public AssemblyRef[] AssemblyRefs;
+    //public AssemblyRefProcessor[] AssemblyRefProcessors;
+    //public AssemblyRefOS[] AssemblyRefOSs;
+    //public File[] Files;
+    //public ExportedType[] ExportedTypes;
+    //public ManifestResource[] ManifestResources;
+    //public NestedClass[] NestedClasss;
+    //public GenericParam[] GenericParams;
+    //public MethodSpec[] MethodSpecs;
+    //public GenericParamConstraint[] GenericParamConstraints;
 
     public CodeNode Read(Stream stream)
     {
@@ -830,29 +854,72 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref MethodDefs, count);
             case MetadataTableFlags.Param:
                 return stream.ReadClasses(ref Params, count);
+            case MetadataTableFlags.InterfaceImpl:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref InterfaceImpls, count);
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
+            case MetadataTableFlags.Constant:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Constants, count);
             case MetadataTableFlags.CustomAttribute:
                 return stream.ReadClasses(ref CustomAttributes, count);
+            case MetadataTableFlags.FieldMarshal:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldMarshals, count);
+            case MetadataTableFlags.DeclSecurity:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref DeclSecuritys, count);
+            case MetadataTableFlags.ClassLayout:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ClassLayouts, count);
+            case MetadataTableFlags.FieldLayout:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldLayouts, count);
+            case MetadataTableFlags.StandAloneSig:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref StandAloneSigs, count);
+            case MetadataTableFlags.EventMap:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref EventMaps, count);
+            case MetadataTableFlags.Event:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Events, count);
             case MetadataTableFlags.PropertyMap:
                 return stream.ReadClasses(ref PropertyMaps, count);
             case MetadataTableFlags.Property:
-                return stream.ReadClasses(ref Properties, count);
+                return stream.ReadClasses(ref Properties, count, nameof(Properties));
             case MetadataTableFlags.MethodSemantics:
                 return stream.ReadClasses(ref MethodSemantics, count);
+            case MetadataTableFlags.MethodImpl:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref MethodImpls, count);
+            case MetadataTableFlags.ModuleRef:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ModuleRefs, count);
             case MetadataTableFlags.TypeSpec:
                 return stream.ReadClasses(ref TypeSpecs, count);
+            case MetadataTableFlags.ImplMap:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ImplMaps, count);
+            case MetadataTableFlags.FieldRVA:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldRVAs, count);
             case MetadataTableFlags.Assembly:
-                return stream.ReadClasses(ref Assemblies, count, "Assemblies");
+                return stream.ReadClasses(ref Assemblies, count, nameof(Assemblies));
+            case MetadataTableFlags.AssemblyProcessor:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyProcessors, count);
+            case MetadataTableFlags.AssemblyOS:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyOSs, count);
             case MetadataTableFlags.AssemblyRef:
                 return stream.ReadClasses(ref AssemblyRefs, count);
+            case MetadataTableFlags.AssemblyRefProcessor:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyRefProcessors, count);
+            case MetadataTableFlags.AssemblyRefOS:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyRefOSs, count);
+            case MetadataTableFlags.File:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Files, count);
+            case MetadataTableFlags.ExportedType:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ExportedTypes, count);
+            case MetadataTableFlags.ManifestResource:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ManifestResources, count);
+            case MetadataTableFlags.NestedClass:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref NestedClasss, count);
+            case MetadataTableFlags.GenericParam:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParams, count);
+            case MetadataTableFlags.MethodSpec:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref MethodSpecs, count);
+            case MetadataTableFlags.GenericParamConstraint:
+                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParamConstraints, count);
             default:
-                return new[] { new CodeNode {
-                    Name = flag.ToString(),
-                    Start = (int)stream.Position,
-                    End = (int)stream.Position,
-                    SingleError = "Unknown MetadataTableFlags " + flag.ToString()
-                } };
+                throw new InvalidOperationException("Not a real MetadataTableFlags " + flag);
         }
     }
 
