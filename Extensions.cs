@@ -337,7 +337,13 @@ static class TypeExtensions
         if (type.IsEnum)
             return;
 
-        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance)) // TODO assert no private struct fields
+        var privateField = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
+        if (privateField != null)
+        {
+            throw new InvalidOperationException($"No private fields allowed ! {type.FullName}.{privateField.Name}");
+        }
+
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
             var actual = field.GetValue(ans);
             var name = field.Name;

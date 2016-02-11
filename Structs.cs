@@ -90,12 +90,12 @@ sealed class Assembly : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out HashAlgId, "HashAlgId"),
+            stream.ReadStruct(out HashAlgId, "HashAlgId").Children.Single(),
             stream.ReadStruct(out MajorVersion, "MajorVersion"),
             stream.ReadStruct(out MinorVersion, "MinorVersion"),
             stream.ReadStruct(out BuildNumber, "BuildNumber"),
             stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadStruct(out Flags, "Flags").Children.Single(),
             stream.ReadClass(ref PublicKey, "PublicKey"),
             stream.ReadClass(ref Name, "Name"),
             stream.ReadClass(ref Culture, "Culture"),
@@ -128,7 +128,7 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
             stream.ReadStruct(out MinorVersion, "MinorVersion"),
             stream.ReadStruct(out BuildNumber, "BuildNumber"),
             stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadStruct(out Flags, "Flags").Children.Single(),
             stream.ReadClass(ref PublicKeyOrToken, "PublicKeyOrToken"),
             stream.ReadClass(ref Name, "Name"),
             stream.ReadClass(ref Culture, "Culture"),
@@ -336,7 +336,7 @@ sealed class TypeSpec : ICanRead, IHaveValueNode
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct AssemblyHashAlgorithmBlittableWrapper
 {
-    AssemblyHashAlgorithm AssemblyHashAlgorithm;
+    public AssemblyHashAlgorithm AssemblyHashAlgorithm;
 }
 
 // II.23.1.1
@@ -350,7 +350,7 @@ enum AssemblyHashAlgorithm : uint
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct AssemblyFlagsHolderBlittableWrapper
 {
-    AssemblyFlags AssemblyFlags;
+    public AssemblyFlags AssemblyFlags;
 }
 
 // II.23.1.2 
