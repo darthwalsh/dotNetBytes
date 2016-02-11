@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -28,7 +29,7 @@ static class Program
             {
                 host.Start();
 
-                OpenInIE();
+                RunBrowserAndWebServer();
             }
         }
         catch (Exception e)
@@ -72,30 +73,24 @@ static class Program
         return local;
     }
 
-    static void OpenInIE()
+    static void RunBrowserAndWebServer()
     {
-        using (var exit = new ManualResetEvent(false))
+        string url = "http://127.0.0.1:8000/Content/view.html";
+        string timeout = "20";
+
+        Console.WriteLine();
+        Console.WriteLine($"Running web server at ${url} for {timeout} seconds...");
+
+        Process.Start(url); // open the URL in default browser
+
+        using (var p = Process.Start(new ProcessStartInfo
         {
-            var ie = new SHDocVw.InternetExplorer();
-            ie.Visible = true;
-
-            ie.Left = 381;
-            ie.Top = 0;
-
-            ie.Width = 1546;
-            ie.Height = 1057;
-
-            ie.Navigate("http://127.0.0.1:8000/Content/view.html");
-
-            ie.OnQuit += () =>
-            {
-                exit.Set();
-            };
-
-            Console.WriteLine("Waiting for IE to quit");
-            exit.WaitOne();
-
-            ie.Quit();
+            FileName = "timeout.exe",
+            Arguments = $"/t {timeout}",
+            UseShellExecute = false,
+        }))
+        {
+            p.WaitForExit();
         }
     }
 }
