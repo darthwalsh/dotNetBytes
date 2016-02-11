@@ -597,7 +597,7 @@ sealed class UserStringHeap : ICanRead
     static UserStringHeap instance;
     public static string Get(UserStringHeapIndex i)
     {
-        throw new NotImplementedException(); //TODO(implement UserStringHeap)
+        throw new NotImplementedException("UserStringHeap");
     }
 }
 
@@ -1012,7 +1012,7 @@ abstract class CodedIndex : ICanRead
                 //case Tag.Field: return TildeStream.Instance.Fields[Index];
                 case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
                 case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                //case Tag.Param: return TildeStream.Instance.Params[Index];
+                case Tag.Param: return TildeStream.Instance.Params[Index];
                 //case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
                 case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
@@ -1846,7 +1846,8 @@ enum CliHeaderFlags : uint
 // II.25.4
 sealed class Method : ICanRead, IHaveAName, IHaveValueNode
 {
-    public byte Header;
+    public byte Header; // TODO enum
+    public FatFormat FatFormat;
     public byte[] CilOps;
 
     static int count = 0;
@@ -1863,10 +1864,33 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
             stream.ReadStruct(out Header, "Header"),
         };
 
-        if ((Header & 0x03) != (byte)MethodHeaderType.Tiny)
-            throw new NotImplementedException("MethodHeaderType.Fat");
+        int length;
+        MethodHeaderType type = (MethodHeaderType)(Header & 0x03);
+        switch (type)
+        {
+            case MethodHeaderType.Tiny:
+                length = Header >> 2;
+                break;
+            case MethodHeaderType.Fat:
+                if (((MethodHeaderType)Header).HasFlag(MethodHeaderType.MoreSects))
+                {
+                    throw new NotImplementedException("Exception Handlers");
+                }
 
-        Node.Add(stream.ReadAnything(out CilOps, StreamExtensions.ReadByteArray(Header >> 2), "CilOps"));
+                Node.Add(stream.ReadStruct(out FatFormat, "FatFormat"));
+
+                if ((FatFormat.FlagsAndSize & 0xF0) != 0x30)
+                {
+                    Node.AddError("Expected upper bits of FlagsAndSize to be 3");
+                }
+
+                length = (int)FatFormat.CodeSize;
+                break;
+            default:
+                throw new InvalidOperationException("Invalid MethodHeaderType " + type);
+        }
+
+        Node.Add(stream.ReadAnything(out CilOps, StreamExtensions.ReadByteArray(length), "CilOps"));
 
         return Node;
     }
@@ -1874,9 +1898,25 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
     public static Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
 }
 
-// II.25.4.1
+// II.25.4.1 and .4
 enum MethodHeaderType : byte
 {
     Tiny = 0x02,
     Fat = 0x03,
+    MoreSects = 0x08,
+    InitLocals = 0x10,
+}
+
+// II.25.4.3
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct FatFormat
+{
+    [Description("Lower four bits is rest of Flags, Upper four bits is size of this header expressed as the count of 4-byte integers occupied (currently 3)")]
+    public byte FlagsAndSize;
+    [Description("Maximum number of items on the operand stack")]
+    public ushort MaxStack;
+    [Description("Size in bytes of the actual method body")]
+    public uint CodeSize;
+    [Description("Meta Data token for a signature describing the layout of the local variables for the method")]
+    public uint LocalVarSigTok;
 }

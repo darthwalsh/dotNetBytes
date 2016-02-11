@@ -223,3 +223,10 @@ ManifestResource 18
 GenericParam 19
 GenericParamConstraint 20
 MethodSpec 21
+
+FatFormat 
+0 12 (bits) Flags Flags (CorILMethod_FatFormat shall be set in bits 0:1, see §II.25.4.4)
+12 (bits) 4 (bits) Size Size of this header expressed as the count of 4-byte integers occupied (currently 3)
+2 2 MaxStack Maximum number of items on the operand stack
+4 4 CodeSize Size in bytes of the actual method body
+8 4 LocalVarSigTok Meta Data token for a signature describing the layout of the local variables for the method

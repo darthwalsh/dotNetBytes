@@ -75,7 +75,13 @@ namespace Tests
         {
             RunCompile(@"Samples\ReturnValue.cs");
         }
-            
+
+        [TestMethod]
+        public void Fat()
+        {
+            RunCompile(@"Samples\Fat.cs");
+        }
+
         // TODO Add test to exercise the various NotImplementedExceptions
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
