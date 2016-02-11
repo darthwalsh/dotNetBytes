@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 
 public class CodeNode : IEnumerable<string>
 {
@@ -27,9 +28,16 @@ public class CodeNode : IEnumerable<string>
     {
         if (delayed != null)
         {
-            IHaveValueNode d = delayed();
-            Value = d.Value.GetString();
-            Link = d.Node;
+            try
+            {
+                IHaveValueNode d = delayed();
+                Value = d.Value.GetString();
+                Link = d.Node;
+            }
+            catch (Exception e)
+            {
+                Errors.Add("Using DelayedValueNode blew up with " + e.ToString());
+            }
         }
     }
 
@@ -44,7 +52,7 @@ public class CodeNode : IEnumerable<string>
 
         if (parentPath != null)
             parentPath += "/";
-        
+
         path = parentPath + Name;
 
         foreach (var c in Children)
@@ -116,4 +124,46 @@ public class CodeNode : IEnumerable<string>
     {
         return GetEnumerator();
     }
+    
+    public string ToJson()
+    {
+        return CodeNodeConverter.ToJson(this);
+    }
+
+    class CodeNodeConverter : JavaScriptConverter
+    {
+        public static string ToJson(CodeNode node)
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            serializer.RegisterConverters(new[] { new CodeNodeConverter() });
+            return serializer.Serialize(node);
+        }
+
+        CodeNodeConverter() { }
+
+        public override IEnumerable<Type> SupportedTypes => new[] { typeof(CodeNode) };
+
+        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        {
+            var node = (CodeNode)obj;
+
+            return new Dictionary<string, object>
+            {
+                { nameof(node.Name), node.Name },
+                { nameof(node.Description), node.Description },
+                { nameof(node.Value), node.Value },
+                { nameof(node.Start), node.Start },
+                { nameof(node.End), node.End },
+                { nameof(node.LinkPath), node.LinkPath },
+                { nameof(node.Errors), node.Errors },
+                { nameof(node.Children), node.Children },
+            };
+        }
+    }
+
 }
