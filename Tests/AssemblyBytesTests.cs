@@ -64,6 +64,12 @@ namespace Tests
             RunCompile(@"Samples\TwoSameMethods.cs");
         }
 
+        [TestMethod]
+        public void Param()
+        {
+            RunCompile(@"Samples\Param.cs");
+        }
+
         // TODO test parameters, return values
         // TODO Add test to exercise the various NotImplementedExceptions
 
@@ -124,11 +130,12 @@ namespace Tests
 
         static void Run(Stream s)
         {
+            CodeNode.OnError += error => Assert.Fail(error);
+
             //TODO delete s = new ForwardOnlyStream(s);
             AssemblyBytes assm;
             try
             {
-
                 assm = new AssemblyBytes(s);
             }
             catch

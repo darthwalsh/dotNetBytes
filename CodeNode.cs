@@ -15,7 +15,15 @@ public class CodeNode : IEnumerable<string>
     public int End = int.MinValue;
 
     public List<CodeNode> Children = new List<CodeNode>();
-    public List<string> Errors = new List<string>();
+
+    List<string> errors = new List<string>();
+    public string SingleError { set { AddError(value); } }
+    public void AddError(string error)
+    {
+        OnError(error);
+        errors.Add(error);
+    }
+    public IEnumerable<string> Errors => errors.AsReadOnly();
 
     public string LinkPath;
     CodeNode link;
@@ -36,7 +44,7 @@ public class CodeNode : IEnumerable<string>
             }
             catch (Exception e)
             {
-                Errors.Add("Using DelayedValueNode blew up with " + e.ToString());
+                AddError("Using DelayedValueNode blew up with " + e.ToString());
             }
         }
     }
@@ -166,4 +174,5 @@ public class CodeNode : IEnumerable<string>
         }
     }
 
+    public static event Action<string> OnError = e => { };
 }

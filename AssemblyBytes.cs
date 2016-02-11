@@ -54,7 +54,7 @@ public class AssemblyBytes
             {
                 if (n.End > length)
                 {
-                    n.Errors.Add($"End was set beyond byte end to {n.End}");
+                    n.AddError($"End was set beyond byte end to {n.End}");
                     n.End = (int)length;
                 }
             });

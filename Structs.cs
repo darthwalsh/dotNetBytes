@@ -241,6 +241,28 @@ sealed class Module : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.33
+sealed class Param : ICanRead, IHaveValueNode
+{
+    public ushort Flags; // TODO (flags)
+    public ushort Sequence;
+    public StringHeapIndex Name;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Flags, "Flags"),
+            stream.ReadStruct(out Sequence, "Sequence"),
+            stream.ReadClass(ref Name, "Name"),
+        };
+    }
+}
+
 // II.22.37
 sealed class TypeDef : ICanRead, IHaveValueNode
 {
@@ -673,6 +695,7 @@ sealed class TildeStream : ICanRead
     public TypeRef[] TypeRefs;
     public TypeDef[] TypeDefs;
     public MethodDef[] MethodDefs;
+    public Param[] Params;
     public MemberRef[] MemberRefs;
     public CustomAttribute[] CustomAttributes;
     public TypeSpec[] TypeSpecs;
@@ -713,6 +736,8 @@ sealed class TildeStream : ICanRead
                 return stream.ReadClasses(ref TypeDefs, count);
             case MetadataTableFlags.MethodDef:
                 return stream.ReadClasses(ref MethodDefs, count);
+            case MetadataTableFlags.Param:
+                return stream.ReadClasses(ref Params, count);
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
             case MetadataTableFlags.CustomAttribute:
@@ -728,7 +753,7 @@ sealed class TildeStream : ICanRead
                     Name = flag.ToString(),
                     Start = (int)stream.Position,
                     End = (int)stream.Position,
-                    Errors = new List<string> { "Unknown MetadataTableFlags " + flag.ToString() }
+                    SingleError = "Unknown MetadataTableFlags " + flag.ToString()
                 } };
         }
     }
@@ -1604,7 +1629,7 @@ sealed class Section : ICanRead
                                 }
                                 break;
                             default:
-                                node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
+                                node.AddError("Unexpected stream name: " + streamHeader.Name);
                                 break;
                         }
                     }
@@ -1639,7 +1664,7 @@ sealed class Section : ICanRead
                     node.Add(stream.ReadClass(ref Relocations));
                     break;
                 default:
-                    node.Errors.Add("Unexpected data directoriy name: " + nr.name);
+                    node.AddError("Unexpected data directoriy name: " + nr.name);
                     break;
             }
         }

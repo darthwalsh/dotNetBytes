@@ -180,7 +180,7 @@ static class StreamExtensions
         }
         catch (Exception e)
         {
-            node.Errors.Add(e.ToString());
+            node.AddError(e.ToString());
         }
 
         return node;
@@ -408,6 +408,6 @@ static class TypeExtensions
 
     static void Fail(CodeNode node, string message)
     {
-        node.Errors.Add(message);
+        node.AddError(message);
     }
 }
