@@ -137,6 +137,28 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.9
+sealed class Constant : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Type;
+    public UnknownCodedIndex Parent;
+    public BlobHeapIndex _Value;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadClass(ref Type, "Type"),
+            stream.ReadClass(ref Parent, "Parent"),
+            stream.ReadClass(ref _Value, "Value"),
+        };
+    }
+}
+
 // II.22.10
 sealed class CustomAttribute : ICanRead, IHaveValueNode
 {
@@ -785,7 +807,7 @@ sealed class TildeStream : ICanRead
     public Param[] Params;
     //public InterfaceImpl[] InterfaceImpls;
     public MemberRef[] MemberRefs;
-    //public Constant[] Constants;
+    public Constant[] Constants;
     public CustomAttribute[] CustomAttributes;
     //public FieldMarshal[] FieldMarshals;
     //public DeclSecurity[] DeclSecuritys;
@@ -859,7 +881,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
             case MetadataTableFlags.Constant:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Constants, count);
+                return stream.ReadClasses(ref Constants, count);
             case MetadataTableFlags.CustomAttribute:
                 return stream.ReadClasses(ref CustomAttributes, count);
             case MetadataTableFlags.FieldMarshal:

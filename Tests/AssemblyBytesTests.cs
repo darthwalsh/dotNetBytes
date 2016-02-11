@@ -83,6 +83,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Const()
+        {
+            RunCompile(@"Samples\Const.cs");
+        }
+
+        [TestMethod]
         public void ReturnValue()
         {
             RunCompile(@"Samples\ReturnValue.cs");
