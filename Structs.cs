@@ -90,15 +90,15 @@ sealed class Assembly : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out HashAlgId, "HashAlgId").Children.Single(),
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out BuildNumber, "BuildNumber"),
-            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags").Children.Single(),
-            stream.ReadClass(ref PublicKey, "PublicKey"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Culture, "Culture"),
+            stream.ReadStruct(out HashAlgId, nameof(HashAlgId)).Children.Single(),
+            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
+            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
+            stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
+            stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
+            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadClass(ref PublicKey, nameof(PublicKey)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Culture, nameof(Culture)),
         };
     }
 }
@@ -124,15 +124,15 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out BuildNumber, "BuildNumber"),
-            stream.ReadStruct(out RevisionNumber, "RevisionNumber"),
-            stream.ReadStruct(out Flags, "Flags").Children.Single(),
-            stream.ReadClass(ref PublicKeyOrToken, "PublicKeyOrToken"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Culture, "Culture"),
-            stream.ReadClass(ref HashValue, "HashValue"),
+            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
+            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
+            stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
+            stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
+            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadClass(ref PublicKeyOrToken, nameof(PublicKeyOrToken)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Culture, nameof(Culture)),
+            stream.ReadClass(ref HashValue, nameof(HashValue)),
         };
     }
 }
@@ -152,8 +152,8 @@ sealed class Constant : ICanRead, IHaveValueNode
     {
         return new CodeNode
         {
-            stream.ReadClass(ref Type, "Type"),
-            stream.ReadClass(ref Parent, "Parent"),
+            stream.ReadClass(ref Type, nameof(Type)),
+            stream.ReadClass(ref Parent, nameof(Parent)),
             stream.ReadClass(ref _Value, "Value"),
         };
     }
@@ -174,8 +174,8 @@ sealed class CustomAttribute : ICanRead, IHaveValueNode
     {
         return new CodeNode
         {
-            stream.ReadClass(ref Parent, "Parent"),
-            stream.ReadClass(ref Type, "Type"),
+            stream.ReadClass(ref Parent, nameof(Parent)),
+            stream.ReadClass(ref Type, nameof(Type)),
             stream.ReadClass(ref _Value, "Value"),
         };
     }
@@ -196,9 +196,9 @@ sealed class Field : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Signature, nameof(Signature)),
         };
     }
 }
@@ -218,9 +218,9 @@ sealed class MemberRef : ICanRead, IHaveValueNode
     {
         return new CodeNode
         {
-            stream.ReadClass(ref Class, "Class"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadClass(ref Class, nameof(Class)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Signature, nameof(Signature)),
         };
     }
 }
@@ -245,12 +245,12 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 
         Node = new CodeNode
         {
-            (rva = stream.ReadStruct(out RVA, "RVA")),
-            stream.ReadStruct(out ImplFlags, "ImplFlags"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
-            stream.ReadClass(ref ParamList, "ParamList"),
+            (rva = stream.ReadStruct(out RVA, nameof(RVA))),
+            stream.ReadStruct(out ImplFlags, nameof(ImplFlags)),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Signature, nameof(Signature)),
+            stream.ReadClass(ref ParamList, nameof(ParamList)),
         };
 
         rva.DelayedValueNode = () => new DefaultValueNode(rva.Value, Method.MethodsByRVA[RVA].Node);
@@ -274,9 +274,9 @@ sealed class MethodSemantics : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Semantics, "Semantics"),
-            stream.ReadClass(ref Method, "Method"),
-            stream.ReadClass(ref Association, "Association"),
+            stream.ReadStruct(out Semantics, nameof(Semantics)),
+            stream.ReadClass(ref Method, nameof(Method)),
+            stream.ReadClass(ref Association, nameof(Association)),
         };
     }
 }
@@ -298,11 +298,11 @@ sealed class Module : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Generation, "Generation"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Mvid, "Mvid"),
-            stream.ReadClass(ref EncId, "EncId"),
-            stream.ReadClass(ref EncBaseId, "EncBaseId"),
+            stream.ReadStruct(out Generation, nameof(Generation)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Mvid, nameof(Mvid)),
+            stream.ReadClass(ref EncId, nameof(EncId)),
+            stream.ReadClass(ref EncBaseId, nameof(EncBaseId)),
         };
     }
 }
@@ -322,9 +322,9 @@ sealed class Param : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadStruct(out Sequence, "Sequence"),
-            stream.ReadClass(ref Name, "Name"),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadStruct(out Sequence, nameof(Sequence)),
+            stream.ReadClass(ref Name, nameof(Name)),
         };
     }
 }
@@ -344,9 +344,9 @@ sealed class Property : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadClass(ref Name, "Name"),
-            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Signature, nameof(Signature)),
         };
     }
 }
@@ -365,8 +365,8 @@ sealed class PropertyMap : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadClass(ref Parent, "Parent"),
-            stream.ReadClass(ref PropertyList, "PropertyList"),
+            stream.ReadClass(ref Parent, nameof(Parent)),
+            stream.ReadClass(ref PropertyList, nameof(PropertyList)),
         };
     }
 }
@@ -389,12 +389,12 @@ sealed class TypeDef : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadClass(ref Flags, "Flags"),
-            stream.ReadClass(ref TypeName, "TypeName"),
-            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
-            stream.ReadClass(ref Extends, "Extends"),
-            stream.ReadClass(ref FieldList, "FieldList"),
-            stream.ReadClass(ref MethodList, "MethodList"),
+            stream.ReadClass(ref Flags, nameof(Flags)),
+            stream.ReadClass(ref TypeName, nameof(TypeName)),
+            stream.ReadClass(ref TypeNamespace, nameof(TypeNamespace)),
+            stream.ReadClass(ref Extends, nameof(Extends)),
+            stream.ReadClass(ref FieldList, nameof(FieldList)),
+            stream.ReadClass(ref MethodList, nameof(MethodList)),
         };
     }
 }
@@ -414,9 +414,9 @@ sealed class TypeRef : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadClass(ref ResolutionScope, "ResolutionScope"),
-            stream.ReadClass(ref TypeName, "TypeName"),
-            stream.ReadClass(ref TypeNamespace, "TypeNamespace"),
+            stream.ReadClass(ref ResolutionScope, nameof(ResolutionScope)),
+            stream.ReadClass(ref TypeName, nameof(TypeName)),
+            stream.ReadClass(ref TypeNamespace, nameof(TypeNamespace)),
         };
     }
 }
@@ -434,7 +434,7 @@ sealed class TypeSpec : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadClass(ref Signature, "Signature"),
+            stream.ReadClass(ref Signature, nameof(Signature)),
         };
     }
 }
@@ -612,14 +612,14 @@ sealed class MetadataRoot : ICanRead
     {
         return new CodeNode
         {
-            stream.ReadStruct(out Signature, "Signature"),
-            stream.ReadStruct(out MajorVersion, "MajorVersion"),
-            stream.ReadStruct(out MinorVersion, "MinorVersion"),
-            stream.ReadStruct(out Reserved, "Reserved"),
-            stream.ReadStruct(out Length, "Length"),
+            stream.ReadStruct(out Signature, nameof(Signature)),
+            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
+            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
+            stream.ReadStruct(out Reserved, nameof(Reserved)),
+            stream.ReadStruct(out Length, nameof(Length)),
             stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
-            stream.ReadStruct(out Flags, "Flags"),
-            stream.ReadStruct(out Streams, "Streams"),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadStruct(out Streams, nameof(Streams)),
             stream.ReadClasses(ref StreamHeaders, Streams),
         };
     }
@@ -641,8 +641,8 @@ sealed class StreamHeader : ICanRead
     {
         return new CodeNode
         {
-            stream.ReadStruct(out Offset, "Offset"),
-            stream.ReadStruct(out Size, "Size"),
+            stream.ReadStruct(out Offset, nameof(Offset)),
+            stream.ReadStruct(out Size, nameof(Size)),
             stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
         };
     }
@@ -993,7 +993,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = stream.ReadStruct(out index, "index");
+        var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
         node.Link = StringHeap.Node;
@@ -1015,7 +1015,7 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = stream.ReadStruct(out index, "index");
+        var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
         node.Link = UserStringHeap.Node;
@@ -1039,7 +1039,7 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
         // TODO add sub-children as signatures are read (for all Heap*) (maybe use description to glob together entries if read out-of-band???)
 
         ushort index;
-        var node = stream.ReadStruct(out index, "index");
+        var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
         node.Link = BlobHeap.Node;
@@ -1060,7 +1060,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        var node = stream.ReadStruct(out index, "index");
+        var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
         node.Link = GuidHeap.Node;
@@ -1076,7 +1076,7 @@ sealed class UnknownCodedIndex : ICanRead
     public CodeNode Read(Stream stream)
     {
         ushort index;
-        return stream.ReadStruct(out index, "index");
+        return stream.ReadStruct(out index, nameof(index));
     }
 }
 
@@ -1211,12 +1211,12 @@ abstract class CodedIndex : ICanRead
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
                 case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                //case Tag.File: return TildeStream.Instance.Files[Index];
-                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
-                //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
-                //case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
-                //case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
-                //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
+                    //case Tag.File: return TildeStream.Instance.Files[Index];
+                    //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                    //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
+                    //case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
+                    //case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
+                    //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
             }
             throw new NotImplementedException(tag.ToString());
         }
@@ -1476,7 +1476,7 @@ class PEOptionalHeader : ICanRead
         switch (PEHeaderStandardFields.Magic)
         {
             case 0x10B: //TODO enum
-                node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData))); // TODO use nameof()
+                node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData)));
                 node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
                 break;
             case 0x20B:
@@ -1974,11 +1974,11 @@ class Fixup : ICanRead
 
         return new CodeNode
         {
-            stream.ReadStruct(out Type, "Type", (byte b) => {
+            stream.ReadStruct(out Type, nameof(Type), (byte b) => {
                 tmp = b;
                 return (byte)(b >> 4);
             }),
-            stream.ReadStruct(out Offset, "Offset", (byte b) => {
+            stream.ReadStruct(out Offset, nameof(Offset), (byte b) => {
                 return (short)(((tmp << 8) & 0x0F00) | b);
             }),
         };
@@ -2048,7 +2048,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
     {
         Node = new CodeNode
         {
-            stream.ReadStruct(out Header, "Header"),
+            stream.ReadStruct(out Header, nameof(Header)),
         };
 
         int length;
@@ -2064,7 +2064,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
                     throw new NotImplementedException("Exception Handlers");
                 }
 
-                Node.Add(stream.ReadStruct(out FatFormat, "FatFormat"));
+                Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
 
                 if ((FatFormat.FlagsAndSize & 0xF0) != 0x30)
                 {
