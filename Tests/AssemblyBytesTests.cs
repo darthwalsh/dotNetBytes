@@ -70,7 +70,12 @@ namespace Tests
             RunCompile(@"Samples\Param.cs");
         }
 
-        // TODO test parameters, return values
+        [TestMethod]
+        public void ReturnValue()
+        {
+            RunCompile(@"Samples\ReturnValue.cs");
+        }
+            
         // TODO Add test to exercise the various NotImplementedExceptions
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")

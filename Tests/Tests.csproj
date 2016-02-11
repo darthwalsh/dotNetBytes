@@ -38,6 +38,9 @@
     <Compile Include="AssemblyBytesTests.cs" />
     <Compile Include="Asserts.cs" />
     <Compile Include="DelegatingStream.cs" />
+    <Compile Include="Samples\ReturnValue.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Samples\Param.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
