@@ -229,7 +229,7 @@ sealed class MemberRef : ICanRead, IHaveValueNode
 sealed class MethodDef : ICanRead, IHaveValueNode
 {
     public uint RVA;
-    public ushort ImplFlags; //TODO(flags)
+    public MethodImplAttributes ImplFlags;
     public MethodAttributes Flags; 
     public StringHeapIndex Name;
     public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
@@ -246,7 +246,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
         Node = new CodeNode
         {
             (rva = stream.ReadStruct(out RVA, nameof(RVA))),
-            stream.ReadStruct(out ImplFlags, nameof(ImplFlags)),
+            stream.ReadClass(ref ImplFlags, nameof(ImplFlags)),
             stream.ReadClass(ref Flags, nameof(Flags)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Signature, nameof(Signature)),
@@ -620,6 +620,70 @@ class MethodAttributes : ICanRead, IHaveValue
         HasSecurity = 0x4000,
         [Description("Method calls another method containing security code.")]
         RequireSecObject = 0x8000,
+    }
+}
+
+// II.23.1.11
+class MethodImplAttributes : ICanRead, IHaveValue
+{
+    public CodeType codeType;
+    public Managed managed;
+    public Flags flags;
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort value;
+        var node = stream.ReadStruct(out value);
+
+        codeType = (CodeType)(value & CodeTypeMask);
+        managed = (Managed)(value & ManagedMask);
+        flags = (Flags)(value & FlagsMask);
+
+        return node;
+    }
+
+    public object Value => new Enum[] { codeType, managed, flags };
+
+    const ushort CodeTypeMask = 0x0003;
+
+    public enum CodeType : ushort
+    {
+        [Description("Method impl is CIL")]
+        IL = 0x0000,
+        [Description("Method impl is native")]
+        Native = 0x0001,
+        [Description("Reserved: shall be zero in conforming implementations")]
+        OPTIL = 0x0002,
+        [Description("Method impl is provided by the runtime")]
+        Runtime = 0x0003,
+    }
+
+    const ushort ManagedMask = 0x0004;
+
+    public enum Managed : ushort
+    {
+        [Description("Method impl is unmanaged, otherwise managed")]
+        Unmanaged = 0x0004,
+        [Description("Method impl is managed")]
+        Managed = 0x0000,
+    }
+
+    const ushort FlagsMask = unchecked((ushort)~CodeTypeMask & ~ManagedMask);
+    [Flags]
+    public enum Flags : ushort
+    {
+        [Description("Method cannot be inlined")]
+        NoInlining = 0x0008,
+        [Description("Indicates method is defined; used primarily in merge scenarios")]
+        ForwardRef = 0x0010,
+        [Description("Method is single threaded through the body")]
+        Synchronized = 0x0020,
+        [Description("Method will not be optimized when generating native code")]
+        NoOptimization = 0x0040,
+        [Description("Reserved: conforming implementations can ignore")]
+        PreserveSig = 0x0080,
+        [Description("Reserved: shall be zero in conforming implementations")]
+        InternalCall = 0x1000,
     }
 }
 
