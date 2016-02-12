@@ -1034,6 +1034,7 @@ sealed class BlobHeap : ICanRead
     }
 }
 
+// II.24.2.5
 sealed class GuidHeap : ICanRead
 {
     byte[] data;
