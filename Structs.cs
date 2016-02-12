@@ -310,7 +310,7 @@ sealed class Module : ICanRead, IHaveValueNode
 // II.22.33
 sealed class Param : ICanRead, IHaveValueNode
 {
-    public ushort Flags; // TODO (flags)
+    public ParamAttributesWrapper Flags;
     public ushort Sequence;
     public StringHeapIndex Name;
 
@@ -322,7 +322,7 @@ sealed class Param : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
             stream.ReadStruct(out Sequence, nameof(Sequence)),
             stream.ReadClass(ref Name, nameof(Name)),
         };
@@ -539,6 +539,28 @@ class FieldAttributes : ICanRead, IHaveValue
         [Description("Field has RVA")]
         HasFieldRVA = 0x0100,
     }
+}
+
+// II.23.1.13
+[Flags]
+public enum ParamAttributes : ushort
+{
+    [Description("Param is [In]")]
+    In = 0x0001,
+    [Description("Param is [out]")]
+    Out = 0x0002,
+    [Description("Param is optional")]
+    Optional = 0x0010,
+    [Description("Param has default value")]
+    HasDefault = 0x1000,
+    [Description("Param has FieldMarshal")]
+    HasFieldMarshal = 0x2000,
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ParamAttributesWrapper
+{
+    public ParamAttributes ParamAttributes;
 }
 
 // II.23.1.15

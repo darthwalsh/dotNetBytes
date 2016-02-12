@@ -267,7 +267,6 @@ Assembly 0x0003 Accessibly by anyone in the Assembly
 Family 0x0004 Accessible only by type and sub-types
 FamORAssem 0x0005 Accessibly by sub-types anywhere, plus anyone in assembly
 Public 0x0006 Accessibly by anyone who has visibility to this scope field contract attributes
-
 Static 0x0010 Defined on type, else per instance
 InitOnly 0x0020 Field can only be initialized, not written to after init
 Literal 0x0040 Value is compile time constant
@@ -279,4 +278,10 @@ HasFieldMarshal 0x1000 Field has marshalling information
 HasDefault 0x8000 Field has default
 HasFieldRVA 0x0100 Field has RVA
 
+ParamAttributes
+In 0x0001 Param is [In]
+Out 0x0002 Param is [out]
+Optional 0x0010 Param is optional
+HasDefault 0x1000 Param has default value
+HasFieldMarshal 0x2000 Param has FieldMarshal
 
