@@ -72,12 +72,12 @@ public enum MetadataTableFlags : ulong
 // II.22.2
 sealed class Assembly : ICanRead, IHaveValueNode
 {
-    public AssemblyHashAlgorithmBlittableWrapper HashAlgId;
+    public AssemblyHashAlgorithmWrapper HashAlgId;
     public ushort MajorVersion;
     public ushort MinorVersion;
     public ushort BuildNumber;
     public ushort RevisionNumber;
-    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public AssemblyFlagsHolderWrapper Flags;
     public BlobHeapIndex PublicKey;
     public StringHeapIndex Name;
     public StringHeapIndex Culture;
@@ -110,7 +110,7 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
     public ushort MinorVersion;
     public ushort BuildNumber;
     public ushort RevisionNumber;
-    public AssemblyFlagsHolderBlittableWrapper Flags;
+    public AssemblyFlagsHolderWrapper Flags;
     public BlobHeapIndex PublicKeyOrToken;
     public StringHeapIndex Name;
     public StringHeapIndex Culture;
@@ -439,13 +439,7 @@ sealed class TypeSpec : ICanRead, IHaveValueNode
     }
 }
 
-//TODO remove from graph, or make a ReadStruct overload that reads inner enum type
-// Makes the enum blittable. 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyHashAlgorithmBlittableWrapper
-{
-    public AssemblyHashAlgorithm AssemblyHashAlgorithm;
-}
+
 
 // II.23.1.1
 enum AssemblyHashAlgorithm : uint
@@ -454,11 +448,10 @@ enum AssemblyHashAlgorithm : uint
     Reserved_MD5 = 0x8003,
     SHA1 = 0x8004,
 }
-
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyFlagsHolderBlittableWrapper
+struct AssemblyHashAlgorithmWrapper
 {
-    public AssemblyFlags AssemblyFlags;
+    public AssemblyHashAlgorithm AssemblyHashAlgorithm;
 }
 
 // II.23.1.2 
@@ -473,6 +466,11 @@ enum AssemblyFlags : uint
     DisableJITcompileOptimizer = 0x4000,
     [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)")]
     EnableJITcompileTracking = 0x8000,
+}
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct AssemblyFlagsHolderWrapper
+{
+    public AssemblyFlags AssemblyFlags;
 }
 
 // II.23.1.5
@@ -702,7 +700,6 @@ public enum ParamAttributes : ushort
     [Description("Param has FieldMarshal")]
     HasFieldMarshal = 0x2000,
 }
-
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct ParamAttributesWrapper
 {
