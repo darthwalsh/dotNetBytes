@@ -550,7 +550,7 @@ class MethodAttributes : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        uint value;
+        ushort value;
         var node = stream.ReadStruct(out value);
 
         memberAccess = (MemberAccess)(value & MemberAccessMask);
