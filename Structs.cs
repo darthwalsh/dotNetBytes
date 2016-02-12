@@ -1439,7 +1439,7 @@ struct PESignature
 struct PEFileHeader
 {
     [Description("0x14c is I386.")]
-    public ushort Machine; //TODO enum
+    public MachineType Machine;
     [Description("Number of sections; indicates size of the Section Table, which immediately follows the headers.")]
     public ushort NumberOfSections;
     [Description("Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.")]
@@ -1454,6 +1454,32 @@ struct PEFileHeader
     public ushort OptionalHeaderSize;
     [Description("Flags indicating attributes of the file, see §II.25.2.2.1.")]
     public ushort Characteristics;
+}
+
+enum MachineType : ushort
+{
+    Unknown = 0x0,
+    Am33 = 0x1d3,
+    Amd64 = 0x8664,
+    Arm = 0x1c0,
+    Armnt = 0x1c4,
+    Arm64 = 0xaa64,
+    Ebc = 0xebc,
+    I386 = 0x14c,
+    Ia64 = 0x200,
+    M32r = 0x9041,
+    Mips16 = 0x266,
+    Mipsfpu = 0x366,
+    Mipsfpu16 = 0x466,
+    Powerpc = 0x1f0,
+    Powerpcfp = 0x1f1,
+    R4000 = 0x166,
+    Sh3 = 0x1a2,
+    Sh3dsp = 0x1a3,
+    Sh4 = 0x1a6,
+    Sh5 = 0x1a8,
+    Thumb = 0x1c2,
+    Wcemipsv2 = 0x169
 }
 
 // II.25.2.3
@@ -1477,11 +1503,11 @@ class PEOptionalHeader : ICanRead
 
         switch (PEHeaderStandardFields.Magic)
         {
-            case 0x10B: //TODO enum
+            case PE32Magic.PE32:
                 node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData)));
                 node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
                 break;
-            case 0x20B:
+            case PE32Magic.PE32plus:
                 node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields64).Children.Single());
                 break;
             default:
@@ -1498,8 +1524,8 @@ class PEOptionalHeader : ICanRead
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderStandardFields
 {
-    [Description("Always 0x10B.")]
-    public ushort Magic; // TODO enum
+    [Description("Identifies version.")]
+    public PE32Magic Magic;
     [Description("Spec says always 6, sometimes more (§II.24.1).")]
     public byte LMajor;
     [Description("Always 0 (§II.24.1).")]
@@ -1515,6 +1541,12 @@ struct PEHeaderStandardFields
     public uint EntryPointRVA;
     [Description("RVA of the code section. (This is a hint to the loader.)")]
     public uint BaseOfCode;
+}
+
+enum PE32Magic : ushort
+{
+    PE32 = 0x10b,
+    PE32plus = 0x20b,
 }
 
 // II.25.2.3.2
