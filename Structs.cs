@@ -181,10 +181,10 @@ sealed class CustomAttribute : ICanRead, IHaveValueNode
     }
 }
 
-// II.22.16
+// II.22.15
 sealed class Field : ICanRead, IHaveValueNode
 {
-    public ushort Flags; // TODO (flags)
+    public FieldAttributes Flags;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
 
@@ -196,7 +196,7 @@ sealed class Field : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Flags, nameof(Flags)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Signature, nameof(Signature)),
         };
@@ -475,6 +475,72 @@ enum AssemblyFlags : uint
     EnableJITcompileTracking = 0x8000,
 }
 
+// II.23.1.5
+class FieldAttributes : ICanRead, IHaveValue
+{
+    public Access access;
+    public Flags flags;
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort value;
+        var node = stream.ReadStruct(out value);
+
+        access = (Access)(value & AccessMask);
+        flags = (Flags)(value & FlagsMask);
+
+        return node;
+    }
+
+    public object Value => new Enum[] { access, flags };
+
+    const ushort AccessMask = 0x0007;
+
+    public enum Access : ushort
+    {
+        [Description("Member not referenceable")]
+        CompilerControlled = 0x0000,
+        [Description("Accessible only by the parent type")]
+        Private = 0x0001,
+        [Description("Accessible by sub-types only in this Assembly")]
+        FamANDAssem = 0x0002,
+        [Description("Accessibly by anyone in the Assembly")]
+        Assembly = 0x0003,
+        [Description("Accessible only by type and sub-types")]
+        Family = 0x0004,
+        [Description("Accessibly by sub-types anywhere, plus anyone in assembly")]
+        FamORAssem = 0x0005,
+        [Description("Accessibly by anyone who has visibility to this scope field contract attributes")]
+        Public = 0x0006,
+    }
+
+    const ushort FlagsMask = unchecked((ushort)~AccessMask);
+    [Flags]
+    public enum Flags : ushort
+    {
+        [Description("Defined on type, else per instance")]
+        Static = 0x0010,
+        [Description("Field can only be initialized, not written to after init")]
+        InitOnly = 0x0020,
+        [Description("Value is compile time constant")]
+        Literal = 0x0040,
+        [Description("Reserved (to indicate this field should not be serialized when type is remoted)")]
+        NotSerialized = 0x0080,
+        [Description("Field is special")]
+        SpecialName = 0x0200,
+        [Description("Implementation is forwarded through PInvoke.")]
+        PInvokeImpl = 0x2000,
+        [Description("CLI provides 'special' behavior, depending upon the name of the field")]
+        RTSpecialName = 0x0400,
+        [Description("Field has marshalling information")]
+        HasFieldMarshal = 0x1000,
+        [Description("Field has default")]
+        HasDefault = 0x8000,
+        [Description("Field has RVA")]
+        HasFieldRVA = 0x0100,
+    }
+}
+
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
 {
@@ -487,7 +553,7 @@ class TypeAttributes : ICanRead, IHaveValue
     public CodeNode Read(Stream stream)
     {
         uint value;
-        var node = stream.ReadStruct(out value, "data");
+        var node = stream.ReadStruct(out value);
 
         visibility = (Visibility)(value & VisibilityMask);
         layout = (Layout)(value & LayoutMask);
