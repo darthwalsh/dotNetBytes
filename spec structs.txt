@@ -342,3 +342,9 @@ Other 0x0004 Other method for property or event
 AddOn 0x0008 AddOn method for event. This refers to the required add_ method for events. (§22.13)
 RemoveOn 0x0010 RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)
 Fire 0x0020 Fire method for event. This refers to the optional raise_ method for events. (§22.13)
+
+PropertyAttributes
+SpecialName 0x0200 Property is special
+RTSpecialName 0x0400 Runtime(metadata internal APIs) should check name encoding
+HasDefault 0x1000 Property has default
+Unused 0xe9ff Reserved: shall be zero in a conforming implementation

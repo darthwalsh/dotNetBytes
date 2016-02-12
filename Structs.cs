@@ -332,7 +332,7 @@ sealed class Param : ICanRead, IHaveValueNode
 // II.22.34
 sealed class Property : ICanRead, IHaveValueNode
 {
-    public ushort Flags; // TODO (flags)
+    public PropertyAttributesWrapper Flags;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
 
@@ -344,7 +344,7 @@ sealed class Property : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Signature, nameof(Signature)),
         };
@@ -728,6 +728,24 @@ struct ParamAttributesWrapper
 {
     public ParamAttributes ParamAttributes;
 }
+
+// II.23.1.14
+[Flags]
+enum PropertyAttributes : ushort
+{
+    [Description("Property is special")]
+    SpecialName = 0x0200,
+    [Description("Runtime(metadata internal APIs) should check name encoding")]
+    RTSpecialName = 0x0400,
+    [Description("Property has default")]
+    HasDefault = 0x1000,
+}
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct PropertyAttributesWrapper
+{
+    public PropertyAttributes PropertyAttributes;
+}
+
 
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
