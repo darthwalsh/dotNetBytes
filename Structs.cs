@@ -843,7 +843,9 @@ sealed class TildeStream : ICanRead
         var node = new CodeNode
         {
             stream.ReadStruct(out TildeData),
-            stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+            new CodeNode("Rows") {
+                stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+            },
             Enum.GetValues(typeof(MetadataTableFlags))
                 .Cast<MetadataTableFlags>()
                 .Where(flag => TildeData.Valid.HasFlag(flag))

@@ -5,6 +5,9 @@ using System.Web.Script.Serialization;
 
 public class CodeNode : IEnumerable<string>
 {
+    public CodeNode() { }
+    public CodeNode(string name) { Name = name; }
+
     public string Name = "oops!";
     public string Description = "";
     public string Value = "";
