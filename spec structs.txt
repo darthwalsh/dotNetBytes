@@ -334,3 +334,11 @@ NoInlining 0x0008 Method cannot be inlined
 MaxMethodImplVal 0xffff Range check value
 NoOptimization 0x0040 Method will not be optimized when generating native code
 
+
+MethodSemanticsAttributes
+Setter 0x0001 Setter for property
+Getter 0x0002 Getter for property
+Other 0x0004 Other method for property or event
+AddOn 0x0008 AddOn method for event. This refers to the required add_ method for events. (§22.13)
+RemoveOn 0x0010 RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)
+Fire 0x0020 Fire method for event. This refers to the optional raise_ method for events. (§22.13)

@@ -262,7 +262,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 // II.22.28
 sealed class MethodSemantics : ICanRead, IHaveValueNode
 {
-    public ushort Semantics; // TODO flags
+    public MethodSemanticsAttributesWrapper Semantics;
     public UnknownCodedIndex Method;
     public UnknownCodedIndex Association;
 
@@ -274,7 +274,7 @@ sealed class MethodSemantics : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Semantics, nameof(Semantics)),
+            stream.ReadStruct(out Semantics, nameof(Semantics)).Children.Single(),
             stream.ReadClass(ref Method, nameof(Method)),
             stream.ReadClass(ref Association, nameof(Association)),
         };
@@ -683,6 +683,29 @@ class MethodImplAttributes : ICanRead, IHaveValue
         [Description("Reserved: shall be zero in conforming implementations")]
         InternalCall = 0x1000,
     }
+}
+
+// II.23.1.12
+[Flags]
+enum MethodSemanticsAttributes : ushort
+{
+    [Description("Setter for property")]
+    Setter = 0x0001,
+    [Description("Getter for property")]
+    Getter = 0x0002,
+    [Description("Other method for property or event")]
+    Other = 0x0004,
+    [Description("AddOn method for event. This refers to the required add_ method for events. (§22.13)")]
+    AddOn = 0x0008,
+    [Description("RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)")]
+    RemoveOn = 0x0010,
+    [Description("Fire method for event. This refers to the optional raise_ method for events. (§22.13)")]
+    Fire = 0x0020,
+}
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct MethodSemanticsAttributesWrapper
+{
+    public MethodSemanticsAttributes MethodSemanticsAttributes;
 }
 
 // II.23.1.13
