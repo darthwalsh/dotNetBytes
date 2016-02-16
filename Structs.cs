@@ -253,7 +253,9 @@ sealed class MethodDef : ICanRead, IHaveValueNode
             stream.ReadClass(ref ParamList, nameof(ParamList)),
         };
 
-        rva.DelayedValueNode = () => new DefaultValueNode(rva.Value, Method.MethodsByRVA[RVA].Node);
+        rva.DelayedValueNode = () => new DefaultValueNode(
+            rva.Value,
+            RVA > 0 ? Method.MethodsByRVA[RVA].Node : null);
 
         return Node;
     }
@@ -303,6 +305,26 @@ sealed class Module : ICanRead, IHaveValueNode
             stream.ReadClass(ref Mvid, nameof(Mvid)),
             stream.ReadClass(ref EncId, nameof(EncId)),
             stream.ReadClass(ref EncBaseId, nameof(EncBaseId)),
+        };
+    }
+}
+
+// II.22.35
+sealed class NestedClass : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex _NestedClass;
+    public UnknownCodedIndex EnclosingClass;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref _NestedClass, nameof(NestedClass)),
+            stream.ReadClass(ref EnclosingClass, nameof(EnclosingClass)),
         };
     }
 }
@@ -1179,7 +1201,7 @@ sealed class TildeStream : ICanRead
     //public File[] Files;
     //public ExportedType[] ExportedTypes;
     //public ManifestResource[] ManifestResources;
-    //public NestedClass[] NestedClasss;
+    public NestedClass[] NestedClasss;
     //public GenericParam[] GenericParams;
     //public MethodSpec[] MethodSpecs;
     //public GenericParamConstraint[] GenericParamConstraints;
@@ -1281,7 +1303,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.ManifestResource:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ManifestResources, count);
             case MetadataTableFlags.NestedClass:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref NestedClasss, count);
+                return stream.ReadClasses(ref NestedClasss, count);
             case MetadataTableFlags.GenericParam:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParams, count);
             case MetadataTableFlags.MethodSpec:
@@ -2402,7 +2424,11 @@ sealed class Section : ICanRead
                                     Name = "Methods",
                                 };
 
-                                foreach (var rva in TildeStream.MethodDefs.Select(def => def.RVA).Distinct().OrderBy(rva => rva))
+                                foreach (var rva in TildeStream.MethodDefs
+                                    .Select(def => def.RVA)
+                                    .Where(rva => rva > 0)
+                                    .Distinct()
+                                    .OrderBy(rva => rva))
                                 {
                                     Reposition(stream, rva);
 

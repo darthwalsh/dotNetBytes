@@ -89,6 +89,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Delegate()
+        {
+            RunCompile(@"Samples\Delegate.cs");
+        }
+
+        [TestMethod]
         public void ReturnValue()
         {
             RunCompile(@"Samples\ReturnValue.cs");
