@@ -11,12 +11,6 @@ namespace Tests
     public class AssemblyBytesTests
     {
         [TestMethod]
-        public void Simple()
-        {
-            RunCompile(@"Samples\Simple.cs");
-        }
-
-        [TestMethod]
         public void NoConfig()
         {
             RunCompile(@"Samples\Simple.cs", noconfig: "");
@@ -53,36 +47,6 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TwoMethods()
-        {
-            RunCompile(@"Samples\TwoMethods.cs");
-        }
-
-        [TestMethod]
-        public void TwoSameMethods()
-        {
-            RunCompile(@"Samples\TwoSameMethods.cs");
-        }
-
-        [TestMethod]
-        public void Param()
-        {
-            RunCompile(@"Samples\Param.cs");
-        }
-
-        [TestMethod]
-        public void Field()
-        {
-            RunCompile(@"Samples\Field.cs");
-        }
-
-        [TestMethod]
-        public void Property()
-        {
-            RunCompile(@"Samples\Property.cs");
-        }
-
-        [TestMethod]
         public void Const()
         {
             RunCompile(@"Samples\Const.cs");
@@ -95,15 +59,51 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Fat()
+        {
+            RunCompile(@"Samples\Fat.cs");
+        }
+
+        [TestMethod]
+        public void Field()
+        {
+            RunCompile(@"Samples\Field.cs");
+        }
+
+        [TestMethod]
+        public void Param()
+        {
+            RunCompile(@"Samples\Param.cs");
+        }
+
+        [TestMethod]
+        public void Property()
+        {
+            RunCompile(@"Samples\Property.cs");
+        }
+
+        [TestMethod]
         public void ReturnValue()
         {
             RunCompile(@"Samples\ReturnValue.cs");
         }
 
         [TestMethod]
-        public void Fat()
+        public void Simple()
         {
-            RunCompile(@"Samples\Fat.cs");
+            RunCompile(@"Samples\Simple.cs");
+        }
+
+        [TestMethod]
+        public void TwoMethods()
+        {
+            RunCompile(@"Samples\TwoMethods.cs");
+        }
+
+        [TestMethod]
+        public void TwoSameMethods()
+        {
+            RunCompile(@"Samples\TwoSameMethods.cs");
         }
 
         // TODO Add test to exercise the various NotImplementedException
