@@ -920,19 +920,16 @@ sealed class StreamHeader : ICanRead
     }
 }
 
-// II.24.2.3
-sealed class StringHeap : ICanRead
+abstract class Heap<T> : ICanRead, IHaveAName
 {
     readonly byte[] data;
     CodeNode parent;
     int offset;
-    SortedList<int, CodeNode> children = new SortedList<int, CodeNode>();
+    SortedList<int, Tuple<T, CodeNode>> children = new SortedList<int, Tuple<T, CodeNode>>();
 
-    public StringHeap(int size)
+    public Heap(int size)
     {
         data = new byte[size];
-
-        instance = this;
     }
 
     public CodeNode Read(Stream stream)
@@ -945,22 +942,28 @@ sealed class StringHeap : ICanRead
         return parent = new CodeNode();
     }
 
-    static StringHeap instance;
-    public static CodeNode Get(StringHeapIndex i)
+    public string Name => GetType().Name;
+    protected abstract CodeNode ReadChild(Stream stream, int index, out T t);
+    
+    protected Tuple<T, CodeNode> AddChild(IHaveIndex i)
     {
-        return instance.AddChild(i);
-    }
-    CodeNode AddChild(StringHeapIndex i)
-    {
-        var stream = new MemoryStream(instance.data);
+        var stream = new MemoryStream(data);
         int index = i.Index;
         stream.Position = index;
 
-        CodeNode child;
-        if (!children.TryGetValue(index, out child))
+        Tuple<T, CodeNode> childpair;
+        if (!children.TryGetValue(index, out childpair))
         {
-            string s;
-            children.Add(index, child = stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{i.Index}]"));
+            T t;
+            CodeNode child = ReadChild(stream, i.Index, out t);
+            if (child == null)
+            {
+                return Tuple.Create(t, parent);
+            }
+
+            childpair = Tuple.Create(t, child);
+            children.Add(index, childpair);
+
             child.Start += offset;
             child.End += offset;
 
@@ -969,7 +972,7 @@ sealed class StringHeap : ICanRead
             AdjustChildRanges(index, child);
         }
 
-        return child;
+        return childpair;
     }
 
     // Children shouldn't overlap, but that can happen inside these binary heaps
@@ -978,12 +981,12 @@ sealed class StringHeap : ICanRead
         int chI = children.IndexOfKey(index);
         if (chI != 0)
         {
-            AdjustChildren(children.Values[chI - 1], child);
+            AdjustChildren(children.Values[chI - 1].Item2, child);
         }
 
         if (chI + 1 != children.Count)
         {
-            AdjustChildren(child, children.Values[chI + 1]);
+            AdjustChildren(child, children.Values[chI + 1].Item2);
         }
     }
 
@@ -997,120 +1000,142 @@ sealed class StringHeap : ICanRead
     }
 }
 
-
-// II.24.2.4
-sealed class UserStringHeap : ICanRead
+// II.24.2.3
+sealed class StringHeap : Heap<string>
 {
-    byte[] data;
-
-    public UserStringHeap(int size)
+    public StringHeap(int size)
+        : base(size)
     {
-        data = new byte[size];
-
         instance = this;
     }
 
-    public CodeNode Read(Stream stream)
+    protected override CodeNode ReadChild(Stream stream, int index, out string s)
     {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
+        return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
     }
 
-    public static CodeNode Node { get; private set; }
+    static StringHeap instance;
+    public static string Get(StringHeapIndex i)
+    {
+        return instance.AddChild(i).Item1;
+    }
+    public static CodeNode GetNode(StringHeapIndex i)
+    {
+        return instance.AddChild(i).Item2;
+    }
+}
+
+// II.24.2.4
+sealed class UserStringHeap : Heap<string>
+{
+    public UserStringHeap(int size)
+        : base(size)
+    {
+        instance = this;
+    }
+
+    protected override CodeNode ReadChild(Stream stream, int index, out string s)
+    {
+        throw new NotImplementedException("UserStringHeap");
+    }
 
     static UserStringHeap instance;
     public static string Get(UserStringHeapIndex i)
     {
-        throw new NotImplementedException("UserStringHeap");
+        return instance.AddChild(i).Item1;
+    }
+    public static CodeNode GetNode(UserStringHeapIndex i)
+    {
+        return instance.AddChild(i).Item2;
     }
 }
 
-sealed class BlobHeap : ICanRead
+sealed class BlobHeap : Heap<byte[]>
 {
-    byte[] data;
-
     public BlobHeap(int size)
+        : base(size)
     {
-        data = new byte[size];
-
         instance = this;
     }
 
-    public CodeNode Read(Stream stream)
+    protected override CodeNode ReadChild(Stream stream, int index, out byte[] b)
     {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
-
-        return Node = new CodeNode();
-    }
-
-    public static CodeNode Node { get; private set; }
-
-    static BlobHeap instance;
-    public static byte[] Get(BlobHeapIndex i)
-    {
-        // TODO do the same thing from StringHeap
-
         int length;
         int offset;
-        byte firstByte = instance.data[i.Index];
-        if ((firstByte & 0x80) == 0)
+        byte first = stream.ReallyReadByte();
+        if ((first & 0x80) == 0)
         {
-            length = firstByte & 0x7F;
+            length = first & 0x7F;
             offset = 1;
         }
-        else if ((firstByte & 0xC0) == 0x80)
+        else if ((first & 0xC0) == 0x80)
         {
-            length = ((firstByte & 0x3F) << 8) + instance.data[i.Index + 1];
+            byte second = stream.ReallyReadByte();
+            length = ((first & 0x3F) << 8) + second;
             offset = 2;
         }
-        else if ((firstByte & 0xE0) == 0xC0)
+        else if ((first & 0xE0) == 0xC0)
         {
-            length = ((firstByte & 0x1F) << 24) + (instance.data[i.Index + 1] << 16) + (instance.data[i.Index + 2] << 8) + instance.data[i.Index + 3];
+            byte second = stream.ReallyReadByte();
+            byte third = stream.ReallyReadByte();
+            byte fourth = stream.ReallyReadByte();
+            length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
             offset = 4;
         }
         else
         {
-            throw new InvalidOperationException("Blob heap byte " + i.Index + " can't start with 1111...");
+            throw new InvalidOperationException($"Blob heap byte {stream.Position} can't start with 1111...");
         }
 
-        var ans = new byte[length];
-        Array.Copy(instance.data, i.Index + offset, ans, 0, length);
-        return ans;
+        var node = stream.ReadAnything(out b, StreamExtensions.ReadByteArray(length), $"BlobHeap[{index}]");
+        node.Description = $"{offset} leading bits";
+        node.Start -= offset;
+        return node;
+    }
+
+    static BlobHeap instance;
+    public static byte[] Get(BlobHeapIndex i)
+    {
+        return instance.AddChild(i).Item1;
+    }
+    public static CodeNode GetNode(BlobHeapIndex i)
+    {
+        return instance.AddChild(i).Item2;
     }
 }
 
 // II.24.2.5
-sealed class GuidHeap : ICanRead
+sealed class GuidHeap : Heap<Guid>
 {
-    byte[] data;
-
     public GuidHeap(int size)
+        : base(size)
     {
-        data = new byte[size];
-
         instance = this;
     }
 
-    public CodeNode Read(Stream stream)
+    protected override CodeNode ReadChild(Stream stream, int index, out Guid g)
     {
-        // Parsing the whole array now isn't sensible
-        stream.ReadWholeArray(data);
+        if (index == 0)
+        {
+            g = Guid.Empty;
+            return null;
+        }
 
-        return Node = new CodeNode();
+        const int size = 16;
+
+        stream.Position = (index - 1) * size; // GuidHeap is indexed from 1
+
+        return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
     }
-
-    public static CodeNode Node { get; private set; }
 
     static GuidHeap instance;
     public static Guid Get(GuidHeapIndex i)
     {
-        const int size = 16;
-        int startAt = (i.Index - 1) * size; // GuidHeap is indexed from 1
-
-        return new Guid(instance.data.Skip(startAt).Take(size).ToArray());
+        return instance.AddChild(i).Item1;
+    }
+    public static CodeNode GetNode(GuidHeapIndex i)
+    {
+        return instance.AddChild(i).Item2;
     }
 }
 
@@ -1303,14 +1328,14 @@ enum TildeDateHeapSizes : byte
     BlobHeapIndexWide = 0x04,
 }
 
-sealed class StringHeapIndex : ICanRead, IHaveValue
+sealed class StringHeapIndex : ICanRead, IHaveValue, IHaveIndex
 {
     ushort? shortIndex;
     uint? intIndex;
 
     public int Index => (int)(intIndex ?? shortIndex);
 
-    public string StringValue => StringHeap.Get(this).Value;
+    public string StringValue => StringHeap.Get(this);
     public object Value => StringValue;
 
     public CodeNode Read(Stream stream)
@@ -1319,14 +1344,14 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
-        node.Link = StringHeap.Get(this);
+        node.Link = StringHeap.GetNode(this);
         node.Description = $"String Heap index {index:X}";
 
         return node;
     }
 }
 
-sealed class UserStringHeapIndex : ICanRead, IHaveValue
+sealed class UserStringHeapIndex : ICanRead, IHaveValue, IHaveIndex
 {
     ushort? shortIndex;
     uint? intIndex;
@@ -1341,14 +1366,14 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
-        node.Link = UserStringHeap.Node;
+        node.Link = UserStringHeap.GetNode(this);
         node.Description = $"User String Heap index {index:X}";
 
         return node;
     }
 }
 
-sealed class BlobHeapIndex : ICanRead, IHaveValue
+sealed class BlobHeapIndex : ICanRead, IHaveValue, IHaveIndex
 {
     ushort? shortIndex;
     uint? intIndex;
@@ -1359,20 +1384,18 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue
 
     public CodeNode Read(Stream stream)
     {
-        // TODO add sub-children as signatures are read (for all Heap*) (maybe use description to glob together entries if read out-of-band???)
-
         ushort index;
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
-        node.Link = BlobHeap.Node;
+        node.Link = BlobHeap.GetNode(this);
         node.Description = $"Blob Heap index {index:X}";
 
         return node;
     }
 }
 
-sealed class GuidHeapIndex : ICanRead, IHaveValue
+sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
 {
     ushort? shortIndex;
     uint? intIndex;
@@ -1386,7 +1409,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
-        node.Link = GuidHeap.Node;
+        node.Link = GuidHeap.GetNode(this);
         node.Description = $"Guid Heap index {index:X}";
 
         return node;

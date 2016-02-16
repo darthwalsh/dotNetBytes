@@ -229,7 +229,7 @@ namespace Tests
             }
         }
 
-        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods" };
+        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods", "GuidHeap" };
         static void AssertParentDifferentSizeThanChild(CodeNode node)
         {
             if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End)

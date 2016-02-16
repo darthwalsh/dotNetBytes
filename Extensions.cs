@@ -40,6 +40,11 @@ sealed class DefaultValueNode : IHaveValueNode
     public CodeNode Node { get; private set; }
 }
 
+internal interface IHaveIndex
+{
+    int Index { get; }
+}
+
 static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html
@@ -57,7 +62,7 @@ static class StreamExtensions
         }
     }
 
-    public static Func<Stream, byte[]> ReadByteArray(int length)
+    public static Func<Stream, byte[]> ReadByteArray(int length) // TODO probably want to implememt something better than byte[]
     {
         return stream =>
         {
@@ -83,6 +88,14 @@ static class StreamExtensions
                     return encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
             }
         };
+    }
+
+    public static byte ReallyReadByte(this Stream stream)
+    {
+        int read = stream.ReadByte();
+        if (read == -1)
+            throw new EndOfStreamException("End of stream reached with 1 byte left to read");
+        return (byte)read;
     }
 
     public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans) 
