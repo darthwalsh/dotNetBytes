@@ -923,7 +923,10 @@ sealed class StreamHeader : ICanRead
 // II.24.2.3
 sealed class StringHeap : ICanRead
 {
-    byte[] data;
+    readonly byte[] data;
+    CodeNode parent;
+    int offset;
+    SortedList<int, CodeNode> children = new SortedList<int, CodeNode>();
 
     public StringHeap(int size)
     {
@@ -934,20 +937,63 @@ sealed class StringHeap : ICanRead
 
     public CodeNode Read(Stream stream)
     {
+        offset = (int)stream.Position;
+
         // Parsing the whole array now isn't sensible
         stream.ReadWholeArray(data);
 
-        return Node = new CodeNode();
+        return parent = new CodeNode();
     }
 
-    public static CodeNode Node { get; private set; }
-
     static StringHeap instance;
-    public static string Get(StringHeapIndex i)
+    public static CodeNode Get(StringHeapIndex i)
+    {
+        return instance.AddChild(i);
+    }
+    CodeNode AddChild(StringHeapIndex i)
     {
         var stream = new MemoryStream(instance.data);
-        stream.Position = i.Index;
-        return StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1)(stream);
+        int index = i.Index;
+        stream.Position = index;
+
+        CodeNode child;
+        if (!children.TryGetValue(index, out child))
+        {
+            string s;
+            children.Add(index, child = stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{i.Index}]"));
+            child.Start += offset;
+            child.End += offset;
+
+            parent.Add(child);
+
+            AdjustChildRanges(index, child);
+        }
+
+        return child;
+    }
+
+    // Children shouldn't overlap, but that can happen inside these binary heaps
+    void AdjustChildRanges(int index, CodeNode child)
+    {
+        int chI = children.IndexOfKey(index);
+        if (chI != 0)
+        {
+            AdjustChildren(children.Values[chI - 1], child);
+        }
+
+        if (chI + 1 != children.Count)
+        {
+            AdjustChildren(child, children.Values[chI + 1]);
+        }
+    }
+
+    static void AdjustChildren(CodeNode before, CodeNode after)
+    {
+        if (before.End > after.Start)
+        {
+            before.Description = @"(Sharing bytes with the next element...)";
+            before.End = after.Start;
+        }
     }
 }
 
@@ -1005,6 +1051,8 @@ sealed class BlobHeap : ICanRead
     static BlobHeap instance;
     public static byte[] Get(BlobHeapIndex i)
     {
+        // TODO do the same thing from StringHeap
+
         int length;
         int offset;
         byte firstByte = instance.data[i.Index];
@@ -1262,7 +1310,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
 
     public int Index => (int)(intIndex ?? shortIndex);
 
-    public string StringValue => StringHeap.Get(this);
+    public string StringValue => StringHeap.Get(this).Value;
     public object Value => StringValue;
 
     public CodeNode Read(Stream stream)
@@ -1271,7 +1319,7 @@ sealed class StringHeapIndex : ICanRead, IHaveValue
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
 
-        node.Link = StringHeap.Node;
+        node.Link = StringHeap.Get(this);
         node.Description = $"String Heap index {index:X}";
 
         return node;
