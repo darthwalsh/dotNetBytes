@@ -141,7 +141,7 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
 sealed class Constant : ICanRead, IHaveValueNode
 {
     public UnknownCodedIndex Type;
-    public UnknownCodedIndex Parent;
+    public CodedIndex.HasConstant Parent;
     public BlobHeapIndex _Value;
 
     public object Value => "";
@@ -264,7 +264,7 @@ sealed class MethodSemantics : ICanRead, IHaveValueNode
 {
     public MethodSemanticsAttributesWrapper Semantics;
     public UnknownCodedIndex Method;
-    public UnknownCodedIndex Association;
+    public CodedIndex.HasSemantics Association;
 
     public object Value => "";
 
@@ -1426,6 +1426,7 @@ sealed class UnknownCodedIndex : ICanRead
     }
 }
 
+// TODO ensure all classes are referenced
 abstract class CodedIndex : ICanRead
 {
     private CodedIndex() { } // Don't allow subclassing 
@@ -1447,37 +1448,6 @@ abstract class CodedIndex : ICanRead
     protected abstract int GetIndex(int readData);
 
     protected abstract IHaveValueNode GetLink();
-
-    public class ResolutionScope : CodedIndex
-    {
-        Tag tag;
-
-        protected override int GetIndex(int readData)
-        {
-            tag = (Tag)(readData & 0x3);
-            return (readData >> 2) - 1;
-        }
-
-        protected override IHaveValueNode GetLink()
-        {
-            switch (tag)
-            {
-                case Tag.Module: return TildeStream.Instance.Modules[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-            }
-            throw new NotImplementedException(tag.ToString());
-        }
-
-        enum Tag
-        {
-            Module = 0,
-            ModuleRef = 1,
-            AssemblyRef = 2,
-            TypeRef = 3,
-        }
-    }
 
     public class TypeDefOrRef : CodedIndex
     {
@@ -1524,6 +1494,35 @@ abstract class CodedIndex : ICanRead
         {
             public object Value => "(Nothing)";
             public CodeNode Node => null;
+        }
+    }
+
+    public class HasConstant : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Field: return TildeStream.Instance.Fields[Index];
+                case Tag.Param: return TildeStream.Instance.Params[Index];
+                case Tag.Property: return TildeStream.Instance.Properties[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Field = 0,
+            Param = 1,
+            Property = 2,
         }
     }
 
@@ -1594,6 +1593,62 @@ abstract class CodedIndex : ICanRead
         }
     }
 
+    public class HasFieldMarshall : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1);
+            return (readData >> 1) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Field: return TildeStream.Instance.Fields[Index];
+                case Tag.Param: return TildeStream.Instance.Params[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Field = 0,
+            Param = 1,
+        }
+    }
+
+    public class HasDeclSecurity : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            MethodDef = 1,
+            Assembly = 2,
+        }
+    }
+
     public class MemberRefParent : CodedIndex
     {
         Tag tag;
@@ -1627,6 +1682,116 @@ abstract class CodedIndex : ICanRead
         }
     }
 
+    public class HasSemantics : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1);
+            return (readData >> 1) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                //TODO case Tag.Event: return TildeStream.Instance.Events[Index];
+                case Tag.Property: return TildeStream.Instance.Properties[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Event = 0,
+            Property = 1,
+        }
+    }
+
+    public class MethodDefOrRef : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1);
+            return (readData >> 1) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            MethodDef = 0,
+            MemberRef = 1,
+        }
+    }
+
+    public class MemberForwarded : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1);
+            return (readData >> 1) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Field: return TildeStream.Instance.Fields[Index];
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Field = 0,
+            MethodDef = 1,
+        }
+    }
+
+    public class Implementation : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                //case Tag.File: return TildeStream.Instance.Files[Index];
+                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
+                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            File = 0,
+            AssemblyRef = 1,
+            ExportedType = 2,
+        }
+    }
+
     public class CustomAttributeType : CodedIndex
     {
         Tag tag;
@@ -1651,6 +1816,64 @@ abstract class CodedIndex : ICanRead
         {
             MethodDef = 2,
             MemberRef = 3,
+        }
+    }
+
+    public class ResolutionScope : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x3);
+            return (readData >> 2) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.Module: return TildeStream.Instance.Modules[Index];
+                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
+                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+            }
+            throw new NotImplementedException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            Module = 0,
+            ModuleRef = 1,
+            AssemblyRef = 2,
+            TypeRef = 3,
+        }
+    }
+
+    public class TypeOrMethodDef : CodedIndex
+    {
+        Tag tag;
+
+        protected override int GetIndex(int readData)
+        {
+            tag = (Tag)(readData & 0x1);
+            return (readData >> 1) - 1;
+        }
+
+        protected override IHaveValueNode GetLink()
+        {
+            switch (tag)
+            {
+                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
+                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+            }
+            throw new InvalidOperationException(tag.ToString());
+        }
+
+        enum Tag
+        {
+            TypeDef = 0,
+            MethodDef = 1,
         }
     }
 }
