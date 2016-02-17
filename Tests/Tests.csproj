@@ -37,6 +37,9 @@
   <ItemGroup>
     <Compile Include="AssemblyBytesTests.cs" />
     <Compile Include="Asserts.cs" />
+    <Compile Include="Samples\COM.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Samples\Fat.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>

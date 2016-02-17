@@ -47,6 +47,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void COM()
+        {
+            RunCompile(@"Samples\COM.cs");
+        }
+
+        [TestMethod]
         public void Const()
         {
             RunCompile(@"Samples\Const.cs");
@@ -124,6 +130,9 @@ namespace Tests
             RunCompile(@"Samples\TwoSameMethods.cs");
         }
 
+        // TODO test try-catch-finally
+        // TODO test generics
+        // TODO test volatile, synchronized, locks
         // TODO Add test to exercise the various NotImplementedException
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
