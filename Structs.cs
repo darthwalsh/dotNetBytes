@@ -1343,7 +1343,7 @@ sealed class TildeStream : ICanRead
     //public File[] Files;
     //public ExportedType[] ExportedTypes;
     //public ManifestResource[] ManifestResources;
-    public NestedClass[] NestedClasss;
+    public NestedClass[] NestedClasses;
     //public GenericParam[] GenericParams;
     //public MethodSpec[] MethodSpecs;
     //public GenericParamConstraint[] GenericParamConstraints;
@@ -1445,7 +1445,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.ManifestResource:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ManifestResources, count);
             case MetadataTableFlags.NestedClass:
-                return stream.ReadClasses(ref NestedClasss, count);
+                return stream.ReadClasses(ref NestedClasses, count);
             case MetadataTableFlags.GenericParam:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParams, count);
             case MetadataTableFlags.MethodSpec:
