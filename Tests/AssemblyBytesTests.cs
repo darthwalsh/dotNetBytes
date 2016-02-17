@@ -53,6 +53,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Conversion()
+        {
+            RunCompile(@"Samples\Conversion.cs");
+        }
+
+        [TestMethod]
         public void Delegate()
         {
             RunCompile(@"Samples\Delegate.cs");
