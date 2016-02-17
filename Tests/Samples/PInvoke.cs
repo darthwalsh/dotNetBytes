@@ -18,6 +18,13 @@ public static class PInvoke
         [FieldOffset(0)]
         public double d;
     }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 8)]
+    public struct sparse
+    {
+        public int i;
+        public double d;
+    }
 
     [DllImport("something.dll", SetLastError = true, PreserveSig = true)]
     static extern int Blah(
@@ -25,6 +32,7 @@ public static class PInvoke
         int i,
         string s,
         union u,
+        sparse sp,
         [In, Out] string inout,
         StringBuilder sb,
         IntPtr ip,

@@ -137,6 +137,28 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.8
+sealed class ClassLayout : ICanRead, IHaveValueNode
+{
+    public ushort PackingSize;
+    public uint ClassSize;
+    public UnknownCodedIndex Parent;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out PackingSize, nameof(PackingSize)),
+            stream.ReadStruct(out ClassSize, nameof(ClassSize)),
+            stream.ReadClass(ref Parent, nameof(Parent)),
+        };
+    }
+}
+
 // II.22.9
 sealed class Constant : ICanRead, IHaveValueNode
 {
@@ -1321,7 +1343,7 @@ sealed class TildeStream : ICanRead
     public CustomAttribute[] CustomAttributes;
     public FieldMarshal[] FieldMarshals;
     //public DeclSecurity[] DeclSecuritys;
-    //public ClassLayout[] ClassLayouts;
+    public ClassLayout[] ClassLayouts;
     public FieldLayout[] FieldLayouts;
     public StandAloneSig[] StandAloneSigs;
     //public EventMap[] EventMaps;
@@ -1401,7 +1423,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.DeclSecurity:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref DeclSecuritys, count);
             case MetadataTableFlags.ClassLayout:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ClassLayouts, count);
+                return stream.ReadClasses(ref ClassLayouts, count);
             case MetadataTableFlags.FieldLayout:
                 return stream.ReadClasses(ref FieldLayouts, count);
             case MetadataTableFlags.StandAloneSig:
