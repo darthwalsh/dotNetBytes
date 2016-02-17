@@ -203,6 +203,70 @@ sealed class Field : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.16
+sealed class FieldLayout : ICanRead, IHaveValueNode
+{
+    public uint Offset;
+    public UnknownCodedIndex Field; // TODO (Signature)
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Offset, nameof(Offset)),
+            stream.ReadClass(ref Field, nameof(Field)),
+        };
+    }
+}
+
+// II.22.17
+sealed class FieldMarshal : ICanRead, IHaveValueNode
+{
+    public CodedIndex.HasFieldMarshall Parent;
+    public BlobHeapIndex NativeType; // TODO (Signature)
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Parent, nameof(Parent)),
+            stream.ReadClass(ref NativeType, nameof(NativeType)),
+        };
+    }
+}
+
+// II.22.22
+sealed class ImplMap : ICanRead, IHaveValueNode
+{
+    public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
+    public CodedIndex.MemberForwarded MemberForwarded;
+    public StringHeapIndex ImportName;
+    public UnknownCodedIndex ImportScope;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out MappingFlags, nameof(MappingFlags)),
+            stream.ReadClass(ref MemberForwarded, nameof(MemberForwarded)),
+            stream.ReadClass(ref ImportName, nameof(ImportName)),
+            stream.ReadClass(ref ImportScope, nameof(ImportScope)),
+        };
+    }
+}
+
 // II.22.23
 sealed class InterfaceImpl : ICanRead, IHaveValueNode
 {
@@ -351,6 +415,24 @@ sealed class Module : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.31
+sealed class ModuleRef : ICanRead, IHaveValueNode
+{
+    public StringHeapIndex Name;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Name, nameof(Name)),
+        };
+    }
+}
+
 // II.22.35
 sealed class NestedClass : ICanRead, IHaveValueNode
 {
@@ -431,6 +513,24 @@ sealed class PropertyMap : ICanRead, IHaveValueNode
         {
             stream.ReadClass(ref Parent, nameof(Parent)),
             stream.ReadClass(ref PropertyList, nameof(PropertyList)),
+        };
+    }
+}
+
+// II.22.36
+sealed class StandAloneSig : ICanRead, IHaveValueNode
+{
+    public BlobHeapIndex Signature;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Signature, nameof(Signature)),
         };
     }
 }
@@ -1219,20 +1319,20 @@ sealed class TildeStream : ICanRead
     public MemberRef[] MemberRefs;
     public Constant[] Constants;
     public CustomAttribute[] CustomAttributes;
-    //public FieldMarshal[] FieldMarshals;
+    public FieldMarshal[] FieldMarshals;
     //public DeclSecurity[] DeclSecuritys;
     //public ClassLayout[] ClassLayouts;
-    //public FieldLayout[] FieldLayouts;
-    //public StandAloneSig[] StandAloneSigs;
+    public FieldLayout[] FieldLayouts;
+    public StandAloneSig[] StandAloneSigs;
     //public EventMap[] EventMaps;
     //public Event[] Events;
     public PropertyMap[] PropertyMaps;
     public Property[] Properties;
     public MethodSemantics[] MethodSemantics;
     public MethodImpl[] MethodImpls;
-    //public ModuleRef[] ModuleRefs;
+    public ModuleRef[] ModuleRefs;
     public TypeSpec[] TypeSpecs;
-    //public ImplMap[] ImplMaps;
+    public ImplMap[] ImplMaps;
     //public FieldRVA[] FieldRVAs;
     public Assembly[] Assemblies;
     //public AssemblyProcessor[] AssemblyProcessors;
@@ -1297,15 +1397,15 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.CustomAttribute:
                 return stream.ReadClasses(ref CustomAttributes, count);
             case MetadataTableFlags.FieldMarshal:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldMarshals, count);
+                return stream.ReadClasses(ref FieldMarshals, count);
             case MetadataTableFlags.DeclSecurity:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref DeclSecuritys, count);
             case MetadataTableFlags.ClassLayout:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ClassLayouts, count);
             case MetadataTableFlags.FieldLayout:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldLayouts, count);
+                return stream.ReadClasses(ref FieldLayouts, count);
             case MetadataTableFlags.StandAloneSig:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref StandAloneSigs, count);
+                return stream.ReadClasses(ref StandAloneSigs, count);
             case MetadataTableFlags.EventMap:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref EventMaps, count);
             case MetadataTableFlags.Event:
@@ -1319,11 +1419,11 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.MethodImpl:
                 return stream.ReadClasses(ref MethodImpls, count);
             case MetadataTableFlags.ModuleRef:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ModuleRefs, count);
+                return stream.ReadClasses(ref ModuleRefs, count);
             case MetadataTableFlags.TypeSpec:
                 return stream.ReadClasses(ref TypeSpecs, count);
             case MetadataTableFlags.ImplMap:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ImplMaps, count);
+                return stream.ReadClasses(ref ImplMaps, count);
             case MetadataTableFlags.FieldRVA:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldRVAs, count);
             case MetadataTableFlags.Assembly:
@@ -1615,8 +1715,8 @@ abstract class CodedIndex : ICanRead
                 //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
                 case Tag.Property: return TildeStream.Instance.Properties[Index];
                 //case Tag.Event: return TildeStream.Instance.Events[Index];
-                //case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
+                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
                 case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
@@ -1729,11 +1829,11 @@ abstract class CodedIndex : ICanRead
             {
                 case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
                 case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
                 case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
             }
-            throw new NotImplementedException(tag.ToString());
+            throw new InvalidOperationException(tag.ToString());
         }
 
         enum Tag
@@ -1898,11 +1998,11 @@ abstract class CodedIndex : ICanRead
             switch (tag)
             {
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
-                //case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
+                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
                 case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
             }
-            throw new NotImplementedException(tag.ToString());
+            throw new InvalidOperationException(tag.ToString());
         }
 
         enum Tag

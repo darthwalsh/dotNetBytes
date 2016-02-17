@@ -89,6 +89,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void PInvoke()
+        {
+            RunCompile(@"Samples\PInvoke.cs");
+        }
+
+        [TestMethod]
         public void Property()
         {
             RunCompile(@"Samples\Property.cs");
@@ -247,7 +253,7 @@ namespace Tests
             }
         }
 
-        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods", "GuidHeap" };
+        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs" };
         static void AssertParentDifferentSizeThanChild(CodeNode node)
         {
             if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End)
