@@ -77,6 +77,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Inheritance()
+        {
+            RunCompile(@"Samples\Inheritance.cs");
+        }
+
+        [TestMethod]
         public void Param()
         {
             RunCompile(@"Samples\Param.cs");

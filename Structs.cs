@@ -203,6 +203,26 @@ sealed class Field : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.23
+sealed class InterfaceImpl : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Class;
+    public CodedIndex.TypeDefOrRef Interface;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Class, nameof(Class)),
+            stream.ReadClass(ref Interface, nameof(Interface)),
+        };
+    }
+}
+
 // II.22.25
 sealed class MemberRef : ICanRead, IHaveValueNode
 {
@@ -258,6 +278,28 @@ sealed class MethodDef : ICanRead, IHaveValueNode
             RVA > 0 ? Method.MethodsByRVA[RVA].Node : null);
 
         return Node;
+    }
+}
+
+// II.22.27
+sealed class MethodImpl : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Class;
+    public CodedIndex.MethodDefOrRef MethodBody;
+    public CodedIndex.MethodDefOrRef MethodDeclaration;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Class, nameof(Class)),
+            stream.ReadClass(ref MethodBody, nameof(MethodBody)),
+            stream.ReadClass(ref MethodDeclaration, nameof(MethodDeclaration)),
+        };
     }
 }
 
@@ -1173,7 +1215,7 @@ sealed class TildeStream : ICanRead
     public Field[] Fields;
     public MethodDef[] MethodDefs;
     public Param[] Params;
-    //public InterfaceImpl[] InterfaceImpls;
+    public InterfaceImpl[] InterfaceImpls;
     public MemberRef[] MemberRefs;
     public Constant[] Constants;
     public CustomAttribute[] CustomAttributes;
@@ -1187,7 +1229,7 @@ sealed class TildeStream : ICanRead
     public PropertyMap[] PropertyMaps;
     public Property[] Properties;
     public MethodSemantics[] MethodSemantics;
-    //public MethodImpl[] MethodImpls;
+    public MethodImpl[] MethodImpls;
     //public ModuleRef[] ModuleRefs;
     public TypeSpec[] TypeSpecs;
     //public ImplMap[] ImplMaps;
@@ -1247,7 +1289,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.Param:
                 return stream.ReadClasses(ref Params, count);
             case MetadataTableFlags.InterfaceImpl:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref InterfaceImpls, count);
+                return stream.ReadClasses(ref InterfaceImpls, count);
             case MetadataTableFlags.MemberRef:
                 return stream.ReadClasses(ref MemberRefs, count);
             case MetadataTableFlags.Constant:
@@ -1275,7 +1317,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.MethodSemantics:
                 return stream.ReadClasses(ref MethodSemantics, count);
             case MetadataTableFlags.MethodImpl:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref MethodImpls, count);
+                return stream.ReadClasses(ref MethodImpls, count);
             case MetadataTableFlags.ModuleRef:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ModuleRefs, count);
             case MetadataTableFlags.TypeSpec:
@@ -1567,7 +1609,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
                 case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
                 case Tag.Param: return TildeStream.Instance.Params[Index];
-                //case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
+                case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
                 case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
                 //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
