@@ -70,11 +70,12 @@ namespace Tests
             RunCompile(@"Samples\Delegate.cs");
         }
 
-        [TestMethod]
-        public void Fat()
-        {
-            RunCompile(@"Samples\Fat.cs");
-        }
+        // TODO test try-catch-finally
+        //[TestMethod]
+        //public void ExceptionHandling()
+        //{
+        //    RunCompile(@"Samples\ExceptionHandling.cs");
+        //}
 
         [TestMethod]
         public void Field()
@@ -136,7 +137,6 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
-        // TODO test try-catch-finally
         // TODO test generics
         // TODO test volatile, synchronized, locks
         // TODO Add test to exercise the various NotImplementedException
