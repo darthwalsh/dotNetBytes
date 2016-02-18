@@ -130,6 +130,12 @@ namespace Tests
             RunCompile(@"Samples\TwoSameMethods.cs");
         }
 
+        [TestMethod]
+        public void Unsafe()
+        {
+            RunCompile(@"Samples\Unsafe.cs", "/unsafe");
+        }
+
         // TODO test try-catch-finally
         // TODO test generics
         // TODO test volatile, synchronized, locks
