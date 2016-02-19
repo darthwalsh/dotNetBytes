@@ -74,6 +74,7 @@ namespace Tests
         //[TestMethod]
         //public void ExceptionHandling()
         //{
+        //    //TODO test lock
         //    RunCompile(@"Samples\ExceptionHandling.cs");
         //}
 
@@ -94,6 +95,12 @@ namespace Tests
         {
             RunCompile(@"Samples\Inheritance.cs");
         }
+
+        //[TestMethod]
+        //public void Lock()
+        //{
+        //    RunCompile(@"Samples\Lock.cs");
+        //}
 
         [TestMethod]
         public void Param()
