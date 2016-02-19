@@ -1,17 +1,20 @@
-﻿class Lock
+﻿using System.Runtime.CompilerServices;
+using System.Threading;
+
+class Lock
 {
     static volatile int x;
 
-    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
+    [MethodImpl(MethodImplOptions.Synchronized)]
     void M()
     {
 
     }
 
-    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
+    [MethodImpl(MethodImplOptions.Synchronized)]
     static void Main(string[] args)
     {
-        System.Threading.Interlocked.Increment(ref x);
+        Interlocked.Increment(ref x);
 
         lock (new object())
         {

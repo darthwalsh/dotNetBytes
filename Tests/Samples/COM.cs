@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Server
 {
-   [Guid("DBE0E8C4-1C61-41f3-B6A4-4E2F353D3D05")]
+    [Guid("DBE0E8C4-1C61-41f3-B6A4-4E2F353D3D05")]
     public interface IManagedInterface
     {
         int PrintHi(string name);
@@ -35,7 +35,7 @@ namespace Client
         [return: MarshalAs(UnmanagedType.Interface)]
         object FilterCollection();
     }
-    
+
     [ComImport, Guid("E436EBB3-524F-11CE-9F53-0020AF0BA770")]
     public class FilgraphManager
     {
