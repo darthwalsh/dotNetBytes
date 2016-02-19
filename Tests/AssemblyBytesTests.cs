@@ -84,6 +84,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Generic()
+        {
+            RunCompile(@"Samples\Generic.cs");
+        }
+
+        [TestMethod]
         public void Inheritance()
         {
             RunCompile(@"Samples\Inheritance.cs");
@@ -137,7 +143,6 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
-        // TODO test generics
         // TODO test volatile, synchronized, locks
         // TODO Add test to exercise the various NotImplementedException
 

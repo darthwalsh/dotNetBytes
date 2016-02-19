@@ -311,6 +311,50 @@ sealed class ImplMap : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.20
+sealed class GenericParam : ICanRead, IHaveValueNode
+{
+    public ushort Number;
+    public ushort Flags; //TODO (flags) GenericParamAttributes
+    public CodedIndex.TypeOrMethodDef Owner;
+    public StringHeapIndex Name;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Number, nameof(Number)),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Owner, nameof(Owner)),
+            stream.ReadClass(ref Name, nameof(Name)),
+        };
+    }
+}
+
+// II.22.21
+sealed class GenericParamConstraint : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Owner;
+    public CodedIndex.TypeDefOrRef Constraint;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Owner, nameof(Owner)),
+            stream.ReadClass(ref Constraint, nameof(Constraint)),
+        };
+    }
+}
+
 // II.22.23
 sealed class InterfaceImpl : ICanRead, IHaveValueNode
 {
@@ -1388,9 +1432,9 @@ sealed class TildeStream : ICanRead
     //public ExportedType[] ExportedTypes;
     //public ManifestResource[] ManifestResources;
     public NestedClass[] NestedClasses;
-    //public GenericParam[] GenericParams;
+    public GenericParam[] GenericParams;
     //public MethodSpec[] MethodSpecs;
-    //public GenericParamConstraint[] GenericParamConstraints;
+    public GenericParamConstraint[] GenericParamConstraints;
 
     public CodeNode Read(Stream stream)
     {
@@ -1491,11 +1535,11 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.NestedClass:
                 return stream.ReadClasses(ref NestedClasses, count);
             case MetadataTableFlags.GenericParam:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParams, count);
+                return stream.ReadClasses(ref GenericParams, count);
             case MetadataTableFlags.MethodSpec:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref MethodSpecs, count);
             case MetadataTableFlags.GenericParamConstraint:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref GenericParamConstraints, count);
+                return stream.ReadClasses(ref GenericParamConstraints, count);
             default:
                 throw new InvalidOperationException("Not a real MetadataTableFlags " + flag);
         }
@@ -1764,12 +1808,12 @@ abstract class CodedIndex : ICanRead
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
                 case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                    //case Tag.File: return TildeStream.Instance.Files[Index];
-                    //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
-                    //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
-                    //case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
-                    //case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
-                    //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
+                //case Tag.File: return TildeStream.Instance.Files[Index];
+                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
+                case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
+                case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
+                //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
             }
             throw new NotImplementedException(tag.ToString());
         }
