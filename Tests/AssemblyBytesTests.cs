@@ -70,6 +70,12 @@ namespace Tests
             RunCompile(@"Samples\Delegate.cs");
         }
 
+        [TestMethod]
+        public void Event()
+        {
+            RunCompile(@"Samples\Event.cs");
+        }
+
         // TODO test try-catch-finally
         //[TestMethod]
         //public void ExceptionHandling()
@@ -150,7 +156,6 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
-        // TODO test volatile, synchronized, locks
         // TODO Add test to exercise the various NotImplementedException
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")

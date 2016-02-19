@@ -225,6 +225,48 @@ sealed class DeclSecurity : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.12
+sealed class EventMap : ICanRead, IHaveValueNode
+{
+    public UnknownCodedIndex Parent;
+    public UnknownCodedIndex EventList;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Parent, nameof(Parent)),
+            stream.ReadClass(ref EventList, nameof(EventList)),
+        };
+    }
+}
+
+// II.22.13
+sealed class Event : ICanRead, IHaveValueNode
+{
+    public ushort Flags; //TODO (Flags) EventAttributes
+    public StringHeapIndex Name;
+    public CodedIndex.TypeDefOrRef EventType;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref EventType, nameof(EventType)),
+        };
+    }
+}
+
 // II.22.15
 sealed class Field : ICanRead, IHaveValueNode
 {
@@ -473,6 +515,26 @@ sealed class MethodSemantics : ICanRead, IHaveValueNode
             stream.ReadStruct(out Semantics, nameof(Semantics)).Children.Single(),
             stream.ReadClass(ref Method, nameof(Method)),
             stream.ReadClass(ref Association, nameof(Association)),
+        };
+    }
+}
+
+// II.22.29
+sealed class MethodSpec : ICanRead, IHaveValueNode
+{
+    public CodedIndex.MethodDefOrRef Method;
+    public BlobHeapIndex Instantiation;
+
+    public object Value => "";
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadClass(ref Method, nameof(Method)),
+            stream.ReadClass(ref Instantiation, nameof(Instantiation)),
         };
     }
 }
@@ -1412,8 +1474,8 @@ sealed class TildeStream : ICanRead
     public ClassLayout[] ClassLayouts;
     public FieldLayout[] FieldLayouts;
     public StandAloneSig[] StandAloneSigs;
-    //public EventMap[] EventMaps;
-    //public Event[] Events;
+    public EventMap[] EventMaps;
+    public Event[] Events;
     public PropertyMap[] PropertyMaps;
     public Property[] Properties;
     public MethodSemantics[] MethodSemantics;
@@ -1433,7 +1495,7 @@ sealed class TildeStream : ICanRead
     //public ManifestResource[] ManifestResources;
     public NestedClass[] NestedClasses;
     public GenericParam[] GenericParams;
-    //public MethodSpec[] MethodSpecs;
+    public MethodSpec[] MethodSpecs;
     public GenericParamConstraint[] GenericParamConstraints;
 
     public CodeNode Read(Stream stream)
@@ -1495,9 +1557,9 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.StandAloneSig:
                 return stream.ReadClasses(ref StandAloneSigs, count);
             case MetadataTableFlags.EventMap:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref EventMaps, count);
+                return stream.ReadClasses(ref EventMaps, count);
             case MetadataTableFlags.Event:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Events, count);
+                return stream.ReadClasses(ref Events, count);
             case MetadataTableFlags.PropertyMap:
                 return stream.ReadClasses(ref PropertyMaps, count);
             case MetadataTableFlags.Property:
@@ -1537,7 +1599,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.GenericParam:
                 return stream.ReadClasses(ref GenericParams, count);
             case MetadataTableFlags.MethodSpec:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref MethodSpecs, count);
+                return stream.ReadClasses(ref MethodSpecs, count);
             case MetadataTableFlags.GenericParamConstraint:
                 return stream.ReadClasses(ref GenericParamConstraints, count);
             default:
@@ -1802,7 +1864,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
                 //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
                 case Tag.Property: return TildeStream.Instance.Properties[Index];
-                //case Tag.Event: return TildeStream.Instance.Events[Index];
+                case Tag.Event: return TildeStream.Instance.Events[Index];
                 case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
                 case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
@@ -1813,7 +1875,7 @@ abstract class CodedIndex : ICanRead
                 //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
                 case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
                 case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
-                //case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
+                case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
             }
             throw new NotImplementedException(tag.ToString());
         }
@@ -1948,7 +2010,7 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                //TODO case Tag.Event: return TildeStream.Instance.Events[Index];
+                case Tag.Event: return TildeStream.Instance.Events[Index];
                 case Tag.Property: return TildeStream.Instance.Properties[Index];
             }
             throw new InvalidOperationException(tag.ToString());
