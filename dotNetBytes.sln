@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotNetBytes", "dotNetBytes.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{51E066FB-215F-4523-94F3-DDC414D37717}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHost", "WebHost\WebHost.csproj", "{1D5BF720-1619-46A3-88F5-F417B5722794}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{51E066FB-215F-4523-94F3-DDC414D37717}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51E066FB-215F-4523-94F3-DDC414D37717}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51E066FB-215F-4523-94F3-DDC414D37717}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D5BF720-1619-46A3-88F5-F417B5722794}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D5BF720-1619-46A3-88F5-F417B5722794}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D5BF720-1619-46A3-88F5-F417B5722794}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D5BF720-1619-46A3-88F5-F417B5722794}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
