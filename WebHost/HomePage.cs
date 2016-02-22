@@ -10,7 +10,9 @@ namespace WebHost
     {
         public HomePage()
         {
-            Get["/"] = _ => "Hello World!";
+            Get["/"] = _ => Response.AsFile("Content/index.html", "text/html");
+
+            Post["/submit.html"] = _ => "submitted";
         }
     }
 }

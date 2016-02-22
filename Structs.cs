@@ -7,6 +7,8 @@ using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
+// TODO (web) no statics, point to parent for context or threadstatic?
+
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
