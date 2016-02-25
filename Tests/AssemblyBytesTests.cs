@@ -156,7 +156,7 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
-        // TODO Add test to exercise the various NotImplementedException
+        // TODO Add test to exercise the various NotImplementedException (might need to have an IlAssemble that invokes ilasm.exe)
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
