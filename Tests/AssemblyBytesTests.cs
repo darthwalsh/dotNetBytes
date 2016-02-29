@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests
@@ -156,6 +158,26 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
+        [TestMethod]
+        public void Race()
+        {
+            var factory = Task<int>.Factory;
+            var tasks = new List<Task<int>>();
+            for (int i = 0; i < 8; ++i)
+            {
+                var myI = i;
+                tasks.Add(factory.StartNew(() =>
+                {
+                    Console.Error.WriteLine($"Starting task {myI}");
+                    Run(new SlowStream(File.OpenRead(@"C:\code\dotNetBytes\view\Program.dat")));
+                    Console.Error.WriteLine($"Done with task {myI}");
+                    return myI;
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+        }
+
         // TODO Add test to exercise the various NotImplementedException (might need to have an IlAssemble that invokes ilasm.exe)
 
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
@@ -255,6 +277,10 @@ namespace Tests
                 System.Console.Error.WriteLine(assm.Node.ToString());
                 throw;
             }
+            finally
+            {
+                s.Dispose();
+            }
         }
 
         static void AssertChildrenDontOverlap(CodeNode node)
@@ -318,6 +344,30 @@ namespace Tests
 
                 Assert.Fail($"Interested byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
             }
+        }
+    }
+
+    class SlowStream : DelegatingStream
+    {
+        public SlowStream(Stream stream)
+            : base(stream)
+        { }
+
+        void Delay()
+        {
+            Thread.Sleep(10);
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            Delay();
+            return base.Read(buffer, offset, count);
+        }
+
+        public override int ReadByte()
+        {
+            Delay();
+            return base.ReadByte();
         }
     }
 }

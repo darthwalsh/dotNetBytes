@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyBytesTests.cs" />
+    <Compile Include="DelegatingStream.cs" />
     <Compile Include="Asserts.cs" />
     <Compile Include="Samples\COM.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

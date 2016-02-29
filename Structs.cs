@@ -7,8 +7,6 @@ using System.Text;
 
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
-// TODO (web) no statics, point to parent for context or threadstatic?
-
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
@@ -1330,6 +1328,7 @@ sealed class StringHeap : Heap<string>
         return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
     }
 
+    [ThreadStatic]
     static StringHeap instance;
     public static string Get(StringHeapIndex i)
     {
@@ -1355,6 +1354,7 @@ sealed class UserStringHeap : Heap<string>
         throw new NotImplementedException("UserStringHeap");
     }
 
+    [ThreadStatic]
     static UserStringHeap instance;
     public static string Get(UserStringHeapIndex i)
     {
@@ -1409,6 +1409,7 @@ sealed class BlobHeap : Heap<byte[]>
         return node;
     }
 
+    [ThreadStatic]
     static BlobHeap instance;
     public static byte[] Get(BlobHeapIndex i)
     {
@@ -1444,6 +1445,7 @@ sealed class GuidHeap : Heap<Guid>
         return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
     }
 
+    [ThreadStatic]
     static GuidHeap instance;
     public static Guid Get(GuidHeapIndex i)
     {
@@ -1609,6 +1611,7 @@ sealed class TildeStream : ICanRead
         }
     }
 
+    [ThreadStatic]
     public static TildeStream Instance;
 }
 
@@ -2680,7 +2683,6 @@ sealed class Section : ICanRead
                 case "CLIHeader":
                     CLIHeader CLIHeader;
                     node.Add(stream.ReadStruct(out CLIHeader));
-                    CLIHeader.Instance = CLIHeader;
 
                     Reposition(stream, CLIHeader.MetaData.RVA);
                     MetadataRoot MetadataRoot = null;
@@ -2937,8 +2939,6 @@ struct CLIHeader
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong ManagedNativeHeader;
-
-    public static CLIHeader Instance; // TODO good idea?
 }
 
 [Flags]
@@ -2958,7 +2958,8 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
     public FatFormat FatFormat;
     public byte[] CilOps;
 
-    static int count = 0;
+    [ThreadStatic]
+    static int count;
     public string Name { get; } = $"{nameof(Method)}[{count++}]";
 
     public object Value => ""; //TODO clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
@@ -3003,7 +3004,19 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
         return Node;
     }
 
-    public static Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
+    [ThreadStatic]
+    static Dictionary<uint, Method> methodsByRVA;
+    public static Dictionary<uint, Method> MethodsByRVA
+    {
+        get
+        {
+            if (methodsByRVA == null)
+            {
+                methodsByRVA = new Dictionary<uint, Method>();
+            }
+            return methodsByRVA;
+        }
+    }
 }
 
 // II.25.4.1 and .4
