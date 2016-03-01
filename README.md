@@ -11,7 +11,7 @@ Features
 - Understand little endian numbers, bit flags, and string blobs though the detai view on the right.
 - Errors are listed in the details.
 
-Example
+Try It!
 -------
 
-See a work in progress example at http://carlexample858.azurewebsites.net/view.html
+Try it out at http://dotnetbytes.azurewebsites.net/
