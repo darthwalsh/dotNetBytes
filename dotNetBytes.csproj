@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="view\Program.dat" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -169,7 +169,7 @@ namespace Tests
                 tasks.Add(factory.StartNew(() =>
                 {
                     Console.Error.WriteLine($"Starting task {myI}");
-                    Run(new SlowStream(File.OpenRead(@"C:\code\dotNetBytes\view\Program.dat")));
+                    Run(new SlowStream(OpenExampleProgram()));
                     Console.Error.WriteLine($"Done with task {myI}");
                     return myI;
                 }));
@@ -232,7 +232,12 @@ namespace Tests
         [TestMethod]
         public void TestExample()
         {
-            Run(File.OpenRead(@"C:\code\dotNetBytes\view\Program.dat"));
+            Run(OpenExampleProgram());
+        }
+
+        static Stream OpenExampleProgram()
+        {
+            return typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat");
         }
 
         static void Run(Stream s)

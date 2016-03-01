@@ -43,6 +43,7 @@ namespace WebHost
 
         static Dictionary<Guid, Parsed> bytesJson = new Dictionary<Guid, Parsed>();
 
+        static Lazy<Parsed> Example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
 
         public HomePage()
         {
@@ -57,43 +58,58 @@ namespace WebHost
             {
                 var guid = Guid.NewGuid();
 
-                using (var buffer = new MemoryStream())
+                var file = base.Request.Files.FirstOrDefault();
+                if (file == null)
+                    return new TextResponse(HttpStatusCode.BadRequest, "no file");
+
+                var parsed = Parse(file.Value);
+
+                lock (bytesJson)
                 {
-                    var file = base.Request.Files.FirstOrDefault();
-                    if (file == null)
-                        return new TextResponse(HttpStatusCode.BadRequest, "no file");
-
-                    file.Value.CopyTo(buffer); //TODO async
-                    buffer.Position = 0;
-
-                    AssemblyBytes assm = new AssemblyBytes(buffer);
-
-                    var parsed = new Parsed
-                    {
-                        File = buffer.ToArray(),
-                        Json = Encoding.UTF8.GetBytes(assm.Node.ToJson())
-                    };
-
-                    lock (bytesJson)
-                    {
-                        bytesJson[guid] = parsed;
-                    }
+                    bytesJson[guid] = parsed;
                 }
 
                 return Response.AsRedirect($"/{guid.ToString("N")}/view.html");
             };
         }
 
-        private static dynamic LookupParsed(dynamic _, string filePath, Func<Parsed, byte[]> func)
+        static Parsed Parse(Stream stream)
         {
-            Guid guid;
-            if (!Guid.TryParse(_.id, out guid))
-                return new TextResponse(HttpStatusCode.BadRequest, "Bad Guid");
+            using (stream)
+            using (var buffer = new MemoryStream())
+            {
+                stream.CopyTo(buffer);
+                buffer.Position = 0;
+
+                AssemblyBytes assm = new AssemblyBytes(buffer);
+
+                return new Parsed
+                {
+                    File = buffer.ToArray(),
+                    Json = Encoding.UTF8.GetBytes(assm.Node.ToJson())
+                };
+            }
+        }
+
+        static dynamic LookupParsed(dynamic _, string filePath, Func<Parsed, byte[]> func)
+        {
+            string id = _.id;
 
             Parsed parsed;
-            lock (bytesJson)
+            if (id == "example")
             {
-                bytesJson.TryGetValue(guid, out parsed);
+                parsed = Example.Value;
+            }
+            else
+            {
+                Guid guid;
+                if (!Guid.TryParse(id, out guid))
+                    return new TextResponse(HttpStatusCode.BadRequest, "Bad Guid");
+
+                lock (bytesJson)
+                {
+                    bytesJson.TryGetValue(guid, out parsed);
+                } 
             }
 
             if (parsed == null)
