@@ -13,26 +13,18 @@ using Nancy.Responses.Negotiation;
 
 namespace WebHost
 {
-    //TODO refactor, favicon
+    //TODO refactor
 
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
-        protected override IRootPathProvider RootPathProvider
-        {
-            get { return new AspNetRootPathProvider(); }
-        }
+        protected override byte[] FavIcon => null;
 
-        protected override NancyInternalConfiguration InternalConfiguration
+        protected override IRootPathProvider RootPathProvider => new AspNetRootPathProvider();
+
+        protected override NancyInternalConfiguration InternalConfiguration => NancyInternalConfiguration.WithOverrides(c =>
         {
-            get
-            {
-                return NancyInternalConfiguration.WithOverrides(
-                    (c) =>
-                    {
-                        c.ResponseProcessors.Remove(typeof(JsonProcessor));
-                    });
-            }
-        }
+            c.ResponseProcessors.Remove(typeof(JsonProcessor));
+        });
     }
 
     public class HomePage : NancyModule
@@ -50,6 +42,7 @@ namespace WebHost
         public HomePage()
         {
             Get["/"] = _ => Response.AsFile("bin/Content/index.html");
+            Get["/favicon.ico"] = _ => Response.AsFile("bin/Content/favicon.ico");
 
             Get["/{id}/Program.dat"] = _ => LookupParsed(_, ".exe", (Func<Parsed, byte[]>)(r => r.File));
             Get["/{id}/bytes.json"] = _ => LookupParsed(_, ".json", (Func<Parsed, byte[]>)(r => r.Json));

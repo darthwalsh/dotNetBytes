@@ -74,6 +74,10 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\view\favicon.ico">
+      <Link>Content\favicon.ico</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\dotNetBytes.pubxml" />
     <None Include="Web.Debug.config">
