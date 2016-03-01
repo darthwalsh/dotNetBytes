@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.Hosting.Aspnet;
@@ -11,7 +13,7 @@ using Nancy.Responses.Negotiation;
 
 namespace WebHost
 {
-    //TODO async, refactor, favicon
+    //TODO refactor, favicon
 
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
@@ -54,7 +56,7 @@ namespace WebHost
 
             Get["/{id}/{file}"] = _ => Response.AsFile($"bin/Content/{_.file}");
 
-            Post["/submit.html"] = _ =>
+            Post["/submit.html", true] = async (_, cancel) =>
             {
                 var guid = Guid.NewGuid();
 
@@ -62,7 +64,7 @@ namespace WebHost
                 if (file == null)
                     return new TextResponse(HttpStatusCode.BadRequest, "no file");
 
-                var parsed = Parse(file.Value);
+                var parsed = await ParseAsync(file.Value, cancel);
 
                 lock (bytesJson)
                 {
@@ -75,10 +77,15 @@ namespace WebHost
 
         static Parsed Parse(Stream stream)
         {
+            return ParseAsync(stream, CancellationToken.None).Result;
+        }
+
+        static async Task<Parsed> ParseAsync(Stream stream, CancellationToken cancel)
+        {
             using (stream)
             using (var buffer = new MemoryStream())
             {
-                stream.CopyTo(buffer);
+                await stream.CopyToAsync(buffer, 4096, cancel);
                 buffer.Position = 0;
 
                 AssemblyBytes assm = new AssemblyBytes(buffer);
