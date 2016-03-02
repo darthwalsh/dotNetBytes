@@ -48,6 +48,7 @@ namespace Tests
             RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
         }
 
+
         [TestMethod]
         public void COM()
         {
@@ -79,12 +80,18 @@ namespace Tests
         }
 
         // TODO test try-catch-finally
-        //[TestMethod]
-        //public void ExceptionHandling()
-        //{
-        //    //TODO test lock
-        //    RunCompile(@"Samples\ExceptionHandling.cs");
-        //}
+        [TestMethod]
+        public void ExceptionHandling()
+        {
+            //TODO test lock
+            RunCompile(@"Samples\ExceptionHandling.cs");
+        }
+
+        [TestMethod]
+        public void Fat()
+        {
+            RunCompile(@"Samples\Fat.cs");
+        }
 
         [TestMethod]
         public void Field()
@@ -157,6 +164,7 @@ namespace Tests
         {
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
+
 
         [TestMethod]
         public void Race()

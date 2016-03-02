@@ -343,8 +343,34 @@ AddOn 0x0008 AddOn method for event. This refers to the required add_ method for
 RemoveOn 0x0010 RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)
 Fire 0x0020 Fire method for event. This refers to the optional raise_ method for events. (§22.13)
 
+
 PropertyAttributes
 SpecialName 0x0200 Property is special
 RTSpecialName 0x0400 Runtime(metadata internal APIs) should check name encoding
 HasDefault 0x1000 Property has default
 Unused 0xe9ff Reserved: shall be zero in a conforming implementation
+
+
+MethodHeaderSection
+EHTable 0x1 Exception handling data.
+OptILTable 0x2 Reserved, shall be 0.
+FatFormat 0x40 Data format is of the fat variety, meaning there is a 3-byte length least-significant byte first format. If not set, the header is small with a 1-byte length
+MoreSects 0x80 Another data section occurs after this current section
+
+
+SmallExceptionHandlingClause
+0 2 Flags Flags, see below.
+2 2 TryOffset Offset in bytes of try block from start of method body.
+4 1 TryLength Length in bytes of the try block
+5 2 HandlerOffset Location of the handler for this try block
+7 1 HandlerLength Size of the handler code in bytes
+20 4 ClassTokenOrFilterOffset Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler
+
+
+LargeExceptionHandlingClause
+0 4 Flags Flags, see below.
+4 4 TryOffset Offset in bytes of try block from start of method body.
+8 4 TryLength Length in bytes of the try block
+12 4 HandlerOffset Location of the handler for this try block
+16 4 HandlerLength Size of the handler code in bytes
+20 4 ClassTokenOrFilterOffset Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler

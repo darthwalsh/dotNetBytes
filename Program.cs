@@ -58,6 +58,9 @@ static class Program
 
         foreach (var res in assembly.GetManifestResourceNames().Where(res => res.StartsWith("view.")))
         {
+            if (res.Contains("Program.dat"))
+                continue;
+
             var trimmed = res.Substring("view.".Length);
             var destination = Path.Combine(local, trimmed);
             if (File.Exists(destination))

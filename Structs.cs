@@ -444,7 +444,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 {
     public uint RVA;
     public MethodImplAttributes ImplFlags;
-    public MethodAttributes Flags; 
+    public MethodAttributes Flags;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
     public UnknownCodedIndex ParamList;
@@ -1258,7 +1258,7 @@ abstract class Heap<T> : ICanRead, IHaveAName
 
     public string Name => GetType().Name;
     protected abstract CodeNode ReadChild(Stream stream, int index, out T t);
-    
+
     protected Tuple<T, CodeNode> AddChild(IHaveIndex i)
     {
         var stream = new MemoryStream(data);
@@ -2098,7 +2098,7 @@ abstract class CodedIndex : ICanRead
             {
                 //case Tag.File: return TildeStream.Instance.Files[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                    //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
             }
             throw new NotImplementedException(tag.ToString());
         }
@@ -3040,4 +3040,107 @@ struct FatFormat
     public uint CodeSize;
     [Description("Meta Data token for a signature describing the layout of the local variables for the method")]
     public uint LocalVarSigTok;
+}
+
+// II.25.4.5
+sealed class MethodDataSection : ICanRead
+{
+    public MethodHeaderSectionWrapper MethodHeaderSection; // TODO enum
+
+    public CodeNode Read(Stream stream)
+    {
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out MethodHeaderSection, nameof(MethodHeaderSection))
+        };
+
+
+    }
+}
+
+[Flags]
+enum MethodHeaderSection : byte
+{
+    [Description("Exception handling data.")]
+    EHTable = 0x1,
+    [Description("Reserved, shall be 0.")]
+    OptILTable = 0x2,
+    [Description("Data format is of the fat variety, meaning there is a 3-byte length least-significant byte first format. If not set, the header is small with a 1-byte length")]
+    FatFormat = 0x40,
+    [Description("Another data section occurs after this current section")]
+    MoreSects = 0x80,
+}
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct MethodHeaderSectionWrapper
+{
+    public MethodHeaderSection MethodHeaderSection;
+}
+
+sealed class SmallMethodHeader : ICanRead
+{
+    [Description("Size of the data for the block, including the header, say n * 12 + 4.")]
+    public byte DataSize;
+    [Description("Padding, always 0.")]
+    [Expected(0)]
+    public ushort Reserved;
+    public SmallExceptionHandlingClause[] Clauses;
+
+    public CodeNode Read(Stream stream)
+    {
+        var node = new CodeNode
+        {
+            stream.ReadStruct(out DataSize, nameof(DataSize)),
+            stream.ReadStruct(out Reserved, nameof(Reserved)),
+        };
+
+        var n = (DataSize - 4) / 12;
+        node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
+
+        return node;
+    }
+}
+
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct LargeMethodHeader
+{
+    [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
+    byte DataSize;
+    [Description("Padding, always 0.")]
+    [Expected(0)]
+    ushort Reserved;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct SmallExceptionHandlingClause
+{
+    [Description("Flags, see below.")]
+    public ushort Flags;
+    [Description("Offset in bytes of try block from start of method body.")]
+    public ushort TryOffset;
+    [Description("Length in bytes of the try block")]
+    public byte TryLength;
+    [Description("Location of the handler for this try block")]
+    public ushort HandlerOffset;
+    [Description("Size of the handler code in bytes")]
+    public byte HandlerLength;
+    [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
+    public uint ClassTokenOrFilterOffset;
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct LargeExceptionHandlingClause
+{
+    [Description("Flags, see below.")]
+    public uint Flags;
+    [Description("Offset in bytes of try block from start of method body.")]
+    public uint TryOffset;
+    [Description("Length in bytes of the try block")]
+    public uint TryLength;
+    [Description("Location of the handler for this try block")]
+    public uint HandlerOffset;
+    [Description("Size of the handler code in bytes")]
+    public uint HandlerLength;
+    [Description("Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler")]
+    public uint ClassTokenOrFilterOffset;
 }
