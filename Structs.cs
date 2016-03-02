@@ -2956,6 +2956,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
 {
     public byte Header; // TODO enum
     public FatFormat FatFormat;
+    public MethodDataSection[] DataSections;
     public byte[] CilOps;
 
     [ThreadStatic]
@@ -2974,6 +2975,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
         };
 
         int length;
+        bool moreSects = false;
         MethodHeaderType type = (MethodHeaderType)(Header & 0x03);
         switch (type)
         {
@@ -2981,11 +2983,6 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
                 length = Header >> 2;
                 break;
             case MethodHeaderType.Fat:
-                if (((MethodHeaderType)Header).HasFlag(MethodHeaderType.MoreSects))
-                {
-                    throw new NotImplementedException("Exception Handlers");
-                }
-
                 Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
 
                 if ((FatFormat.FlagsAndSize & 0xF0) != 0x30)
@@ -2994,12 +2991,35 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
                 }
 
                 length = (int)FatFormat.CodeSize;
+                moreSects = ((MethodHeaderType)Header).HasFlag(MethodHeaderType.MoreSects);
                 break;
             default:
                 throw new InvalidOperationException("Invalid MethodHeaderType " + type);
         }
 
         Node.Add(stream.ReadAnything(out CilOps, StreamExtensions.ReadByteArray(length), "CilOps"));
+
+        if (moreSects)
+        {
+            while (stream.Position % 4 != 0)
+            {
+                var b = stream.ReadByte();
+            }
+
+            var dataSections = new List<MethodDataSection>();
+            var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
+
+            MethodDataSection dataSection = null;
+            do
+            {
+                dataSectionNode.Add(stream.ReadClass(ref dataSection, $"MethodDataSections[{dataSections.Count}]"));
+                dataSections.Add(dataSection);
+            }
+            while (dataSection.Header.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
+
+            DataSections = dataSections.ToArray();
+            Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
+        }
 
         return Node;
     }
@@ -3045,16 +3065,32 @@ struct FatFormat
 // II.25.4.5
 sealed class MethodDataSection : ICanRead
 {
-    public MethodHeaderSectionWrapper MethodHeaderSection; // TODO enum
+    public MethodHeaderSectionWrapper Header;
+    public LargeMethodHeader LargeMethodHeader;
+    public SmallMethodHeader SmallMethodHeader;
 
     public CodeNode Read(Stream stream)
     {
         var node = new CodeNode
         {
-            stream.ReadStruct(out MethodHeaderSection, nameof(MethodHeaderSection))
+            stream.ReadStruct(out Header, nameof(MethodHeaderSection)).Children.Single()
         };
 
+        if (!Header.MethodHeaderSection.HasFlag(MethodHeaderSection.EHTable))
+        {
+            throw new InvalidOperationException("Only kind of section data is exception header");
+        }
+        
+        if (Header.MethodHeaderSection.HasFlag(MethodHeaderSection.FatFormat))
+        {
+            node.Add(stream.ReadClass(ref LargeMethodHeader, nameof(LargeMethodHeader)));
+        }
+        else
+        {
+            node.Add(stream.ReadClass(ref SmallMethodHeader, nameof(SmallMethodHeader)));
+        }
 
+        return node;
     }
 }
 
@@ -3094,30 +3130,50 @@ sealed class SmallMethodHeader : ICanRead
         };
 
         var n = (DataSize - 4) / 12;
+        if (n * 12 + 4 != DataSize)
+        {
+            node.AddError("DataSize was not of the form n * 12 + 4");
+        }
+
         node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
 
         return node;
     }
 }
 
-
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct LargeMethodHeader
+sealed class LargeMethodHeader : ICanRead
 {
     [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
-    byte DataSize;
-    [Description("Padding, always 0.")]
-    [Expected(0)]
-    ushort Reserved;
+    public UInt24 DataSize;
+    public SmallExceptionHandlingClause[] Clauses;
+
+    public CodeNode Read(Stream stream)
+    {
+        var node = new CodeNode
+        {
+            stream.ReadClass(ref DataSize, nameof(DataSize)),
+        };
+
+        var n = (DataSize.IntValue - 4) / 12;
+        if (n * 24 + 4 != DataSize.IntValue)
+        {
+            node.AddError("DataSize was not of the form n * 24 + 4");
+        }
+
+        node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
+
+        return node;
+    }
 }
 
+// II.25.4.6
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct SmallExceptionHandlingClause
 {
     [Description("Flags, see below.")]
-    public ushort Flags;
+    public ushort Flags; //TODO (flags)
     [Description("Offset in bytes of try block from start of method body.")]
-    public ushort TryOffset;
+    public ushort TryOffset; //TODO (links)
     [Description("Length in bytes of the try block")]
     public byte TryLength;
     [Description("Location of the handler for this try block")]
@@ -3125,14 +3181,14 @@ struct SmallExceptionHandlingClause
     [Description("Size of the handler code in bytes")]
     public byte HandlerLength;
     [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
-    public uint ClassTokenOrFilterOffset;
+    public uint ClassTokenOrFilterOffset; //TODO (links)
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct LargeExceptionHandlingClause
 {
     [Description("Flags, see below.")]
-    public uint Flags;
+    public uint Flags; //TODO (flags)
     [Description("Offset in bytes of try block from start of method body.")]
     public uint TryOffset;
     [Description("Length in bytes of the try block")]
@@ -3143,4 +3199,20 @@ struct LargeExceptionHandlingClause
     public uint HandlerLength;
     [Description("Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler")]
     public uint ClassTokenOrFilterOffset;
+}
+
+sealed class UInt24 : ICanRead, IHaveValue
+{
+    public int IntValue { get; private set; }
+    public object Value => IntValue;
+
+    public CodeNode Read(Stream stream)
+    {
+        byte[] b;
+        stream.ReadStructs(out b, 3);
+
+        IntValue = (b[2] << 16) + (b[1] << 8) + b[0];
+
+        return new CodeNode();
+    }
 }

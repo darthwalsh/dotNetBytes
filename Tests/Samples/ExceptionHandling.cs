@@ -26,5 +26,22 @@ public static class Exceptions
         {
             e.GetHashCode();
         }
+
+        "outside".GetHashCode();
+        try
+        {
+            "inside1".GetHashCode();
+            try
+            {
+                "inside2".GetHashCode();
+                try
+                {
+                    "inside3".GetHashCode();
+                }
+                catch { }
+            }
+            catch { }
+        }
+        catch { }
     }
 }
