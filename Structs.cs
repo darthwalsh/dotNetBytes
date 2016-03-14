@@ -329,6 +329,30 @@ sealed class FieldMarshal : ICanRead, IHaveValueNode
     }
 }
 
+// II.22.19
+sealed class FileTable : ICanRead, IHaveValueNode
+{
+    //TODO NotImplementedException actually use in a test
+
+    public uint Flags; //TODO (flags)
+    public StringHeapIndex Name;
+    public BlobHeapIndex HashValue;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        return Node = new CodeNode
+        {
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref HashValue, nameof(HashValue)),
+        };
+    }
+}
+
 // II.22.22
 sealed class ImplMap : ICanRead, IHaveValueNode
 {
@@ -413,6 +437,60 @@ sealed class InterfaceImpl : ICanRead, IHaveValueNode
         {
             stream.ReadClass(ref Class, nameof(Class)),
             stream.ReadClass(ref Interface, nameof(Interface)),
+        };
+    }
+}
+
+// II.22.24
+sealed class ManifestResource : ICanRead, IHaveValueNode
+{
+    public uint Offset; //TODO (link)
+    public uint Flags; //TODO (flags)
+    public StringHeapIndex Name;
+    public CodedIndex.Implementation Implementation;
+
+    public object Value => Name.Value;
+
+    public CodeNode Node { get; private set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        Node = new CodeNode
+        {
+            stream.ReadStruct(out Offset, nameof(Offset)),
+            stream.ReadStruct(out Flags, nameof(Flags)),
+            stream.ReadClass(ref Name, nameof(Name)),
+            stream.ReadClass(ref Implementation, nameof(Implementation)),
+        };
+
+        Section section = TildeStream.Instance.Section;
+        section.ReadNode(strm =>
+        {
+            section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
+
+            ResourceEntry entry = null;
+            return stream.ReadClass(ref entry);
+        });
+
+        return Node;
+    }
+}
+
+sealed class ResourceEntry : ICanRead, IHaveAName
+{
+    public uint Length;
+    public byte[] Data;
+
+    [ThreadStatic]
+    static int count;
+    public string Name { get; } = $"{nameof(ResourceEntry)}[{count++}]";
+
+    public CodeNode Read(Stream stream)
+    {
+        return new CodeNode
+        {
+            stream.ReadStruct(out Length, nameof(Length)),
+            stream.ReadAnything(out Data, StreamExtensions.ReadByteArray((int)Length), nameof(Data)),
         };
     }
 }
@@ -1460,6 +1538,12 @@ sealed class GuidHeap : Heap<Guid>
 // II.24.2.6
 sealed class TildeStream : ICanRead
 {
+    public Section Section { get; private set; }
+    public TildeStream(Section section)
+    {
+        Section = section;
+    }
+
     public TildeData TildeData;
     public uint[] Rows;
 
@@ -1494,9 +1578,9 @@ sealed class TildeStream : ICanRead
     public AssemblyRef[] AssemblyRefs;
     //public AssemblyRefProcessor[] AssemblyRefProcessors;
     //public AssemblyRefOS[] AssemblyRefOSs;
-    //public File[] Files;
+    public FileTable[] Files;
     //public ExportedType[] ExportedTypes;
-    //public ManifestResource[] ManifestResources;
+    public ManifestResource[] ManifestResources;
     public NestedClass[] NestedClasses;
     public GenericParam[] GenericParams;
     public MethodSpec[] MethodSpecs;
@@ -1593,11 +1677,11 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.AssemblyRefOS:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyRefOSs, count);
             case MetadataTableFlags.File:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref Files, count);
+                return stream.ReadClasses(ref Files, count);
             case MetadataTableFlags.ExportedType:
                 throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ExportedTypes, count);
             case MetadataTableFlags.ManifestResource:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ManifestResources, count);
+                return stream.ReadClasses(ref ManifestResources, count);
             case MetadataTableFlags.NestedClass:
                 return stream.ReadClasses(ref NestedClasses, count);
             case MetadataTableFlags.GenericParam:
@@ -1808,12 +1892,6 @@ abstract class CodedIndex : ICanRead
             TypeRef = 1,
             TypeSpec = 2,
         }
-
-        class ExtendsNothing : IHaveValueNode
-        {
-            public object Value => "(Nothing)";
-            public CodeNode Node => null;
-        }
     }
 
     public class HasConstant : CodedIndex
@@ -1875,9 +1953,9 @@ abstract class CodedIndex : ICanRead
                 case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
                 case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                //case Tag.File: return TildeStream.Instance.Files[Index];
+                case Tag.File: return TildeStream.Instance.Files[Index];
                 //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
-                //case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
+                case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
                 case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
                 case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
                 case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
@@ -2084,19 +2162,32 @@ abstract class CodedIndex : ICanRead
 
     public class Implementation : CodedIndex
     {
+        IHaveValueNode extendsNothing;
+
         Tag tag;
 
         protected override int GetIndex(int readData)
         {
+            if (readData == 0)
+            {
+                extendsNothing = new ExtendsNothing();
+                return -1;
+            }
+
             tag = (Tag)(readData & 0x3);
             return (readData >> 2) - 1;
         }
 
         protected override IHaveValueNode GetLink()
         {
+            if (extendsNothing != null)
+            {
+                return extendsNothing;
+            }
+
             switch (tag)
             {
-                //case Tag.File: return TildeStream.Instance.Files[Index];
+                case Tag.File: return TildeStream.Instance.Files[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
                     //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
             }
@@ -2195,6 +2286,12 @@ abstract class CodedIndex : ICanRead
             MethodDef = 1,
         }
     }
+
+    class ExtendsNothing : IHaveValueNode
+    {
+        public object Value => "(Nothing)";
+        public CodeNode Node => null;
+    }
 }
 
 // II.25
@@ -2215,13 +2312,10 @@ sealed class FileFormat : ICanRead
         Sections = PEHeader.SectionHeaders.Select(header =>
             new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
-        IEnumerable<CodeNode> sections;
-        node.Add(sections = stream.ReadClasses(ref Sections));
-        var ss = sections.ToArray();
-
+        node.Add(stream.ReadClasses(ref Sections));
         for (int i = 0; i < Sections.Length; ++i)
         {
-            Sections[i].CallBack(ss[i]);
+            Sections[i].CallBack();
         }
 
         return node;
@@ -2651,6 +2745,17 @@ sealed class Section : ICanRead
     PEHeaderHeaderDataDirectories data;
     uint entryPointRVA;
 
+    public CLIHeader CLIHeader;
+    public MetadataRoot MetadataRoot;
+    public ImportTable ImportTable;
+    public ImportLookupTable ImportLookupTable;
+    public ImportAddressHintNameTable ImportAddressHintNameTable;
+    public NativeEntryPoint NativeEntryPoint;
+    public ImportAddressTable ImportAddressTable;
+    public Relocations Relocations;
+
+    CodeNode node;
+
     public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA)
     {
         start = (int)header.PointerToRawData;
@@ -2664,7 +2769,7 @@ sealed class Section : ICanRead
     //TODO reorder children in order 
     public CodeNode Read(Stream stream)
     {
-        CodeNode node = new CodeNode
+        node = new CodeNode
         {
             Description = name,
         };
@@ -2681,11 +2786,9 @@ sealed class Section : ICanRead
             switch (nr.name)
             {
                 case "CLIHeader":
-                    CLIHeader CLIHeader;
                     node.Add(stream.ReadStruct(out CLIHeader));
 
                     Reposition(stream, CLIHeader.MetaData.RVA);
-                    MetadataRoot MetadataRoot = null;
                     node.Add(stream.ReadClass(ref MetadataRoot));
 
                     foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.IndexOf('~'))) // Read #~ after heaps
@@ -2711,10 +2814,10 @@ sealed class Section : ICanRead
                                 node.Add(stream.ReadClass(ref GuidHeap));
                                 break;
                             case "#~":
-                                TildeStream TildeStream = null;
-                                node.Add(stream.ReadClass(ref TildeStream));
+                                TildeStream TildeStream = new TildeStream(this);
                                 TildeStream.Instance = TildeStream;
-
+                                node.Add(stream.ReadClass(ref TildeStream));
+                                
                                 CodeNode methods = new CodeNode
                                 {
                                     Name = "Methods",
@@ -2746,15 +2849,12 @@ sealed class Section : ICanRead
 
                     break;
                 case "ImportTable":
-                    ImportTable ImportTable;
                     node.Add(stream.ReadStruct(out ImportTable));
 
                     Reposition(stream, ImportTable.ImportLookupTable);
-                    ImportLookupTable ImportLookupTable;
                     node.Add(stream.ReadStruct(out ImportLookupTable));
 
                     Reposition(stream, ImportLookupTable.HintNameTableRVA);
-                    ImportAddressHintNameTable ImportAddressHintNameTable;
                     node.Add(stream.ReadStruct(out ImportAddressHintNameTable));
 
                     Reposition(stream, ImportTable.Name);
@@ -2762,15 +2862,12 @@ sealed class Section : ICanRead
                     node.Add(stream.ReadAnything(out RuntimeEngineName, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 1), "RuntimeEngineName"));
 
                     Reposition(stream, entryPointRVA);
-                    NativeEntryPoint NativeEntryPoint;
                     node.Add(stream.ReadStruct(out NativeEntryPoint));
                     break;
                 case "ImportAddressTable":
-                    ImportAddressTable ImportAddressTable;
                     node.Add(stream.ReadStruct(out ImportAddressTable));
                     break;
                 case "BaseRelocationTable":
-                    Relocations Relocations = null;
                     node.Add(stream.ReadClass(ref Relocations));
                     break;
                 default:
@@ -2779,15 +2876,26 @@ sealed class Section : ICanRead
             }
         }
 
+        foreach (var toRead in toReads)
+        {
+            node.Add(toRead(stream));
+        }
+
         return node;
     }
 
-    void Reposition(Stream stream, long dataRVA)
+    List<Func<Stream, CodeNode>> toReads = new List<Func<Stream, CodeNode>>();
+    public void ReadNode(Func<Stream, CodeNode> read)
+    {
+        toReads.Add(read);
+    }
+
+    public void Reposition(Stream stream, long dataRVA)
     {
         stream.Position = start + dataRVA - rva;
     }
 
-    public void CallBack(CodeNode node)
+    public void CallBack()
     {
         node.Start = start;
         node.End = end;

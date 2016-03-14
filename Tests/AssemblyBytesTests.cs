@@ -48,6 +48,18 @@ namespace Tests
             RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
         }
 
+        [TestMethod]
+        public void EmbeddedResource()
+        {
+            RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs");
+        }
+
+        [TestMethod]
+        public void EmbeddedResource2()
+        {
+            RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs /res:Samples\Const.cs");
+        }
+
 
         [TestMethod]
         public void COM()
@@ -353,7 +365,7 @@ namespace Tests
                 if (data[i] == 0 || childIncludes.Contains(i))
                     continue;
 
-                Assert.Fail($"Interested byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
+                Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
             }
         }
     }

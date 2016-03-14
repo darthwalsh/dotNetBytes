@@ -145,6 +145,7 @@ public class CodeNode : IEnumerable<string>
         public static string ToJson(CodeNode node)
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = 0x08000000;
             serializer.RegisterConverters(new[] { new CodeNodeConverter() });
             return serializer.Serialize(node);
         }
