@@ -464,6 +464,7 @@ window.onload = function() {
   });
 };
 
+//TODO visualize all link, link targets
 //TODO smart colors
 //TODO hover preview
 //TODO keyboarding through ToC
