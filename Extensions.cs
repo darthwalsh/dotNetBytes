@@ -5,12 +5,22 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-interface ICanRead
+interface ICanBeRead
+{
+}
+
+interface ICanRead : ICanBeRead
 {
     CodeNode Read(Stream stream);
+}
+
+interface ICanBeReadInOrder : ICanBeRead
+{
+    CodeNode Node { get; set; }
 }
 
 interface IHaveAName
@@ -164,7 +174,7 @@ static class StreamExtensions
         return nodes;
     }
 
-    public static IEnumerable<CodeNode> ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanRead
+    public static IEnumerable<CodeNode> ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanBeRead
     {
         name = name ?? typeof(T).Name + "s";
 
@@ -179,12 +189,28 @@ static class StreamExtensions
         return nodes;
     }
 
-    public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanRead
+    public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanBeRead
     {
         var start = (int)stream.Position;
 
         t = t ?? Activator.CreateInstance<T>();
-        CodeNode node = t.Read(stream);
+
+        CodeNode node = null;
+
+        ICanRead iCanRead = t as ICanRead;
+        if (iCanRead != null)
+        {
+            node = iCanRead.Read(stream);
+        }
+        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
+        if (iCanBeReadInOrder != null)
+        {
+            node = iCanBeReadInOrder.Read(stream);
+        }
+        if (node == null)
+        {
+            throw new InvalidOperationException();
+        }
 
         var haveName = t as IHaveAName;
         if (haveName != null)
@@ -437,5 +463,61 @@ static class TypeExtensions
     static void Fail(CodeNode node, string message)
     {
         node.AddError(message);
+    }
+}
+
+// Used to guarantee reflecting over class fields uses line number
+// http://stackoverflow.com/a/17998371/771768
+sealed class OrderedFieldAttribute : Attribute
+{
+    public int Order;
+    public OrderedFieldAttribute([CallerLineNumber] int i = -1)
+    {
+        Order = i;
+    }
+}
+
+static class OrderedExtensions
+{
+    public static CodeNode Read(this ICanBeReadInOrder o, Stream stream)
+    {
+        o.Node = new CodeNode();
+        var ordedFields = o.GetType().GetFields()
+            .OrderBy(field =>
+            {
+                OrderedFieldAttribute attr = (OrderedFieldAttribute)field.GetCustomAttributes(typeof(OrderedFieldAttribute), false).SingleOrDefault();
+                if (attr == null)
+                    throw new InvalidOperationException($"{o.GetType().FullName}.{field.Name} is missing [OrderedField]");
+                return attr.Order;
+            }).ToList();
+
+        foreach (var field in ordedFields)
+        {
+            var fieldType = field.FieldType;
+
+            // Invoking a method generically is not simple...
+
+            string readMethodName;
+            if (fieldType.IsArray)
+                throw new InvalidOperationException(fieldType.Name + " IsArray");
+            else if (fieldType.IsClass)
+                readMethodName = "ReadClass";
+            else if (fieldType.IsValueType)
+                readMethodName = "ReadStruct";
+            else
+                throw new InvalidOperationException(fieldType.Name);
+
+            // Invoking a method generically is not simple...
+            MethodInfo readClass = typeof(StreamExtensions).GetMethods()
+                .Where(m => m.Name == readMethodName && m.GetParameters().Length == 3 && !(m.GetParameters()[1].ParameterType.Name.Contains("Nullable")))
+                .Single()
+                .MakeGenericMethod(fieldType);
+
+            var args = new object[] { stream, null, field.Name };
+            o.Node.Add((CodeNode)readClass.Invoke(null, args));
+            field.SetValue(o, args[1]);
+        }
+
+        return o.Node;
     }
 }

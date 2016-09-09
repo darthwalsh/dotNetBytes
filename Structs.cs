@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// ICanBeReadInOrder is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
 sealed class ExpectedAttribute : Attribute
@@ -70,373 +71,204 @@ public enum MetadataTableFlags : ulong
 }
 
 // II.22.2
-sealed class Assembly : ICanRead, IHaveValueNode
+sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
 {
-    public AssemblyHashAlgorithm HashAlgId;
-    public ushort MajorVersion;
-    public ushort MinorVersion;
-    public ushort BuildNumber;
-    public ushort RevisionNumber;
-    public AssemblyFlags Flags;
-    public BlobHeapIndex PublicKey;
-    public StringHeapIndex Name;
-    public StringHeapIndex Culture;
+    [OrderedField] public AssemblyHashAlgorithm HashAlgId;
+    [OrderedField] public ushort MajorVersion;
+    [OrderedField] public ushort MinorVersion;
+    [OrderedField] public ushort BuildNumber;
+    [OrderedField] public ushort RevisionNumber;
+    [OrderedField] public AssemblyFlags Flags;
+    [OrderedField] public BlobHeapIndex PublicKey;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Culture;
 
     public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out HashAlgId, nameof(HashAlgId)),
-            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
-            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
-            stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
-            stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref PublicKey, nameof(PublicKey)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Culture, nameof(Culture)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.5
-sealed class AssemblyRef : ICanRead, IHaveValueNode
+sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort MajorVersion;
-    public ushort MinorVersion;
-    public ushort BuildNumber;
-    public ushort RevisionNumber;
-    public AssemblyFlags Flags;
-    public BlobHeapIndex PublicKeyOrToken;
-    public StringHeapIndex Name;
-    public StringHeapIndex Culture;
-    public BlobHeapIndex HashValue;
+    [OrderedField] public ushort MajorVersion;
+    [OrderedField] public ushort MinorVersion;
+    [OrderedField] public ushort BuildNumber;
+    [OrderedField] public ushort RevisionNumber;
+    [OrderedField] public AssemblyFlags Flags;
+    [OrderedField] public BlobHeapIndex PublicKeyOrToken;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Culture;
+    [OrderedField] public BlobHeapIndex HashValue;
 
     public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
-            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
-            stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
-            stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref PublicKeyOrToken, nameof(PublicKeyOrToken)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Culture, nameof(Culture)),
-            stream.ReadClass(ref HashValue, nameof(HashValue)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.8
-sealed class ClassLayout : ICanRead, IHaveValueNode
+sealed class ClassLayout : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort PackingSize;
-    public uint ClassSize;
-    public UnknownCodedIndex Parent;
+    [OrderedField] public ushort PackingSize;
+    [OrderedField] public uint ClassSize;
+    [OrderedField] public UnknownCodedIndex Parent;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadStruct(out PackingSize, nameof(PackingSize)),
-            stream.ReadStruct(out ClassSize, nameof(ClassSize)),
-            stream.ReadClass(ref Parent, nameof(Parent)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.9
-sealed class Constant : ICanRead, IHaveValueNode
+sealed class Constant : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Type;
-    public CodedIndex.HasConstant Parent;
-    public BlobHeapIndex Value;
+    [OrderedField] public UnknownCodedIndex Type;
+    [OrderedField] public CodedIndex.HasConstant Parent;
+    [OrderedField] public BlobHeapIndex Value;
 
     object IHaveValue.Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadClass(ref Type, nameof(Type)),
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref Value, nameof(Value)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.10
-sealed class CustomAttribute : ICanRead, IHaveValueNode
+sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 {
-    public CodedIndex.HasCustomAttribute Parent;
-    public CodedIndex.CustomAttributeType Type;
-    public BlobHeapIndex Value;
+    [OrderedField] public CodedIndex.HasCustomAttribute Parent;
+    [OrderedField] public CodedIndex.CustomAttributeType Type;
+    [OrderedField] public BlobHeapIndex Value;
 
     object IHaveValue.Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref Type, nameof(Type)),
-            stream.ReadClass(ref Value, nameof(Value)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.11
-sealed class DeclSecurity : ICanRead, IHaveValueNode
+sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort Action; // TODO (flags) 
-    public CodedIndex.HasDeclSecurity Parent;
-    public BlobHeapIndex PermissionSet; // TODO (parse?) 
+    [OrderedField] public ushort Action; // TODO (flags) 
+    [OrderedField] public CodedIndex.HasDeclSecurity Parent;
+    [OrderedField] public BlobHeapIndex PermissionSet; // TODO (parse?) 
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Action, nameof(Action)),
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref PermissionSet, nameof(PermissionSet)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.12
-sealed class EventMap : ICanRead, IHaveValueNode
+sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Parent;
-    public UnknownCodedIndex EventList;
+    [OrderedField] public UnknownCodedIndex Parent;
+    [OrderedField] public UnknownCodedIndex EventList;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref EventList, nameof(EventList)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.13
-sealed class Event : ICanRead, IHaveValueNode
+sealed class Event : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort Flags; //TODO (Flags) EventAttributes
-    public StringHeapIndex Name;
-    public CodedIndex.TypeDefOrRef EventType;
+    [OrderedField] public ushort Flags; //TODO (Flags) EventAttributes
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public CodedIndex.TypeDefOrRef EventType;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref EventType, nameof(EventType)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.15
-sealed class Field : ICanRead, IHaveValueNode
+sealed class Field : ICanBeReadInOrder, IHaveValueNode
 {
-    public FieldAttributes Flags;
-    public StringHeapIndex Name;
-    public BlobHeapIndex Signature;
+    [OrderedField] public FieldAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Signature, nameof(Signature)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.16
-sealed class FieldLayout : ICanRead, IHaveValueNode
+sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 {
-    public uint Offset;
-    public UnknownCodedIndex Field; // TODO (Signature)
+    [OrderedField] public uint Offset;
+    [OrderedField] public UnknownCodedIndex Field; // TODO (Signature)
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Offset, nameof(Offset)),
-            stream.ReadClass(ref Field, nameof(Field)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.17
-sealed class FieldMarshal : ICanRead, IHaveValueNode
+sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 {
-    public CodedIndex.HasFieldMarshall Parent;
-    public BlobHeapIndex NativeType; // TODO (Signature)
+    [OrderedField] public CodedIndex.HasFieldMarshall Parent;
+    [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature)
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref NativeType, nameof(NativeType)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.19
-sealed class FileTable : ICanRead, IHaveValueNode
+sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 {
-    public uint Flags; //TODO (flags)
-    public StringHeapIndex Name;
-    public BlobHeapIndex HashValue;
+    [OrderedField] public uint Flags; //TODO (flags)
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex HashValue;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref HashValue, nameof(HashValue)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.22
-sealed class ImplMap : ICanRead, IHaveValueNode
+sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
-    public CodedIndex.MemberForwarded MemberForwarded;
-    public StringHeapIndex ImportName;
-    public UnknownCodedIndex ImportScope;
+    [OrderedField] public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
+    [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
+    [OrderedField] public StringHeapIndex ImportName;
+    [OrderedField] public UnknownCodedIndex ImportScope;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out MappingFlags, nameof(MappingFlags)),
-            stream.ReadClass(ref MemberForwarded, nameof(MemberForwarded)),
-            stream.ReadClass(ref ImportName, nameof(ImportName)),
-            stream.ReadClass(ref ImportScope, nameof(ImportScope)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.20
-sealed class GenericParam : ICanRead, IHaveValueNode
+sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort Number;
-    public ushort Flags; //TODO (flags) GenericParamAttributes
-    public CodedIndex.TypeOrMethodDef Owner;
-    public StringHeapIndex Name;
+    [OrderedField] public ushort Number;
+    [OrderedField] public ushort Flags; //TODO (flags) GenericParamAttributes
+    [OrderedField] public CodedIndex.TypeOrMethodDef Owner;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Number, nameof(Number)),
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref Owner, nameof(Owner)),
-            stream.ReadClass(ref Name, nameof(Name)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.21
-sealed class GenericParamConstraint : ICanRead, IHaveValueNode
+sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Owner;
-    public CodedIndex.TypeDefOrRef Constraint;
+    [OrderedField] public UnknownCodedIndex Owner;
+    [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Owner, nameof(Owner)),
-            stream.ReadClass(ref Constraint, nameof(Constraint)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.23
-sealed class InterfaceImpl : ICanRead, IHaveValueNode
+sealed class InterfaceImpl : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Class;
-    public CodedIndex.TypeDefOrRef Interface;
+    [OrderedField] public UnknownCodedIndex Class;
+    [OrderedField] public CodedIndex.TypeDefOrRef Interface;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Class, nameof(Class)),
-            stream.ReadClass(ref Interface, nameof(Interface)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.24
@@ -479,7 +311,7 @@ sealed class ResourceEntry : ICanRead, IHaveAName
     public uint Length;
     public byte[] Data;
 
-    [ThreadStatic]
+    [ThreadStatic] //TODO (ThreadStatic) instead use local instances?
     static int count;
     public string Name { get; } = $"{nameof(ResourceEntry)}[{count++}]";
 
@@ -494,25 +326,15 @@ sealed class ResourceEntry : ICanRead, IHaveAName
 }
 
 // II.22.25
-sealed class MemberRef : ICanRead, IHaveValueNode
+sealed class MemberRef : ICanBeReadInOrder, IHaveValueNode
 {
-    public CodedIndex.MemberRefParent Class;
-    public StringHeapIndex Name;
-    public BlobHeapIndex Signature;
+    [OrderedField] public CodedIndex.MemberRefParent Class;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return new CodeNode
-        {
-            stream.ReadClass(ref Class, nameof(Class)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Signature, nameof(Signature)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.26
@@ -552,281 +374,153 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 }
 
 // II.22.27
-sealed class MethodImpl : ICanRead, IHaveValueNode
+sealed class MethodImpl : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Class;
-    public CodedIndex.MethodDefOrRef MethodBody;
-    public CodedIndex.MethodDefOrRef MethodDeclaration;
+    [OrderedField] public UnknownCodedIndex Class;
+    [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
+    [OrderedField] public CodedIndex.MethodDefOrRef MethodDeclaration;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Class, nameof(Class)),
-            stream.ReadClass(ref MethodBody, nameof(MethodBody)),
-            stream.ReadClass(ref MethodDeclaration, nameof(MethodDeclaration)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.28
-sealed class MethodSemantics : ICanRead, IHaveValueNode
+sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
 {
-    public MethodSemanticsAttributes Semantics;
-    public UnknownCodedIndex Method;
-    public CodedIndex.HasSemantics Association;
+    [OrderedField] public MethodSemanticsAttributes Semantics;
+    [OrderedField] public UnknownCodedIndex Method;
+    [OrderedField] public CodedIndex.HasSemantics Association;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Semantics, nameof(Semantics)),
-            stream.ReadClass(ref Method, nameof(Method)),
-            stream.ReadClass(ref Association, nameof(Association)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.29
-sealed class MethodSpec : ICanRead, IHaveValueNode
+sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
 {
-    public CodedIndex.MethodDefOrRef Method;
-    public BlobHeapIndex Instantiation;
+    [OrderedField] public CodedIndex.MethodDefOrRef Method;
+    [OrderedField] public BlobHeapIndex Instantiation;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Method, nameof(Method)),
-            stream.ReadClass(ref Instantiation, nameof(Instantiation)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.30
-sealed class Module : ICanRead, IHaveValueNode
+sealed class Module : ICanBeReadInOrder, IHaveValueNode
 {
-    public ushort Generation;
-    public StringHeapIndex Name;
-    public GuidHeapIndex Mvid;
-    public GuidHeapIndex EncId;
-    public GuidHeapIndex EncBaseId;
+    [OrderedField] public ushort Generation;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public GuidHeapIndex Mvid;
+    [OrderedField] public GuidHeapIndex EncId;
+    [OrderedField] public GuidHeapIndex EncBaseId;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Generation, nameof(Generation)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Mvid, nameof(Mvid)),
-            stream.ReadClass(ref EncId, nameof(EncId)),
-            stream.ReadClass(ref EncBaseId, nameof(EncBaseId)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.31
-sealed class ModuleRef : ICanRead, IHaveValueNode
+sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
 {
-    public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Name, nameof(Name)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.35
-sealed class NestedClass : ICanRead, IHaveValueNode
+sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex _NestedClass;
-    public UnknownCodedIndex EnclosingClass;
+    [OrderedField] public UnknownCodedIndex _NestedClass;
+    [OrderedField] public UnknownCodedIndex EnclosingClass;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref _NestedClass, nameof(NestedClass)),
-            stream.ReadClass(ref EnclosingClass, nameof(EnclosingClass)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.33
-sealed class Param : ICanRead, IHaveValueNode
+sealed class Param : ICanBeReadInOrder, IHaveValueNode
 {
-    public ParamAttributes Flags;
-    public ushort Sequence;
-    public StringHeapIndex Name;
+    [OrderedField] public ParamAttributes Flags;
+    [OrderedField] public ushort Sequence;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadStruct(out Sequence, nameof(Sequence)),
-            stream.ReadClass(ref Name, nameof(Name)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.34
-sealed class Property : ICanRead, IHaveValueNode
+sealed class Property : ICanBeReadInOrder, IHaveValueNode
 {
-    public PropertyAttributes Flags;
-    public StringHeapIndex Name;
-    public BlobHeapIndex Signature;
+    [OrderedField] public PropertyAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Signature, nameof(Signature)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.35
-sealed class PropertyMap : ICanRead, IHaveValueNode
+sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
 {
-    public UnknownCodedIndex Parent;
-    public UnknownCodedIndex PropertyList;
+    [OrderedField] public UnknownCodedIndex Parent;
+    [OrderedField] public UnknownCodedIndex PropertyList;
 
     public object Value => "";
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref PropertyList, nameof(PropertyList)),
-        };
-    }
+    
+    public CodeNode Node { get; set; }
 }
 
 // II.22.36
-sealed class StandAloneSig : ICanRead, IHaveValueNode
+sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
 {
-    public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => "";
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Signature, nameof(Signature)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.37
-sealed class TypeDef : ICanRead, IHaveValueNode
+sealed class TypeDef : ICanBeReadInOrder, IHaveValueNode
 {
-    public TypeAttributes Flags;
-    public StringHeapIndex TypeName;
-    public StringHeapIndex TypeNamespace;
-    public CodedIndex.TypeDefOrRef Extends;
-    public UnknownCodedIndex FieldList;
-    public UnknownCodedIndex MethodList;
+    [OrderedField] public TypeAttributes Flags;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.TypeDefOrRef Extends;
+    [OrderedField] public UnknownCodedIndex FieldList;
+    [OrderedField] public UnknownCodedIndex MethodList;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Flags, nameof(Flags)),
-            stream.ReadClass(ref TypeName, nameof(TypeName)),
-            stream.ReadClass(ref TypeNamespace, nameof(TypeNamespace)),
-            stream.ReadClass(ref Extends, nameof(Extends)),
-            stream.ReadClass(ref FieldList, nameof(FieldList)),
-            stream.ReadClass(ref MethodList, nameof(MethodList)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.38
-sealed class TypeRef : ICanRead, IHaveValueNode
+sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
 {
-    public CodedIndex.ResolutionScope ResolutionScope;
-    public StringHeapIndex TypeName;
-    public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref ResolutionScope, nameof(ResolutionScope)),
-            stream.ReadClass(ref TypeName, nameof(TypeName)),
-            stream.ReadClass(ref TypeNamespace, nameof(TypeNamespace)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 // II.22.39
-sealed class TypeSpec : ICanRead, IHaveValueNode
+sealed class TypeSpec : ICanBeReadInOrder, IHaveValueNode
 {
-    public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => "";
-
-    public CodeNode Node { get; private set; }
-
-    public CodeNode Read(Stream stream)
-    {
-        return Node = new CodeNode
-        {
-            stream.ReadClass(ref Signature, nameof(Signature)),
-        };
-    }
+    public CodeNode Node { get; set; }
 }
 
 
