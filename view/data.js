@@ -33,7 +33,7 @@ function HSVtoRGB(h, s, v) {
   r = Math.round(r * 255);
   g = Math.round(g * 255);
   b = Math.round(b * 255);
-  return "#"+(r).toString(16)+(g).toString(16)+(b).toString(16);
+  return "#"+r.toString(16)+g.toString(16)+b.toString(16);
 }
 
 function getColor(n) {
@@ -46,7 +46,7 @@ function getDimColor(n) {
 
 var hexEncodeArray = [
   '0', '1', '2', '3', '4', '5', '6', '7',
-  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 ];
 
 function assertThrow(message) {
@@ -62,10 +62,10 @@ function readBytes(file, callback)
   oReq.responseType = "arraybuffer";
   
   oReq.onload = function() {
-    if (this.status == 200 && oReq.response) {
+    if (this.status === 200 && oReq.response) {
       callback(new Uint8Array(oReq.response));
     } else {
-      assertThrow("Couldn't find " + file)
+      assertThrow("Couldn't find " + file);
     }
   };
   
@@ -78,10 +78,10 @@ function readJson(file, callback)
   oReq.open("GET", file);
   
   oReq.onload = function() {
-    if (this.status == 200 && oReq.responseText) {
+    if (this.status === 200 && oReq.responseText) {
       callback(JSON.parse(oReq.responseText));
     } else {
-      assertThrow("Couldn't find " + file)
+      assertThrow("Couldn't find " + file);
     }
   };
   
@@ -113,8 +113,8 @@ function scrollIntoView(o) {
   var first = $(byteID(o.Start));
   var last = $(byteID(o.End - 1));
   
-  var firstBox = first.getBoundingClientRect()
-  var lastBox = last.getBoundingClientRect()
+  var firstBox = first.getBoundingClientRect();
+  var lastBox = last.getBoundingClientRect();
   
   // Need to scroll up
   if (lastBox.bottom < 0) {
@@ -134,13 +134,13 @@ function Search() {
   for (var i = 0; i < allTocUL.length; ++i) {
     allTocUL[i].style.display = "none";
   }
-  for (var i = 0; i < allTocLI.length; ++i) {
+  for (i = 0; i < allTocLI.length; ++i) {
     allTocLI[i].style.display = "none";
   }
   
   // Unhide all the ToC up the parents
   var tocDiv = $("toc");
-  for (var i = 0; i < allTocLI.length; ++i) {
+  for (i = 0; i < allTocLI.length; ++i) {
     var li = allTocLI[i];
     if (li.textContent.toLowerCase().indexOf(text) === -1)
       continue;
@@ -169,7 +169,7 @@ function setFocus(o) {
     allTocUL[i].style.display = "none";
   }
   // Unhid all the text elements
-  for (var i = 0; i < allTocLI.length; ++i) {
+  for (i = 0; i < allTocLI.length; ++i) {
     allTocLI[i].style.display = "";
   }
   
@@ -189,10 +189,10 @@ function setFocus(o) {
   }
   
   // Underline the current li
-  for (var i = 0; i < allTocLI.length; ++i) {
+  for (i = 0; i < allTocLI.length; ++i) {
     allTocLI[i].style.textDecoration = "";
   }
-  toc.style.textDecoration = "underline"
+  toc.style.textDecoration = "underline";
   
   // Reset all the byte display
   var grandparent = o;
@@ -254,7 +254,7 @@ function makeOnHashChange(json) {
     var o = json;
     for (var i = 1; i < names.length; ++i) {
       for (var chi = 0; ; ++chi) {
-        if (chi == o.Children.length) {
+        if (chi === o.Children.length) {
           assertThrow("Couldn't find " + names[i] + " under " + o.Name);
           return;
         }
@@ -298,7 +298,7 @@ function setFocusHelper(o, currentChild) {
       onclick = function(ev) { window.location.hash = o.LinkPath; };
       cursor = "pointer";
     } 
-    for (var i = o.Start; i < o.End; ++i) {
+    for (i = o.Start; i < o.End; ++i) {
       setByte(i, col, onclick, cursor); 
     }
   }
@@ -394,7 +394,7 @@ function findErrors(o) {
     errorDiv.appendChild(create("p", { textContent: o.Errors[i] }));
   }
   
-  for (var i = 0; i < o.Children.length; ++i) {
+  for (i = 0; i < o.Children.length; ++i) {
     findErrors(o.Children[i]);
   }
 }
@@ -427,7 +427,7 @@ window.onload = function() {
     for (var j = 0; j < arr.byteLength; j += width) {
       div.appendChild(create("code", { textContent: ToHex(j, rowLabelWidth) + "    " }));
       
-      for (var i = j; i - j < width; i++) {
+      for (i = j; i - j < width; i++) {
         div.appendChild(create("code", { 
           textContent: ToHex(arr[i], 2) + " ", 
           id: byteID(i) 
@@ -436,7 +436,7 @@ window.onload = function() {
       
       div.appendChild(create("code", { innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;" }));
       
-      for (var i = j; i - j < width; i++) {
+      for (i = j; i - j < width; i++) {
         var lit = String.fromCharCode(arr[i]).replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
         div.appendChild(create("code", { textContent: lit, id: litID(i)}));
       }
