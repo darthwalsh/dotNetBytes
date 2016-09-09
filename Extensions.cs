@@ -98,32 +98,45 @@ static class StreamExtensions
         return (byte)read;
     }
 
-    public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans) 
-        where FromT : struct where ToT : struct
+    public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
         CodeNode node = new CodeNode();
-        node.Name = name;
+        node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
 
         // http://stackoverflow.com/a/4159279/771768
-        var sz = typeof(FromT).GetSize();
+        var sz = typeof(T).GetSize();
         var buffer = new byte[sz];
         stream.ReadWholeArray(buffer);
         var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        var ptype = typeof(FromT);
+        var ptype = typeof(T);
         if (ptype.IsEnum)
             ptype = ptype.GetEnumUnderlyingType();
-        FromT from = (FromT)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
+        t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
         pinnedBuffer.Free();
 
         node.End = (int)stream.Position;
 
-        from.VisitFields(node.Start, node);
+        t.VisitFields(node.Start, node);
+
+        if (typeof(T).Assembly != typeof(AssemblyBytes).Assembly)
+            node.Value = t.GetString();
+
+        return node;
+    }
+
+    public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans) 
+        where FromT : struct where ToT : struct
+    {
+        FromT from;
+        var node = stream.ReadStruct(out from, name);
 
         t = trans(from);
 
         if (typeof(ToT).Assembly != typeof(AssemblyBytes).Assembly)
             node.Value = t.GetString();
+        else
+            node.Value = "";
 
         return node;
     }
@@ -134,11 +147,6 @@ static class StreamExtensions
         var node = stream.ReadStruct(out t, name);
         opt = t;
         return node;
-    }
-
-    public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
-    {
-        return stream.ReadStruct(out t, name ?? typeof(T).Name, (T f) => f);
     }
 
     public static IEnumerable<CodeNode> ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
