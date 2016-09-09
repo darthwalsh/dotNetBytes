@@ -1043,7 +1043,7 @@
 			},
 			{
 				"Name": "Characteristics",
-				"Description": "Flags describing sectionâ€™s characteristics.",
+				"Description": "Flags describing section’s characteristics.",
 				"Value": "0x60000020 ContainsCode, MemoryCanBeExecutedAsCode, MemoryCanBeRead",
 				"Start": 412,
 				"End": 416,
@@ -1152,7 +1152,7 @@
 			},
 			{
 				"Name": "Characteristics",
-				"Description": "Flags describing sectionâ€™s characteristics.",
+				"Description": "Flags describing section’s characteristics.",
 				"Value": "0x42000040 ContainsInitializedData, MemoryCanBeDiscarded, MemoryCanBeRead",
 				"Start": 452,
 				"End": 456,
@@ -2691,7 +2691,7 @@
 			},
 			{
 				"Name": "Name",
-				"Description": "RVA of null-terminated ASCII string â€œmscoree.dllâ€.",
+				"Description": "RVA of null-terminated ASCII string “mscoree.dll”.",
 				"Value": "0x227E",
 				"Start": 1100,
 				"End": 1104,
@@ -2769,7 +2769,7 @@
 			},
 			{
 				"Name": "Message",
-				"Description": "Case sensitive, null-terminated ASCII string containing name to import. Shall be â€œ_CorExeMainâ€ for a.exe file and â€œ_CorDllMainâ€ for a.dll file.",
+				"Description": "Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.",
 				"Value": "\"_CorExeMain\\0\"",
 				"Start": 1138,
 				"End": 1150,
