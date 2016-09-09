@@ -164,9 +164,9 @@ sealed class Constant : ICanRead, IHaveValueNode
 {
     public UnknownCodedIndex Type;
     public CodedIndex.HasConstant Parent;
-    public BlobHeapIndex _Value;
+    public BlobHeapIndex Value;
 
-    public object Value => "";
+    object IHaveValue.Value => "";
 
     public CodeNode Node { get; private set; }
 
@@ -176,7 +176,7 @@ sealed class Constant : ICanRead, IHaveValueNode
         {
             stream.ReadClass(ref Type, nameof(Type)),
             stream.ReadClass(ref Parent, nameof(Parent)),
-            stream.ReadClass(ref _Value, "Value"),
+            stream.ReadClass(ref Value, nameof(Value)),
         };
     }
 }
@@ -186,9 +186,9 @@ sealed class CustomAttribute : ICanRead, IHaveValueNode
 {
     public CodedIndex.HasCustomAttribute Parent;
     public CodedIndex.CustomAttributeType Type;
-    public BlobHeapIndex _Value;
+    public BlobHeapIndex Value;
 
-    public object Value => "";
+    object IHaveValue.Value => "";
 
     public CodeNode Node { get; private set; }
 
@@ -198,7 +198,7 @@ sealed class CustomAttribute : ICanRead, IHaveValueNode
         {
             stream.ReadClass(ref Parent, nameof(Parent)),
             stream.ReadClass(ref Type, nameof(Type)),
-            stream.ReadClass(ref _Value, "Value"),
+            stream.ReadClass(ref Value, nameof(Value)),
         };
     }
 }
