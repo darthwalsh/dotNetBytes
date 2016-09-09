@@ -303,7 +303,7 @@
 			"Children": [{
 				"Name": "Machine",
 				"Description": "0x14c is I386.",
-				"Value": "0x14C",
+				"Value": "0x014C I386",
 				"Start": 132,
 				"End": 134,
 				"LinkPath": null,
@@ -381,16 +381,16 @@
 			"Errors": [],
 			"Children": [{
 				"Name": "PEHeaderStandardFields",
-				"Description": ""
+				"Description": "",
 				"Value": "",
-				"Start": 152
+				"Start": 152,
 				"End": 176,
 				"LinkPath": null,
 				"Errors": [],
 				"Children": [{
 					"Name": "Magic",
-					"Description": "Always 0x10B.",
-					"Value": "0x10B",
+					"Description": "Identifies version.",
+					"Value": "0x010B PE32",
 					"Start": 152,
 					"End": 154,
 					"LinkPath": null,
@@ -463,7 +463,7 @@
 					"Value": "0x2000",
 					"Start": 172,
 					"End": 176,
-					"LinkPath": null
+					"LinkPath": null,
 					"Errors": [],
 					"Children": []
 				}]
@@ -474,7 +474,7 @@
 				"Value": "0x4000",
 				"Start": 176,
 				"End": 180,
-				"LinkPath": null
+				"LinkPath": null,
 				"Errors": [],
 				"Children": []
 			},
@@ -699,7 +699,7 @@
 			},
 			{
 				"Name": "PEHeaderHeaderDataDirectories",
-				"Description": ""
+				"Description": "",
 				"Value": "",
 				"Start": 248,
 				"End": 376,
@@ -1414,7 +1414,7 @@
 			"Errors": [],
 			"Children": [{
 				"Name": "Method[0]",
-				"Description": ""
+				"Description": "",
 				"Value": "\"\"",
 				"Start": 592,
 				"End": 615,
@@ -1814,84 +1814,93 @@
 				}]
 			},
 			{
-				"Name": "Rows[0]",
+				"Name": "Rows",
 				"Description": "",
-				"Value": "0x1",
+				"Value": "",
 				"Start": 748,
-				"End": 752,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[1]",
-				"Description": "",
-				"Value": "0x4",
-				"Start": 752,
-				"End": 756,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[2]",
-				"Description": "",
-				"Value": "0x2",
-				"Start": 756,
-				"End": 760,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[3]",
-				"Description": "",
-				"Value": "0x1",
-				"Start": 760,
-				"End": 764,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[4]",
-				"Description": "",
-				"Value": "0x2",
-				"Start": 764,
-				"End": 768,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[5]",
-				"Description": "",
-				"Value": "0x1",
-				"Start": 768,
-				"End": 772,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[6]",
-				"Description": "",
-				"Value": "0x1",
-				"Start": 772,
-				"End": 776,
-				"LinkPath": null,
-				"Errors": [],
-				"Children": []
-			},
-			{
-				"Name": "Rows[7]",
-				"Description": "",
-				"Value": "0x1",
-				"Start": 776,
 				"End": 780,
 				"LinkPath": null,
 				"Errors": [],
-				"Children": []
+				"Children": [{
+					"Name": "Rows[0]",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 748,
+					"End": 752,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[1]",
+					"Description": "",
+					"Value": "0x4",
+					"Start": 752,
+					"End": 756,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[2]",
+					"Description": "",
+					"Value": "0x2",
+					"Start": 756,
+					"End": 760,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[3]",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 760,
+					"End": 764,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[4]",
+					"Description": "",
+					"Value": "0x2",
+					"Start": 764,
+					"End": 768,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[5]",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 768,
+					"End": 772,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[6]",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 772,
+					"End": 776,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				},
+				{
+					"Name": "Rows[7]",
+					"Description": "",
+					"Value": "0x1",
+					"Start": 776,
+					"End": 780,
+					"LinkPath": null,
+					"Errors": [],
+					"Children": []
+				}]
 			},
 			{
 				"Name": "Modules[0]",
@@ -1917,7 +1926,7 @@
 					"Value": "\"AddR.exe\"",
 					"Start": 782,
 					"End": 784,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[10]",
 					"Errors": [],
 					"Children": []
 				},
@@ -1927,14 +1936,14 @@
 					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
 					"Start": 784,
 					"End": 786,
-					"LinkPath": "FileFormat/Sections[0]/GuidHeap",
+					"LinkPath": "FileFormat/Sections[0]/GuidHeap/GuidHeap[1]",
 					"Errors": [],
 					"Children": []
 				},
 				{
 					"Name": "EncId",
 					"Description": "Guid Heap index 0",
-					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+					"Value": "00000000-0000-0000-0000-000000000000",
 					"Start": 786,
 					"End": 788,
 					"LinkPath": "FileFormat/Sections[0]/GuidHeap",
@@ -1944,7 +1953,7 @@
 				{
 					"Name": "EncBaseId",
 					"Description": "Guid Heap index 0",
-					"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+					"Value": "00000000-0000-0000-0000-000000000000",
 					"Start": 788,
 					"End": 790,
 					"LinkPath": "FileFormat/Sections[0]/GuidHeap",
@@ -1976,7 +1985,7 @@
 					"Value": "\"Object\"",
 					"Start": 792,
 					"End": 794,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[40]",
 					"Errors": [],
 					"Children": []
 				},
@@ -1986,7 +1995,7 @@
 					"Value": "\"System\"",
 					"Start": 794,
 					"End": 796,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2015,7 +2024,7 @@
 					"Value": "\"Int32\"",
 					"Start": 798,
 					"End": 800,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[54]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2025,7 +2034,7 @@
 					"Value": "\"System\"",
 					"Start": 800,
 					"End": 802,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2054,7 +2063,7 @@
 					"Value": "\"String\"",
 					"Start": 804,
 					"End": 806,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[60]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2064,7 +2073,7 @@
 					"Value": "\"System\"",
 					"Start": 806,
 					"End": 808,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2093,7 +2102,7 @@
 					"Value": "\"Console\"",
 					"Start": 810,
 					"End": 812,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[67]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2103,7 +2112,7 @@
 					"Value": "\"System\"",
 					"Start": 812,
 					"End": 814,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2132,7 +2141,7 @@
 					"Value": "\"\u003cModule\u003e\"",
 					"Start": 818,
 					"End": 820,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[25]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2142,7 +2151,7 @@
 					"Value": "\"\"",
 					"Start": 820,
 					"End": 822,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2201,7 +2210,7 @@
 					"Value": "\"Hello\"",
 					"Start": 832,
 					"End": 834,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[34]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2211,7 +2220,7 @@
 					"Value": "\"\"",
 					"Start": 834,
 					"End": 836,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2267,7 +2276,7 @@
 				{
 					"Name": "ImplFlags",
 					"Description": "",
-					"Value": "0x0",
+					"Value": "{0x0000 IL, 0x0000 Managed, 0x0000 0}",
 					"Start": 846,
 					"End": 848,
 					"LinkPath": null,
@@ -2277,7 +2286,7 @@
 				{
 					"Name": "Flags",
 					"Description": "",
-					"Value": "0x10",
+					"Value": "{0x0000 CompilerControlled, 0x0000 ReuseSlot, 0x0010 Static}",
 					"Start": 848,
 					"End": 850,
 					"LinkPath": null,
@@ -2290,7 +2299,7 @@
 					"Value": "\"Main\"",
 					"Start": 850,
 					"End": 852,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[75]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2300,7 +2309,7 @@
 					"Value": "{0x0, 0x0, 0x1}",
 					"Start": 852,
 					"End": 854,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2339,7 +2348,7 @@
 					"Value": "\"Concat\"",
 					"Start": 858,
 					"End": 860,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[80]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2349,7 +2358,7 @@
 					"Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
 					"Start": 860,
 					"End": 862,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[7]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2378,7 +2387,7 @@
 					"Value": "\"WriteLine\"",
 					"Start": 864,
 					"End": 866,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[87]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2388,7 +2397,7 @@
 					"Value": "{0x0, 0x1, 0x1, 0xE}",
 					"Start": 866,
 					"End": 868,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[13]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2407,7 +2416,7 @@
 					"Value": "{0x8}",
 					"Start": 868,
 					"End": 870,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[1]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2486,7 +2495,7 @@
 					"Value": "{}",
 					"Start": 886,
 					"End": 888,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2496,7 +2505,7 @@
 					"Value": "\"World\"",
 					"Start": 888,
 					"End": 890,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[19]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2506,7 +2515,7 @@
 					"Value": "\"\"",
 					"Start": 890,
 					"End": 892,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2575,7 +2584,7 @@
 					"Value": "{}",
 					"Start": 904,
 					"End": 906,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2585,7 +2594,7 @@
 					"Value": "\"mscorlib\"",
 					"Start": 906,
 					"End": 908,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[1]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2595,7 +2604,7 @@
 					"Value": "\"\"",
 					"Start": 908,
 					"End": 910,
-					"LinkPath": "FileFormat/Sections[0]/StringHeap",
+					"LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
 					"Errors": [],
 					"Children": []
 				},
@@ -2605,7 +2614,7 @@
 					"Value": "{}",
 					"Start": 910,
 					"End": 912,
-					"LinkPath": "FileFormat/Sections[0]/BlobHeap",
+					"LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
 					"Errors": [],
 					"Children": []
 				}]
@@ -2619,7 +2628,146 @@
 			"End": 1012,
 			"LinkPath": null,
 			"Errors": [],
-			"Children": []
+			"Children": [{
+				"Name": "StringHeap[0]",
+				"Description": "",
+				"Value": "\"\"",
+				"Start": 912,
+				"End": 913,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[1]",
+				"Description": "",
+				"Value": "\"mscorlib\"",
+				"Start": 913,
+				"End": 922,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[10]",
+				"Description": "",
+				"Value": "\"AddR.exe\"",
+				"Start": 922,
+				"End": 931,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[19]",
+				"Description": "",
+				"Value": "\"World\"",
+				"Start": 931,
+				"End": 937,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[25]",
+				"Description": "",
+				"Value": "\"\u003cModule\u003e\"",
+				"Start": 937,
+				"End": 946,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[34]",
+				"Description": "",
+				"Value": "\"Hello\"",
+				"Start": 946,
+				"End": 952,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[40]",
+				"Description": "",
+				"Value": "\"Object\"",
+				"Start": 952,
+				"End": 959,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[47]",
+				"Description": "",
+				"Value": "\"System\"",
+				"Start": 959,
+				"End": 966,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[54]",
+				"Description": "",
+				"Value": "\"Int32\"",
+				"Start": 966,
+				"End": 972,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[60]",
+				"Description": "",
+				"Value": "\"String\"",
+				"Start": 972,
+				"End": 979,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[67]",
+				"Description": "",
+				"Value": "\"Console\"",
+				"Start": 979,
+				"End": 987,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[75]",
+				"Description": "",
+				"Value": "\"Main\"",
+				"Start": 987,
+				"End": 992,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[80]",
+				"Description": "",
+				"Value": "\"Concat\"",
+				"Start": 992,
+				"End": 999,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "StringHeap[87]",
+				"Description": "",
+				"Value": "\"WriteLine\"",
+				"Start": 999,
+				"End": 1009,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			}]
 		},
 		{
 			"Name": "UserStringHeap",
@@ -2639,7 +2787,16 @@
 			"End": 1060,
 			"LinkPath": null,
 			"Errors": [],
-			"Children": []
+			"Children": [{
+				"Name": "GuidHeap[1]",
+				"Description": "",
+				"Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+				"Start": 1044,
+				"End": 1060,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			}]
 		},
 		{
 			"Name": "BlobHeap",
@@ -2649,7 +2806,56 @@
 			"End": 1080,
 			"LinkPath": null,
 			"Errors": [],
-			"Children": []
+			"Children": [{
+				"Name": "BlobHeap[0]",
+				"Description": "1 leading bits",
+				"Value": "{}",
+				"Start": 1060,
+				"End": 1061,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "BlobHeap[1]",
+				"Description": "1 leading bits",
+				"Value": "{0x8}",
+				"Start": 1061,
+				"End": 1063,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "BlobHeap[3]",
+				"Description": "1 leading bits",
+				"Value": "{0x0, 0x0, 0x1}",
+				"Start": 1063,
+				"End": 1067,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "BlobHeap[7]",
+				"Description": "1 leading bits",
+				"Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+				"Start": 1067,
+				"End": 1073,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			},
+			{
+				"Name": "BlobHeap[13]",
+				"Description": "1 leading bits",
+				"Value": "{0x0, 0x1, 0x1, 0xE}",
+				"Start": 1073,
+				"End": 1078,
+				"LinkPath": null,
+				"Errors": [],
+				"Children": []
+			}]
 		},
 		{
 			"Name": "ImportTable",
