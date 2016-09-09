@@ -332,8 +332,6 @@ sealed class FieldMarshal : ICanRead, IHaveValueNode
 // II.22.19
 sealed class FileTable : ICanRead, IHaveValueNode
 {
-    //TODO NotImplementedException actually use in a test
-
     public uint Flags; //TODO (flags)
     public StringHeapIndex Name;
     public BlobHeapIndex HashValue;

@@ -186,7 +186,13 @@ namespace Tests
         {
             RunIL(@"Samples\Blank.il", "/dll");
         }
-        
+
+        [TestMethod]
+        public void FileTable()
+        {
+            RunIL(@"Samples\FileTable.il");
+        }
+
         [TestMethod]
         public void Race()
         {
