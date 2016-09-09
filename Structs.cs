@@ -223,19 +223,6 @@ sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
     public CodeNode Node { get; set; }
 }
 
-// II.22.22
-sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
-{
-    [OrderedField] public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
-    [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
-    [OrderedField] public StringHeapIndex ImportName;
-    [OrderedField] public UnknownCodedIndex ImportScope;
-
-    public object Value => "";
-
-    public CodeNode Node { get; set; }
-}
-
 // II.22.20
 sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 {
@@ -254,6 +241,19 @@ sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public UnknownCodedIndex Owner;
     [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
+
+    public object Value => "";
+
+    public CodeNode Node { get; set; }
+}
+
+// II.22.22
+sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
+    [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
+    [OrderedField] public StringHeapIndex ImportName;
+    [OrderedField] public UnknownCodedIndex ImportScope;
 
     public object Value => "";
 
@@ -432,7 +432,7 @@ sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
     public CodeNode Node { get; set; }
 }
 
-// II.22.35
+// II.22.32
 sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public UnknownCodedIndex _NestedClass;
@@ -1612,7 +1612,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
                 case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
                 case Tag.Module: return TildeStream.Instance.Modules[Index];
-                //case Tag.Permission: return TildeStream.Instance.Permissions[Index];
+                //case Tag.Permission: return TildeStream.Instance.Permissions[Index]; // TODO DeclSecuritys?
                 case Tag.Property: return TildeStream.Instance.Properties[Index];
                 case Tag.Event: return TildeStream.Instance.Events[Index];
                 case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
