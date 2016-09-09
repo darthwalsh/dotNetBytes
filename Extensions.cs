@@ -110,7 +110,10 @@ static class StreamExtensions
         var buffer = new byte[sz];
         stream.ReadWholeArray(buffer);
         var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        FromT from = (FromT)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), typeof(FromT));
+        var ptype = typeof(FromT);
+        if (ptype.IsEnum)
+            ptype = ptype.GetEnumUnderlyingType();
+        FromT from = (FromT)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
         pinnedBuffer.Free();
 
         node.End = (int)stream.Position;
@@ -248,8 +251,6 @@ static class TypeExtensions
 
         if (!type.IsConstructedGenericType)
             return Marshal.SizeOf(type);
-
-        var generics = type.GetGenericArguments();
 
         return type.GetFields(BindingFlags.Public | BindingFlags.Instance).Sum(field =>
         {

@@ -72,12 +72,12 @@ public enum MetadataTableFlags : ulong
 // II.22.2
 sealed class Assembly : ICanRead, IHaveValueNode
 {
-    public AssemblyHashAlgorithmWrapper HashAlgId;
+    public AssemblyHashAlgorithm HashAlgId;
     public ushort MajorVersion;
     public ushort MinorVersion;
     public ushort BuildNumber;
     public ushort RevisionNumber;
-    public AssemblyFlagsHolderWrapper Flags;
+    public AssemblyFlags Flags;
     public BlobHeapIndex PublicKey;
     public StringHeapIndex Name;
     public StringHeapIndex Culture;
@@ -90,12 +90,12 @@ sealed class Assembly : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out HashAlgId, nameof(HashAlgId)).Children.Single(),
+            stream.ReadStruct(out HashAlgId, nameof(HashAlgId)),
             stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
             stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
             stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
             stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
-            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadStruct(out Flags, nameof(Flags)),
             stream.ReadClass(ref PublicKey, nameof(PublicKey)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Culture, nameof(Culture)),
@@ -110,7 +110,7 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
     public ushort MinorVersion;
     public ushort BuildNumber;
     public ushort RevisionNumber;
-    public AssemblyFlagsHolderWrapper Flags;
+    public AssemblyFlags Flags;
     public BlobHeapIndex PublicKeyOrToken;
     public StringHeapIndex Name;
     public StringHeapIndex Culture;
@@ -128,7 +128,7 @@ sealed class AssemblyRef : ICanRead, IHaveValueNode
             stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
             stream.ReadStruct(out BuildNumber, nameof(BuildNumber)),
             stream.ReadStruct(out RevisionNumber, nameof(RevisionNumber)),
-            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadStruct(out Flags, nameof(Flags)),
             stream.ReadClass(ref PublicKeyOrToken, nameof(PublicKeyOrToken)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Culture, nameof(Culture)),
@@ -576,7 +576,7 @@ sealed class MethodImpl : ICanRead, IHaveValueNode
 // II.22.28
 sealed class MethodSemantics : ICanRead, IHaveValueNode
 {
-    public MethodSemanticsAttributesWrapper Semantics;
+    public MethodSemanticsAttributes Semantics;
     public UnknownCodedIndex Method;
     public CodedIndex.HasSemantics Association;
 
@@ -588,7 +588,7 @@ sealed class MethodSemantics : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Semantics, nameof(Semantics)).Children.Single(),
+            stream.ReadStruct(out Semantics, nameof(Semantics)),
             stream.ReadClass(ref Method, nameof(Method)),
             stream.ReadClass(ref Association, nameof(Association)),
         };
@@ -682,7 +682,7 @@ sealed class NestedClass : ICanRead, IHaveValueNode
 // II.22.33
 sealed class Param : ICanRead, IHaveValueNode
 {
-    public ParamAttributesWrapper Flags;
+    public ParamAttributes Flags;
     public ushort Sequence;
     public StringHeapIndex Name;
 
@@ -694,7 +694,7 @@ sealed class Param : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadStruct(out Flags, nameof(Flags)),
             stream.ReadStruct(out Sequence, nameof(Sequence)),
             stream.ReadClass(ref Name, nameof(Name)),
         };
@@ -704,7 +704,7 @@ sealed class Param : ICanRead, IHaveValueNode
 // II.22.34
 sealed class Property : ICanRead, IHaveValueNode
 {
-    public PropertyAttributesWrapper Flags;
+    public PropertyAttributes Flags;
     public StringHeapIndex Name;
     public BlobHeapIndex Signature;
 
@@ -716,7 +716,7 @@ sealed class Property : ICanRead, IHaveValueNode
     {
         return Node = new CodeNode
         {
-            stream.ReadStruct(out Flags, nameof(Flags)).Children.Single(),
+            stream.ReadStruct(out Flags, nameof(Flags)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Signature, nameof(Signature)),
         };
@@ -838,11 +838,6 @@ enum AssemblyHashAlgorithm : uint
     Reserved_MD5 = 0x8003,
     SHA1 = 0x8004,
 }
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyHashAlgorithmWrapper
-{
-    public AssemblyHashAlgorithm AssemblyHashAlgorithm;
-}
 
 // II.23.1.2 
 [Flags]
@@ -856,11 +851,6 @@ enum AssemblyFlags : uint
     DisableJITcompileOptimizer = 0x4000,
     [Description("Reserved (a conforming implementation of the CLI can ignore this setting on read; some implementations might use this bit to indicate that a CIL-to-native-code compiler should generate CIL-to-native code map)")]
     EnableJITcompileTracking = 0x8000,
-}
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct AssemblyFlagsHolderWrapper
-{
-    public AssemblyFlags AssemblyFlags;
 }
 
 // II.23.1.5
@@ -1092,11 +1082,6 @@ enum MethodSemanticsAttributes : ushort
     [Description("Fire method for event. This refers to the optional raise_ method for events. (§22.13)")]
     Fire = 0x0020,
 }
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct MethodSemanticsAttributesWrapper
-{
-    public MethodSemanticsAttributes MethodSemanticsAttributes;
-}
 
 // II.23.1.13
 [Flags]
@@ -1113,11 +1098,6 @@ public enum ParamAttributes : ushort
     [Description("Param has FieldMarshal")]
     HasFieldMarshal = 0x2000,
 }
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ParamAttributesWrapper
-{
-    public ParamAttributes ParamAttributes;
-}
 
 // II.23.1.14
 [Flags]
@@ -1129,11 +1109,6 @@ enum PropertyAttributes : ushort
     RTSpecialName = 0x0400,
     [Description("Property has default")]
     HasDefault = 0x1000,
-}
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PropertyAttributesWrapper
-{
-    public PropertyAttributes PropertyAttributes;
 }
 
 
@@ -3121,7 +3096,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
                 dataSectionNode.Add(stream.ReadClass(ref dataSection, $"MethodDataSections[{dataSections.Count}]"));
                 dataSections.Add(dataSection);
             }
-            while (dataSection.Header.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
+            while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
 
             DataSections = dataSections.ToArray();
             Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
@@ -3171,7 +3146,7 @@ struct FatFormat
 // II.25.4.5
 sealed class MethodDataSection : ICanRead
 {
-    public MethodHeaderSectionWrapper Header;
+    public MethodHeaderSection Header;
     public LargeMethodHeader LargeMethodHeader;
     public SmallMethodHeader SmallMethodHeader;
 
@@ -3179,15 +3154,15 @@ sealed class MethodDataSection : ICanRead
     {
         var node = new CodeNode
         {
-            stream.ReadStruct(out Header, nameof(MethodHeaderSection)).Children.Single()
+            stream.ReadStruct(out Header, nameof(MethodHeaderSection))
         };
 
-        if (!Header.MethodHeaderSection.HasFlag(MethodHeaderSection.EHTable))
+        if (!Header.HasFlag(MethodHeaderSection.EHTable))
         {
             throw new InvalidOperationException("Only kind of section data is exception header");
         }
         
-        if (Header.MethodHeaderSection.HasFlag(MethodHeaderSection.FatFormat))
+        if (Header.HasFlag(MethodHeaderSection.FatFormat))
         {
             node.Add(stream.ReadClass(ref LargeMethodHeader, nameof(LargeMethodHeader)));
         }
@@ -3211,11 +3186,6 @@ enum MethodHeaderSection : byte
     FatFormat = 0x40,
     [Description("Another data section occurs after this current section")]
     MoreSects = 0x80,
-}
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct MethodHeaderSectionWrapper
-{
-    public MethodHeaderSection MethodHeaderSection;
 }
 
 sealed class SmallMethodHeader : ICanRead
