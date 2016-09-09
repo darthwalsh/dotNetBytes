@@ -2823,7 +2823,7 @@ sealed class Section : ICanRead
                                     Name = "Methods",
                                 };
 
-                                foreach (var rva in TildeStream.MethodDefs
+                                foreach (var rva in (TildeStream.MethodDefs ?? new MethodDef[0])
                                     .Select(def => def.RVA)
                                     .Where(rva => rva > 0)
                                     .Distinct()

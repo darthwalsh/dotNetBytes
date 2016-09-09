@@ -175,7 +175,18 @@ namespace Tests
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
         }
 
+        [TestMethod]
+        public void SimpleIL()
+        {
+            RunIL(@"Samples\Simple.il");
+        }
 
+        [TestMethod]
+        public void Blank()
+        {
+            RunIL(@"Samples\Blank.il", "/dll");
+        }
+        
         [TestMethod]
         public void Race()
         {
@@ -198,11 +209,29 @@ namespace Tests
 
         // TODO Add test to exercise the various NotImplementedException (might need to have an IlAssemble that invokes ilasm.exe)
 
+        static void RunIL(string path, string args = "")
+        {
+            string outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
+
+            if (!File.Exists(outpath))
+            {
+                Console.Error.WriteLine($"Assembling {outpath}");
+
+                RunProcess("ilasm.exe", $@"""{path}"" /OUTPUT=""{outpath}"" {args}");
+            }
+            else
+            {
+                Console.Error.WriteLine($"Using existing {outpath}");
+            }
+
+            Run(File.OpenRead(outpath));
+        }
+
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
             var allArgs = $"{optimize} {noconfig} {args}";
 
-            string outpath = Path.GetFullPath(path.Replace(".cs", "." + CleanFileName(allArgs) + ".exe"));
+            string outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
 
             if (!File.Exists(outpath))
             {
