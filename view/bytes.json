@@ -332,7 +332,7 @@
 			},
 			{
 				"Name": "PointerToSymbolTable",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 140,
 				"End": 144,
@@ -342,7 +342,7 @@
 			},
 			{
 				"Name": "NumberOfSymbols",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 144,
 				"End": 148,
@@ -362,7 +362,7 @@
 			},
 			{
 				"Name": "Characteristics",
-				"Description": "Flags indicating attributes of the file, see Â§II.25.2.2.1.",
+				"Description": "Flags indicating attributes of the file, see §II.25.2.2.1.",
 				"Value": "0x10E",
 				"Start": 150,
 				"End": 152,
@@ -399,7 +399,7 @@
 				},
 				{
 					"Name": "LMajor",
-					"Description": "Spec says always 6, sometimes more (Â§II.24.1).",
+					"Description": "Spec says always 6, sometimes more (§II.24.1).",
 					"Value": "0x6",
 					"Start": 154,
 					"End": 155,
@@ -409,7 +409,7 @@
 				},
 				{
 					"Name": "LMinor",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 155,
 					"End": 156,
@@ -508,7 +508,7 @@
 				},
 				{
 					"Name": "FileAlignment",
-					"Description": "Should be 0x200 (Â§II.24.1).",
+					"Description": "Should be 0x200 (§II.24.1).",
 					"Value": "0x200",
 					"Start": 188,
 					"End": 192,
@@ -518,7 +518,7 @@
 				},
 				{
 					"Name": "OSMajor",
-					"Description": "Should be 5 (Â§II.24.1).",
+					"Description": "Should be 5 (§II.24.1).",
 					"Value": "0x4",
 					"Start": 192,
 					"End": 194,
@@ -528,7 +528,7 @@
 				},
 				{
 					"Name": "OSMinor",
-					"Description": "Should be 0 (Â§II.24.1).",
+					"Description": "Should be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 194,
 					"End": 196,
@@ -538,7 +538,7 @@
 				},
 				{
 					"Name": "UserMajor",
-					"Description": "Should be 0 (Â§II.24.1).",
+					"Description": "Should be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 196,
 					"End": 198,
@@ -548,7 +548,7 @@
 				},
 				{
 					"Name": "UserMinor",
-					"Description": "Should be 0 (Â§II.24.1).",
+					"Description": "Should be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 198,
 					"End": 200,
@@ -558,7 +558,7 @@
 				},
 				{
 					"Name": "SubSysMajor",
-					"Description": "Should be 5 (Â§II.24.1).",
+					"Description": "Should be 5 (§II.24.1).",
 					"Value": "0x4",
 					"Start": 200,
 					"End": 202,
@@ -568,7 +568,7 @@
 				},
 				{
 					"Name": "SubSysMinor",
-					"Description": "Should be 0 (Â§II.24.1).",
+					"Description": "Should be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 202,
 					"End": 204,
@@ -608,7 +608,7 @@
 				},
 				{
 					"Name": "FileChecksum",
-					"Description": "Should be 0 (Â§II.24.1).",
+					"Description": "Should be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 216,
 					"End": 220,
@@ -638,7 +638,7 @@
 				},
 				{
 					"Name": "StackReserveSize",
-					"Description": "Often 1Mb for x86 or 4Mb for x64 (Â§II.24.1).",
+					"Description": "Often 1Mb for x86 or 4Mb for x64 (§II.24.1).",
 					"Value": "0x100000",
 					"Start": 224,
 					"End": 228,
@@ -648,7 +648,7 @@
 				},
 				{
 					"Name": "StackCommitSize",
-					"Description": "Often 4Kb for x86 or 16Kb for x64 (Â§II.24.1).",
+					"Description": "Often 4Kb for x86 or 16Kb for x64 (§II.24.1).",
 					"Value": "0x1000",
 					"Start": 228,
 					"End": 232,
@@ -658,7 +658,7 @@
 				},
 				{
 					"Name": "HeapReserveSize",
-					"Description": "Should be 0x100000 (1Mb) (Â§II.24.1).",
+					"Description": "Should be 0x100000 (1Mb) (§II.24.1).",
 					"Value": "0x100000",
 					"Start": 232,
 					"End": 236,
@@ -668,7 +668,7 @@
 				},
 				{
 					"Name": "HeapCommitSize",
-					"Description": "Often 4Kb for x86 or 8Kb for x64 (Â§II.24.1).",
+					"Description": "Often 4Kb for x86 or 8Kb for x64 (§II.24.1).",
 					"Value": "0x1000",
 					"Start": 236,
 					"End": 240,
@@ -707,7 +707,7 @@
 				"Errors": [],
 				"Children": [{
 					"Name": "ExportTable",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 248,
 					"End": 256,
@@ -717,7 +717,7 @@
 				},
 				{
 					"Name": "ImportTable",
-					"Description": "RVA and Size of Import Table, (Â§II.25.3.1).",
+					"Description": "RVA and Size of Import Table, (§II.25.3.1).",
 					"Value": "RVAandSize",
 					"Start": 256,
 					"End": 264,
@@ -746,7 +746,7 @@
 				},
 				{
 					"Name": "ResourceTable",
-					"Description": "Always 0, unless resources are compiled in (Â§II.24.1).",
+					"Description": "Always 0, unless resources are compiled in (§II.24.1).",
 					"Value": "0x0",
 					"Start": 264,
 					"End": 272,
@@ -756,7 +756,7 @@
 				},
 				{
 					"Name": "ExceptionTable",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 272,
 					"End": 280,
@@ -766,7 +766,7 @@
 				},
 				{
 					"Name": "CertificateTable",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 280,
 					"End": 288,
@@ -776,7 +776,7 @@
 				},
 				{
 					"Name": "BaseRelocationTable",
-					"Description": "Relocation Table; set to 0 if unused (Â§).",
+					"Description": "Relocation Table; set to 0 if unused (§).",
 					"Value": "RVAandSize",
 					"Start": 288,
 					"End": 296,
@@ -805,7 +805,7 @@
 				},
 				{
 					"Name": "Debug",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 296,
 					"End": 304,
@@ -815,7 +815,7 @@
 				},
 				{
 					"Name": "Copyright",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 304,
 					"End": 312,
@@ -825,7 +825,7 @@
 				},
 				{
 					"Name": "GlobalPtr",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 312,
 					"End": 320,
@@ -835,7 +835,7 @@
 				},
 				{
 					"Name": "TLSTable",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 320,
 					"End": 328,
@@ -845,7 +845,7 @@
 				},
 				{
 					"Name": "LoadConfigTable",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 328,
 					"End": 336,
@@ -855,7 +855,7 @@
 				},
 				{
 					"Name": "BoundImport",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 336,
 					"End": 344,
@@ -865,7 +865,7 @@
 				},
 				{
 					"Name": "ImportAddressTable",
-					"Description": "RVA and Size of Import Address Table,(Â§II.25.3.1).",
+					"Description": "RVA and Size of Import Address Table,(§II.25.3.1).",
 					"Value": "RVAandSize",
 					"Start": 344,
 					"End": 352,
@@ -894,7 +894,7 @@
 				},
 				{
 					"Name": "DelayImportDescriptor",
-					"Description": "Always 0 (Â§II.24.1).",
+					"Description": "Always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 352,
 					"End": 360,
@@ -904,7 +904,7 @@
 				},
 				{
 					"Name": "CLIHeader",
-					"Description": "CLI Header with directories for runtime data,(Â§II.25.3.1).",
+					"Description": "CLI Header with directories for runtime data,(§II.25.3.1).",
 					"Value": "RVAandSize",
 					"Start": 360,
 					"End": 368,
@@ -933,7 +933,7 @@
 				},
 				{
 					"Name": "Reserved",
-					"Description": "Always 0 (Â§II.24.1)",
+					"Description": "Always 0 (§II.24.1)",
 					"Value": "0x0",
 					"Start": 368,
 					"End": 376,
@@ -1003,7 +1003,7 @@
 			},
 			{
 				"Name": "PointerToRelocations",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 400,
 				"End": 404,
@@ -1013,7 +1013,7 @@
 			},
 			{
 				"Name": "PointerToLinenumbers",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 404,
 				"End": 408,
@@ -1023,7 +1023,7 @@
 			},
 			{
 				"Name": "NumberOfRelocations",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 408,
 				"End": 410,
@@ -1033,7 +1033,7 @@
 			},
 			{
 				"Name": "NumberOfLinenumbers",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 410,
 				"End": 412,
@@ -1112,7 +1112,7 @@
 			},
 			{
 				"Name": "PointerToRelocations",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 440,
 				"End": 444,
@@ -1122,7 +1122,7 @@
 			},
 			{
 				"Name": "PointerToLinenumbers",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 444,
 				"End": 448,
@@ -1132,7 +1132,7 @@
 			},
 			{
 				"Name": "NumberOfRelocations",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 448,
 				"End": 450,
@@ -1142,7 +1142,7 @@
 			},
 			{
 				"Name": "NumberOfLinenumbers",
-				"Description": "Should be 0 (Â§II.24.1).",
+				"Description": "Should be 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 450,
 				"End": 452,
@@ -1239,7 +1239,7 @@
 			},
 			{
 				"Name": "MetaData",
-				"Description": "RVA and size of the physical metadata (Â§II.24).",
+				"Description": "RVA and size of the physical metadata (§II.24).",
 				"Value": "RVAandSize",
 				"Start": 528,
 				"End": 536,
@@ -1268,7 +1268,7 @@
 			},
 			{
 				"Name": "Flags",
-				"Description": "Flags describing this runtime image. (Â§II.25.3.3.1).",
+				"Description": "Flags describing this runtime image. (§II.25.3.3.1).",
 				"Value": "0x00000001 ILOnly",
 				"Start": 536,
 				"End": 540,
@@ -1346,7 +1346,7 @@
 			},
 			{
 				"Name": "CodeManagerTable",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 560,
 				"End": 568,
@@ -1385,7 +1385,7 @@
 			},
 			{
 				"Name": "ExportAddressTableJumps",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 576,
 				"End": 584,
@@ -1395,7 +1395,7 @@
 			},
 			{
 				"Name": "ManagedNativeHeader",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 584,
 				"End": 592,
@@ -1744,7 +1744,7 @@
 				"Errors": [],
 				"Children": [{
 					"Name": "Reserved",
-					"Description": "Reserved, always 0 (Â§II.24.1).",
+					"Description": "Reserved, always 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 724,
 					"End": 728,
@@ -1754,7 +1754,7 @@
 				},
 				{
 					"Name": "MajorVersion",
-					"Description": "Major version of table schemata; shall be 2 (Â§II.24.1).",
+					"Description": "Major version of table schemata; shall be 2 (§II.24.1).",
 					"Value": "0x2",
 					"Start": 728,
 					"End": 729,
@@ -1764,7 +1764,7 @@
 				},
 				{
 					"Name": "MinorVersion",
-					"Description": "Minor version of table schemata; shall be 0 (Â§II.24.1).",
+					"Description": "Minor version of table schemata; shall be 0 (§II.24.1).",
 					"Value": "0x0",
 					"Start": 729,
 					"End": 730,
@@ -1784,7 +1784,7 @@
 				},
 				{
 					"Name": "Reserved2",
-					"Description": "Reserved, always 1 (Â§II.24.1).",
+					"Description": "Reserved, always 1 (§II.24.1).",
 					"Value": "0x1",
 					"Start": 731,
 					"End": 732,
@@ -2671,7 +2671,7 @@
 			},
 			{
 				"Name": "DateTimeStamp",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 1092,
 				"End": 1096,
@@ -2681,7 +2681,7 @@
 			},
 			{
 				"Name": "ForwarderChain",
-				"Description": "Always 0 (Â§II.24.1).",
+				"Description": "Always 0 (§II.24.1).",
 				"Value": "0x0",
 				"Start": 1096,
 				"End": 1100,
