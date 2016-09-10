@@ -223,6 +223,20 @@ sealed class Event : ICanBeReadInOrder, IHaveValueNode
     public CodeNode Node { get; set; }
 }
 
+// II.22.14
+sealed class ExportedType : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public TypeAttributes Flags;
+    [OrderedField] public uint TypeDefId;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.Implementation Implementation;
+
+    public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
+
+    public CodeNode Node { get; set; }
+}
+
 // II.22.15
 sealed class Field : ICanBeReadInOrder, IHaveValueNode
 {
@@ -1303,7 +1317,7 @@ sealed class TildeStream : ICanRead
     public AssemblyRefProcessor[] AssemblyRefProcessors;
     public AssemblyRefOS[] AssemblyRefOSs;
     public FileTable[] Files;
-    //public ExportedType[] ExportedTypes;
+    public ExportedType[] ExportedTypes;
     public ManifestResource[] ManifestResources;
     public NestedClass[] NestedClasses;
     public GenericParam[] GenericParams;
@@ -1403,7 +1417,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.File:
                 return stream.ReadClasses(ref Files, count);
             case MetadataTableFlags.ExportedType:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref ExportedTypes, count);
+                return stream.ReadClasses(ref ExportedTypes, count);
             case MetadataTableFlags.ManifestResource:
                 return stream.ReadClasses(ref ManifestResources, count);
             case MetadataTableFlags.NestedClass:
@@ -1678,7 +1692,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
                 case Tag.File: return TildeStream.Instance.Files[Index];
-                //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
                 case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
                 case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
                 case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
@@ -1913,9 +1927,9 @@ abstract class CodedIndex : ICanRead
             {
                 case Tag.File: return TildeStream.Instance.Files[Index];
                 case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                    //case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
             }
-            throw new NotImplementedException(tag.ToString());
+            throw new InvalidOperationException(tag.ToString());
         }
 
         enum Tag

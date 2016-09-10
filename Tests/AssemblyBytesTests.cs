@@ -170,6 +170,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void TypeForwarding()
+        {
+            RunCompile(@"Samples\TypeForwarding.cs");
+        }
+
+        [TestMethod]
         public void Unsafe()
         {
             RunCompile(@"Samples\Unsafe.cs", "/unsafe");
