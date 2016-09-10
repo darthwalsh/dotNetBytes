@@ -213,7 +213,8 @@ namespace Tests
             Task.WaitAll(tasks.ToArray());
         }
 
-        // TODO Add test to exercise the various NotImplementedException (might need to have an IlAssemble that invokes ilasm.exe)
+        static string ilasm = Microsoft.Build.Utilities.ToolLocationHelper.GetPathToDotNetFrameworkFile(
+            "ilasm.exe", Microsoft.Build.Utilities.TargetDotNetFrameworkVersion.VersionLatest);
 
         static void RunIL(string path, string args = "")
         {
@@ -223,7 +224,7 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Assembling {outpath}");
 
-                RunProcess("ilasm.exe", $@"""{path}"" /OUTPUT=""{outpath}"" {args}");
+                RunProcess(ilasm, $@"""{path}"" /OUTPUT=""{outpath}"" {args}");
             }
             else
             {
