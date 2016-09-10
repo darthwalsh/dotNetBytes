@@ -1,3 +1,6 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/master?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/master)
+
+
 dotNetBytes
 ===========
 
@@ -14,4 +17,4 @@ Features
 Try It!
 -------
 
-Try it out at http://dotnetbytes.azurewebsites.net/
+Try it out at https://dotnetbytes.azurewebsites.net/
