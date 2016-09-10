@@ -88,6 +88,28 @@ sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
     public CodeNode Node { get; set; }
 }
 
+// II.22.3
+sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public ulong OSPlatformID;
+    [OrderedField] public ulong OSMajorVersion;
+    [OrderedField] public ulong OSMinorVersion;
+
+    public object Value => "";
+
+    public CodeNode Node { get; set; }
+}
+
+// II.22.4
+sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public ulong Processor;
+
+    public object Value => "";
+
+    public CodeNode Node { get; set; }
+}
+
 // II.22.5
 sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 {
@@ -102,6 +124,30 @@ sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
     [OrderedField] public BlobHeapIndex HashValue;
 
     public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+
+    public CodeNode Node { get; set; }
+}
+
+// II.22.6
+sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public ulong OSPlatformID;
+    [OrderedField] public ulong OSMajorVersion;
+    [OrderedField] public ulong OSMinorVersion;
+    [OrderedField] public UnknownCodedIndex AssemblyRef;
+
+    public object Value => "";
+
+    public CodeNode Node { get; set; }
+}
+
+// II.22.7
+sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public ulong Processor;
+    [OrderedField] public UnknownCodedIndex AssemblyRef;
+
+    public object Value => "";
 
     public CodeNode Node { get; set; }
 }
@@ -1240,11 +1286,11 @@ sealed class TildeStream : ICanRead
     public ImplMap[] ImplMaps;
     //public FieldRVA[] FieldRVAs;
     public Assembly[] Assemblies;
-    //public AssemblyProcessor[] AssemblyProcessors;
-    //public AssemblyOS[] AssemblyOSs;
+    public AssemblyProcessor[] AssemblyProcessors;
+    public AssemblyOS[] AssemblyOSs;
     public AssemblyRef[] AssemblyRefs;
-    //public AssemblyRefProcessor[] AssemblyRefProcessors;
-    //public AssemblyRefOS[] AssemblyRefOSs;
+    public AssemblyRefProcessor[] AssemblyRefProcessors;
+    public AssemblyRefOS[] AssemblyRefOSs;
     public FileTable[] Files;
     //public ExportedType[] ExportedTypes;
     public ManifestResource[] ManifestResources;
@@ -1334,15 +1380,15 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.Assembly:
                 return stream.ReadClasses(ref Assemblies, count, nameof(Assemblies));
             case MetadataTableFlags.AssemblyProcessor:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyProcessors, count);
+                return stream.ReadClasses(ref AssemblyProcessors, count);
             case MetadataTableFlags.AssemblyOS:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyOSs, count);
+                return stream.ReadClasses(ref AssemblyOSs, count);
             case MetadataTableFlags.AssemblyRef:
                 return stream.ReadClasses(ref AssemblyRefs, count);
             case MetadataTableFlags.AssemblyRefProcessor:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyRefProcessors, count);
+                return stream.ReadClasses(ref AssemblyRefProcessors, count);
             case MetadataTableFlags.AssemblyRefOS:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref AssemblyRefOSs, count);
+                return stream.ReadClasses(ref AssemblyRefOSs, count);
             case MetadataTableFlags.File:
                 return stream.ReadClasses(ref Files, count);
             case MetadataTableFlags.ExportedType:
