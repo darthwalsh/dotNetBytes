@@ -188,6 +188,12 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Data()
+        {
+            RunIL(@"Samples\Data.il");
+        }
+
+        [TestMethod]
         public void FileTable()
         {
             RunIL(@"Samples\FileTable.il");

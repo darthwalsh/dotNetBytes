@@ -91,9 +91,9 @@ sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
 // II.22.3
 sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ulong OSPlatformID;
-    [OrderedField] public ulong OSMajorVersion;
-    [OrderedField] public ulong OSMinorVersion;
+    [OrderedField] public uint OSPlatformID;
+    [OrderedField] public uint OSMajorVersion;
+    [OrderedField] public uint OSMinorVersion;
 
     public object Value => "";
 
@@ -103,7 +103,7 @@ sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
 // II.22.4
 sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ulong Processor;
+    [OrderedField] public uint Processor;
 
     public object Value => "";
 
@@ -131,9 +131,9 @@ sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 // II.22.6
 sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ulong OSPlatformID;
-    [OrderedField] public ulong OSMajorVersion;
-    [OrderedField] public ulong OSMinorVersion;
+    [OrderedField] public uint OSPlatformID;
+    [OrderedField] public uint OSMajorVersion;
+    [OrderedField] public uint OSMinorVersion;
     [OrderedField] public UnknownCodedIndex AssemblyRef;
 
     public object Value => "";
@@ -144,7 +144,7 @@ sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
 // II.22.7
 sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ulong Processor;
+    [OrderedField] public uint Processor;
     [OrderedField] public UnknownCodedIndex AssemblyRef;
 
     public object Value => "";
@@ -239,7 +239,7 @@ sealed class Field : ICanBeReadInOrder, IHaveValueNode
 sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public uint Offset;
-    [OrderedField] public UnknownCodedIndex Field; // TODO (Signature)
+    [OrderedField] public UnknownCodedIndex Field;
 
     public object Value => "";
 
@@ -251,6 +251,17 @@ sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public CodedIndex.HasFieldMarshall Parent;
     [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature)
+
+    public object Value => "";
+
+    public CodeNode Node { get; set; }
+}
+
+// II.22.18
+sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
+{
+    [OrderedField] public uint RVA;
+    [OrderedField] public UnknownCodedIndex Field;
 
     public object Value => "";
 
@@ -1284,7 +1295,7 @@ sealed class TildeStream : ICanRead
     public ModuleRef[] ModuleRefs;
     public TypeSpec[] TypeSpecs;
     public ImplMap[] ImplMaps;
-    //public FieldRVA[] FieldRVAs;
+    public FieldRVA[] FieldRVAs;
     public Assembly[] Assemblies;
     public AssemblyProcessor[] AssemblyProcessors;
     public AssemblyOS[] AssemblyOSs;
@@ -1376,7 +1387,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.ImplMap:
                 return stream.ReadClasses(ref ImplMaps, count);
             case MetadataTableFlags.FieldRVA:
-                throw new NotImplementedException(flag.ToString()); //return stream.ReadClasses(ref FieldRVAs, count);
+                return stream.ReadClasses(ref FieldRVAs, count);
             case MetadataTableFlags.Assembly:
                 return stream.ReadClasses(ref Assemblies, count, nameof(Assemblies));
             case MetadataTableFlags.AssemblyProcessor:

@@ -107,6 +107,9 @@
     <None Include="Samples\Blank.il">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Samples\Data.il">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Samples\FileTable.il">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
