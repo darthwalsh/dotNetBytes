@@ -1567,7 +1567,6 @@ sealed class UnknownCodedIndex : ICanRead
     }
 }
 
-// TODO ensure all classes are referenced
 abstract class CodedIndex : ICanRead
 {
     private CodedIndex() { } // Don't allow subclassing 
