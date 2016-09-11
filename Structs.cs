@@ -214,7 +214,7 @@ sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
 // II.22.13
 sealed class Event : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ushort Flags; //TODO (Flags) EventAttributes
+    [OrderedField] public EventAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
     [OrderedField] public CodedIndex.TypeDefOrRef EventType;
 
@@ -285,7 +285,7 @@ sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
 // II.22.19
 sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public uint Flags; //TODO (flags)
+    [OrderedField] public FileAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
     [OrderedField] public BlobHeapIndex HashValue;
 
@@ -298,7 +298,7 @@ sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public ushort Number;
-    [OrderedField] public ushort Flags; //TODO (flags) GenericParamAttributes
+    [OrderedField] public GenericParamAttributes Flags;
     [OrderedField] public CodedIndex.TypeOrMethodDef Owner;
     [OrderedField] public StringHeapIndex Name;
 
@@ -321,7 +321,7 @@ sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 // II.22.22
 sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ushort MappingFlags; // TODO (Flags) PInvokeAttributes
+    [OrderedField] public PInvokeAttributes MappingFlags;
     [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
     [OrderedField] public StringHeapIndex ImportName;
     [OrderedField] public UnknownCodedIndex ImportScope;
@@ -346,7 +346,7 @@ sealed class InterfaceImpl : ICanBeReadInOrder, IHaveValueNode
 sealed class ManifestResource : ICanRead, IHaveValueNode
 {
     public uint Offset; //TODO (link)
-    public uint Flags; //TODO (flags)
+    public ManifestResourceAttributes Flags;
     public StringHeapIndex Name;
     public CodedIndex.Implementation Implementation;
 
@@ -618,6 +618,16 @@ enum AssemblyFlags : uint
     EnableJITcompileTracking = 0x8000,
 }
 
+// II.23.1.4
+[Flags]
+enum EventAttributes : ushort
+{
+    [Description("Event is special")]
+    SpecialName = 0x0200,
+    [Description("CLI provides 'special' behavior, depending upon the name of the event")]
+    RTSpecialName = 0x0400,
+}
+
 // II.23.1.5
 class FieldAttributes : ICanRead, IHaveValue
 {
@@ -682,6 +692,131 @@ class FieldAttributes : ICanRead, IHaveValue
         [Description("Field has RVA")]
         HasFieldRVA = 0x0100,
     }
+}
+
+// II.23.1.6
+[Flags]
+enum FileAttributes : uint
+{
+    [Description("This is not a resource file")]
+    ContainsMetaData = 0x0000,
+    [Description("This is a resource file or other non-metadata-containing file")]
+    ContainsNoMetaData = 0x0001,
+}
+
+// II.23.1.7
+class GenericParamAttributes : ICanRead, IHaveValue
+{
+    public Variance variance;
+    public SpecialConstraint specialConstraint;
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort value;
+        var node = stream.ReadStruct(out value);
+
+        variance = (Variance)(value & VarianceMask);
+        specialConstraint = (SpecialConstraint)(value & SpecialConstraintMask);
+
+        return node;
+    }
+
+    public object Value => new Enum[] { variance, specialConstraint };
+
+    const ushort VarianceMask = 0x0003;
+
+    public enum Variance : ushort
+    {
+        [Description("The generic parameter is non-variant and has no special constraints")]
+        None = 0x0000,
+        [Description("The generic parameter is covariant")]
+        Covariant = 0x0001,
+        [Description("The generic parameter is contravariant")]
+        Contravariant = 0x0002,
+    }
+
+    const ushort SpecialConstraintMask = 0x0004;
+
+    public enum SpecialConstraint : ushort
+    {
+        [Description("The generic parameter has the class special constraint")]
+        ReferenceTypeConstraint = 0x0004,
+        [Description("The generic parameter has the valuetype special constraint")]
+        NotNullableValueTypeConstraint = 0x0008,
+        [Description("The generic parameter has the .ctor special constraint")]
+        DefaultConstructorConstraint = 0x0010,
+    }
+}
+
+// II.23.1.8
+class PInvokeAttributes : ICanRead, IHaveValue
+{
+    public CharacterSet characterSet;
+    public CallingConvention callingConvention;
+    public Flags flags;
+
+    public CodeNode Read(Stream stream)
+    {
+        ushort value;
+        var node = stream.ReadStruct(out value);
+
+        characterSet = (CharacterSet)(value & CharacterSetMask);
+        callingConvention = (CallingConvention)(value & CallingConventionMask);
+        flags = (Flags)(value & FlagsMask);
+
+        return node;
+    }
+
+    public object Value => new Enum[] { characterSet, callingConvention, flags };
+
+    const ushort CharacterSetMask = 0x0007;
+
+    public enum CharacterSet : ushort
+    {
+        [Description("")]
+        NotSpec = 0x0000,
+        [Description("")]
+        Ansi = 0x0002,
+        [Description("")]
+        Unicode = 0x0004,
+        [Description("")]
+        Auto = 0x0006,
+    }
+
+    const ushort CallingConventionMask = 0x0100;
+
+    public enum CallingConvention : ushort
+    {
+        [Description("")]
+        PlatformAPI = 0x0100,
+        [Description("")]
+        Cdecl = 0x0200,
+        [Description("")]
+        StdCall = 0x0300,
+        [Description("")]
+        ThisCall = 0x0400,
+        [Description("")]
+        FastCall = 0x0500,
+    }
+
+    const ushort FlagsMask = unchecked((ushort)~CharacterSetMask & ~CallingConventionMask);
+    [Flags]
+    public enum Flags : ushort
+    {
+        [Description("PInvoke is to use the member name as specified")]
+        NoMangle = 0x0001,
+        [Description("Information about target function. Not relevant for fields")]
+        SupportsLastError = 0x0040,
+    }
+}
+
+// II.23.1.9
+enum ManifestResourceAttributes : uint
+{
+    [Description("The Resource is exported from the Assembly")]
+    Public = 0x0001,
+    [Description("The Resource is private to the Assembly")]
+    Private = 0x0002,
 }
 
 // II.23.1.10
@@ -805,7 +940,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
 
     public enum Managed : ushort
     {
-        [Description("Method impl is unmanaged, otherwise managed")]
+        [Description("Method impl is unmanaged")]
         Unmanaged = 0x0004,
         [Description("Method impl is managed")]
         Managed = 0x0000,
