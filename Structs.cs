@@ -191,7 +191,7 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 // II.22.11
 sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ushort Action; // TODO (flags) 
+    [OrderedField] public ushort Action; // Not implemneting these flags as details are lacking in 22.11
     [OrderedField] public CodedIndex.HasDeclSecurity Parent;
     [OrderedField] public BlobHeapIndex PermissionSet; // TODO (parse?) 
 
@@ -3145,8 +3145,8 @@ sealed class LargeMethodHeader : ICanRead
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct SmallExceptionHandlingClause
 {
-    [Description("Flags, see below.")]
-    public ushort Flags; //TODO (flags)
+    [Description("Flags")]
+    public ushort SmallExceptionClauseFlags;
     [Description("Offset in bytes of try block from start of method body.")]
     public ushort TryOffset; //TODO (links)
     [Description("Length in bytes of the try block")]
@@ -3159,11 +3159,24 @@ struct SmallExceptionHandlingClause
     public uint ClassTokenOrFilterOffset; //TODO (links)
 }
 
+[Flags]
+enum SmallExceptionClauseFlags : ushort
+{
+    [Description("A typed exception clause")]
+    Exception = 0x0000,
+    [Description("An exception filter and handler clause")]
+    Filter = 0x0001,
+    [Description("A finally clause")]
+    Finally = 0x0002,
+    [Description("Fault clause (finally that is called on exception only)")]
+    Fault = 0x0004,
+}
+
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct LargeExceptionHandlingClause
 {
-    [Description("Flags, see below.")]
-    public uint Flags; //TODO (flags)
+    [Description("Flags.")]
+    public uint LargeExceptionClauseFlags;
     [Description("Offset in bytes of try block from start of method body.")]
     public uint TryOffset;
     [Description("Length in bytes of the try block")]
@@ -3174,6 +3187,19 @@ struct LargeExceptionHandlingClause
     public uint HandlerLength;
     [Description("Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler")]
     public uint ClassTokenOrFilterOffset;
+}
+
+[Flags]
+enum LargeExceptionClauseFlags : uint
+{
+    [Description("A typed exception clause")]
+    Exception = 0x0000,
+    [Description("An exception filter and handler clause")]
+    Filter = 0x0001,
+    [Description("A finally clause")]
+    Finally = 0x0002,
+    [Description("Fault clause (finally that is called on exception only)")]
+    Fault = 0x0004,
 }
 
 sealed class UInt24 : ICanRead, IHaveValue
