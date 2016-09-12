@@ -191,9 +191,9 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 // II.22.11
 sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public ushort Action; // Not implemneting these flags as details are lacking in 22.11
+    [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
     [OrderedField] public CodedIndex.HasDeclSecurity Parent;
-    [OrderedField] public BlobHeapIndex PermissionSet; // TODO (parse?) 
+    [OrderedField] public BlobHeapIndex PermissionSet; // Not implementing parsing this for now
 
     public object Value => "";
 
