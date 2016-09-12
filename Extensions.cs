@@ -9,6 +9,24 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+sealed class ExpectedAttribute : Attribute
+{
+    public object Value;
+    public ExpectedAttribute(object v)
+    {
+        Value = v;
+    }
+}
+
+sealed class DescriptionAttribute : Attribute
+{
+    public string Description;
+    public DescriptionAttribute(string d)
+    {
+        Description = d;
+    }
+}
+
 interface ICanBeRead
 {
 }
