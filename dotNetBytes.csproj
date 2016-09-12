@@ -31,6 +31,7 @@
     <Compile Include="MetadataTables.cs" />
     <Compile Include="FileFormat.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Signatures.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="view\view.html" />
