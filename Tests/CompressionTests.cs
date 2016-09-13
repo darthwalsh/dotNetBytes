@@ -27,6 +27,24 @@ namespace Tests
             Assert.AreEqual(expected, GetData(hex).DecompressUnsigned(0));
         }
 
+        [TestMethod]
+        public void DecompressSignedTest()
+        {
+            AssertDecompressSigned(3, "06");
+            AssertDecompressSigned(-3, "7B");
+            AssertDecompressSigned(64, "8080");
+            AssertDecompressSigned(-64, "01");
+            AssertDecompressSigned(8192, "C0004000");
+            AssertDecompressSigned(-8192, "8001");
+            AssertDecompressSigned(268435455, "DFFFFFFE");
+            AssertDecompressSigned(-268435456, "C0000001");
+        }
+
+        static void AssertDecompressSigned(int expected, string hex)
+        {
+            Assert.AreEqual(expected, GetData(hex).DecompressSigned(0));
+        }
+
         static byte[] GetData(string hex)
         {
             Assert.AreEqual(0, hex.Length % 2);
