@@ -14,6 +14,7 @@ public class AssemblyBytes
     {
         node = s.ReadClass(ref FileFormat);
 
+        // Widen any nodes to the width of their children
         node.CallBack(n =>
         {
             if (n.Children.Any())
@@ -23,6 +24,7 @@ public class AssemblyBytes
             }
         });
 
+        // Order child nodes by index, expected for Heaps and sections
         node.CallBack(n =>
         {
             n.Children = n.Children.OrderBy(c => c.Start).ToList();
@@ -52,8 +54,7 @@ public class AssemblyBytes
             {
                 if (n.End > length)
                 {
-                    n.AddError($"End was set beyond byte end to {n.End}");
-                    n.End = (int)length;
+                    throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
                 }
             });
         }
