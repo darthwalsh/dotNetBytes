@@ -52,24 +52,15 @@ public enum MetadataTableFlags : ulong
 // II.22.2
 sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public AssemblyHashAlgorithm HashAlgId;
-    [OrderedField]
-    public ushort MajorVersion;
-    [OrderedField]
-    public ushort MinorVersion;
-    [OrderedField]
-    public ushort BuildNumber;
-    [OrderedField]
-    public ushort RevisionNumber;
-    [OrderedField]
-    public AssemblyFlags Flags;
-    [OrderedField]
-    public BlobHeapIndex PublicKey;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public StringHeapIndex Culture;
+    [OrderedField] public AssemblyHashAlgorithm HashAlgId;
+    [OrderedField] public ushort MajorVersion;
+    [OrderedField] public ushort MinorVersion;
+    [OrderedField] public ushort BuildNumber;
+    [OrderedField] public ushort RevisionNumber;
+    [OrderedField] public AssemblyFlags Flags;
+    [OrderedField] public BlobHeapIndex PublicKey;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Culture;
 
     public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 
@@ -79,12 +70,9 @@ sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
 // II.22.3
 sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint OSPlatformID;
-    [OrderedField]
-    public uint OSMajorVersion;
-    [OrderedField]
-    public uint OSMinorVersion;
+    [OrderedField] public uint OSPlatformID;
+    [OrderedField] public uint OSMajorVersion;
+    [OrderedField] public uint OSMinorVersion;
 
     public object Value => "";
 
@@ -94,8 +82,7 @@ sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
 // II.22.4
 sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint Processor;
+    [OrderedField] public uint Processor;
 
     public object Value => "";
 
@@ -105,24 +92,15 @@ sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
 // II.22.5
 sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ushort MajorVersion;
-    [OrderedField]
-    public ushort MinorVersion;
-    [OrderedField]
-    public ushort BuildNumber;
-    [OrderedField]
-    public ushort RevisionNumber;
-    [OrderedField]
-    public AssemblyFlags Flags;
-    [OrderedField]
-    public BlobHeapIndex PublicKeyOrToken;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public StringHeapIndex Culture;
-    [OrderedField]
-    public BlobHeapIndex HashValue;
+    [OrderedField] public ushort MajorVersion;
+    [OrderedField] public ushort MinorVersion;
+    [OrderedField] public ushort BuildNumber;
+    [OrderedField] public ushort RevisionNumber;
+    [OrderedField] public AssemblyFlags Flags;
+    [OrderedField] public BlobHeapIndex PublicKeyOrToken;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Culture;
+    [OrderedField] public BlobHeapIndex HashValue;
 
     public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 
@@ -132,14 +110,10 @@ sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 // II.22.6
 sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint OSPlatformID;
-    [OrderedField]
-    public uint OSMajorVersion;
-    [OrderedField]
-    public uint OSMinorVersion;
-    [OrderedField]
-    public UnknownCodedIndex AssemblyRef;
+    [OrderedField] public uint OSPlatformID;
+    [OrderedField] public uint OSMajorVersion;
+    [OrderedField] public uint OSMinorVersion;
+    [OrderedField] public UnknownCodedIndex AssemblyRef;
 
     public object Value => "";
 
@@ -149,10 +123,8 @@ sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
 // II.22.7
 sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint Processor;
-    [OrderedField]
-    public UnknownCodedIndex AssemblyRef;
+    [OrderedField] public uint Processor;
+    [OrderedField] public UnknownCodedIndex AssemblyRef;
 
     public object Value => "";
 
@@ -162,12 +134,9 @@ sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
 // II.22.8
 sealed class ClassLayout : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ushort PackingSize;
-    [OrderedField]
-    public uint ClassSize;
-    [OrderedField]
-    public UnknownCodedIndex Parent;
+    [OrderedField] public ushort PackingSize;
+    [OrderedField] public uint ClassSize;
+    [OrderedField] public UnknownCodedIndex Parent;
 
     public object Value => "";
 
@@ -177,12 +146,9 @@ sealed class ClassLayout : ICanBeReadInOrder, IHaveValueNode
 // II.22.9
 sealed class Constant : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Type;
-    [OrderedField]
-    public CodedIndex.HasConstant Parent;
-    [OrderedField]
-    public BlobHeapIndex Value;
+    [OrderedField] public UnknownCodedIndex Type;
+    [OrderedField] public CodedIndex.HasConstant Parent;
+    [OrderedField] public BlobHeapIndex Value;
 
     object IHaveValue.Value => "";
 
@@ -192,12 +158,9 @@ sealed class Constant : ICanBeReadInOrder, IHaveValueNode
 // II.22.10
 sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public CodedIndex.HasCustomAttribute Parent;
-    [OrderedField]
-    public CodedIndex.CustomAttributeType Type;
-    [OrderedField]
-    public BlobHeapIndex Value;
+    [OrderedField] public CodedIndex.HasCustomAttribute Parent;
+    [OrderedField] public CodedIndex.CustomAttributeType Type;
+    [OrderedField] public BlobHeapIndex Value;
 
     object IHaveValue.Value => "";
 
@@ -207,12 +170,9 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 // II.22.11
 sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ushort Action; // Not implementing these flags as details are lacking in 22.11
-    [OrderedField]
-    public CodedIndex.HasDeclSecurity Parent;
-    [OrderedField]
-    public BlobHeapIndex PermissionSet; // Not implementing parsing this for now
+    [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
+    [OrderedField] public CodedIndex.HasDeclSecurity Parent;
+    [OrderedField] public BlobHeapIndex PermissionSet; // Not implementing parsing this for now
 
     public object Value => "";
 
@@ -222,10 +182,8 @@ sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 // II.22.12
 sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Parent;
-    [OrderedField]
-    public UnknownCodedIndex EventList;
+    [OrderedField] public UnknownCodedIndex Parent;
+    [OrderedField] public UnknownCodedIndex EventList;
 
     public object Value => "";
 
@@ -235,12 +193,9 @@ sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
 // II.22.13
 sealed class Event : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public EventAttributes Flags;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public CodedIndex.TypeDefOrRef EventType;
+    [OrderedField] public EventAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public CodedIndex.TypeDefOrRef EventType;
 
     public object Value => Name.Value;
 
@@ -250,16 +205,11 @@ sealed class Event : ICanBeReadInOrder, IHaveValueNode
 // II.22.14
 sealed class ExportedType : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public TypeAttributes Flags;
-    [OrderedField]
-    public uint TypeDefId;
-    [OrderedField]
-    public StringHeapIndex TypeName;
-    [OrderedField]
-    public StringHeapIndex TypeNamespace;
-    [OrderedField]
-    public CodedIndex.Implementation Implementation;
+    [OrderedField] public TypeAttributes Flags;
+    [OrderedField] public uint TypeDefId;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.Implementation Implementation;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
@@ -269,12 +219,9 @@ sealed class ExportedType : ICanBeReadInOrder, IHaveValueNode
 // II.22.15
 sealed class Field : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public FieldAttributes Flags;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public BlobHeapIndex Signature;
+    [OrderedField] public FieldAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
 
@@ -284,10 +231,8 @@ sealed class Field : ICanBeReadInOrder, IHaveValueNode
 // II.22.16
 sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint Offset;
-    [OrderedField]
-    public UnknownCodedIndex Field;
+    [OrderedField] public uint Offset;
+    [OrderedField] public UnknownCodedIndex Field;
 
     public object Value => "";
 
@@ -297,10 +242,8 @@ sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 // II.22.17
 sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public CodedIndex.HasFieldMarshall Parent;
-    [OrderedField]
-    public BlobHeapIndex NativeType; // TODO (Signature)
+    [OrderedField] public CodedIndex.HasFieldMarshall Parent;
+    [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature)
 
     public object Value => "";
 
@@ -310,10 +253,8 @@ sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 // II.22.18
 sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public uint RVA;
-    [OrderedField]
-    public UnknownCodedIndex Field;
+    [OrderedField] public uint RVA;
+    [OrderedField] public UnknownCodedIndex Field;
 
     public object Value => "";
 
@@ -323,12 +264,9 @@ sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
 // II.22.19
 sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public FileAttributes Flags;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public BlobHeapIndex HashValue;
+    [OrderedField] public FileAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex HashValue;
 
     public object Value => Name.Value;
 
@@ -338,14 +276,10 @@ sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 // II.22.20
 sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ushort Number;
-    [OrderedField]
-    public GenericParamAttributes Flags;
-    [OrderedField]
-    public CodedIndex.TypeOrMethodDef Owner;
-    [OrderedField]
-    public StringHeapIndex Name;
+    [OrderedField] public ushort Number;
+    [OrderedField] public GenericParamAttributes Flags;
+    [OrderedField] public CodedIndex.TypeOrMethodDef Owner;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
@@ -355,10 +289,8 @@ sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 // II.22.21
 sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Owner;
-    [OrderedField]
-    public CodedIndex.TypeDefOrRef Constraint;
+    [OrderedField] public UnknownCodedIndex Owner;
+    [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
 
     public object Value => "";
 
@@ -368,14 +300,10 @@ sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 // II.22.22
 sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public PInvokeAttributes MappingFlags;
-    [OrderedField]
-    public CodedIndex.MemberForwarded MemberForwarded;
-    [OrderedField]
-    public StringHeapIndex ImportName;
-    [OrderedField]
-    public UnknownCodedIndex ImportScope;
+    [OrderedField] public PInvokeAttributes MappingFlags;
+    [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
+    [OrderedField] public StringHeapIndex ImportName;
+    [OrderedField] public UnknownCodedIndex ImportScope;
 
     public object Value => "";
 
@@ -385,10 +313,8 @@ sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
 // II.22.23
 sealed class InterfaceImpl : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Class;
-    [OrderedField]
-    public CodedIndex.TypeDefOrRef Interface;
+    [OrderedField] public UnknownCodedIndex Class;
+    [OrderedField] public CodedIndex.TypeDefOrRef Interface;
 
     public object Value => "";
 
@@ -452,12 +378,9 @@ sealed class ResourceEntry : ICanRead, IHaveAName
 // II.22.25
 sealed class MemberRef : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public CodedIndex.MemberRefParent Class;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public BlobHeapIndex Signature;
+    [OrderedField] public CodedIndex.MemberRefParent Class;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
 
@@ -471,7 +394,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
     public MethodImplAttributes ImplFlags;
     public MethodAttributes Flags;
     public StringHeapIndex Name;
-    public BlobHeapIndex Signature; //TODO(Signature) parse these, ditto below
+    public BlobHeapIndex Signature; //TODO(MethodDefSig)
     public UnknownCodedIndex ParamList;
 
     public object Value => Name.Value;
@@ -503,12 +426,9 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 // II.22.27
 sealed class MethodImpl : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Class;
-    [OrderedField]
-    public CodedIndex.MethodDefOrRef MethodBody;
-    [OrderedField]
-    public CodedIndex.MethodDefOrRef MethodDeclaration;
+    [OrderedField] public UnknownCodedIndex Class;
+    [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
+    [OrderedField] public CodedIndex.MethodDefOrRef MethodDeclaration;
 
     public object Value => "";
 
@@ -518,12 +438,9 @@ sealed class MethodImpl : ICanBeReadInOrder, IHaveValueNode
 // II.22.28
 sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public MethodSemanticsAttributes Semantics;
-    [OrderedField]
-    public UnknownCodedIndex Method;
-    [OrderedField]
-    public CodedIndex.HasSemantics Association;
+    [OrderedField] public MethodSemanticsAttributes Semantics;
+    [OrderedField] public UnknownCodedIndex Method;
+    [OrderedField] public CodedIndex.HasSemantics Association;
 
     public object Value => "";
 
@@ -533,10 +450,8 @@ sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
 // II.22.29
 sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public CodedIndex.MethodDefOrRef Method;
-    [OrderedField]
-    public BlobHeapIndex Instantiation;
+    [OrderedField] public CodedIndex.MethodDefOrRef Method;
+    [OrderedField] public BlobHeapIndex Instantiation;
 
     public object Value => "";
 
@@ -546,16 +461,11 @@ sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
 // II.22.30
 sealed class Module : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ushort Generation;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public GuidHeapIndex Mvid;
-    [OrderedField]
-    public GuidHeapIndex EncId;
-    [OrderedField]
-    public GuidHeapIndex EncBaseId;
+    [OrderedField] public ushort Generation;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public GuidHeapIndex Mvid;
+    [OrderedField] public GuidHeapIndex EncId;
+    [OrderedField] public GuidHeapIndex EncBaseId;
 
     public object Value => Name.Value;
 
@@ -565,8 +475,7 @@ sealed class Module : ICanBeReadInOrder, IHaveValueNode
 // II.22.31
 sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public StringHeapIndex Name;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
@@ -576,10 +485,8 @@ sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
 // II.22.32
 sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex _NestedClass;
-    [OrderedField]
-    public UnknownCodedIndex EnclosingClass;
+    [OrderedField] public UnknownCodedIndex _NestedClass;
+    [OrderedField] public UnknownCodedIndex EnclosingClass;
 
     public object Value => "";
 
@@ -589,12 +496,9 @@ sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
 // II.22.33
 sealed class Param : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public ParamAttributes Flags;
-    [OrderedField]
-    public ushort Sequence;
-    [OrderedField]
-    public StringHeapIndex Name;
+    [OrderedField] public ParamAttributes Flags;
+    [OrderedField] public ushort Sequence;
+    [OrderedField] public StringHeapIndex Name;
 
     public object Value => Name.Value;
 
@@ -604,12 +508,9 @@ sealed class Param : ICanBeReadInOrder, IHaveValueNode
 // II.22.34
 sealed class Property : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public PropertyAttributes Flags;
-    [OrderedField]
-    public StringHeapIndex Name;
-    [OrderedField]
-    public BlobHeapIndex Signature;
+    [OrderedField] public PropertyAttributes Flags;
+    [OrderedField] public StringHeapIndex Name;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => Name.Value;
     public CodeNode Node { get; set; }
@@ -618,10 +519,8 @@ sealed class Property : ICanBeReadInOrder, IHaveValueNode
 // II.22.35
 sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public UnknownCodedIndex Parent;
-    [OrderedField]
-    public UnknownCodedIndex PropertyList;
+    [OrderedField] public UnknownCodedIndex Parent;
+    [OrderedField] public UnknownCodedIndex PropertyList;
 
     public object Value => "";
 
@@ -631,8 +530,7 @@ sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
 // II.22.36
 sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => "";
 
@@ -642,18 +540,12 @@ sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
 // II.22.37
 sealed class TypeDef : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public TypeAttributes Flags;
-    [OrderedField]
-    public StringHeapIndex TypeName;
-    [OrderedField]
-    public StringHeapIndex TypeNamespace;
-    [OrderedField]
-    public CodedIndex.TypeDefOrRef Extends;
-    [OrderedField]
-    public UnknownCodedIndex FieldList;
-    [OrderedField]
-    public UnknownCodedIndex MethodList;
+    [OrderedField] public TypeAttributes Flags;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.TypeDefOrRef Extends;
+    [OrderedField] public UnknownCodedIndex FieldList;
+    [OrderedField] public UnknownCodedIndex MethodList;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
@@ -663,12 +555,9 @@ sealed class TypeDef : ICanBeReadInOrder, IHaveValueNode
 // II.22.38
 sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public CodedIndex.ResolutionScope ResolutionScope;
-    [OrderedField]
-    public StringHeapIndex TypeName;
-    [OrderedField]
-    public StringHeapIndex TypeNamespace;
+    [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
+    [OrderedField] public StringHeapIndex TypeName;
+    [OrderedField] public StringHeapIndex TypeNamespace;
 
     public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
 
@@ -678,8 +567,7 @@ sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
 // II.22.39
 sealed class TypeSpec : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField]
-    public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature;
 
     public object Value => "";
     public CodeNode Node { get; set; }
