@@ -27,6 +27,7 @@ sealed class DescriptionAttribute : Attribute
     }
 }
 
+// Should implement either ICanRead or ICanBeReadInOrder
 interface ICanBeRead
 {
 }
@@ -36,6 +37,7 @@ interface ICanRead : ICanBeRead
     CodeNode Read(Stream stream);
 }
 
+// Implement this to allow reflection with [OrderedField] 
 interface ICanBeReadInOrder : ICanBeRead
 {
     CodeNode Node { get; set; }
@@ -216,11 +218,14 @@ static class StreamExtensions
         CodeNode node = null;
 
         ICanRead iCanRead = t as ICanRead;
+        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
         if (iCanRead != null)
         {
+            if (iCanBeReadInOrder != null)
+                throw new InvalidOperationException();
+
             node = iCanRead.Read(stream);
         }
-        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
         if (iCanBeReadInOrder != null)
         {
             node = iCanBeReadInOrder.Read(stream);

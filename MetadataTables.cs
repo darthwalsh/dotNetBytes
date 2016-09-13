@@ -160,7 +160,7 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public CodedIndex.HasCustomAttribute Parent;
     [OrderedField] public CodedIndex.CustomAttributeType Type;
-    [OrderedField] public BlobHeapIndex Value;
+    [OrderedField] public BlobHeapIndex Value; // TODO II.23.3 Custom attributes 
 
     object IHaveValue.Value => "";
 
@@ -221,7 +221,7 @@ sealed class Field : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public FieldAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
-    [OrderedField] public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature; //TODO(FieldSig)
 
     public object Value => Name.Value;
 
@@ -243,7 +243,7 @@ sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-    [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature)
+    [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature) II.23.4 Marshalling descriptors
 
     public object Value => "";
 
@@ -380,7 +380,7 @@ sealed class MemberRef : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public CodedIndex.MemberRefParent Class;
     [OrderedField] public StringHeapIndex Name;
-    [OrderedField] public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature; //TODO(MethodRefSig)
 
     public object Value => Name.Value;
 
@@ -451,7 +451,7 @@ sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
 sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public CodedIndex.MethodDefOrRef Method;
-    [OrderedField] public BlobHeapIndex Instantiation;
+    [OrderedField] public BlobHeapIndex Instantiation; //TODO(MethodSpec Sig)
 
     public object Value => "";
 
@@ -510,7 +510,7 @@ sealed class Property : ICanBeReadInOrder, IHaveValueNode
 {
     [OrderedField] public PropertyAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
-    [OrderedField] public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature; //TODO(PropertySig)
 
     public object Value => Name.Value;
     public CodeNode Node { get; set; }
@@ -530,7 +530,7 @@ sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
 // II.22.36
 sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature; //TODO(StandAloneSig)
 
     public object Value => "";
 
@@ -567,7 +567,7 @@ sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
 // II.22.39
 sealed class TypeSpec : ICanBeReadInOrder, IHaveValueNode
 {
-    [OrderedField] public BlobHeapIndex Signature;
+    [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig)
 
     public object Value => "";
     public CodeNode Node { get; set; }

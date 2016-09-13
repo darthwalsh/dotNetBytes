@@ -205,6 +205,9 @@ namespace Tests
             RunIL(@"Samples\FileTable.il");
         }
 
+        //TODO create test case that exercises all IL features, check code coverage, then test how code blows up on any byte edit
+
+        //TODO delete after removing all static?
         [TestMethod]
         public void Race()
         {

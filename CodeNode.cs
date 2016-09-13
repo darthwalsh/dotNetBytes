@@ -32,6 +32,7 @@ public class CodeNode : IEnumerable<string>
     string path;
     public CodeNode Link { set { link = value; } }
 
+    // TODO refactor these to be extra Action in some outer event loop?
     Func<IHaveValueNode> delayed;
     internal Func<IHaveValueNode> DelayedValueNode { set { delayed = value; } }
     public void UseDelayedValueNode()
