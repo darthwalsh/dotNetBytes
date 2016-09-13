@@ -533,6 +533,90 @@ class TypeAttributes : ICanRead, IHaveValue
     }
 }
 
+// II.23.1.16
+[Flags]
+enum ElementType : byte
+{
+    [Description("Marks end of a list")]
+    End = 0x00,
+    [Description("")]
+    Void = 0x01,
+    [Description("")]
+    Boolean = 0x02,
+    [Description("")]
+    Char = 0x03,
+    [Description("")]
+    Int1 = 0x04,
+    [Description("")]
+    UInt1 = 0x05,
+    [Description("")]
+    Int2 = 0x06,
+    [Description("")]
+    UInt2 = 0x07,
+    [Description("")]
+    Int4 = 0x08,
+    [Description("")]
+    UInt4 = 0x09,
+    [Description("")]
+    Int8 = 0x0a,
+    [Description("")]
+    UInt8 = 0x0b,
+    [Description("")]
+    Real4 = 0x0c,
+    [Description("")]
+    Real8 = 0x0d,
+    [Description("")]
+    String = 0x0e,
+    [Description("Followed by type")]
+    Ptr = 0x0f,
+    [Description("Followed by type")]
+    Byref = 0x10,
+    [Description("Followed by TypeDef or TypeRef token")]
+    Valuetype = 0x11,
+    [Description("Followed by TypeDef or TypeRef token")]
+    Class = 0x12,
+    [Description("Generic parameter in a generic type definition, represented as number (compressed unsigned integer)")]
+    Var = 0x13,
+    [Description("type rank boundsCount bound1 ... loCount lo1 ...")]
+    Array = 0x14,
+    [Description("Generic type instantiation. Followed by type type-arg-count type-1 ... type-n")]
+    Genericinst = 0x15,
+    [Description("")]
+    Typedbyref = 0x16,
+    [Description("System.IntPtr")]
+    IntPtr = 0x18,
+    [Description("System.UIntPtr")]
+    UIntPtr = 0x19,
+    [Description("Followed by full method signature")]
+    Fnptr = 0x1b,
+    [Description("System.Object")]
+    Object = 0x1c,
+    [Description("Single-dim array with 0 lower bound")]
+    Szarray = 0x1d,
+    [Description("Generic parameter in a generic method definition, represented as number (compressed unsigned integer)")]
+    Mvar = 0x1e,
+    [Description("Required modifier : followed by a TypeDef or TypeRef token")]
+    Cmod_reqd = 0x1f,
+    [Description("Optional modifier : followed by a TypeDef or TypeRef token")]
+    Cmod_opt = 0x20,
+    [Description("Implemented within the CLI")]
+    Internal = 0x21,
+    [Description("Or'd with following element types")]
+    Modifier = 0x40,
+    [Description("Sentinel for vararg method signature")]
+    Sentinel = 0x41,
+    [Description("Denotes a local variable that points at a pinned object")]
+    Pinned = 0x45,
+    [Description("Indicates an argument of type System.Type.")]
+    Unknown1 = 0x50,
+    [Description("Used in custom attributes to specify a boxed object (§II.23.3).")]
+    Unknown2 = 0x51,
+    [Description("Reserved")]
+    Unknown3 = 0x52,
+    [Description("Used in custom attributes to indicate a FIELD (§II.22.10, II.23.3).")]
+    Unknown4 = 0x53,
+}
+
 // II.24.2.1
 sealed class MetadataRoot : ICanRead
 {
@@ -654,7 +738,7 @@ abstract class Heap<T> : ICanRead, IHaveAName
         return childpair;
     }
 
-    // Children shouldn't overlap, but that can happen inside these binary heaps
+    // TODO Binary heaps members are allowed to overlap to save space, allow for this in javascript
     void AdjustChildRanges(int index, CodeNode child)
     {
         int chI = children.IndexOfKey(index);

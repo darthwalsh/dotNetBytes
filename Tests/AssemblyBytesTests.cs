@@ -265,8 +265,12 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Using existing {outpath}");
             }
-
+/*
+            Program.Run(outpath);
+            Assert.Fail("Oops comment me out");
+/*/
             Run(File.OpenRead(outpath));
+//*/
         }
 
         static void RunProcess(string filename, string processArgs)

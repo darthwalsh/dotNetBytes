@@ -120,6 +120,7 @@ static class StreamExtensions
         };
     }
 
+    // TODO wrap the input Stream
     public static byte ReallyReadByte(this Stream stream)
     {
         int read = stream.ReadByte();

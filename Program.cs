@@ -2,10 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Nancy.Hosting.Self;
 
-static class Program
+public static class Program
 {
     static void Main(string[] args)
     {
@@ -13,28 +12,34 @@ static class Program
         {
             string path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
 
-            AssemblyBytes assm;
-            using (var fileStream = File.OpenRead(path))
-            {
-                assm = new AssemblyBytes(fileStream); 
-            }
-
-            Console.WriteLine(assm.Node.ToString());
-
-            var assmJson = assm.Node.ToJson();
-
-            string local = SetupFiles(path, assmJson);
-
-            using (NancyHost host = new NancyHost( new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
-            {
-                host.Start();
-
-                RunBrowserAndWebServer();
-            }
+            Run(path);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
+        }
+    }
+
+    public static void Run(string path)
+    {
+        AssemblyBytes assm;
+        using (var fileStream = File.OpenRead(path))
+        {
+            assm = new AssemblyBytes(fileStream);
+        }
+
+        Console.WriteLine(assm.Node.ToString());
+
+        var assmJson = assm.Node.ToJson();
+
+        string local = SetupFiles(path, assmJson);
+
+        GC.KeepAlive(ForceNancyDllToBeCopied);
+        using (NancyHost host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
+        {
+            host.Start();
+
+            RunBrowserAndWebServer();
         }
     }
 
@@ -96,4 +101,6 @@ static class Program
             p.WaitForExit();
         }
     }
+
+    static Nancy.NancyModule ForceNancyDllToBeCopied = null;
 }

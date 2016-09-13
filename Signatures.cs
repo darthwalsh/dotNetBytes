@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using static ElementType;
 
 // II.23.2 Blobs and signatures
 
@@ -75,6 +77,34 @@ public static class CompressionExtensions
                 throw new InvalidOperationException("Not expecting null string!");
             default:
                 throw new InvalidOperationException();
+        }
+    }
+}
+
+//II.23.2.14
+sealed class TypeSpecSignature : ICanRead
+{
+    object Value => ""; //TODO needed?
+
+    public CodeNode Node { get; set; }
+
+    public CodeNode Read(Stream stream)
+    {
+        ElementType b = (ElementType)stream.ReadByte();
+        switch(b)
+        {
+            case Ptr:
+                throw new NotImplementedException("Ptr");
+            case Fnptr:
+                throw new NotImplementedException("Fnptr");
+            case ElementType.Array:
+                throw new NotImplementedException("Array");
+            case Szarray:
+                throw new NotImplementedException("Szarray");
+            case Genericinst:
+                throw new NotImplementedException("Genericinst");
+            default:
+                throw new InvalidOperationException(b.ToString());
         }
     }
 }
