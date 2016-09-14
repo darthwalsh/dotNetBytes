@@ -361,7 +361,7 @@ sealed class ResourceEntry : ICanRead, IHaveAName
     public uint Length;
     public byte[] Data;
 
-    [ThreadStatic] //TODO (ThreadStatic) instead use local instances?
+    [ThreadStatic]
     static int count;
     public string Name { get; } = $"{nameof(ResourceEntry)}[{count++}]";
 
