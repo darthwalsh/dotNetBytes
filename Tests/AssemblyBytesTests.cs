@@ -205,6 +205,12 @@ namespace Tests
             RunIL(@"Samples\FileTable.il");
         }
 
+        //TODO create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
+        //if the exe blows up (also under mono?) does it error in dotNetBytes?
+
+        //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
+
+        //TODO delete after removing all static fields?
         [TestMethod]
         public void Race()
         {
@@ -262,8 +268,12 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Using existing {outpath}");
             }
-
+/*
+            Program.Run(outpath);
+            Assert.Fail("Oops comment me out");
+/*/
             Run(File.OpenRead(outpath));
+//*/
         }
 
         static void RunProcess(string filename, string processArgs)

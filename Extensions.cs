@@ -9,6 +9,25 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+sealed class ExpectedAttribute : Attribute
+{
+    public object Value;
+    public ExpectedAttribute(object v)
+    {
+        Value = v;
+    }
+}
+
+sealed class DescriptionAttribute : Attribute
+{
+    public string Description;
+    public DescriptionAttribute(string d)
+    {
+        Description = d;
+    }
+}
+
+// Should implement either ICanRead or ICanBeReadInOrder
 interface ICanBeRead
 {
 }
@@ -18,6 +37,7 @@ interface ICanRead : ICanBeRead
     CodeNode Read(Stream stream);
 }
 
+// Implement this to allow reflection with [OrderedField] 
 interface ICanBeReadInOrder : ICanBeRead
 {
     CodeNode Node { get; set; }
@@ -100,6 +120,7 @@ static class StreamExtensions
         };
     }
 
+    // TODO wrap the input Stream
     public static byte ReallyReadByte(this Stream stream)
     {
         int read = stream.ReadByte();
@@ -198,11 +219,14 @@ static class StreamExtensions
         CodeNode node = null;
 
         ICanRead iCanRead = t as ICanRead;
+        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
         if (iCanRead != null)
         {
+            if (iCanBeReadInOrder != null)
+                throw new InvalidOperationException();
+
             node = iCanRead.Read(stream);
         }
-        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
         if (iCanBeReadInOrder != null)
         {
             node = iCanBeReadInOrder.Read(stream);

@@ -465,8 +465,20 @@ window.onload = function() {
 };
 
 //TODO visualize all link, link targets
-//TODO smart colors
+//TODO translate non-visible ASCII to a visible unicode range (test file with 00-FF?)
+//TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
+//TODO resize ToC dynamically (PERF can load ToC lazily?)
+//TODO PERF on click only update cells that need to change?
+//TODO layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
+//TODO magnifying glass in search boxes, X to close, should filter colored bytes, should set URL
 //TODO keyboarding through ToC
+//TODO search also looks through name/details (optional check box?)
+//TODO method signatures
+//TODO method ops and stack state visualization before op and links between branches, e.g.
+//  load 10 | 
+//  load 2.0| I4
+//  add     | I4 R8
+//  ret     | R8
 //TODO favorites "shortcut" pinning
 //TODO details pinning + clearing

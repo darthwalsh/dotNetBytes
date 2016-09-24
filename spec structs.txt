@@ -279,6 +279,44 @@ HasDefault 0x8000 Field has default
 HasFieldRVA 0x0100 Field has RVA
 
 
+EventAttributes
+SpecialName 0x0200 Event is special
+RTSpecialName 0x0400 CLI provides 'special' behavior, depending upon the name of the event
+
+
+FileAttributes
+ContainsMetaData 0x0000 This is not a resource file
+ContainsNoMetaData 0x0001 This is a resource file or other non-metadata-containing file
+
+
+GenericParamAttributes
+None 0x0000 The generic parameter is non-variant and has no special constraints
+Covariant 0x0001 The generic parameter is covariant
+Contravariant 0x0002 The generic parameter is contravariant
+ReferenceTypeConstraint 0x0004 The generic parameter has the class special constraint
+NotNullableValueTypeConstraint 0x0008 The generic parameter has the valuetype special constraint
+DefaultConstructorConstraint 0x0010 The generic parameter has the .ctor special constraint
+
+
+PInvokeAttributes
+NoMangle 0x0001 PInvoke is to use the member name as specified
+SupportsLastError 0x0040 Information about target function. Not relevant for fields
+NotSpec 0x0000
+Ansi 0x0002
+Unicode 0x0004
+Auto 0x0006
+Platformapi 0x0100
+Cdecl 0x0200
+Stdcall 0x0300
+Thiscall 0x0400
+Fastcall 0x0500
+
+ 
+ManifestResourceAttributes
+Public 0x0001 The Resource is exported from the Assembly
+Private 0x0002 The Resource is private to the Assembly
+
+
 ParamAttributes
 In 0x0001 Param is [In]
 Out 0x0002 Param is [out]
@@ -374,3 +412,50 @@ LargeExceptionHandlingClause
 12 4 HandlerOffset Location of the handler for this try block
 16 4 HandlerLength Size of the handler code in bytes
 20 4 ClassTokenOrFilterOffset Meta data token for a type-based exception handler OR offset in method body for filter-based exception handler
+
+LargeExceptionClauseFlags
+Exception 0x0000 A typed exception clause
+Filter 0x0001 An exception filter and handler clause
+Finally 0x0002 A finally clause
+Fault 0x0004 Fault clause (finally that is called on exception only)
+
+ElementType
+End 0x00 Marks end of a list
+Void 0x01
+Boolean 0x02
+Char 0x03
+Int1 0x04
+UInt1 0x05
+Int2 0x06
+UInt2 0x07
+Int4 0x08
+UInt4 0x09
+Int8 0x0a
+UInt8 0x0b
+Real4 0x0c
+Real8 0x0d
+String 0x0e
+Ptr 0x0f Followed by type
+Byref 0x10 Followed by type
+Valuetype 0x11 Followed by TypeDef or TypeRef token
+Class 0x12 Followed by TypeDef or TypeRef token
+Var 0x13 Generic parameter in a generic type definition, represented as number (compressed unsigned integer)
+Array 0x14 type rank boundsCount bound1 … loCount lo1 …
+Genericinst 0x15 Generic type instantiation. Followed by type type-arg-count type-1 ... type-n
+Typedbyref 0x16
+IntPtr 0x18 System.IntPtr
+UIntPtr 0x19 System.UIntPtr
+Fnptr 0x1b Followed by full method signature
+Object 0x1c System.Object
+Szarray 0x1d Single-dim array with 0 lower bound
+Mvar 0x1e Generic parameter in a generic method definition, represented as number (compressed unsigned integer)
+Cmod_reqd 0x1f Required modifier : followed by a TypeDef or TypeRef token
+Cmod_opt 0x20 Optional modifier : followed by a TypeDef or TypeRef token
+Internal 0x21 Implemented within the CLI
+Modifier 0x40 Or’d with following element types
+Sentinel 0x41 Sentinel for vararg method signature
+Pinned 0x45 Denotes a local variable that points at a pinned object
+Unknown1 0x50 Indicates an argument of type System.Type.
+Unknown2 0x51 Used in custom attributes to specify a boxed object (§II.23.3).
+Unknown3 0x52 Reserved
+Unknown4 0x53 Used in custom attributes to indicate a FIELD (§II.22.10, II.23.3).

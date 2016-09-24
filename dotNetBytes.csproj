@@ -27,8 +27,11 @@
     <Compile Include="AssemblyBytes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="CodeNode.cs" />
-    <Compile Include="Structs.cs" />
+    <Compile Include="MetadataStructs.cs" />
+    <Compile Include="MetadataTables.cs" />
+    <Compile Include="FileFormat.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Signatures.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="view\view.html" />
