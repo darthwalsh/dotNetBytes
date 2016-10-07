@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 function $(id) { return document.getElementById(id); }
 function create(tag, attr) { 
@@ -409,6 +409,23 @@ function ToHex(code, width) {
   return s;
 }
 
+var font = ".αβγδεζηθικλμξπφ" +
+"χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
+" !\"#$%&'()*+,-./" +
+"0123456789:;<=>?" +
+"@ABCDEFGHIJKLMNO" +
+"PQRSTUVWXYZ[\\]^_" +
+"`abcdefghijklmno" +
+"pqrstuvwxyz{|}~₪" +
+"◦ƒ‽“”♂‡–ˆ‰Š‹Œ♫Ž¬" +
+"฿₱₩‘’♀†₸∫™š›œ♪žß" +
+"€¡¢£¤¥¦§◊©ª«✶₹⸗Ⅎ" +
+"±°¹²³´…¶≠®º»☼ⱷꜘ¿" +
+"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ" +
+"àáâãäåæçèéêëìíîï" +
+"ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞŸ" +
+"ðñòóôõö÷øùúûüýþÿ";
+
 window.onload = function() {
   var div = $("bytes");
   var width = 16;
@@ -437,7 +454,7 @@ window.onload = function() {
       div.appendChild(create("code", { innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;" }));
       
       for (i = j; i - j < width; i++) {
-        var lit = String.fromCharCode(arr[i]).replace(/[\x00-\x1F\x7F-\x9F]/g, ".");
+        var lit = font[arr[i]];
         div.appendChild(create("code", { textContent: lit, id: litID(i)}));
       }
       
@@ -465,7 +482,6 @@ window.onload = function() {
 };
 
 //TODO visualize all link, link targets
-//TODO translate non-visible ASCII to a visible unicode range (test file with 00-FF?)
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
 //TODO resize ToC dynamically (PERF can load ToC lazily?)
