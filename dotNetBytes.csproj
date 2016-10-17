@@ -32,6 +32,7 @@
     <Compile Include="FileFormat.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Signatures.cs" />
+    <Compile Include="Singletons.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="view\view.html" />

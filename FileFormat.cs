@@ -14,7 +14,7 @@ sealed class FileFormat : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        Method.MethodsByRVA.Clear();
+        Singletons.Reset();
 
         CodeNode node = new CodeNode
         {
@@ -510,24 +510,28 @@ sealed class Section : ICanRead
                         switch (streamHeader.Name)
                         {
                             case "#Strings":
-                                StringHeap StringHeap = new StringHeap((int)streamHeader.Size);
-                                node.Add(stream.ReadClass(ref StringHeap));
+                                StringHeap stringHeap = new StringHeap((int)streamHeader.Size);
+                                Singletons.Instance.StringHeap = stringHeap;
+                                node.Add(stream.ReadClass(ref stringHeap));
                                 break;
                             case "#US":
-                                UserStringHeap UserStringHeap = new UserStringHeap((int)streamHeader.Size);
-                                node.Add(stream.ReadClass(ref UserStringHeap));
+                                UserStringHeap userStringHeap = new UserStringHeap((int)streamHeader.Size);
+                                Singletons.Instance.UserStringHeap = userStringHeap;
+                                node.Add(stream.ReadClass(ref userStringHeap));
                                 break;
                             case "#Blob":
-                                BlobHeap BlobHeap = new BlobHeap((int)streamHeader.Size);
-                                node.Add(stream.ReadClass(ref BlobHeap));
+                                BlobHeap blobHeap = new BlobHeap((int)streamHeader.Size);
+                                Singletons.Instance.BlobHeap = blobHeap;
+                                node.Add(stream.ReadClass(ref blobHeap));
                                 break;
                             case "#GUID":
-                                GuidHeap GuidHeap = new GuidHeap((int)streamHeader.Size);
-                                node.Add(stream.ReadClass(ref GuidHeap));
+                                GuidHeap guidHeap = new GuidHeap((int)streamHeader.Size);
+                                Singletons.Instance.GuidHeap = guidHeap;
+                                node.Add(stream.ReadClass(ref guidHeap));
                                 break;
                             case "#~":
                                 TildeStream TildeStream = new TildeStream(this);
-                                TildeStream.Instance = TildeStream;
+                                Singletons.Instance.TildeStream = TildeStream;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 
                                 CodeNode methods = new CodeNode
@@ -545,7 +549,7 @@ sealed class Section : ICanRead
 
                                     Method method = null;
                                     methods.Add(stream.ReadClass(ref method));
-                                    Method.MethodsByRVA.Add(rva, method);
+                                    Singletons.Instance.MethodsByRVA.Add(rva, method);
                                 }
 
                                 if (methods.Children.Any())
@@ -779,9 +783,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
     public MethodDataSection[] DataSections;
     public byte[] CilOps;
 
-    [ThreadStatic]
-    static int count;
-    public string Name { get; } = $"{nameof(Method)}[{count++}]";
+    public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
     public object Value => ""; //TODO clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
 
@@ -842,20 +844,6 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
         }
 
         return Node;
-    }
-
-    [ThreadStatic]
-    static Dictionary<uint, Method> methodsByRVA;
-    public static Dictionary<uint, Method> MethodsByRVA
-    {
-        get
-        {
-            if (methodsByRVA == null)
-            {
-                methodsByRVA = new Dictionary<uint, Method>();
-            }
-            return methodsByRVA;
-        }
     }
 }
 

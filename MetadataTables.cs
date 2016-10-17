@@ -343,7 +343,7 @@ sealed class ManifestResource : ICanRead, IHaveValueNode
             stream.ReadClass(ref Implementation, nameof(Implementation)),
         };
 
-        Section section = TildeStream.Instance.Section;
+        Section section = Singletons.Instance.TildeStream.Section;
         section.ReadNode(strm =>
         {
             section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
@@ -361,9 +361,7 @@ sealed class ResourceEntry : ICanRead, IHaveAName
     public uint Length;
     public byte[] Data;
 
-    [ThreadStatic]
-    static int count;
-    public string Name { get; } = $"{nameof(ResourceEntry)}[{count++}]";
+    public string Name { get; } = $"{nameof(ResourceEntry)}[{Singletons.Instance.ResourceEntryCount++}]";
 
     public CodeNode Read(Stream stream)
     {
@@ -417,7 +415,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 
         rva.DelayedValueNode = () => new DefaultValueNode(
             rva.Value,
-            RVA > 0 ? Method.MethodsByRVA[RVA].Node : null);
+            RVA > 0 ? Singletons.Instance.MethodsByRVA[RVA].Node : null);
 
         return Node;
     }

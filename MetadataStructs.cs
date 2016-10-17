@@ -769,23 +769,20 @@ sealed class StringHeap : Heap<string>
     public StringHeap(int size)
         : base(size)
     {
-        instance = this;
     }
 
     protected override CodeNode ReadChild(Stream stream, int index, out string s)
     {
         return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
     }
-
-    [ThreadStatic]
-    static StringHeap instance;
+    
     public static string Get(StringHeapIndex i)
     {
-        return instance.AddChild(i).Item1;
+        return Singletons.Instance.StringHeap.AddChild(i).Item1;
     }
     public static CodeNode GetNode(StringHeapIndex i)
     {
-        return instance.AddChild(i).Item2;
+        return Singletons.Instance.StringHeap.AddChild(i).Item2;
     }
 }
 
@@ -795,7 +792,6 @@ sealed class UserStringHeap : Heap<string>
     public UserStringHeap(int size)
         : base(size)
     {
-        instance = this;
     }
 
     protected override CodeNode ReadChild(Stream stream, int index, out string s)
@@ -803,15 +799,13 @@ sealed class UserStringHeap : Heap<string>
         throw new NotImplementedException("UserStringHeap");
     }
 
-    [ThreadStatic]
-    static UserStringHeap instance;
     public static string Get(UserStringHeapIndex i)
     {
-        return instance.AddChild(i).Item1;
+        return Singletons.Instance.UserStringHeap.AddChild(i).Item1;
     }
     public static CodeNode GetNode(UserStringHeapIndex i)
     {
-        return instance.AddChild(i).Item2;
+        return Singletons.Instance.UserStringHeap.AddChild(i).Item2;
     }
 }
 
@@ -820,7 +814,6 @@ sealed class BlobHeap : Heap<byte[]>
     public BlobHeap(int size)
         : base(size)
     {
-        instance = this;
     }
 
     protected override CodeNode ReadChild(Stream stream, int index, out byte[] b)
@@ -858,15 +851,13 @@ sealed class BlobHeap : Heap<byte[]>
         return node;
     }
 
-    [ThreadStatic]
-    static BlobHeap instance;
     public static byte[] Get(BlobHeapIndex i)
     {
-        return instance.AddChild(i).Item1;
+        return Singletons.Instance.BlobHeap.AddChild(i).Item1;
     }
     public static CodeNode GetNode(BlobHeapIndex i)
     {
-        return instance.AddChild(i).Item2;
+        return Singletons.Instance.BlobHeap.AddChild(i).Item2;
     }
 }
 
@@ -876,7 +867,6 @@ sealed class GuidHeap : Heap<Guid>
     public GuidHeap(int size)
         : base(size)
     {
-        instance = this;
     }
 
     protected override CodeNode ReadChild(Stream stream, int index, out Guid g)
@@ -894,15 +884,13 @@ sealed class GuidHeap : Heap<Guid>
         return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
     }
 
-    [ThreadStatic]
-    static GuidHeap instance;
     public static Guid Get(GuidHeapIndex i)
     {
-        return instance.AddChild(i).Item1;
+        return Singletons.Instance.GuidHeap.AddChild(i).Item1;
     }
     public static CodeNode GetNode(GuidHeapIndex i)
     {
-        return instance.AddChild(i).Item2;
+        return Singletons.Instance.GuidHeap.AddChild(i).Item2;
     }
 }
 
@@ -1065,9 +1053,6 @@ sealed class TildeStream : ICanRead
                 throw new InvalidOperationException("Not a real MetadataTableFlags " + flag);
         }
     }
-
-    [ThreadStatic]
-    public static TildeStream Instance;
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -1249,9 +1234,9 @@ abstract class CodedIndex : ICanRead
 
             switch (tag)
             {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+                case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
+                case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
+                case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1278,9 +1263,9 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.Field: return TildeStream.Instance.Fields[Index];
-                case Tag.Param: return TildeStream.Instance.Params[Index];
-                case Tag.Property: return TildeStream.Instance.Properties[Index];
+                case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
+                case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
+                case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1307,28 +1292,28 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.Field: return TildeStream.Instance.Fields[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.Param: return TildeStream.Instance.Params[Index];
-                case Tag.InterfaceImpl: return TildeStream.Instance.InterfaceImpls[Index];
-                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
-                case Tag.Module: return TildeStream.Instance.Modules[Index];
-                //case Tag.Permission: return TildeStream.Instance.Permissions[Index]; // TODO DeclSecuritys?
-                case Tag.Property: return TildeStream.Instance.Properties[Index];
-                case Tag.Event: return TildeStream.Instance.Events[Index];
-                case Tag.StandAloneSig: return TildeStream.Instance.StandAloneSigs[Index];
-                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
-                case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
-                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                case Tag.File: return TildeStream.Instance.Files[Index];
-                case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
-                case Tag.ManifestResource: return TildeStream.Instance.ManifestResources[Index];
-                case Tag.GenericParam: return TildeStream.Instance.GenericParams[Index];
-                case Tag.GenericParamConstraint: return TildeStream.Instance.GenericParamConstraints[Index];
-                case Tag.MethodSpec: return TildeStream.Instance.MethodSpecs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+                case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
+                case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
+                case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
+                case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
+                case Tag.InterfaceImpl: return Singletons.Instance.TildeStream.InterfaceImpls[Index];
+                case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
+                case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
+                //case Tag.Permission: return Singletons.Instance.TildeStream.Permissions[Index]; // TODO DeclSecuritys?
+                case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
+                case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
+                case Tag.StandAloneSig: return Singletons.Instance.TildeStream.StandAloneSigs[Index];
+                case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
+                case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
+                case Tag.Assembly: return Singletons.Instance.TildeStream.Assemblies[Index];
+                case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
+                case Tag.File: return Singletons.Instance.TildeStream.Files[Index];
+                case Tag.ExportedType: return Singletons.Instance.TildeStream.ExportedTypes[Index];
+                case Tag.ManifestResource: return Singletons.Instance.TildeStream.ManifestResources[Index];
+                case Tag.GenericParam: return Singletons.Instance.TildeStream.GenericParams[Index];
+                case Tag.GenericParamConstraint: return Singletons.Instance.TildeStream.GenericParamConstraints[Index];
+                case Tag.MethodSpec: return Singletons.Instance.TildeStream.MethodSpecs[Index];
             }
             throw new NotImplementedException(tag.ToString());
         }
@@ -1374,8 +1359,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.Field: return TildeStream.Instance.Fields[Index];
-                case Tag.Param: return TildeStream.Instance.Params[Index];
+                case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
+                case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1401,9 +1386,9 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.Assembly: return TildeStream.Instance.Assemblies[Index];
+                case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+                case Tag.Assembly: return Singletons.Instance.TildeStream.Assemblies[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1430,11 +1415,11 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
-                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.TypeSpec: return TildeStream.Instance.TypeSpecs[Index];
+                case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
+                case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
+                case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+                case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1463,8 +1448,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.Event: return TildeStream.Instance.Events[Index];
-                case Tag.Property: return TildeStream.Instance.Properties[Index];
+                case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
+                case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1490,8 +1475,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+                case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1517,8 +1502,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.Field: return TildeStream.Instance.Fields[Index];
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1557,9 +1542,9 @@ abstract class CodedIndex : ICanRead
 
             switch (tag)
             {
-                case Tag.File: return TildeStream.Instance.Files[Index];
-                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                case Tag.ExportedType: return TildeStream.Instance.ExportedTypes[Index];
+                case Tag.File: return Singletons.Instance.TildeStream.Files[Index];
+                case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
+                case Tag.ExportedType: return Singletons.Instance.TildeStream.ExportedTypes[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1586,8 +1571,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
-                case Tag.MemberRef: return TildeStream.Instance.MemberRefs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+                case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1613,10 +1598,10 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.Module: return TildeStream.Instance.Modules[Index];
-                case Tag.ModuleRef: return TildeStream.Instance.ModuleRefs[Index];
-                case Tag.AssemblyRef: return TildeStream.Instance.AssemblyRefs[Index];
-                case Tag.TypeRef: return TildeStream.Instance.TypeRefs[Index];
+                case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
+                case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
+                case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
+                case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
@@ -1644,8 +1629,8 @@ abstract class CodedIndex : ICanRead
         {
             switch (tag)
             {
-                case Tag.TypeDef: return TildeStream.Instance.TypeDefs[Index];
-                case Tag.MethodDef: return TildeStream.Instance.MethodDefs[Index];
+                case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
+                case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
             }
             throw new InvalidOperationException(tag.ToString());
         }
