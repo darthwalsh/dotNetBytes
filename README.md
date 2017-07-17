@@ -18,3 +18,29 @@ Try It!
 -------
 
 Try it out at https://dotnetbytes.azurewebsites.net/
+
+Contributing
+============
+
+There's two main parts to the app, a C# backend and a JavaScript frontend.
+
+There are three projects:
+ - dotNetBytes has the dissasembly library, a simple command line host, as well as the website in the `view` folder.
+ - WebHost is a simple ASP.NET server, which hosts the dissasembly library.
+ - Test is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
+
+When coding on the frontend, I normally run [http-server](https://www.npmjs.com/package/http-server) in the `view` folder, then use browser devtools.
+
+The interface is the frontend POSTS the assembly, and the backend returns recursive JSON description of the entire assenbly, in this format:
+
+	{
+        "Name": "SomeUniqueName"
+	  , "Description": "Notes about this node based on the language spec"
+	  , "Value": "A ToString() view of the node"
+	  , "Start": StartingByteIndex
+	  , "End": EndingByteIndex
+	  , "LinkPath": Path/To/Another/Node
+	  , "Errors": ["Any problems in the bytes that violate the language spec"]
+	  , "Children": [ { $DescriptionsOfTheInnerNodes }, ... ]
+    }
+
