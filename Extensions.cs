@@ -32,6 +32,7 @@ interface ICanBeRead
 {
 }
 
+//TODO(cleanup) split into multiple passes, parsing first, getting CodeNode later once everything is parsed
 interface ICanRead : ICanBeRead
 {
     CodeNode Read(Stream stream);
@@ -92,7 +93,7 @@ static class StreamExtensions
         }
     }
 
-    public static Func<Stream, byte[]> ReadByteArray(int length) // TODO probably want to implememt something better than byte[]
+    public static Func<Stream, byte[]> ReadByteArray(int length) // TODO probably remove all these and use more strongly typed methods
     {
         return stream =>
         {
@@ -120,7 +121,7 @@ static class StreamExtensions
         };
     }
 
-    // TODO wrap the input Stream
+    // TODO(cleanup) just wrap the input Stream?
     public static byte ReallyReadByte(this Stream stream)
     {
         int read = stream.ReadByte();

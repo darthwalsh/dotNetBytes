@@ -32,9 +32,9 @@ public class CodeNode : IEnumerable<string>
     string path;
     public CodeNode Link { set { link = value; } }
 
-    // TODO refactor these to be extra Action in some outer event loop?
+    // TODO(cleanup) refactor these to either be async (run after main parse) or have multiple stages of reading
     Func<IHaveValueNode> delayed;
-    internal Func<IHaveValueNode> DelayedValueNode { set { delayed = value; } }
+    internal Func<IHaveValueNode> DelayedValueNode { set { delayed = value; } } //TODO(cleanup) remove this hack
     public void UseDelayedValueNode()
     {
         if (delayed != null)
