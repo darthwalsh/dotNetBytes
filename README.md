@@ -36,7 +36,7 @@ The interface is the frontend POSTS the assembly, and the backend returns recurs
 	{
         "Name": "SomeUniqueName"
 	  , "Description": "Notes about this node based on the language spec"
-	  , "Value": "A ToString() view of the node"
+	  , "Value": "A ToString() view of the node\n Can Be multiple lines"
 	  , "Start": StartingByteIndex
 	  , "End": EndingByteIndex
 	  , "LinkPath": Path/To/Another/Node
