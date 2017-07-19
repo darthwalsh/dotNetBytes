@@ -205,8 +205,10 @@ namespace Tests
             RunIL(@"Samples\FileTable.il");
         }
 
-        //TODO create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
-        //if the exe blows up (also under mono?) does it error in dotNetBytes?
+        //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
+        //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
+        //TOOD Also test with mono
+        //TODO Also test with dotnetcore
 
         //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
 

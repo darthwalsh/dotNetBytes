@@ -409,6 +409,7 @@ function ToHex(code, width) {
   return s;
 }
 
+// Like ASCII, but with other nice-width glyphs instead of unprintable characters
 var font = ".αβγδεζηθικλμξπφ" +
 "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
 " !\"#$%&'()*+,-./" +
@@ -481,11 +482,15 @@ window.onload = function() {
   });
 };
 
+//TODO(HACK) Add a "new" button for uploading files directly from this page
+//TODO(HACK) Watch the file so in Chrome we can dynamically load updates
+
 //TODO visualize all link, link targets
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
 //TODO resize ToC dynamically (PERF can load ToC lazily?)
 //TODO PERF on click only update cells that need to change?
+//TODO PERF use one big click handler instead of thousands of little ones
 //TODO layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
 //TODO magnifying glass in search boxes, X to close, should filter colored bytes, should set URL
 //TODO keyboarding through ToC

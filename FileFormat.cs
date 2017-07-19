@@ -670,6 +670,7 @@ struct ImportAddressHintNameTable
     public char[] Message;
 }
 
+//It woul be nice to parse all x86 or other kind of assemblies like ARM or JAR, but that's probably out-of-scope
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct NativeEntryPoint
 {
@@ -781,7 +782,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
     public byte Header; // TODO enum
     public FatFormat FatFormat;
     public MethodDataSection[] DataSections;
-    public byte[] CilOps;
+    public byte[] CilOps; //TODO(HACK) parse the op codes, detect if any jumps are invalid, and link the jumps and method calls
 
     public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
