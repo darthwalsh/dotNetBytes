@@ -22,6 +22,14 @@ Try it out at https://dotnetbytes.azurewebsites.net/
 Contributing
 ============
 
+There are many ways to help out!
+- You can try out the app at the website or try cloning it yourself.
+- You can file issues for any problems or questions you run into.
+- You can file issues with any suggetions or features requests you have.
+- You can submit pull requests for any issues or to add testing.
+
+### Software design
+
 There's two main parts to the app, a C# backend and a JavaScript frontend.
 
 There are three projects:
