@@ -10,9 +10,15 @@ There are many good .NET dissassemblers out there, and there are many good visua
 
 Features
 --------
-- See a structured view of the PE file header, CLI metadata, and of course the bytecode.
-- Understand little endian numbers, bit flags, and string blobs though the detai view on the right.
-- Errors are listed in the details.
+- See a structured view of the PE file header, CLI metadata, and the bytecode
+  - look in the Table of Contents on the left
+- See the raw hex codes and ASCII view of the bytes
+  - bytes are colored based on grouping and ToC selection
+- Understand little endian numbers, bit flags, and string blobs
+  - look though the detail view on the right
+- Errors are listed in red details
+- Relative and absolute addresses are hyperlinked
+  - look for the cursor to change
 
 Try It!
 -------
@@ -32,14 +38,18 @@ There are many ways to help out!
 
 There's two main parts to the app, a C# backend and a JavaScript frontend.
 
-There are three projects:
- - dotNetBytes has the dissasembly library, a simple command line host, as well as the website in the `view` folder.
- - WebHost is a simple ASP.NET server, which hosts the dissasembly library.
+There are four major parts:
+ - dotNetBytes has the dissasembly library, and a command line host
+ - dotNetBytes/view is the web frontend
+ - WebHost is a ASP.NET server, hosting the dissasembly library.
  - Test is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
 
-When coding on the frontend, I normally run [http-server](https://www.npmjs.com/package/http-server) in the `view` folder, then use browser devtools.
+When coding on the frontend, I normally:
+ - run [http-server](https://www.npmjs.com/package/http-server) in the `view` folder
+ - open http://127.0.0.1:8080?Example
+ - use Chrome devtools to debug HTML, and VS Code / devtools for coding or debugging JS
 
-The interface is the frontend POSTS the assembly, and the backend returns recursive JSON description of the entire assenbly, in this format:
+The interface is the frontend POSTS the assembly, and the backend returns recursive JSON description of the entire assenbly, in this recursive format:
 
 	{
         "Name": "SomeUniqueName"

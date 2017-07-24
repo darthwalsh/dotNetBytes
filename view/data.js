@@ -1,4 +1,6 @@
-﻿"use strict";
+"use strict";
+
+var global;
 
 function $(id) { return document.getElementById(id); }
 function create(tag, attr) { 
@@ -12,6 +14,55 @@ function create(tag, attr) {
   
   return el; 
 }
+
+
+/**
+ * Callback with file data
+ *
+ * @callback fileCallback
+ * @param {File} f
+ * @param {ArrayBuffer} arr
+ */
+
+/**
+ * @param {HTMLInputElement} el 
+ * @param {number} pollMS 
+ * @param {fileCallback} callback 
+ */
+function listenFileChange(el, pollMS, callback) {
+  var time = document.createElement("span");
+  time.innerText = "...";
+  el.parentNode.insertBefore(time, el.nextSibling);
+
+  el.addEventListener('change', evt => fileChange(evt, pollMS, f => {
+    if (!f) {
+      return;
+    }
+    time.innerText = f.lastModifiedDate.toLocaleString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    
+    var fileReader = new FileReader();
+    fileReader.onload = function() {
+      callback(f, new Uint8Array(this.result));
+    };
+    fileReader.readAsArrayBuffer(f);
+  }));
+}
+
+function fileChange(evt, pollMS, callback) {
+  var files = evt.target.files; /** @type {FileList} */
+  var f = files[0]; /** @type {File} */
+    
+  callback(f);
+  var lastModified = f.lastModifiedDate; /** @type {Date} */
+
+  setInterval(() => {
+    if (f.lastModifiedDate.getTime() !== lastModified.getTime()) {
+      lastModified = f.lastModifiedDate;
+      callback(f);
+    }
+  }, pollMS);
+}
+
 
 // http://stackoverflow.com/a/8023734/771768
 // 0 <= h, s, v <= 1
@@ -44,8 +95,7 @@ function getDimColor(n) {
   return HSVtoRGB(n / 12, 0.3, 1);
 }
 
-//TODO(HACK) move to const?
-var hexEncodeArray = [
+const hexEncodeArray = [
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 ];
@@ -55,38 +105,21 @@ function assertThrow(message) {
   alert(message);
   throw message;
 }
-        
-function readBytes(file, callback)
-{
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", file);
-  oReq.responseType = "arraybuffer";
-  
-  oReq.onload = function() {
-    if (this.status === 200 && oReq.response) {
-      callback(new Uint8Array(oReq.response));
-    } else {
-      assertThrow("Couldn't find " + file);
-    }
-  };
-  
-  oReq.send();
-}
 
-function readJson(file, callback)
+function parseFile(file, callback)
 {
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", file);
-  
-  oReq.onload = function() {
-    if (this.status === 200 && oReq.responseText) {
-      callback(JSON.parse(oReq.responseText));
+  var req = new XMLHttpRequest();
+  req.open("POST", "parse", true);
+  req.setRequestHeader("Content-type", "application/x-msdownload");
+  req.onload = function() {
+    if (this.status === 200 && req.responseText) {
+      callback(JSON.parse(req.responseText));
     } else {
       assertThrow("Couldn't find " + file);
     }
   };
   
-  oReq.send();
+  req.send(file);
 }
 
 function byteID(i) {
@@ -132,17 +165,17 @@ function Search() {
   var text = $("tocSearch").value.toLowerCase();
     
   // Hide all the ToC
-  for (var i = 0; i < allTocUL.length; ++i) {
-    allTocUL[i].style.display = "none";
+  for (var i = 0; i < global.allTocUL.length; ++i) {
+    global.allTocUL[i].style.display = "none";
   }
-  for (i = 0; i < allTocLI.length; ++i) {
-    allTocLI[i].style.display = "none";
+  for (i = 0; i < global.allTocLI.length; ++i) {
+    global.allTocLI[i].style.display = "none";
   }
   
   // Unhide all the ToC up the parents
   var tocDiv = $("toc");
-  for (i = 0; i < allTocLI.length; ++i) {
-    var li = allTocLI[i];
+  for (i = 0; i < global.allTocLI.length; ++i) {
+    var li = global.allTocLI[i];
     if (li.textContent.toLowerCase().indexOf(text) === -1)
       continue;
     
@@ -166,12 +199,12 @@ function setFocusObject(o) {
 
 function setFocus(o) {
   // Hide all lists in the ToC
-  for (var i = 0; i < allTocUL.length; ++i) {
-    allTocUL[i].style.display = "none";
+  for (var i = 0; i < global.allTocUL.length; ++i) {
+    global.allTocUL[i].style.display = "none";
   }
   // Unhid all the text elements
-  for (i = 0; i < allTocLI.length; ++i) {
-    allTocLI[i].style.display = "";
+  for (i = 0; i < global.allTocLI.length; ++i) {
+    global.allTocLI[i].style.display = "";
   }
   
   // Unhide all the ToC up the parents
@@ -190,8 +223,8 @@ function setFocus(o) {
   }
   
   // Underline the current li
-  for (i = 0; i < allTocLI.length; ++i) {
-    allTocLI[i].style.textDecoration = "";
+  for (i = 0; i < global.allTocLI.length; ++i) {
+    global.allTocLI[i].style.textDecoration = "";
   }
   toc.style.textDecoration = "underline";
   
@@ -313,15 +346,12 @@ function addParent(json) {
   }
 }
 
-//TODO(HACK) move to singleton?
-var pathIndex = {};
-
 function indexPaths(json, prefix) {
   if (prefix) prefix += "/";
   prefix = prefix || "";
   prefix += json.Name;
   
-  pathIndex[prefix] = json;
+  global.pathIndex[prefix] = json;
   json.NodePath = prefix;
   
   for (var i = 0; i < json.Children.length; ++i) {
@@ -331,7 +361,7 @@ function indexPaths(json, prefix) {
 
 function findLinkReferences(json) {
   if (json.LinkPath) {
-    var linked = pathIndex[json.LinkPath];
+    var linked = global.pathIndex[json.LinkPath];
     if (!linked)
       assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
     
@@ -353,14 +383,10 @@ function drawToc(json) {
   $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
-//TODO(HACK) move to singleton
-var allTocUL = [];
-var allTocLI = [];
-
 function drawTocHelper(o, parentUL) {
   var li = create("li", { textContent: o.Name, onclick: makeOnClick(o) });
   
-  allTocLI.push(li);
+  global.allTocLI.push(li);
   
   o.tocDom = li;
   
@@ -370,7 +396,7 @@ function drawTocHelper(o, parentUL) {
   
   if (ch.length) {
     var ul = create("ul");
-    allTocUL.push(ul);
+    global.allTocUL.push(ul);
     for (var i = 0; i < ch.length; ++i) {
       drawTocHelper(ch[i], ul);
     }
@@ -413,8 +439,7 @@ function ToHex(code, width) {
 }
 
 // Like ASCII, but with other nice-width glyphs instead of unprintable characters
-//TODO(HACK) move to const?
-var font = ".αβγδεζηθικλμξπφ" +
+const font = ".αβγδεζηθικλμξπφ" +
 "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
 " !\"#$%&'()*+,-./" +
 "0123456789:;<=>?" +
@@ -431,12 +456,35 @@ var font = ".αβγδεζηθικλμξπφ" +
 "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞŸ" +
 "ðñòóôõö÷øùúûüýþÿ";
 
+function removeChildren(id) {
+  var el = $(id);
+  while (el.firstChild) 
+    el.removeChild(el.firstChild);
+}
+
+function removeErrorDetails() {
+  var details = $("details");
+  while (details.firstElementChild.nextElementSibling) 
+    details.removeChild(details.firstElementChild.nextElementSibling);
+}
+
 window.onload = function() {
   var div = $("bytes");
   var width = 16;
   
-  readBytes("Program.dat", function(arr) {
-    var rowLabelWidth = ToHex(arr.byteLength - 1).length;
+  listenFileChange($("fileInput"), 2000, (file, arr) => {
+    global = {
+      pathIndex: {}, // maps path url to node
+      allTocUL: [], // all Table of Contents Unordered List DOM elements
+      allTocLI: [] // all Table of Contents List Item DOM elements
+    };
+    removeChildren("tocSearch");
+    removeChildren("toc");
+    removeChildren("bytes");
+    removeChildren("focusDetail");
+    removeErrorDetails();
+
+    var rowLabelWidth = ToHex(file.size - 1).length;
     
     div.appendChild(create("code", { textContent: Array(rowLabelWidth + 1).join("-") + "    " }));
   
@@ -446,7 +494,7 @@ window.onload = function() {
     
     div.appendChild(create("br"));
     
-    for (var j = 0; j < arr.byteLength; j += width) {
+    for (var j = 0; j < file.size; j += width) {
       div.appendChild(create("code", { textContent: ToHex(j, rowLabelWidth) + "    " }));
       
       for (i = j; i - j < width; i++) {
@@ -466,7 +514,7 @@ window.onload = function() {
       div.appendChild(create("br"));
     }
     
-    readJson("bytes.json", function(json) {
+    parseFile(file, function(json) {
       addParent(json);
       indexPaths(json);
       findLinkReferences(json);
@@ -485,9 +533,6 @@ window.onload = function() {
     });
   });
 };
-
-//TODO(HACK) Add a "new" button for uploading files directly from this page
-//TODO(HACK) Watch the file so in Chrome we can dynamically load updates
 
 //TODO visualize all link, link targets
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)

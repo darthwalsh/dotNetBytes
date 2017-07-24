@@ -18,36 +18,24 @@ namespace WebHost
             public byte[] File;
         }
 
-        static Dictionary<Guid, Parsed> bytesJson = new Dictionary<Guid, Parsed>();
-
         static Lazy<Parsed> Example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
 
         public HomePage()
         {
-            Get["/"] = _ => Response.AsFile("bin/Content/index.html");
+            Get["/"] = _ => Response.AsFile("bin/Content/view.html");
             Get["/favicon.ico"] = _ => Response.AsFile("bin/Content/favicon.ico");
 
-            Get["/{id}/Program.dat"] = _ => LookupParsed(_, ".exe", (Func<Parsed, byte[]>)(r => r.File));
-            Get["/{id}/bytes.json"] = _ => LookupParsed(_, ".json", (Func<Parsed, byte[]>)(r => r.Json));
+            Get["/{file}"] = _ => Response.AsFile($"bin/Content/{_.file}");
 
-            Get["/{id}/{file}"] = _ => Response.AsFile($"bin/Content/{_.file}");
-
-            Post["/submit.html", true] = async (_, cancel) =>
+            Post["/parse", runAsync: true] = async (_, cancel) =>
             {
-                var guid = Guid.NewGuid();
+                var parsed = await ParseAsync(base.Request.Body, cancel);
 
-                var file = base.Request.Files.FirstOrDefault();
-                if (file == null)
-                    return new TextResponse(HttpStatusCode.BadRequest, "no file");
-
-                var parsed = await ParseAsync(file.Value, cancel);
-
-                lock (bytesJson)
+                return new Response
                 {
-                    bytesJson[guid] = parsed;
-                }
-
-                return Response.AsRedirect($"/{guid.ToString("N")}/view.html");
+                    ContentType = MimeTypes.GetMimeType(".json"),
+                    Contents = s => s.Write(parsed.Json, 0, parsed.Json.Length),
+                };
             };
         }
 
@@ -72,37 +60,6 @@ namespace WebHost
                     Json = Encoding.UTF8.GetBytes(assm.Node.ToJson())
                 };
             }
-        }
-
-        static dynamic LookupParsed(dynamic _, string filePath, Func<Parsed, byte[]> func)
-        {
-            string id = _.id;
-
-            Parsed parsed;
-            if (id == "example")
-            {
-                parsed = Example.Value;
-            }
-            else
-            {
-                Guid guid;
-                if (!Guid.TryParse(id, out guid))
-                    return new TextResponse(HttpStatusCode.BadRequest, "Bad Guid");
-
-                lock (bytesJson)
-                {
-                    bytesJson.TryGetValue(guid, out parsed);
-                } 
-            }
-
-            if (parsed == null)
-                return new TextResponse(HttpStatusCode.NotFound, "Try uploading your file again, sorry");
-
-            return new Response
-            {
-                ContentType = MimeTypes.GetMimeType(filePath),
-                Contents = s => s.Write(func(parsed), 0, func(parsed).Length),
-            };
         }
     }
 }

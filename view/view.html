@@ -5,11 +5,12 @@
     <title>dotNetBytes</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="style.css">
-    <script src="data.js"></script>
+    <script src="data.js" async></script>
   </head>
   <body>
-    <div id="tocWrapper">
-      <input id="tocSearch">
+    <div id="leftPanel">
+      <input type="file" id="fileInput" /> <br /> <br />
+      <input id="tocSearch" placeholder="search">
       <div id="toc"></div>
     </div>
     <div id="bytes"></div>
