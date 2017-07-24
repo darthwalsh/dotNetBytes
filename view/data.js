@@ -44,6 +44,7 @@ function getDimColor(n) {
   return HSVtoRGB(n / 12, 0.3, 1);
 }
 
+//TODO(HACK) move to const?
 var hexEncodeArray = [
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -312,6 +313,7 @@ function addParent(json) {
   }
 }
 
+//TODO(HACK) move to singleton?
 var pathIndex = {};
 
 function indexPaths(json, prefix) {
@@ -351,6 +353,7 @@ function drawToc(json) {
   $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
+//TODO(HACK) move to singleton
 var allTocUL = [];
 var allTocLI = [];
 
@@ -410,6 +413,7 @@ function ToHex(code, width) {
 }
 
 // Like ASCII, but with other nice-width glyphs instead of unprintable characters
+//TODO(HACK) move to const?
 var font = ".αβγδεζηθικλμξπφ" +
 "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
 " !\"#$%&'()*+,-./" +
