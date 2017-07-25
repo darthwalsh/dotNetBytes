@@ -254,6 +254,7 @@ namespace Tests
             Run(File.OpenRead(outpath));
         }
 
+        // TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
             var allArgs = $"{optimize} {noconfig} {args}";
@@ -264,6 +265,7 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Compiling {outpath}");
 
+                //If this throws, make sure you have the VS build tools on your path (start VS from dev command line)
                 RunProcess("csc.exe", $@"""{path}"" /out:""{outpath}"" {allArgs}");
             }
             else

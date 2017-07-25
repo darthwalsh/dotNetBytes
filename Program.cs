@@ -83,7 +83,7 @@ public static class Program
 
     static void RunBrowserAndWebServer()
     {
-        string url = "http://127.0.0.1:8000/Content/view.html";
+        string url = "http://127.0.0.1:8000/Content/view.html?Example=true";
         string timeout = "20";
 
         Console.WriteLine();

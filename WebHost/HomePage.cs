@@ -23,7 +23,18 @@ namespace WebHost
         public HomePage()
         {
             Get["/"] = _ => Response.AsFile("bin/Content/view.html");
-            Get["/favicon.ico"] = _ => Response.AsFile("bin/Content/favicon.ico");
+
+            // Example data
+            Get["/Program.dat"] = _ => new Response
+            {
+                ContentType = MimeTypes.GetMimeType(".exe"),
+                Contents = s => s.Write(Example.Value.File),
+            };
+            Get["/bytes.json"] = _ => new Response
+            {
+                ContentType = MimeTypes.GetMimeType(".json"),
+                Contents = s => s.Write(Example.Value.Json),
+            };
 
             Get["/{file}"] = _ => Response.AsFile($"bin/Content/{_.file}");
 
@@ -34,7 +45,7 @@ namespace WebHost
                 return new Response
                 {
                     ContentType = MimeTypes.GetMimeType(".json"),
-                    Contents = s => s.Write(parsed.Json, 0, parsed.Json.Length),
+                    Contents = s => s.Write(parsed.Json),
                 };
             };
         }
@@ -60,6 +71,14 @@ namespace WebHost
                     Json = Encoding.UTF8.GetBytes(assm.Node.ToJson())
                 };
             }
+        }
+    }
+
+    static class StreamExtensions
+    {
+        public static void Write(this Stream stream, byte[] buffer)
+        {
+            stream.Write(buffer, 0, buffer.Length);
         }
     }
 }
