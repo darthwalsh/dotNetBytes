@@ -50,7 +50,7 @@ public enum MetadataTableFlags : ulong
 }
 
 // II.22.2
-sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
+sealed class Assembly : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public AssemblyHashAlgorithm HashAlgId;
     [OrderedField] public ushort MajorVersion;
@@ -68,7 +68,7 @@ sealed class Assembly : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.3
-sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
+sealed class AssemblyOS : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint OSPlatformID;
     [OrderedField] public uint OSMajorVersion;
@@ -80,7 +80,7 @@ sealed class AssemblyOS : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.4
-sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
+sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint Processor;
 
@@ -90,7 +90,7 @@ sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.5
-sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
+sealed class AssemblyRef : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ushort MajorVersion;
     [OrderedField] public ushort MinorVersion;
@@ -108,7 +108,7 @@ sealed class AssemblyRef : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.6
-sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
+sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint OSPlatformID;
     [OrderedField] public uint OSMajorVersion;
@@ -121,7 +121,7 @@ sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.7
-sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
+sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint Processor;
     [OrderedField] public UnknownCodedIndex AssemblyRef;
@@ -132,7 +132,7 @@ sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.8
-sealed class ClassLayout : ICanBeReadInOrder, IHaveValueNode
+sealed class ClassLayout : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ushort PackingSize;
     [OrderedField] public uint ClassSize;
@@ -144,7 +144,7 @@ sealed class ClassLayout : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.9
-sealed class Constant : ICanBeReadInOrder, IHaveValueNode
+sealed class Constant : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Type;
     [OrderedField] public CodedIndex.HasConstant Parent;
@@ -156,7 +156,7 @@ sealed class Constant : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.10
-sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
+sealed class CustomAttribute : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.HasCustomAttribute Parent;
     [OrderedField] public CodedIndex.CustomAttributeType Type;
@@ -168,7 +168,7 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.11
-sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
+sealed class DeclSecurity : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
     [OrderedField] public CodedIndex.HasDeclSecurity Parent;
@@ -180,7 +180,7 @@ sealed class DeclSecurity : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.12
-sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
+sealed class EventMap : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Parent;
     [OrderedField] public UnknownCodedIndex EventList;
@@ -191,7 +191,7 @@ sealed class EventMap : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.13
-sealed class Event : ICanBeReadInOrder, IHaveValueNode
+sealed class Event : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public EventAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
@@ -203,7 +203,7 @@ sealed class Event : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.14
-sealed class ExportedType : ICanBeReadInOrder, IHaveValueNode
+sealed class ExportedType : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public TypeAttributes Flags;
     [OrderedField] public uint TypeDefId;
@@ -217,7 +217,7 @@ sealed class ExportedType : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.15
-sealed class Field : ICanBeReadInOrder, IHaveValueNode
+sealed class Field : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public FieldAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
@@ -229,7 +229,7 @@ sealed class Field : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.16
-sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
+sealed class FieldLayout : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint Offset;
     [OrderedField] public UnknownCodedIndex Field;
@@ -240,7 +240,7 @@ sealed class FieldLayout : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.17
-sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
+sealed class FieldMarshal : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.HasFieldMarshall Parent;
     [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature) II.23.4 Marshalling descriptors
@@ -251,7 +251,7 @@ sealed class FieldMarshal : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.18
-sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
+sealed class FieldRVA : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public uint RVA;
     [OrderedField] public UnknownCodedIndex Field;
@@ -262,7 +262,7 @@ sealed class FieldRVA : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.19
-sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
+sealed class FileTable : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public FileAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
@@ -274,7 +274,7 @@ sealed class FileTable : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.20
-sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
+sealed class GenericParam : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ushort Number;
     [OrderedField] public GenericParamAttributes Flags;
@@ -287,7 +287,7 @@ sealed class GenericParam : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.21
-sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
+sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Owner;
     [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
@@ -298,7 +298,7 @@ sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.22
-sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
+sealed class ImplMap : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public PInvokeAttributes MappingFlags;
     [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
@@ -311,7 +311,7 @@ sealed class ImplMap : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.23
-sealed class InterfaceImpl : ICanBeReadInOrder, IHaveValueNode
+sealed class InterfaceImpl : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Class;
     [OrderedField] public CodedIndex.TypeDefOrRef Interface;
@@ -322,7 +322,7 @@ sealed class InterfaceImpl : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.24
-sealed class ManifestResource : ICanRead, IHaveValueNode
+sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
 {
     public uint Offset; //TODO (link)
     public ManifestResourceAttributes Flags;
@@ -374,7 +374,7 @@ sealed class ResourceEntry : ICanRead, IHaveAName
 }
 
 // II.22.25
-sealed class MemberRef : ICanBeReadInOrder, IHaveValueNode
+sealed class MemberRef : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.MemberRefParent Class;
     [OrderedField] public StringHeapIndex Name;
@@ -386,7 +386,7 @@ sealed class MemberRef : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.26
-sealed class MethodDef : ICanRead, IHaveValueNode
+sealed class MethodDef : ICanRead, IHaveLiteralValueNode
 {
     public uint RVA;
     public MethodImplAttributes ImplFlags;
@@ -422,7 +422,7 @@ sealed class MethodDef : ICanRead, IHaveValueNode
 }
 
 // II.22.27
-sealed class MethodImpl : ICanBeReadInOrder, IHaveValueNode
+sealed class MethodImpl : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Class;
     [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
@@ -434,7 +434,7 @@ sealed class MethodImpl : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.28
-sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
+sealed class MethodSemantics : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public MethodSemanticsAttributes Semantics;
     [OrderedField] public UnknownCodedIndex Method;
@@ -446,7 +446,7 @@ sealed class MethodSemantics : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.29
-sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
+sealed class MethodSpec : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.MethodDefOrRef Method;
     [OrderedField] public BlobHeapIndex Instantiation; //TODO(MethodSpec Sig)
@@ -457,7 +457,7 @@ sealed class MethodSpec : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.30
-sealed class Module : ICanBeReadInOrder, IHaveValueNode
+sealed class Module : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ushort Generation;
     [OrderedField] public StringHeapIndex Name;
@@ -471,7 +471,7 @@ sealed class Module : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.31
-sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
+sealed class ModuleRef : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public StringHeapIndex Name;
 
@@ -481,7 +481,7 @@ sealed class ModuleRef : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.32
-sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
+sealed class NestedClass : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex _NestedClass;
     [OrderedField] public UnknownCodedIndex EnclosingClass;
@@ -492,7 +492,7 @@ sealed class NestedClass : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.33
-sealed class Param : ICanBeReadInOrder, IHaveValueNode
+sealed class Param : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public ParamAttributes Flags;
     [OrderedField] public ushort Sequence;
@@ -504,7 +504,7 @@ sealed class Param : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.34
-sealed class Property : ICanBeReadInOrder, IHaveValueNode
+sealed class Property : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public PropertyAttributes Flags;
     [OrderedField] public StringHeapIndex Name;
@@ -515,7 +515,7 @@ sealed class Property : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.35
-sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
+sealed class PropertyMap : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public UnknownCodedIndex Parent;
     [OrderedField] public UnknownCodedIndex PropertyList;
@@ -526,7 +526,7 @@ sealed class PropertyMap : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.36
-sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
+sealed class StandAloneSig : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public BlobHeapIndex Signature; //TODO(StandAloneSig)
 
@@ -536,7 +536,7 @@ sealed class StandAloneSig : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.37
-sealed class TypeDef : ICanBeReadInOrder, IHaveValueNode
+sealed class TypeDef : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public TypeAttributes Flags;
     [OrderedField] public StringHeapIndex TypeName;
@@ -551,7 +551,7 @@ sealed class TypeDef : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.38
-sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
+sealed class TypeRef : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
     [OrderedField] public StringHeapIndex TypeName;
@@ -563,9 +563,9 @@ sealed class TypeRef : ICanBeReadInOrder, IHaveValueNode
 }
 
 // II.22.39
-sealed class TypeSpec : ICanBeReadInOrder, IHaveValueNode
+sealed class TypeSpec : ICanBeReadInOrder, IHaveLiteralValueNode
 {
-    [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig)
+    [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig) TypeSpecSignature
 
     public object Value => "";
     public CodeNode Node { get; set; }

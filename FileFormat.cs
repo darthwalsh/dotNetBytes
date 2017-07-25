@@ -362,7 +362,7 @@ struct PEHeaderHeaderDataDirectories
     [Description("Relocation Table; set to 0 if unused (§).")]
     public RVAandSize BaseRelocationTable;
     [Description("Always 0 (§II.24.1).")]
-    [Expected(0)]
+    //TODO What's the right behavior? Multiple expected attributes? [Expected(0)]
     public ulong Debug;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
@@ -777,12 +777,12 @@ enum CliHeaderFlags : uint
 }
 
 // II.25.4
-sealed class Method : ICanRead, IHaveAName, IHaveValueNode
+sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
 {
-    public byte Header; // TODO enum
+    public byte Header; // TODO ? enum
     public FatFormat FatFormat;
     public MethodDataSection[] DataSections;
-    public byte[] CilOps; //TODO(HACK) parse the op codes, detect if any jumps are invalid, and link the jumps and method calls
+    public InstructionStream CilOps;
 
     public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
@@ -792,9 +792,10 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
 
     public CodeNode Read(Stream stream)
     {
+        var header = stream.ReadStruct(out Header, nameof(Header));
         Node = new CodeNode
         {
-            stream.ReadStruct(out Header, nameof(Header)),
+            header,
         };
 
         int length;
@@ -804,6 +805,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
         {
             case MethodHeaderType.Tiny:
                 length = Header >> 2;
+                header.Description = $"Tiny Header, 0x{length:X} bytes long";
                 break;
             case MethodHeaderType.Fat:
                 Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
@@ -814,19 +816,21 @@ sealed class Method : ICanRead, IHaveAName, IHaveValueNode
                 }
 
                 length = (int)FatFormat.CodeSize;
+                header.Description = $"Fat Header, 0x{length:X} bytes long";
                 moreSects = ((MethodHeaderType)Header).HasFlag(MethodHeaderType.MoreSects);
                 break;
             default:
                 throw new InvalidOperationException("Invalid MethodHeaderType " + type);
         }
 
-        Node.Add(stream.ReadAnything(out CilOps, StreamExtensions.ReadByteArray(length), "CilOps"));
+        CilOps = new InstructionStream(length);
+        Node.Add(stream.ReadClass(ref CilOps, nameof(CilOps)));
 
         if (moreSects)
         {
             while (stream.Position % 4 != 0)
             {
-                var b = stream.ReadByte();
+                var b = stream.ReallyReadByte();
             }
 
             var dataSections = new List<MethodDataSection>();

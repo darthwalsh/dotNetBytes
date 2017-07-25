@@ -54,12 +54,12 @@ interface IHaveValue
     object Value { get; }
 }
 
-interface IHaveValueNode : IHaveValue
+interface IHaveLiteralValueNode : IHaveLiteralValue
 {
     CodeNode Node { get; }
 }
 
-sealed class DefaultValueNode : IHaveValueNode
+sealed class DefaultValueNode : IHaveLiteralValueNode
 {
     public DefaultValueNode(object value, CodeNode node)
     {
@@ -69,6 +69,10 @@ sealed class DefaultValueNode : IHaveValueNode
 
     public object Value { get; private set; }
     public CodeNode Node { get; private set; }
+}
+
+interface IHaveLiteralValue : IHaveValue
+{
 }
 
 internal interface IHaveIndex
@@ -81,16 +85,28 @@ static class StreamExtensions
     // http://jonskeet.uk/csharp/readbinary.html
     public static void ReadWholeArray(this Stream stream, byte[] data)
     {
+        string error;
+        if (!stream.TryReadWholeArray(data, out error))
+            throw new EndOfStreamException(error);
+    }
+
+    public static bool TryReadWholeArray(this Stream stream, byte[] data, out string error)
+    {
         int offset = 0;
         int remaining = data.Length;
         while (remaining > 0)
         {
             int read = stream.Read(data, offset, remaining);
             if (read <= 0)
-                throw new EndOfStreamException(string.Format("End of stream reached with {0} bytes left to read", remaining));
+            {
+                error = $"End of stream reached with {remaining} bytes left to read";
+                return false;
+            }
             remaining -= read;
             offset += read;
         }
+        error = null;
+        return true;
     }
 
     public static Func<Stream, byte[]> ReadByteArray(int length) // TODO probably remove all these and use more strongly typed methods
@@ -355,6 +371,11 @@ static class TypeExtensions
 
     public static string GetString(this object o)
     {
+        if (o == null)
+        {
+            throw new ArgumentNullException();
+        }
+        
         var s = o as string;
         if (s != null)
         {
@@ -388,7 +409,13 @@ static class TypeExtensions
         var hasValue = o as IHaveValue;
         if (hasValue != null)
         {
-            return hasValue.Value.GetString();
+            var value = hasValue.Value;
+            var literalValue = o as IHaveLiteralValue;
+            if (literalValue != null)
+            {
+                return (string)value;
+            }
+            return value.GetString();
         }
 
         var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });

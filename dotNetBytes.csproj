@@ -30,6 +30,7 @@
     <Compile Include="MetadataStructs.cs" />
     <Compile Include="MetadataTables.cs" />
     <Compile Include="FileFormat.cs" />
+    <Compile Include="Instructions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Signatures.cs" />
     <Compile Include="Singletons.cs" />

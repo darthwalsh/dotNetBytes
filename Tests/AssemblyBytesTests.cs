@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace Tests
 {
@@ -29,7 +30,7 @@ namespace Tests
         {
             RunCompile(@"Samples\Simple.cs", "/t:library");
         }
-       
+
         [TestMethod]
         public void Platformx64()
         {
@@ -272,12 +273,12 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Using existing {outpath}");
             }
-/*
-            Program.Run(outpath);
-            Assert.Fail("Oops comment me out");
-/*/
+            /* //Uncomment this block if you want to see the web version of the parse
+                        Program.Run(outpath);
+                        Assert.Fail("Oops comment me out");
+            /*/
             Run(File.OpenRead(outpath));
-//*/
+            //*/
         }
 
         static void RunProcess(string filename, string processArgs)
@@ -309,10 +310,29 @@ namespace Tests
             return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
         }
 
+        static string FormatJson(string json)
+        {
+            dynamic parsedJson = JsonConvert.DeserializeObject(json);
+            return JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+        }
+
         [TestMethod]
         public void TestExample()
         {
-            Run(OpenExampleProgram());
+            var assm = Run(OpenExampleProgram());
+            var expected = FormatJson(assm.Node.ToJson());
+
+            using (var baselineJSON = GetType().Assembly.GetManifestResourceStream("bytes.json"))
+            using (var reader = new StreamReader(baselineJSON))
+            {
+
+                var actual = FormatJson(reader.ReadToEnd());
+                if (actual != expected)
+                {
+                    File.WriteAllText(@"..\..\..\..\view\bytes.json", expected);
+                    Assert.Fail("Baseline was out of date, but fixed now!");
+                }
+            }
         }
 
         static Stream OpenExampleProgram()
@@ -320,7 +340,7 @@ namespace Tests
             return typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat");
         }
 
-        static void Run(Stream s)
+        static AssemblyBytes Run(Stream s)
         {
             CodeNode.OnError += error => Assert.Fail(error);
 
@@ -334,7 +354,6 @@ namespace Tests
                 s.Dispose();
                 throw;
             }
-
 
             try
             {
@@ -356,6 +375,8 @@ namespace Tests
                     data = memory.ToArray();
                 }
                 assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
+
+                return assm;
             }
             catch
             {
@@ -385,7 +406,7 @@ namespace Tests
         static void AssertUniqueNames(CodeNode node)
         {
             string name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
-            Assert.IsNull(name, $"multiple {name} under {node.Name}");
+            Assert.IsNull(name, $"duplicate {name} under {node.Name}");
         }
 
         static void AssertLinkOrChildren(CodeNode node)
@@ -396,7 +417,7 @@ namespace Tests
             }
         }
 
-        static IEnumerable<string> exceptions = new [] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs" };
+        static IEnumerable<string> exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
         static void AssertParentDifferentSizeThanChild(CodeNode node)
         {
             if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End)

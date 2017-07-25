@@ -761,6 +761,34 @@ abstract class Heap<T> : ICanRead, IHaveAName
             before.End = after.Start;
         }
     }
+
+    protected static void GetEncodedLength(Stream stream, out int length, out int offset)
+    {
+        byte first = stream.ReallyReadByte();
+        if ((first & 0x80) == 0)
+        {
+            length = first & 0x7F;
+            offset = 1;
+        }
+        else if ((first & 0xC0) == 0x80)
+        {
+            byte second = stream.ReallyReadByte();
+            length = ((first & 0x3F) << 8) + second;
+            offset = 2;
+        }
+        else if ((first & 0xE0) == 0xC0)
+        {
+            byte second = stream.ReallyReadByte();
+            byte third = stream.ReallyReadByte();
+            byte fourth = stream.ReallyReadByte();
+            length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
+            offset = 4;
+        }
+        else
+        {
+            throw new InvalidOperationException($"Heap byte {stream.Position} can't start with 1111...");
+        }
+    }
 }
 
 // II.24.2.3
@@ -775,7 +803,7 @@ sealed class StringHeap : Heap<string>
     {
         return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
     }
-    
+
     public static string Get(StringHeapIndex i)
     {
         return Singletons.Instance.StringHeap.AddChild(i).Item1;
@@ -796,7 +824,24 @@ sealed class UserStringHeap : Heap<string>
 
     protected override CodeNode ReadChild(Stream stream, int index, out string s)
     {
-        throw new NotImplementedException("UserStringHeap");
+        int length;
+        int offset;
+        GetEncodedLength(stream, out length, out offset);
+
+        string error = "oops";
+        bool success = true;
+        var node = stream.ReadAnything(out s, str =>
+        {
+            byte[] bytes = new byte[length - 1]; // skip terminal byte
+            success = str.TryReadWholeArray(bytes, out error);
+            return Encoding.Unicode.GetString(bytes);
+        }, $"UserStringHeap[{index}]");
+
+        if (!success)
+            node.AddError(error);
+        node.Description = $@"""{s}"", {offset} leading bits";
+        node.Start -= offset;
+        return node;
     }
 
     public static string Get(UserStringHeapIndex i)
@@ -820,30 +865,7 @@ sealed class BlobHeap : Heap<byte[]>
     {
         int length;
         int offset;
-        byte first = stream.ReallyReadByte();
-        if ((first & 0x80) == 0)
-        {
-            length = first & 0x7F;
-            offset = 1;
-        }
-        else if ((first & 0xC0) == 0x80)
-        {
-            byte second = stream.ReallyReadByte();
-            length = ((first & 0x3F) << 8) + second;
-            offset = 2;
-        }
-        else if ((first & 0xE0) == 0xC0)
-        {
-            byte second = stream.ReallyReadByte();
-            byte third = stream.ReallyReadByte();
-            byte fourth = stream.ReallyReadByte();
-            length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
-            offset = 4;
-        }
-        else
-        {
-            throw new InvalidOperationException($"Blob heap byte {stream.Position} can't start with 1111...");
-        }
+        GetEncodedLength(stream, out length, out offset);
 
         var node = stream.ReadAnything(out b, StreamExtensions.ReadByteArray(length), $"BlobHeap[{index}]");
         node.Description = $"{offset} leading bits";
@@ -945,6 +967,8 @@ sealed class TildeStream : ICanRead
     public MethodSpec[] MethodSpecs;
     public GenericParamConstraint[] GenericParamConstraints;
 
+    Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
+
     public CodeNode Read(Stream stream)
     {
         var node = new CodeNode
@@ -956,7 +980,7 @@ sealed class TildeStream : ICanRead
             Enum.GetValues(typeof(MetadataTableFlags))
                 .Cast<MetadataTableFlags>()
                 .Where(flag => TildeData.Valid.HasFlag(flag))
-                .SelectMany((flag, row) => ReadTable(stream, flag, row))
+                .SelectMany((flag, row) => CapturingReadTable(stream, flag, row))
         };
 
         if (TildeData.HeapSizes != 0)
@@ -965,6 +989,13 @@ sealed class TildeStream : ICanRead
             throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
 
         return node;
+    }
+
+    IEnumerable<CodeNode> CapturingReadTable(Stream stream, MetadataTableFlags flag, int row)
+    {
+        var nodes = ReadTable(stream, flag, row);
+        streamNodes.Add(flag, nodes);
+        return nodes;
     }
 
     IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
@@ -1012,7 +1043,7 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.Property:
                 return stream.ReadClasses(ref Properties, count, nameof(Properties));
             case MetadataTableFlags.MethodSemantics:
-                return stream.ReadClasses(ref MethodSemantics, count);
+                return stream.ReadClasses(ref MethodSemantics, count, nameof(MethodSemantics));
             case MetadataTableFlags.MethodImpl:
                 return stream.ReadClasses(ref MethodImpls, count);
             case MetadataTableFlags.ModuleRef:
@@ -1036,13 +1067,13 @@ sealed class TildeStream : ICanRead
             case MetadataTableFlags.AssemblyRefOS:
                 return stream.ReadClasses(ref AssemblyRefOSs, count);
             case MetadataTableFlags.File:
-                return stream.ReadClasses(ref Files, count);
+                return stream.ReadClasses(ref Files, count, nameof(Files));
             case MetadataTableFlags.ExportedType:
                 return stream.ReadClasses(ref ExportedTypes, count);
             case MetadataTableFlags.ManifestResource:
                 return stream.ReadClasses(ref ManifestResources, count);
             case MetadataTableFlags.NestedClass:
-                return stream.ReadClasses(ref NestedClasses, count);
+                return stream.ReadClasses(ref NestedClasses, count, nameof(NestedClasses));
             case MetadataTableFlags.GenericParam:
                 return stream.ReadClasses(ref GenericParams, count);
             case MetadataTableFlags.MethodSpec:
@@ -1052,6 +1083,11 @@ sealed class TildeStream : ICanRead
             default:
                 throw new InvalidOperationException("Not a real MetadataTableFlags " + flag);
         }
+    }
+
+    public CodeNode GetCodeNode(MetadataTableFlags flag, int i)
+    {
+        return streamNodes[flag].Skip(i).First();
     }
 }
 
@@ -1087,7 +1123,7 @@ enum TildeDateHeapSizes : byte
     BlobHeapIndexWide = 0x04,
 }
 
-sealed class StringHeapIndex : ICanRead, IHaveValue, IHaveIndex
+sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
 {
     ushort? shortIndex;
     uint? intIndex;
@@ -1205,11 +1241,11 @@ abstract class CodedIndex : ICanRead
 
     protected abstract int GetIndex(int readData);
 
-    protected abstract IHaveValueNode GetLink();
+    protected abstract IHaveLiteralValueNode GetLink();
 
     public class TypeDefOrRef : CodedIndex
     {
-        IHaveValueNode extendsNothing;
+        IHaveLiteralValueNode extendsNothing;
 
         Tag tag;
 
@@ -1225,7 +1261,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             if (extendsNothing != null)
             {
@@ -1259,7 +1295,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1288,7 +1324,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 5) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1355,7 +1391,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1382,7 +1418,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1411,7 +1447,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 3) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1444,7 +1480,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1471,7 +1507,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1498,7 +1534,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1517,7 +1553,7 @@ abstract class CodedIndex : ICanRead
 
     public class Implementation : CodedIndex
     {
-        IHaveValueNode extendsNothing;
+        IHaveLiteralValueNode extendsNothing;
 
         Tag tag;
 
@@ -1533,7 +1569,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             if (extendsNothing != null)
             {
@@ -1567,7 +1603,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 3) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1594,7 +1630,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1625,7 +1661,7 @@ abstract class CodedIndex : ICanRead
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveValueNode GetLink()
+        protected override IHaveLiteralValueNode GetLink()
         {
             switch (tag)
             {
@@ -1642,7 +1678,7 @@ abstract class CodedIndex : ICanRead
         }
     }
 
-    class ExtendsNothing : IHaveValueNode
+    class ExtendsNothing : IHaveLiteralValueNode
     {
         public object Value => "(Nothing)";
         public CodeNode Node => null;

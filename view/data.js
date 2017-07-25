@@ -473,6 +473,7 @@ function displayParse(json) {
 }
 
 
+// listenFileChange and fileChange Copyright Microsoft, 2017
 /**
  * @param {HTMLInputElement} el 
  * @param {number} pollMS 
@@ -552,7 +553,7 @@ function parseFile(bytes, callback) {
     if (this.status === 200 && req.responseText) {
       callback(JSON.parse(req.responseText));
     } else {
-      assertThrow("Error from web server: " + this.status);
+      assertThrow("Error from web server: " + this.status + "\n" + req.responseText);
     }
   };
   req.send(bytes);
@@ -560,7 +561,6 @@ function parseFile(bytes, callback) {
 
 
 window.onload = function () {
-  cleanupDisplay();
   var exampleButton = $("example");
   var fileInput = $("fileInput");
 
@@ -584,6 +584,7 @@ window.onload = function () {
     exampleButton.value = "Try Example";
 
     listenFileChange(fileInput, 2000, bytes => {
+      cleanupDisplay();
       displayHex(bytes);
       parseFile(bytes, displayParse);
     });
@@ -596,6 +597,7 @@ window.onload = function () {
     fileInput.style.display = "none";
 
     readExampleBytes(bytes => {
+      cleanupDisplay();
       displayHex(bytes);
       readExampleJson(displayParse);
     })
@@ -607,6 +609,7 @@ window.onload = function () {
 //TODO(HACK) layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
 //TODO(ACCS) keyboarding through ToC
 //TODO visualize all link, link targets
+//TODO link-references should include name of linking object instead of path
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
 //TODO(BUG) large lists cause ugly scroll menu?

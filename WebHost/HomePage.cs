@@ -40,13 +40,30 @@ namespace WebHost
 
             Post["/parse", runAsync: true] = async (_, cancel) =>
             {
-                var parsed = await ParseAsync(base.Request.Body, cancel);
-
-                return new Response
+                try
                 {
-                    ContentType = MimeTypes.GetMimeType(".json"),
-                    Contents = s => s.Write(parsed.Json),
-                };
+                    var parsed = await ParseAsync(base.Request.Body, cancel);
+                    return new Response
+                    {
+                        ContentType = MimeTypes.GetMimeType(".json"),
+                        Contents = s => s.Write(parsed.Json),
+                    };
+                }
+                catch (Exception e)
+                {
+                    return new Response
+                    {
+                        StatusCode = HttpStatusCode.InternalServerError,
+                        ContentType = MimeTypes.GetMimeType(".json"),
+                        Contents = s =>
+                        {
+                            using (var writer = new StreamWriter(s))
+                            {
+                                writer.Write(e.ToString());
+                            }
+                        }
+                    };
+                }
             };
         }
 

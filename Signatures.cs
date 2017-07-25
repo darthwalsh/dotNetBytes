@@ -90,7 +90,7 @@ sealed class TypeSpecSignature : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        ElementType b = (ElementType)stream.ReadByte();
+        ElementType b = (ElementType)stream.ReallyReadByte();
         switch(b)
         {
             case Ptr:
