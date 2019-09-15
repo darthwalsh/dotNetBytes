@@ -267,6 +267,8 @@ namespace Tests
                 Console.Error.WriteLine($"Compiling {outpath}");
 
                 //If this throws, make sure you have the VS build tools on your path (start VS from dev command line)
+                //For example if you type `where csc` from the window that opened devenv, you should see something like:
+                //C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\Roslyn\csc.exe
                 RunProcess("csc.exe", $@"""{path}"" /out:""{outpath}"" {allArgs}");
             }
             else
