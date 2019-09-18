@@ -236,6 +236,13 @@ namespace Tests
 
         static string ilasm = Microsoft.Build.Utilities.ToolLocationHelper.GetPathToDotNetFrameworkFile(
             "ilasm.exe", Microsoft.Build.Utilities.TargetDotNetFrameworkVersion.VersionLatest);
+        static string csc = Path.Combine(
+            Microsoft.Build.Utilities.ToolLocationHelper.GetFoldersInVSInstalls().First(),
+            "MSBuild",
+            "Current",
+            "Bin",
+            "Roslyn",
+            "csc.exe");
 
         static void RunIL(string path, string args = "")
         {
@@ -266,10 +273,7 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Compiling {outpath}");
 
-                //If this throws, make sure you have the VS build tools on your path (start VS from dev command line)
-                //For example if you type `where csc` from the window that opened devenv, you should see something like:
-                //C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\Roslyn\csc.exe
-                RunProcess("csc.exe", $@"""{path}"" /out:""{outpath}"" {allArgs}");
+                RunProcess(csc, $@"""{path}"" /out:""{outpath}"" {allArgs}");
             }
             else
             {
