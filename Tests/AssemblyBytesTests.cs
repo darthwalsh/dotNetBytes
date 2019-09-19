@@ -105,6 +105,11 @@ namespace Tests
         }
 
         [TestMethod]
+        public void FlowControl() {
+            RunCompile(@"Samples\FlowControl.cs");
+        }
+
+        [TestMethod]
         public void Field()
         {
             RunCompile(@"Samples\Field.cs");
@@ -279,7 +284,7 @@ namespace Tests
             {
                 Console.Error.WriteLine($"Using existing {outpath}");
             }
-            /* //Uncomment this block if you want to see the web version of the parse
+            /*//Uncomment this block if you want to see the web version of the parse
                         Program.Run(outpath);
                         Assert.Fail("Oops comment me out");
             /*/

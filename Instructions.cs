@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-//TODO(HACK) Link branch targets
+//TODO(link) Link branch targets
 //TODO(HACK)? §III.1.7.2 validate branch targets are valid offsets
 //TODO §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
 //TODO §III.1.5 validate operand type like in
@@ -186,7 +186,7 @@ sealed class InstructionStream : ICanRead
             case 0x44:
                 return new OpWith<int>(opNode, "blt.un");
             case 0x45:
-                throw new NotImplementedException("switch");
+                return new SwitchOp(opNode);
             case 0x46:
                 return new Op(opNode, "ldind.i1");
             case 0x47:
@@ -497,13 +497,10 @@ sealed class InstructionStream : ICanRead
                     case 0x1E:
                         throw new NotImplementedException($"readonly.");
                     default:
-                        throw new NotImplementedException($"op 0xFE 0x{secondByte:X}");
-
-                        //TODO implement prefixes
+                        throw new InvalidOperationException($"unkonwn op 0xFE 0x{secondByte:X}");
                 }
-
             default:
-                throw new NotImplementedException($"op 0x{firstByte:X}");
+                throw new InvalidOperationException($"unknown op 0x{firstByte:X}");
         }
     }
 }
@@ -623,6 +620,29 @@ sealed class OpWithToken : ICanRead
         };
         node.Description = op.Description + " " + tokenNode.Value;
 
+        return node;
+    }
+}
+
+sealed class SwitchOp : ICanRead
+{
+    CodeNode op;
+    public uint count;
+    public int[] targets;
+
+    public SwitchOp(CodeNode op) {
+        this.op = op;
+        op.Description = "switch";
+    }
+
+    public CodeNode Read(Stream stream) {
+        var node = new CodeNode
+        {
+            op,
+            stream.ReadStruct(out count, nameof(count)),
+            stream.ReadStructs(out targets, (int)count, nameof(targets)), //TODO(links) switch offset
+        };
+        node.Description = $"switch ({string.Join(", ", targets)})";
         return node;
     }
 }
