@@ -248,7 +248,7 @@ namespace Tests
         {
             string outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
-            if (!File.Exists(outpath))
+            if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath))
             {
                 Console.Error.WriteLine($"Assembling {outpath}");
 
@@ -269,7 +269,7 @@ namespace Tests
 
             string outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
 
-            if (!File.Exists(outpath))
+            if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath))
             {
                 Console.Error.WriteLine($"Compiling {outpath}");
 
@@ -467,7 +467,7 @@ namespace Tests
 
         void Delay()
         {
-            Thread.Sleep(10);
+            Thread.Sleep(2);
         }
 
         public override int Read(byte[] buffer, int offset, int count)

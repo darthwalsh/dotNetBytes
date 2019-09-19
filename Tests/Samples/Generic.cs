@@ -12,10 +12,11 @@ class C<Z> : I<int, double>
     }
 }
 
-
 public static class Generic
 {
     static void Main(string[] args)
     {
+        foreach (var i in new System.Collections.Generic.Dictionary<char, string>()) {
+        }
     }
 }

@@ -472,18 +472,30 @@ sealed class InstructionStream : ICanRead
                         return new Op(combinedOp, "localloc");
                     case 0x11:
                         return new Op(combinedOp, "endfilter");
+                    case 0x12:
+                        throw new NotImplementedException($"unaligned.");
+                    case 0x13:
+                        throw new NotImplementedException($"volatile.");
+                    case 0x14:
+                        throw new NotImplementedException($"tail.");
                     case 0x15:
                         return new OpWithToken(combinedOp, "initobj");
+                    case 0x16:
+                        return new OpWithToken(combinedOp, "constrained.");
                     case 0x17:
                         return new Op(combinedOp, "cpblk");
                     case 0x18:
                         return new Op(combinedOp, "initblk");
+                    case 0x19:
+                        throw new NotImplementedException($"no.");
                     case 0x1A:
                         return new Op(combinedOp, "rethrow");
                     case 0x1C:
                         return new OpWithToken(combinedOp, "sizeof");
                     case 0x1D:
                         return new Op(combinedOp, "refanytype");
+                    case 0x1E:
+                        throw new NotImplementedException($"readonly.");
                     default:
                         throw new NotImplementedException($"op 0xFE 0x{secondByte:X}");
 
