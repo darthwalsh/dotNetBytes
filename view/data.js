@@ -8,6 +8,19 @@ function assertThrow(message) {
   throw message;
 }
 
+const profile = false;
+function time(name) {
+  if (profile) {
+    console.time(name);
+  }
+}
+
+function timeEnd(name) {
+  if (profile) {
+    console.timeEnd(name);
+  }
+}
+
 function $(id) { return document.getElementById(id); }
 function create(tag, attr) {
   var el = document.createElement(tag);
@@ -61,6 +74,10 @@ function litID(i) {
   return "lit" + i;
 }
 
+// TODO(PERF) calling this function 10's of thousands of times results in
+// a lot of unnecessary delay with style calculations. Instead, should only update if change is needed?
+// Updating the color or the cursor causes the restyle cost. Updating half only costs half as much.
+// Could probably just avoid setting if no change is needed (remove the other code that sets to white color?)
 function setByte(i, color, onclick, cursor) {
   var byte = $(byteID(i));
   var lit = $(litID(i));
@@ -168,9 +185,13 @@ function setFocus(o) {
     setByte(i, "white", null, "auto");
   }
 
+  time("setFocusHelper");
   setFocusHelper(o);
+  timeEnd("setFocusHelper");
 
+  time("scrollIntoView");
   scrollIntoView(o);
+  timeEnd("scrollIntoView");
 
   drawDetails(o);
 }
@@ -214,6 +235,7 @@ function makeOnClick(o) {
 
 function makeOnHashChange(json) {
   return function (ev) {
+    time("makeOnHashChange");
     var hash = window.location.href.split("#")[1];
     var names = hash.split("/");
 
@@ -233,6 +255,8 @@ function makeOnHashChange(json) {
     }
 
     setFocus(o);
+
+    timeEnd("makeOnHashChange");
   };
 }
 
@@ -592,7 +616,7 @@ window.onload = function () {
   else {
     exampleButton.onclick = () => {
       window.location.href = window.location.href.replace("?Example=true", "");
-    }
+    };
     exampleButton.value = "Leave Example";
     fileInput.style.display = "none";
 
@@ -600,7 +624,7 @@ window.onload = function () {
       cleanupDisplay();
       displayHex(bytes);
       readExampleJson(displayParse);
-    })
+    });
   }
 };
 
