@@ -738,7 +738,7 @@ abstract class Heap<T> : ICanRead, IHaveAName
         return childpair;
     }
 
-    // TODO Binary heaps members are allowed to overlap to save space, allow for this in javascript
+    //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
     void AdjustChildRanges(int index, CodeNode child)
     {
         int chI = children.IndexOfKey(index);
@@ -1211,7 +1211,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
     }
 }
 
-//TODO implement all CodedIndex
+//TODO(links) implement all CodedIndex
 sealed class UnknownCodedIndex : ICanRead
 {
     public CodeNode Read(Stream stream)
@@ -1336,7 +1336,7 @@ abstract class CodedIndex : ICanRead
                 case Tag.InterfaceImpl: return Singletons.Instance.TildeStream.InterfaceImpls[Index];
                 case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
                 case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
-                //case Tag.Permission: return Singletons.Instance.TildeStream.Permissions[Index]; // TODO DeclSecuritys?
+                //case Tag.Permission: return Singletons.Instance.TildeStream.Permissions[Index]; //TODO(pedant) DeclSecuritys?
                 case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
                 case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
                 case Tag.StandAloneSig: return Singletons.Instance.TildeStream.StandAloneSigs[Index];

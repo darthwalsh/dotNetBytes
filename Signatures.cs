@@ -84,7 +84,7 @@ public static class CompressionExtensions
 //II.23.2.14
 sealed class TypeSpecSignature : ICanRead
 {
-    object Value => ""; //TODO needed?
+    object Value => ""; //TODO(HACK) needed?
 
     public CodeNode Node { get; set; }
 

@@ -160,7 +160,7 @@ sealed class CustomAttribute : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.HasCustomAttribute Parent;
     [OrderedField] public CodedIndex.CustomAttributeType Type;
-    [OrderedField] public BlobHeapIndex Value; // TODO II.23.3 Custom attributes 
+    [OrderedField] public BlobHeapIndex Value; //TODO(pedant) II.23.3 Custom attributes 
 
     object IHaveValue.Value => "";
 
@@ -243,7 +243,7 @@ sealed class FieldLayout : ICanBeReadInOrder, IHaveLiteralValueNode
 sealed class FieldMarshal : ICanBeReadInOrder, IHaveLiteralValueNode
 {
     [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-    [OrderedField] public BlobHeapIndex NativeType; // TODO (Signature) II.23.4 Marshalling descriptors
+    [OrderedField] public BlobHeapIndex NativeType; //TODO(Signature) II.23.4 Marshalling descriptors
 
     public object Value => "";
 
@@ -324,7 +324,7 @@ sealed class InterfaceImpl : ICanBeReadInOrder, IHaveLiteralValueNode
 // II.22.24
 sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
 {
-    public uint Offset; //TODO (link)
+    public uint Offset; //TODO(link)
     public ManifestResourceAttributes Flags;
     public StringHeapIndex Name;
     public CodedIndex.Implementation Implementation;

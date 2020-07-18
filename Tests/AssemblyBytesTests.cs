@@ -213,7 +213,7 @@ namespace Tests
 
         //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
         //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
-        //TOOD Also test with mono
+        //TODO Also test with mono
         //TODO Also test with dotnetcore
 
         //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
@@ -267,7 +267,7 @@ namespace Tests
             Run(File.OpenRead(outpath));
         }
 
-        // TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
+        //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
         static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig")
         {
             var allArgs = $"{optimize} {noconfig} {args}";

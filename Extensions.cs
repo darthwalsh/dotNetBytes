@@ -109,7 +109,7 @@ static class StreamExtensions
         return true;
     }
 
-    public static Func<Stream, byte[]> ReadByteArray(int length) // TODO probably remove all these and use more strongly typed methods
+    public static Func<Stream, byte[]> ReadByteArray(int length)
     {
         return stream =>
         {
@@ -137,7 +137,7 @@ static class StreamExtensions
         };
     }
 
-    // TODO(cleanup) just wrap the input Stream?
+    //TODO(cleanup) just wrap the input Stream?
     public static byte ReallyReadByte(this Stream stream)
     {
         int read = stream.ReadByte();

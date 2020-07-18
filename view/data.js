@@ -74,7 +74,7 @@ function litID(i) {
   return "lit" + i;
 }
 
-// TODO(PERF) calling this function 10's of thousands of times results in
+//TODO(PERF) calling this function 10's of thousands of times results in
 // a lot of unnecessary delay with style calculations. Instead, should only update if change is needed?
 // Updating the color or the cursor causes the restyle cost. Updating half only costs half as much.
 // Could probably just avoid setting if no change is needed (remove the other code that sets to white color?)

@@ -87,7 +87,7 @@ struct DosHeader
     [Expected(0)]
     public ushort InitialRelativeCS;
     [Expected(0x40)]
-    public ushort RawAddressOfRelocation; // TODO link all Raw Address, RVA, (sizes?) from understandingCIL
+    public ushort RawAddressOfRelocation; //TODO(link) all Raw Address, RVA, (sizes?) from understandingCIL
     [Expected(0)]
     public ushort OverlayNumber;
     [Expected(0)]
@@ -177,7 +177,7 @@ enum MachineType : ushort
 // II.25.2.3
 class PEOptionalHeader : ICanRead
 {
-    // TODO (Descriptions)
+    //TODO(Descriptions)
 
     public PEHeaderStandardFields PEHeaderStandardFields;
     [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
@@ -344,7 +344,7 @@ enum DllCharacteristics : ushort
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderHeaderDataDirectories
 {
-    // TODO RVAandSize all
+    //TODO(link) RVAandSize all
 
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
@@ -362,8 +362,8 @@ struct PEHeaderHeaderDataDirectories
     [Description("Relocation Table; set to 0 if unused (§).")]
     public RVAandSize BaseRelocationTable;
     [Description("Always 0 (§II.24.1).")]
-    //TODO What's the right behavior? Multiple expected attributes? [Expected(0)]
-    public ulong Debug;
+  //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
+  public ulong Debug;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong Copyright;
@@ -478,7 +478,7 @@ sealed class Section : ICanRead
         this.entryPointRVA = entryPointRVA;
     }
 
-    //TODO reorder children in order 
+    //TODO(cleanup) reorder children in order 
     public CodeNode Read(Stream stream)
     {
         node = new CodeNode
@@ -709,7 +709,7 @@ struct BaseRelocationTable
 
 class Fixup : ICanRead
 {
-    //TODO (Descriptions)
+    //TODO(Descriptions)
 
     [Description("Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).")]
     public byte Type;
@@ -779,14 +779,14 @@ enum CliHeaderFlags : uint
 // II.25.4
 sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
 {
-    public byte Header; // TODO ? enum
+    public byte Header; //TODO(pedant) ? enum
     public FatFormat FatFormat;
     public MethodDataSection[] DataSections;
     public InstructionStream CilOps;
 
     public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
-    public object Value => ""; //TODO clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
+    public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
 
     public CodeNode Node { get; private set; }
 
@@ -981,7 +981,7 @@ struct SmallExceptionHandlingClause
     [Description("Flags")]
     public ushort SmallExceptionClauseFlags;
     [Description("Offset in bytes of try block from start of method body.")]
-    public ushort TryOffset; //TODO (links)
+    public ushort TryOffset; //TODO(links)
     [Description("Length in bytes of the try block")]
     public byte TryLength;
     [Description("Location of the handler for this try block")]
@@ -989,7 +989,7 @@ struct SmallExceptionHandlingClause
     [Description("Size of the handler code in bytes")]
     public byte HandlerLength;
     [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
-    public uint ClassTokenOrFilterOffset; //TODO (links)
+    public uint ClassTokenOrFilterOffset; //TODO(links)
 }
 
 [Flags]

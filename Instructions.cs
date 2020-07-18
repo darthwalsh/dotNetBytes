@@ -6,11 +6,11 @@ using System.IO;
 
 //TODO(link) Link branch targets
 //TODO(HACK)? §III.1.7.2 validate branch targets are valid offsets
-//TODO §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
-//TODO §III.1.5 validate operand type like in
-//TODO §III.1.7.4 validate branching stack depth is consistant
-//TODO §III.1.7.5 after unconditional branch the stack is assumed to have depth zero
-//TODO §III.1.8 validate all sorts of stack type conversions, null type, etc.
+//TODO(method) §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
+//TODO(method) §III.1.5 validate operand type like in
+//TODO(method) §III.1.7.4 validate branching stack depth is consistant
+//TODO(method) §III.1.7.5 after unconditional branch the stack is assumed to have depth zero
+//TODO(method) §III.1.8 validate all sorts of stack type conversions, null type, etc.
 
 // III
 sealed class InstructionStream : ICanRead
@@ -422,7 +422,7 @@ sealed class InstructionStream : ICanRead
             case 0xDB:
                 return new Op(opNode, "sub.ovf.un");
             case 0xDC:
-                return new Op(opNode, "endfault"); // TODO endfinally?
+                return new Op(opNode, "endfault"); //TODO(pedant) endfinally?
             case 0xDD:
                 return new OpWith<int>(opNode, "leave");
             case 0xDE:
