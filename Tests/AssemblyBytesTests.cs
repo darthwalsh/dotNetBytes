@@ -13,6 +13,14 @@ namespace Tests
     [TestClass]
     public class AssemblyBytesTests
     {
+        [AssemblyInitialize]
+        public static void AssemblyInit(TestContext context)
+        {
+            while (!Directory.Exists("Samples")) {
+                Directory.SetCurrentDirectory("..");
+            }
+        }
+
         [TestMethod]
         public void NoConfig()
         {
