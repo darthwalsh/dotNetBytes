@@ -7,7 +7,8 @@
     <ProjectGuid>{D1FFA0DC-0ACC-4108-ADC1-2A71122C09AF}</ProjectGuid>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <LangVersion>6</LangVersion>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Nancy, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -42,6 +43,7 @@
     <EmbeddedResource Include="view\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="view\Program.dat" />
   </ItemGroup>

@@ -72,3 +72,7 @@ The interface is the frontend POSTS the assembly, and the back-end returns recur
 - From VS run dotNetBytes, look at "YAML" command line output, click around
 - From VS run WebHost, Open root URL, upload EXE, modify EXE, Try Example
 - Run Tests unit project
+
+## Deploying
+
+Changes are tested and deployed by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes)
