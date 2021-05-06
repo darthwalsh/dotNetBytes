@@ -468,6 +468,8 @@ sealed class Section : ICanRead
 
     CodeNode node;
 
+    public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
+
     public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA)
     {
         start = (int)header.PointerToRawData;
@@ -549,7 +551,7 @@ sealed class Section : ICanRead
 
                                     Method method = null;
                                     methods.Add(stream.ReadClass(ref method));
-                                    Singletons.Instance.MethodsByRVA.Add(rva, method);
+                                    MethodsByRVA.Add(rva, method);
                                 }
 
                                 if (methods.Children.Any())
@@ -587,7 +589,7 @@ sealed class Section : ICanRead
                     node.Add(stream.ReadClass(ref Relocations));
                     break;
                 default:
-                    node.AddError("Unexpected data directoriy name: " + nr.name);
+                    node.AddError("Unexpected data directory name: " + nr.name);
                     break;
             }
         }
@@ -786,7 +788,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
 
     public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
-    public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implment IHaveValue? How does that work with CodeNode.DelayedValueNode?
+    public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implement IHaveValue? How does that work with CodeNode.DelayedValueNode?
 
     public CodeNode Node { get; private set; }
 

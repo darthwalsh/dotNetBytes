@@ -386,7 +386,7 @@ sealed class MemberRef : ICanBeReadInOrder, IHaveLiteralValueNode
 }
 
 // II.22.26
-sealed class MethodDef : ICanRead, IHaveLiteralValueNode
+sealed class MethodDef : ICanRead, IHaveLiteralValueNode // TODO(cleanup) can this be ICanBeReadInOrder?
 {
     public uint RVA;
     public MethodImplAttributes ImplFlags;
@@ -399,23 +399,19 @@ sealed class MethodDef : ICanRead, IHaveLiteralValueNode
 
     public CodeNode Node { get; private set; }
 
+    public CodeNode RVANode { get; private set; }
+
     public CodeNode Read(Stream stream)
     {
-        CodeNode rva;
-
         Node = new CodeNode
         {
-            (rva = stream.ReadStruct(out RVA, nameof(RVA))),
+            (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),
             stream.ReadClass(ref ImplFlags, nameof(ImplFlags)),
             stream.ReadClass(ref Flags, nameof(Flags)),
             stream.ReadClass(ref Name, nameof(Name)),
             stream.ReadClass(ref Signature, nameof(Signature)),
             stream.ReadClass(ref ParamList, nameof(ParamList)),
         };
-
-        rva.DelayedValueNode = () => new DefaultValueNode(
-            rva.Value,
-            RVA > 0 ? Singletons.Instance.MethodsByRVA[RVA].Node : null);
 
         return Node;
     }

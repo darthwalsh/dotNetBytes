@@ -28,8 +28,6 @@ class Singletons
     public int MethodCount { get; set; }
     public int ResourceEntryCount { get; set; }
 
-    public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
-
     SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
     public StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
 

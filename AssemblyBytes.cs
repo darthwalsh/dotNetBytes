@@ -34,8 +34,21 @@ public class AssemblyBytes
 
         node.CallBack(n => n.UseDelayedValueNode());
 
+        LinkMethodDefRVA();
+
         node.AssignPath();
         node.CallBack(CodeNode.AssignLink);
+    }
+
+    static void LinkMethodDefRVA()
+    {
+        var tildeStream = Singletons.Instance.TildeStream;
+        if (tildeStream.MethodDefs == null) return;
+
+        foreach (var def in tildeStream.MethodDefs.Where(def => def.RVA != 0))
+        {
+            def.RVANode.Link = tildeStream.Section.MethodsByRVA[def.RVA].Node;
+        }
     }
 
     static void FindOverLength(Stream s, CodeNode node)

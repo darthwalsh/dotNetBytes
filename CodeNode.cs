@@ -10,7 +10,7 @@ public class CodeNode : IEnumerable<string>
 
     public string Name = "oops!"; // Unique name for addressing from parent
     public string Description = ""; // Notes about this node based on the language spec
-    public string Value = ""; // A ToString() view of the node. Can Be multiple lines
+    public string Value = ""; // A ToString() view of the node. Can be multiple lines
 
     // will be widened later
     public int Start = int.MaxValue;
@@ -31,7 +31,7 @@ public class CodeNode : IEnumerable<string>
     string path;
     public CodeNode Link { set { link = value; } }
 
-    //TODO(cleanup) have multiple stages of reading, where StringHeaps are parsed first, then metadata, then methods. (Or async?)
+    //TODO(cleanup) have multiple stages of reading, where StringHeaps are parsed first, then metadata, then methods.
     Func<IHaveLiteralValueNode> delayed;
     internal Func<IHaveLiteralValueNode> DelayedValueNode { set { delayed = value; } } //TODO(cleanup) remove this hack
     public void UseDelayedValueNode()
