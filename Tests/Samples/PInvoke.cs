@@ -11,7 +11,7 @@ public static class PInvoke
   }
 
   [StructLayout(LayoutKind.Explicit)]
-  public struct Union
+  struct Union
   {
     [FieldOffset(0)]
     public int I;
@@ -20,7 +20,7 @@ public static class PInvoke
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 8)]
-  public struct Sparse
+  struct Sparse
   {
     public int I;
     public double D;
