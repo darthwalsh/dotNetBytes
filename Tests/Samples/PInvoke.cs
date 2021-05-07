@@ -40,6 +40,6 @@ public static class PInvoke
       ref Bytes bs);
 
   static void Main(string[] args) {
-    var o = new Bytes { Vals = new int[] { 0 } };
+    var _ = new Bytes { Vals = new int[] { 0 } };
   }
 }

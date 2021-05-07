@@ -45,7 +45,9 @@ namespace Client
     static void Main(string[] args) {
       var graphManager = new FilgraphManager();
 
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
       var mc = (IMediaControl)graphManager;
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
     }
   }
 }

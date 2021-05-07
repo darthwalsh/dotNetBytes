@@ -27,7 +27,7 @@
     for (var i = 0; i < 10; i++) {
       continue;
     }
-    foreach (var i in new int[10]) {
+    foreach (var _ in new int[10]) {
       break;
     }
     while (false) { }
