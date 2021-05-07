@@ -39,7 +39,7 @@ public static class PInvoke
       out bool ob,
       ref Bytes bs);
 
-  static void Main(string[] args) {
+  static void Main() {
     var _ = new Bytes { Vals = new int[] { 0 } };
   }
 }

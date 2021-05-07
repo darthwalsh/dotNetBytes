@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 public static class Exceptions
 {
-  static void Main(string[] args) {
+  static void Main() {
     RuntimeHelpers.PrepareConstrainedRegions();
     try {
     } finally {

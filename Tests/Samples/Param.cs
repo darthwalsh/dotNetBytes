@@ -1,5 +1,4 @@
 ﻿public static class Param
 {
-  static void Main(string[] args) {
-  }
+  static int Main(string[] args) => args.Length;
 }

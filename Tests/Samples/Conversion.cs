@@ -9,6 +9,6 @@
   static public explicit operator int(Conversion roman) => roman.value;
   static public implicit operator string(Conversion roman) => "Conversion not yet implemented";
 
-  static void Main(string[] args) {
+  static void Main() {
   }
 }

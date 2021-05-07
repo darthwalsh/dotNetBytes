@@ -11,7 +11,7 @@ class Lock
   }
 
   [MethodImpl(MethodImplOptions.Synchronized)]
-  static void Main(string[] args) {
+  static void Main() {
     Interlocked.Increment(ref x);
 
     lock (new object()) {

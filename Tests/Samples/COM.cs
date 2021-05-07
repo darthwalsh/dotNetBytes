@@ -42,7 +42,7 @@ namespace Client
 
   public static class COM
   {
-    static void Main(string[] args) {
+    static void Main() {
       var graphManager = new FilgraphManager();
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value

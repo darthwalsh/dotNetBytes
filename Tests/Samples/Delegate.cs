@@ -4,7 +4,7 @@
 
   static int Transform(int x) => x;
 
-  static void Main(string[] args) {
+  static void Main() {
     var _ = new Transformer(Transform);
     _ = Transform;
     _ = delegate (int y) { return -y; };

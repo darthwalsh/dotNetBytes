@@ -15,7 +15,7 @@ class C<Z> : I<int, double>
 
 public static class Generic
 {
-  static void Main(string[] args) {
+  static void Main() {
     foreach (var _ in new System.Collections.Generic.Dictionary<char, string>()) {
     }
   }
