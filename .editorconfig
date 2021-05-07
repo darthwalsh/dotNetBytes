@@ -113,12 +113,7 @@ csharp_style_pattern_local_over_anonymous_function = false:suggestion
 #Style - modifier options
 
 #prefer accessibility modifiers to be declared except for public interface members. This will currently not differ from always and will act as future proofing for if C# adds default interface methods.
-dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
-
-#Style - Modifier preferences
-
-#when this rule is set to a list of modifiers, prefer the specified ordering.
-csharp_preferred_modifier_order = public,internal,static,sealed,override,async:suggestion
+dotnet_style_require_accessibility_modifiers = omit_if_default:suggestion
 
 #Style - Pattern matching
 

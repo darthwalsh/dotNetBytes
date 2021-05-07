@@ -67,9 +67,9 @@ namespace WebHost
       };
     }
 
-        static Parsed Parse(Stream stream) => ParseAsync(stream, CancellationToken.None).Result;
+    static Parsed Parse(Stream stream) => ParseAsync(stream, CancellationToken.None).Result;
 
-        static async Task<Parsed> ParseAsync(Stream stream, CancellationToken cancel)
+    static async Task<Parsed> ParseAsync(Stream stream, CancellationToken cancel)
     {
       using (stream)
       using (var buffer = new MemoryStream())
@@ -90,6 +90,6 @@ namespace WebHost
 
   static class StreamExtensions
   {
-        public static void Write(this Stream stream, byte[] buffer) => stream.Write(buffer, 0, buffer.Length);
-    }
+    public static void Write(this Stream stream, byte[] buffer) => stream.Write(buffer, 0, buffer.Length);
+  }
 }

@@ -1148,7 +1148,7 @@ sealed class UnknownCodedIndex : ICanRead
 
 abstract class CodedIndex : ICanRead
 {
-  private CodedIndex() { } // Don't allow subclassing 
+  CodedIndex() { } // Don't allow subclassing 
 
   public int Index { get; private set; }
 

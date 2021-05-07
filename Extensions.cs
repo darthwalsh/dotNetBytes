@@ -72,7 +72,7 @@ interface IHaveLiteralValue : IHaveValue
 {
 }
 
-internal interface IHaveIndex
+interface IHaveIndex
 {
   int Index { get; }
 }
