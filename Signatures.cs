@@ -10,11 +10,9 @@ public static class CompressionExtensions
     //  0xxxxxxx
     //  10xxxxxx xxxxxxxx
     //  110xxxxx xxxxxxxx xxxxxxxx xxxxxxxx
-    public static uint DecompressUnsigned(this byte[] bytes, int index)
-    {
+    public static uint DecompressUnsigned(this byte[] bytes, int index) {
         var first = bytes[index];
-        switch (GetWidth(first))
-        {
+        switch (GetWidth(first)) {
             case 1:
                 return first;
             case 2:
@@ -30,19 +28,16 @@ public static class CompressionExtensions
     //  0xxxxxxb
     //  10xxxxxx xxxxxxxb
     //  110xxxxx xxxxxxxx xxxxxxxx xxxxxxxb
-    public static int DecompressSigned(this byte[] bytes, int index)
-    {
+    public static int DecompressSigned(this byte[] bytes, int index) {
         var sum = (int)bytes.DecompressUnsigned(index);
 
-        if (sum % 2 == 0)
-        {
+        if (sum % 2 == 0) {
             return sum >> 1;
         }
 
         int negativeMask;
         var first = bytes[index];
-        switch (GetWidth(first))
-        {
+        switch (GetWidth(first)) {
             case 1:
                 negativeMask = unchecked((int)0xFFFFFFC0);
                 break;
@@ -59,10 +54,8 @@ public static class CompressionExtensions
         return negativeMask | (sum >> 1);
     }
 
-    static int GetWidth(byte b)
-    {
-        switch (b & 0xE0)
-        {
+    static int GetWidth(byte b) {
+        switch (b & 0xE0) {
             case 0x00:
             case 0x20:
             case 0x40:
@@ -88,11 +81,9 @@ sealed class TypeSpecSignature : ICanRead
 
     public CodeNode Node { get; set; }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var b = (ElementType)stream.ReallyReadByte();
-        switch(b)
-        {
+        switch (b) {
             case Ptr:
                 throw new NotImplementedException("Ptr");
             case Fnptr:

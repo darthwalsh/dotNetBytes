@@ -8,20 +8,16 @@ class Singletons
     [ThreadStatic]
     static Singletons instance;
 
-    public static Singletons Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
+    public static Singletons Instance {
+        get {
+            if (instance == null) {
                 instance = new Singletons();
             }
             return instance;
         }
     }
 
-    public static void Reset()
-    {
+    public static void Reset() {
         instance = null;
     }
 
@@ -46,14 +42,11 @@ class Singletons
     class SetOnce<T> where T : class
     {
         T t;
-        public T Value
-        {
-            get
-            {
+        public T Value {
+            get {
                 return t;
             }
-            set
-            {
+            set {
                 if (t != null) throw new InvalidOperationException();
                 t = value;
             }

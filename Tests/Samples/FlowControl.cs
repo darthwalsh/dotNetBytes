@@ -1,7 +1,7 @@
 ﻿class FlowControl
 {
     public static int Switch(int n) {
-        switch(n) {
+        switch (n) {
             case 0:
             case 1:
             case 2:
@@ -34,7 +34,6 @@
         do { } while (false);
     }
 
-    static void Main()
-    {
+    static void Main() {
     }
 }

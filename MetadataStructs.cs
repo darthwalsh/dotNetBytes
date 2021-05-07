@@ -48,8 +48,7 @@ class FieldAttributes : ICanRead, IHaveValue
     public Access access;
     public Flags flags;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort value;
         var node = stream.ReadStruct(out value);
 
@@ -124,8 +123,7 @@ class GenericParamAttributes : ICanRead, IHaveValue
     public Variance variance;
     public SpecialConstraint specialConstraint;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort value;
         var node = stream.ReadStruct(out value);
 
@@ -169,8 +167,7 @@ class PInvokeAttributes : ICanRead, IHaveValue
     public CallingConvention callingConvention;
     public Flags flags;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort value;
         var node = stream.ReadStruct(out value);
 
@@ -240,8 +237,7 @@ class MethodAttributes : ICanRead, IHaveValue
     public VtableLayout vtableLayout;
     public Flags flags;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort value;
         var node = stream.ReadStruct(out value);
 
@@ -322,8 +318,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
     public Managed managed;
     public Flags flags;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort value;
         var node = stream.ReadStruct(out value);
 
@@ -435,8 +430,7 @@ class TypeAttributes : ICanRead, IHaveValue
     public StringInteropFormat stringInteropFormat;
     public Flags flags;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         uint value;
         var node = stream.ReadStruct(out value);
 
@@ -643,8 +637,7 @@ sealed class MetadataRoot : ICanRead
     public ushort Streams;
     public StreamHeader[] StreamHeaders;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return new CodeNode
         {
             stream.ReadStruct(out Signature, nameof(Signature)),
@@ -672,8 +665,7 @@ sealed class StreamHeader : ICanRead
     [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
     public string Name;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return new CodeNode
         {
             stream.ReadStruct(out Offset, nameof(Offset)),
@@ -690,13 +682,11 @@ abstract class Heap<T> : ICanRead, IHaveAName
     int offset;
     SortedList<int, Tuple<T, CodeNode>> children = new SortedList<int, Tuple<T, CodeNode>>();
 
-    public Heap(int size)
-    {
+    public Heap(int size) {
         data = new byte[size];
     }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         offset = (int)stream.Position;
 
         // Parsing the whole array now isn't sensible
@@ -708,19 +698,16 @@ abstract class Heap<T> : ICanRead, IHaveAName
     public string Name => GetType().Name;
     protected abstract CodeNode ReadChild(Stream stream, int index, out T t);
 
-    protected Tuple<T, CodeNode> AddChild(IHaveIndex i)
-    {
+    protected Tuple<T, CodeNode> AddChild(IHaveIndex i) {
         var stream = new MemoryStream(data);
         var index = i.Index;
         stream.Position = index;
 
         Tuple<T, CodeNode> childpair;
-        if (!children.TryGetValue(index, out childpair))
-        {
+        if (!children.TryGetValue(index, out childpair)) {
             T t;
             var child = ReadChild(stream, i.Index, out t);
-            if (child == null)
-            {
+            if (child == null) {
                 return Tuple.Create(t, parent);
             }
 
@@ -739,53 +726,40 @@ abstract class Heap<T> : ICanRead, IHaveAName
     }
 
     //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
-    void AdjustChildRanges(int index, CodeNode child)
-    {
+    void AdjustChildRanges(int index, CodeNode child) {
         var chI = children.IndexOfKey(index);
-        if (chI != 0)
-        {
+        if (chI != 0) {
             AdjustChildren(children.Values[chI - 1].Item2, child);
         }
 
-        if (chI + 1 != children.Count)
-        {
+        if (chI + 1 != children.Count) {
             AdjustChildren(child, children.Values[chI + 1].Item2);
         }
     }
 
-    static void AdjustChildren(CodeNode before, CodeNode after)
-    {
-        if (before.End > after.Start)
-        {
+    static void AdjustChildren(CodeNode before, CodeNode after) {
+        if (before.End > after.Start) {
             before.Description = @"(Sharing bytes with the next element...)";
             before.End = after.Start;
         }
     }
 
-    protected static void GetEncodedLength(Stream stream, out int length, out int offset)
-    {
+    protected static void GetEncodedLength(Stream stream, out int length, out int offset) {
         var first = stream.ReallyReadByte();
-        if ((first & 0x80) == 0)
-        {
+        if ((first & 0x80) == 0) {
             length = first & 0x7F;
             offset = 1;
-        }
-        else if ((first & 0xC0) == 0x80)
-        {
+        } else if ((first & 0xC0) == 0x80) {
             var second = stream.ReallyReadByte();
             length = ((first & 0x3F) << 8) + second;
             offset = 2;
-        }
-        else if ((first & 0xE0) == 0xC0)
-        {
+        } else if ((first & 0xE0) == 0xC0) {
             var second = stream.ReallyReadByte();
             var third = stream.ReallyReadByte();
             var fourth = stream.ReallyReadByte();
             length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
             offset = 4;
-        }
-        else
-        {
+        } else {
             throw new InvalidOperationException($"Heap byte {stream.Position} can't start with 1111...");
         }
     }
@@ -795,21 +769,17 @@ abstract class Heap<T> : ICanRead, IHaveAName
 sealed class StringHeap : Heap<string>
 {
     public StringHeap(int size)
-        : base(size)
-    {
+        : base(size) {
     }
 
-    protected override CodeNode ReadChild(Stream stream, int index, out string s)
-    {
+    protected override CodeNode ReadChild(Stream stream, int index, out string s) {
         return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
     }
 
-    public static string Get(StringHeapIndex i)
-    {
+    public static string Get(StringHeapIndex i) {
         return Singletons.Instance.StringHeap.AddChild(i).Item1;
     }
-    public static CodeNode GetNode(StringHeapIndex i)
-    {
+    public static CodeNode GetNode(StringHeapIndex i) {
         return Singletons.Instance.StringHeap.AddChild(i).Item2;
     }
 }
@@ -818,20 +788,17 @@ sealed class StringHeap : Heap<string>
 sealed class UserStringHeap : Heap<string>
 {
     public UserStringHeap(int size)
-        : base(size)
-    {
+        : base(size) {
     }
 
-    protected override CodeNode ReadChild(Stream stream, int index, out string s)
-    {
+    protected override CodeNode ReadChild(Stream stream, int index, out string s) {
         int length;
         int offset;
         GetEncodedLength(stream, out length, out offset);
 
         var error = "oops";
         var success = true;
-        var node = stream.ReadAnything(out s, str =>
-        {
+        var node = stream.ReadAnything(out s, str => {
             var bytes = new byte[length - 1]; // skip terminal byte
             success = str.TryReadWholeArray(bytes, out error);
             return Encoding.Unicode.GetString(bytes);
@@ -844,12 +811,10 @@ sealed class UserStringHeap : Heap<string>
         return node;
     }
 
-    public static string Get(UserStringHeapIndex i)
-    {
+    public static string Get(UserStringHeapIndex i) {
         return Singletons.Instance.UserStringHeap.AddChild(i).Item1;
     }
-    public static CodeNode GetNode(UserStringHeapIndex i)
-    {
+    public static CodeNode GetNode(UserStringHeapIndex i) {
         return Singletons.Instance.UserStringHeap.AddChild(i).Item2;
     }
 }
@@ -857,12 +822,10 @@ sealed class UserStringHeap : Heap<string>
 sealed class BlobHeap : Heap<byte[]>
 {
     public BlobHeap(int size)
-        : base(size)
-    {
+        : base(size) {
     }
 
-    protected override CodeNode ReadChild(Stream stream, int index, out byte[] b)
-    {
+    protected override CodeNode ReadChild(Stream stream, int index, out byte[] b) {
         int length;
         int offset;
         GetEncodedLength(stream, out length, out offset);
@@ -873,12 +836,10 @@ sealed class BlobHeap : Heap<byte[]>
         return node;
     }
 
-    public static byte[] Get(BlobHeapIndex i)
-    {
+    public static byte[] Get(BlobHeapIndex i) {
         return Singletons.Instance.BlobHeap.AddChild(i).Item1;
     }
-    public static CodeNode GetNode(BlobHeapIndex i)
-    {
+    public static CodeNode GetNode(BlobHeapIndex i) {
         return Singletons.Instance.BlobHeap.AddChild(i).Item2;
     }
 }
@@ -887,14 +848,11 @@ sealed class BlobHeap : Heap<byte[]>
 sealed class GuidHeap : Heap<Guid>
 {
     public GuidHeap(int size)
-        : base(size)
-    {
+        : base(size) {
     }
 
-    protected override CodeNode ReadChild(Stream stream, int index, out Guid g)
-    {
-        if (index == 0)
-        {
+    protected override CodeNode ReadChild(Stream stream, int index, out Guid g) {
+        if (index == 0) {
             g = Guid.Empty;
             return null;
         }
@@ -906,12 +864,10 @@ sealed class GuidHeap : Heap<Guid>
         return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
     }
 
-    public static Guid Get(GuidHeapIndex i)
-    {
+    public static Guid Get(GuidHeapIndex i) {
         return Singletons.Instance.GuidHeap.AddChild(i).Item1;
     }
-    public static CodeNode GetNode(GuidHeapIndex i)
-    {
+    public static CodeNode GetNode(GuidHeapIndex i) {
         return Singletons.Instance.GuidHeap.AddChild(i).Item2;
     }
 }
@@ -920,8 +876,7 @@ sealed class GuidHeap : Heap<Guid>
 sealed class TildeStream : ICanRead
 {
     public Section Section { get; private set; }
-    public TildeStream(Section section)
-    {
+    public TildeStream(Section section) {
         Section = section;
     }
 
@@ -969,8 +924,7 @@ sealed class TildeStream : ICanRead
 
     Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             stream.ReadStruct(out TildeData),
@@ -991,19 +945,16 @@ sealed class TildeStream : ICanRead
         return node;
     }
 
-    IEnumerable<CodeNode> CapturingReadTable(Stream stream, MetadataTableFlags flag, int row)
-    {
+    IEnumerable<CodeNode> CapturingReadTable(Stream stream, MetadataTableFlags flag, int row) {
         var nodes = ReadTable(stream, flag, row);
         streamNodes.Add(flag, nodes);
         return nodes;
     }
 
-    IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
-    {
+    IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row) {
         var count = (int)Rows[row];
 
-        switch (flag)
-        {
+        switch (flag) {
             case MetadataTableFlags.Module:
                 return stream.ReadClasses(ref Modules, count);
             case MetadataTableFlags.TypeRef:
@@ -1085,8 +1036,7 @@ sealed class TildeStream : ICanRead
         }
     }
 
-    public CodeNode GetCodeNode(MetadataTableFlags flag, int i)
-    {
+    public CodeNode GetCodeNode(MetadataTableFlags flag, int i) {
         return streamNodes[flag].Skip(i).First();
     }
 }
@@ -1133,8 +1083,7 @@ sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
     public string StringValue => StringHeap.Get(this);
     public object Value => StringValue;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort index;
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
@@ -1155,8 +1104,7 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue, IHaveIndex
 
     public object Value => UserStringHeap.Get(this);
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort index;
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
@@ -1177,8 +1125,7 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue, IHaveIndex
 
     public object Value => BlobHeap.Get(this);
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort index;
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
@@ -1198,8 +1145,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
     public int Index => (int)(intIndex ?? shortIndex);
     public object Value => GuidHeap.Get(this);
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort index;
         var node = stream.ReadStruct(out index, nameof(index));
         shortIndex = index;
@@ -1214,8 +1160,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
 //TODO(links) implement all CodedIndex
 sealed class UnknownCodedIndex : ICanRead
 {
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort index;
         return stream.ReadStruct(out index, nameof(index));
     }
@@ -1227,8 +1172,7 @@ abstract class CodedIndex : ICanRead
 
     public int Index { get; private set; }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         ushort readData;
         var node = stream.ReadStruct(out readData, "index");
 
@@ -1249,10 +1193,8 @@ abstract class CodedIndex : ICanRead
 
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
-            if (readData == 0)
-            {
+        protected override int GetIndex(int readData) {
+            if (readData == 0) {
                 extendsNothing = new ExtendsNothing();
                 return -1;
             }
@@ -1261,15 +1203,12 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            if (extendsNothing != null)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            if (extendsNothing != null) {
                 return extendsNothing;
             }
 
-            switch (tag)
-            {
+            switch (tag) {
                 case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
                 case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
                 case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
@@ -1289,16 +1228,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x3);
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
                 case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
                 case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
@@ -1318,16 +1254,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1F);
             return (readData >> 5) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
                 case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
                 case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
@@ -1385,16 +1318,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1);
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
                 case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
             }
@@ -1412,16 +1342,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x3);
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
                 case Tag.Assembly: return Singletons.Instance.TildeStream.Assemblies[Index];
@@ -1441,16 +1368,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x7);
             return (readData >> 3) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
                 case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
                 case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
@@ -1474,16 +1398,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1);
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
                 case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
             }
@@ -1501,16 +1422,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1);
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
                 case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
             }
@@ -1528,16 +1446,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1);
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
             }
@@ -1557,10 +1472,8 @@ abstract class CodedIndex : ICanRead
 
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
-            if (readData == 0)
-            {
+        protected override int GetIndex(int readData) {
+            if (readData == 0) {
                 extendsNothing = new ExtendsNothing();
                 return -1;
             }
@@ -1569,15 +1482,12 @@ abstract class CodedIndex : ICanRead
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            if (extendsNothing != null)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            if (extendsNothing != null) {
                 return extendsNothing;
             }
 
-            switch (tag)
-            {
+            switch (tag) {
                 case Tag.File: return Singletons.Instance.TildeStream.Files[Index];
                 case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
                 case Tag.ExportedType: return Singletons.Instance.TildeStream.ExportedTypes[Index];
@@ -1597,16 +1507,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x7);
             return (readData >> 3) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
                 case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
             }
@@ -1624,16 +1531,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x3);
             return (readData >> 2) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
                 case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
                 case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
@@ -1655,16 +1559,13 @@ abstract class CodedIndex : ICanRead
     {
         Tag tag;
 
-        protected override int GetIndex(int readData)
-        {
+        protected override int GetIndex(int readData) {
             tag = (Tag)(readData & 0x1);
             return (readData >> 1) - 1;
         }
 
-        protected override IHaveLiteralValueNode GetLink()
-        {
-            switch (tag)
-            {
+        protected override IHaveLiteralValueNode GetLink() {
+            switch (tag) {
                 case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
                 case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
             }

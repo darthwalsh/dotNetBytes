@@ -19,8 +19,7 @@ public class CodeNode : IEnumerable<string>
     public List<CodeNode> Children = new List<CodeNode>();
 
     List<string> errors = new List<string>();
-    public void AddError(string error)
-    {
+    public void AddError(string error) {
         OnError(error);
         errors.Add(error);
     }
@@ -34,29 +33,22 @@ public class CodeNode : IEnumerable<string>
     //TODO(cleanup) have multiple stages of reading, where StringHeaps are parsed first, then metadata, then methods.
     Func<IHaveLiteralValueNode> delayed;
     internal Func<IHaveLiteralValueNode> DelayedValueNode { set { delayed = value; } } //TODO(cleanup) remove this hack
-    public void UseDelayedValueNode()
-    {
-        if (delayed != null)
-        {
-            try
-            {
+    public void UseDelayedValueNode() {
+        if (delayed != null) {
+            try {
                 var d = delayed();
                 Value = (string)d.Value;
                 Link = d.Node;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 AddError("Using DelayedValueNode blew up with " + e.ToString());
             }
         }
     }
 
-    public void AssignPath()
-    {
+    public void AssignPath() {
         AssignPath(null);
     }
-    void AssignPath(string parentPath)
-    {
+    void AssignPath(string parentPath) {
         if (path != null)
             throw new InvalidOperationException($"path was already {path}");
 
@@ -65,14 +57,12 @@ public class CodeNode : IEnumerable<string>
 
         path = parentPath + Name;
 
-        foreach (var c in Children)
-        {
+        foreach (var c in Children) {
             c.AssignPath(path);
         }
     }
 
-    public static void AssignLink(CodeNode node)
-    {
+    public static void AssignLink(CodeNode node) {
         if (node.link == null)
             return;
 
@@ -82,33 +72,27 @@ public class CodeNode : IEnumerable<string>
         node.LinkPath = node.link.path;
     }
 
-    public void Add(CodeNode node)
-    {
+    public void Add(CodeNode node) {
         Children.Add(node);
     }
 
-    public void Add(IEnumerable<CodeNode> node)
-    {
+    public void Add(IEnumerable<CodeNode> node) {
         Children.AddRange(node);
     }
 
-    public void CallBack(Action<CodeNode> callback)
-    {
-        foreach (var c in Children)
-        {
+    public void CallBack(Action<CodeNode> callback) {
+        foreach (var c in Children) {
             c.CallBack(callback);
         }
 
         callback(this);
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return string.Join(Environment.NewLine, Yield());
     }
 
-    IEnumerable<string> Yield(int indent = 0)
-    {
+    IEnumerable<string> Yield(int indent = 0) {
         yield return new string(' ', indent) + string.Join(" ", new[]
         {
             Start.ToString("X").PadRight(4), End.ToString("X").PadRight(4), Name.PadRight(32),
@@ -116,34 +100,28 @@ public class CodeNode : IEnumerable<string>
             Value.PadRight(10), Description.Substring(0, Math.Min(Description.Length, 89))
         });
 
-        foreach (var c in Children)
-        {
-            foreach (var s in c.Yield(indent + 2))
-            {
+        foreach (var c in Children) {
+            foreach (var s in c.Yield(indent + 2)) {
                 yield return s;
             }
         }
     }
 
-    public IEnumerator<string> GetEnumerator()
-    {
+    public IEnumerator<string> GetEnumerator() {
         return Yield().GetEnumerator();
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
+    IEnumerator IEnumerable.GetEnumerator() {
         return GetEnumerator();
     }
-    
-    public string ToJson()
-    {
+
+    public string ToJson() {
         return CodeNodeConverter.ToJson(this);
     }
 
     class CodeNodeConverter : JavaScriptConverter
     {
-        public static string ToJson(CodeNode node)
-        {
+        public static string ToJson(CodeNode node) {
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = 0x08000000;
             serializer.RegisterConverters(new[] { new CodeNodeConverter() });
@@ -154,13 +132,11 @@ public class CodeNode : IEnumerable<string>
 
         public override IEnumerable<Type> SupportedTypes => new[] { typeof(CodeNode) };
 
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
-        {
+        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer) {
             throw new InvalidOperationException();
         }
 
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
-        {
+        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer) {
             var node = (CodeNode)obj;
 
             return new Dictionary<string, object>

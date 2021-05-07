@@ -1,7 +1,6 @@
 ﻿public static class ReturnValue
 {
-    static int Main()
-    {
+    static int Main() {
         return 1;
     }
 }

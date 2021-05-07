@@ -5,8 +5,7 @@
 
 class C<Z> : I<int, double>
 {
-    static void M<T>(Z z) where T : C<T>, new()
-    {
+    static void M<T>(Z z) where T : C<T>, new() {
         var t = z as T;
         var c = new C<T>();
     }
@@ -14,8 +13,7 @@ class C<Z> : I<int, double>
 
 public static class Generic
 {
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) {
         foreach (var i in new System.Collections.Generic.Dictionary<char, string>()) {
         }
     }

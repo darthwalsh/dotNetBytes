@@ -28,7 +28,6 @@ sealed class CX : AX, IX, IX2
 
 static class Inheritance
 {
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) {
     }
 }

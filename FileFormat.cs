@@ -12,8 +12,7 @@ sealed class FileFormat : ICanRead
     public PEHeader PEHeader;
     public Section[] Sections;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         Singletons.Reset();
 
         var node = new CodeNode
@@ -25,8 +24,7 @@ sealed class FileFormat : ICanRead
             new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
         node.Add(stream.ReadClasses(ref Sections));
-        for (var i = 0; i < Sections.Length; ++i)
-        {
+        for (var i = 0; i < Sections.Length; ++i) {
             Sections[i].CallBack();
         }
 
@@ -43,8 +41,7 @@ sealed class PEHeader : ICanRead
     public PEOptionalHeader PEOptionalHeader;
     public SectionHeader[] SectionHeaders;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return new CodeNode
         {
             stream.ReadStruct(out DosHeader),
@@ -186,15 +183,13 @@ class PEOptionalHeader : ICanRead
     public PEHeaderWindowsNtSpecificFields64? PEHeaderWindowsNtSpecificFields64;
     public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             stream.ReadStruct(out PEHeaderStandardFields),
         };
 
-        switch (PEHeaderStandardFields.Magic)
-        {
+        switch (PEHeaderStandardFields.Magic) {
             case PE32Magic.PE32:
                 node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData)));
                 node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
@@ -362,8 +357,8 @@ struct PEHeaderHeaderDataDirectories
     [Description("Relocation Table; set to 0 if unused (§).")]
     public RVAandSize BaseRelocationTable;
     [Description("Always 0 (§II.24.1).")]
-  //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
-  public ulong Debug;
+    //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
+    public ulong Debug;
     [Description("Always 0 (§II.24.1).")]
     [Expected(0)]
     public ulong Copyright;
@@ -470,8 +465,7 @@ sealed class Section : ICanRead
 
     public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
 
-    public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA)
-    {
+    public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA) {
         start = (int)header.PointerToRawData;
         end = start + (int)header.SizeOfRawData;
         rva = (int)header.VirtualAddress;
@@ -481,10 +475,8 @@ sealed class Section : ICanRead
     }
 
     //TODO(cleanup) reorder children in order 
-    public CodeNode Read(Stream stream)
-    {
-        node = new CodeNode
-        {
+    public CodeNode Read(Stream stream) {
+        node = new CodeNode {
             Description = name,
         };
 
@@ -493,12 +485,10 @@ sealed class Section : ICanRead
             .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
             .Where(nr => nr.rva.RVA > 0)
             .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
-            .OrderBy(nr => nr.rva.RVA))
-        {
+            .OrderBy(nr => nr.rva.RVA)) {
             Reposition(stream, nr.rva.RVA);
 
-            switch (nr.name)
-            {
+            switch (nr.name) {
                 case "CLIHeader":
                     node.Add(stream.ReadStruct(out CLIHeader));
 
@@ -509,8 +499,7 @@ sealed class Section : ICanRead
                     {
                         Reposition(stream, streamHeader.Offset + CLIHeader.MetaData.RVA);
 
-                        switch (streamHeader.Name)
-                        {
+                        switch (streamHeader.Name) {
                             case "#Strings":
                                 var stringHeap = new StringHeap((int)streamHeader.Size);
                                 Singletons.Instance.StringHeap = stringHeap;
@@ -535,9 +524,8 @@ sealed class Section : ICanRead
                                 var TildeStream = new TildeStream(this);
                                 Singletons.Instance.TildeStream = TildeStream;
                                 node.Add(stream.ReadClass(ref TildeStream));
-                                
-                                var methods = new CodeNode
-                                {
+
+                                var methods = new CodeNode {
                                     Name = "Methods",
                                 };
 
@@ -545,8 +533,7 @@ sealed class Section : ICanRead
                                     .Select(def => def.RVA)
                                     .Where(rva => rva > 0)
                                     .Distinct()
-                                    .OrderBy(rva => rva))
-                                {
+                                    .OrderBy(rva => rva)) {
                                     Reposition(stream, rva);
 
                                     Method method = null;
@@ -554,8 +541,7 @@ sealed class Section : ICanRead
                                     MethodsByRVA.Add(rva, method);
                                 }
 
-                                if (methods.Children.Any())
-                                {
+                                if (methods.Children.Any()) {
                                     node.Add(methods);
                                 }
                                 break;
@@ -594,8 +580,7 @@ sealed class Section : ICanRead
             }
         }
 
-        foreach (var toRead in toReads)
-        {
+        foreach (var toRead in toReads) {
             node.Add(toRead(stream));
         }
 
@@ -603,18 +588,15 @@ sealed class Section : ICanRead
     }
 
     List<Func<Stream, CodeNode>> toReads = new List<Func<Stream, CodeNode>>();
-    public void ReadNode(Func<Stream, CodeNode> read)
-    {
+    public void ReadNode(Func<Stream, CodeNode> read) {
         toReads.Add(read);
     }
 
-    public void Reposition(Stream stream, long dataRVA)
-    {
+    public void Reposition(Stream stream, long dataRVA) {
         stream.Position = start + dataRVA - rva;
     }
 
-    public void CallBack()
-    {
+    public void CallBack() {
         node.Start = start;
         node.End = end;
     }
@@ -692,8 +674,7 @@ class Relocations : ICanRead
     public BaseRelocationTable BaseRelocationTable;
     public Fixup[] Fixups;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return new CodeNode
         {
             stream.ReadStruct(out BaseRelocationTable),
@@ -718,8 +699,7 @@ class Fixup : ICanRead
     [Description("Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
     public short Offset;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         byte tmp = 0xCC;
 
         return new CodeNode
@@ -792,8 +772,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
 
     public CodeNode Node { get; private set; }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var header = stream.ReadStruct(out Header, nameof(Header));
         Node = new CodeNode
         {
@@ -803,8 +782,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         int length;
         var moreSects = false;
         var type = (MethodHeaderType)(Header & 0x03);
-        switch (type)
-        {
+        switch (type) {
             case MethodHeaderType.Tiny:
                 length = Header >> 2;
                 header.Description = $"Tiny Header, 0x{length:X} bytes long";
@@ -812,8 +790,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
             case MethodHeaderType.Fat:
                 Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
 
-                if ((FatFormat.FlagsAndSize & 0xF0) != 0x30)
-                {
+                if ((FatFormat.FlagsAndSize & 0xF0) != 0x30) {
                     Node.AddError("Expected upper bits of FlagsAndSize to be 3");
                 }
 
@@ -828,10 +805,8 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         CilOps = new InstructionStream(length);
         Node.Add(stream.ReadClass(ref CilOps, nameof(CilOps)));
 
-        if (moreSects)
-        {
-            while (stream.Position % 4 != 0)
-            {
+        if (moreSects) {
+            while (stream.Position % 4 != 0) {
                 var b = stream.ReallyReadByte();
             }
 
@@ -839,8 +814,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
             var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
 
             MethodDataSection dataSection = null;
-            do
-            {
+            do {
                 dataSectionNode.Add(stream.ReadClass(ref dataSection, $"MethodDataSections[{dataSections.Count}]"));
                 dataSections.Add(dataSection);
             }
@@ -884,24 +858,19 @@ sealed class MethodDataSection : ICanRead
     public LargeMethodHeader LargeMethodHeader;
     public SmallMethodHeader SmallMethodHeader;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             stream.ReadStruct(out Header, nameof(MethodHeaderSection))
         };
 
-        if (!Header.HasFlag(MethodHeaderSection.EHTable))
-        {
+        if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
             throw new InvalidOperationException("Only kind of section data is exception header");
         }
-        
-        if (Header.HasFlag(MethodHeaderSection.FatFormat))
-        {
+
+        if (Header.HasFlag(MethodHeaderSection.FatFormat)) {
             node.Add(stream.ReadClass(ref LargeMethodHeader, nameof(LargeMethodHeader)));
-        }
-        else
-        {
+        } else {
             node.Add(stream.ReadClass(ref SmallMethodHeader, nameof(SmallMethodHeader)));
         }
 
@@ -931,8 +900,7 @@ sealed class SmallMethodHeader : ICanRead
     public ushort Reserved;
     public SmallExceptionHandlingClause[] Clauses;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             stream.ReadStruct(out DataSize, nameof(DataSize)),
@@ -940,8 +908,7 @@ sealed class SmallMethodHeader : ICanRead
         };
 
         var n = (DataSize - 4) / 12;
-        if (n * 12 + 4 != DataSize)
-        {
+        if (n * 12 + 4 != DataSize) {
             node.AddError("DataSize was not of the form n * 12 + 4");
         }
 
@@ -957,16 +924,14 @@ sealed class LargeMethodHeader : ICanRead
     public UInt24 DataSize;
     public SmallExceptionHandlingClause[] Clauses;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             stream.ReadClass(ref DataSize, nameof(DataSize)),
         };
 
         var n = (DataSize.IntValue - 4) / 12;
-        if (n * 24 + 4 != DataSize.IntValue)
-        {
+        if (n * 24 + 4 != DataSize.IntValue) {
             node.AddError("DataSize was not of the form n * 24 + 4");
         }
 
@@ -1042,8 +1007,7 @@ sealed class UInt24 : ICanRead, IHaveValue
     public int IntValue { get; private set; }
     public object Value => IntValue;
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         byte[] b;
         stream.ReadStructs(out b, 3);
 

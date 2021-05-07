@@ -3,45 +3,30 @@ using System.Runtime.CompilerServices;
 
 public static class Exceptions
 {
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) {
         RuntimeHelpers.PrepareConstrainedRegions();
-        try
-        {
-        }
-        finally
-        {
+        try {
+        } finally {
             "CER".GetHashCode();
         }
 
-        try
-        {
+        try {
 
-        }
-        catch (InvalidOperationException) when (new object() == new object())
-        {
+        } catch (InvalidOperationException) when (new object() == new object()) {
             throw;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.GetHashCode();
         }
 
         "outside".GetHashCode();
-        try
-        {
+        try {
             "inside1".GetHashCode();
-            try
-            {
+            try {
                 "inside2".GetHashCode();
-                try
-                {
+                try {
                     "inside3".GetHashCode();
-                }
-                catch { }
-            }
-            catch { }
-        }
-        catch { }
+                } catch { }
+            } catch { }
+        } catch { }
     }
 }

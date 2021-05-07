@@ -12,8 +12,7 @@ namespace Server
     [Guid("C6659361-1625-4746-931C-36014B146679")]
     public class InterfaceImplementation : IManagedInterface
     {
-        public int PrintHi(string name)
-        {
+        public int PrintHi(string name) {
             Console.WriteLine("Hello, {0}!", name);
             return 33;
         }
@@ -43,8 +42,7 @@ namespace Client
 
     public static class COM
     {
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             var graphManager = new FilgraphManager();
 
             var mc = (IMediaControl)graphManager;

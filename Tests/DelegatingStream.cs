@@ -6,8 +6,7 @@ namespace Tests
     {
         Stream stream;
 
-        public DelegatingStream(Stream s)
-        {
+        public DelegatingStream(Stream s) {
             stream = s;
         }
 
@@ -17,20 +16,17 @@ namespace Tests
         public override bool CanWrite => stream.CanWrite;
         public override long Length => stream.Length;
 
-        public override long Position
-        {
+        public override long Position {
             get { return stream.Position; }
             set { stream.Position = value; }
         }
 
-        public override int ReadTimeout
-        {
+        public override int ReadTimeout {
             get { return stream.ReadTimeout; }
             set { stream.ReadTimeout = value; }
         }
 
-        public override int WriteTimeout
-        {
+        public override int WriteTimeout {
             get { return stream.WriteTimeout; }
             set { stream.WriteTimeout = value; }
         }

@@ -18,7 +18,7 @@ public static class PInvoke
         [FieldOffset(0)]
         public double d;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 8)]
     public struct sparse
     {
@@ -39,8 +39,7 @@ public static class PInvoke
         out bool ob,
         ref bytes bs);
 
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) {
         var o = new bytes { vals = new int[] { 0 } };
     }
 }

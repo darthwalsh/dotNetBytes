@@ -1,50 +1,46 @@
 #leftPanel {
-    float: left;
-    
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 100%;
-    
-    padding-right: 50px;
-    
-    position: fixed;
+  float: left;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  padding-right: 50px;
+  position: fixed;
 }
 
 #bytes {
-    float: left;
+  float: left;
 }
 
 #details {
-    float: right;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 100%;
-    width: 20%;
-    margin-top: 128px;
-    
-    right: 8px;
-    position: fixed;
+  float: right;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  width: 20%;
+  margin-top: 128px;
+  right: 8px;
+  position: fixed;
 }
 
 .detail {
-    border-width: 1px;
-    border-style: solid;
-    border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
 }
 
 .error {
-    border-width: 1px;
-    border-style: solid;
-    border-color: red;
-    margin: 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: red;
+  margin: 10px;
 }
 
 ul {
-    list-style-type: none;
-    padding-left: 5%;
-    line-height: 150%;
+  list-style-type: none;
+  padding-left: 5%;
+  line-height: 150%;
 }
 
 body {
-    font-family: "Verdana";
+  font-family: "Verdana";
 }

@@ -19,19 +19,16 @@ sealed class InstructionStream : ICanRead
     int length;
     int opCount = 0;
 
-    public InstructionStream(int length)
-    {
+    public InstructionStream(int length) {
         this.length = length;
     }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var readUntil = stream.Position + length;
 
         var node = new CodeNode();
 
-        while (stream.Position < readUntil)
-        {
+        while (stream.Position < readUntil) {
             var op = GetOp(stream);
             instructions.Add(op);
             var opNode = op.Read(stream);
@@ -42,13 +39,11 @@ sealed class InstructionStream : ICanRead
         return node;
     }
 
-    ICanRead GetOp(Stream stream)
-    {
+    ICanRead GetOp(Stream stream) {
         byte firstByte;
         var opNode = stream.ReadStruct(out firstByte, "OpCode");
 
-        switch (firstByte)
-        {
+        switch (firstByte) {
             case 0x00:
                 return new Op(opNode, "nop");
             case 0x01:
@@ -438,8 +433,7 @@ sealed class InstructionStream : ICanRead
                 combinedOp.Start = opNode.Start;
                 combinedOp.End = secondOpNode.End;
                 combinedOp.Value = opNode.Value + " " + secondOpNode.Value;
-                switch (secondByte)
-                {
+                switch (secondByte) {
                     case 0x00:
                         return new Op(combinedOp, "arglist");
                     case 0x01:
@@ -515,14 +509,12 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
 
     public object Value { get; set; }
 
-    
-    public CodeNode Read(Stream stream)
-    {
+
+    public CodeNode Read(Stream stream) {
         var offsetNode = stream.ReadClass(ref offset, nameof(offset));
         var tableNode = stream.ReadStruct(out table, nameof(table));
 
-        if (table == 0x70)
-        {
+        if (table == 0x70) {
             // Reposition stream, and read "XX XX 00 70"
             stream.Position -= 4;
 
@@ -541,9 +533,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
             tableNode.Description = "UserStringHeapIndex";
             Value = UserStringHeap.Get(index).GetString();
             return node;
-        }
-        else
-        {
+        } else {
             var node = new CodeNode
             {
                 offsetNode,
@@ -562,14 +552,12 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
 sealed class Op : ICanRead
 {
     CodeNode op;
-    public Op(CodeNode op, string opName)
-    {
+    public Op(CodeNode op, string opName) {
         this.op = op;
         op.Description = opName;
     }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return op;
     }
 }
@@ -581,14 +569,12 @@ sealed class OpWith<T> : ICanRead
     public T value;
     string opName;
 
-    public OpWith(CodeNode op, string opName)
-    {
+    public OpWith(CodeNode op, string opName) {
         this.op = op;
         this.opName = opName;
     }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var node = new CodeNode
         {
             op,
@@ -604,14 +590,12 @@ sealed class OpWithToken : ICanRead
     CodeNode op;
     public MetadataToken token;
 
-    public OpWithToken(CodeNode op, string opName)
-    {
+    public OpWithToken(CodeNode op, string opName) {
         this.op = op;
         op.Description = opName;
     }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         var tokenNode = stream.ReadClass(ref token, nameof(token));
         var node = new CodeNode
         {

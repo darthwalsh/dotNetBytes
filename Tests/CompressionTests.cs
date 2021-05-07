@@ -11,8 +11,7 @@ namespace Tests
     public class CompressionTests
     {
         [TestMethod]
-        public void DecompressUnsignedTest()
-        {
+        public void DecompressUnsignedTest() {
             AssertDecompressUnsigned(0x03, "03");
             AssertDecompressUnsigned(0x7F, "7F");
             AssertDecompressUnsigned(0x80, "8080");
@@ -22,14 +21,12 @@ namespace Tests
             AssertDecompressUnsigned(0x1FFFFFFF, "DFFFFFFF");
         }
 
-        static void AssertDecompressUnsigned(uint expected, string hex)
-        {
+        static void AssertDecompressUnsigned(uint expected, string hex) {
             Assert.AreEqual(expected, GetData(hex).DecompressUnsigned(0));
         }
 
         [TestMethod]
-        public void DecompressSignedTest()
-        {
+        public void DecompressSignedTest() {
             AssertDecompressSigned(3, "06");
             AssertDecompressSigned(-3, "7B");
             AssertDecompressSigned(64, "8080");
@@ -40,26 +37,22 @@ namespace Tests
             AssertDecompressSigned(-268435456, "C0000001");
         }
 
-        static void AssertDecompressSigned(int expected, string hex)
-        {
+        static void AssertDecompressSigned(int expected, string hex) {
             Assert.AreEqual(expected, GetData(hex).DecompressSigned(0));
         }
 
-        static byte[] GetData(string hex)
-        {
+        static byte[] GetData(string hex) {
             Assert.AreEqual(0, hex.Length % 2);
 
             var data = new byte[hex.Length / 2];
-            for (var i = 0; i < data.Length; ++i)
-            {
+            for (var i = 0; i < data.Length; ++i) {
                 data[i] = (byte)(GetNibble(hex[2 * i]) << 4);
                 data[i] += (byte)(GetNibble(hex[2 * i + 1]));
             }
             return data;
         }
 
-        static int GetNibble(char c)
-        {
+        static int GetNibble(char c) {
             if ('0' <= c && c <= '9')
                 return c - '0';
             if ('A' <= c && c <= 'F')

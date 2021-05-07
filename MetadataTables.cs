@@ -333,8 +333,7 @@ sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
 
     public CodeNode Node { get; private set; }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         Node = new CodeNode
         {
             stream.ReadStruct(out Offset, nameof(Offset)),
@@ -344,8 +343,7 @@ sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
         };
 
         var section = Singletons.Instance.TildeStream.Section;
-        section.ReadNode(strm =>
-        {
+        section.ReadNode(strm => {
             section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
 
             ResourceEntry entry = null;
@@ -363,8 +361,7 @@ sealed class ResourceEntry : ICanRead, IHaveAName
 
     public string Name { get; } = $"{nameof(ResourceEntry)}[{Singletons.Instance.ResourceEntryCount++}]";
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         return new CodeNode
         {
             stream.ReadStruct(out Length, nameof(Length)),
@@ -401,8 +398,7 @@ sealed class MethodDef : ICanRead, IHaveLiteralValueNode // TODO(cleanup) can th
 
     public CodeNode RVANode { get; private set; }
 
-    public CodeNode Read(Stream stream)
-    {
+    public CodeNode Read(Stream stream) {
         Node = new CodeNode
         {
             (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),

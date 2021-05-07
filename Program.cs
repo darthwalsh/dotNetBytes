@@ -6,25 +6,19 @@ using Nancy.Hosting.Self;
 
 public static class Program
 {
-    static void Main(string[] args)
-    {
-        try
-        {
+    static void Main(string[] args) {
+        try {
             var path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
 
             Run(path);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Console.WriteLine(e);
         }
     }
 
-    public static void Run(string path)
-    {
+    public static void Run(string path) {
         AssemblyBytes assm;
-        using (var fileStream = File.OpenRead(path))
-        {
+        using (var fileStream = File.OpenRead(path)) {
             assm = new AssemblyBytes(fileStream);
         }
 
@@ -35,34 +29,28 @@ public static class Program
         var local = SetupFiles(path, assmJson);
 
         GC.KeepAlive(ForceNancyDllToBeCopied);
-        using (var host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
-        {
+        using (var host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000"))) {
             host.Start();
 
             RunBrowserAndWebServer();
         }
     }
 
-    static string SetupFiles(string path, string assmJson)
-    {
+    static string SetupFiles(string path, string assmJson) {
         var assembly = typeof(Program).Assembly;
 
         var local = Path.Combine(Path.GetDirectoryName(assembly.Location), "Content");
 
-        try
-        {
+        try {
             Directory.Delete(local, recursive: true);
-        }
-        catch
-        { }
+        } catch { }
         Directory.CreateDirectory(local);
 
         File.WriteAllText(Path.Combine(local, "bytes.json"), assmJson);
 
         File.Copy(path, Path.Combine(local, "Program.dat"), overwrite: true);
 
-        foreach (var res in assembly.GetManifestResourceNames().Where(res => res.StartsWith("view.")))
-        {
+        foreach (var res in assembly.GetManifestResourceNames().Where(res => res.StartsWith("view."))) {
             if (res.Contains("Program.dat"))
                 continue;
 
@@ -72,8 +60,7 @@ public static class Program
                 File.Delete(destination);
 
             using (var stream = assembly.GetManifestResourceStream(res))
-            using (var file = File.OpenWrite(destination))
-            {
+            using (var file = File.OpenWrite(destination)) {
                 stream.CopyTo(file);
             }
         }
@@ -81,8 +68,7 @@ public static class Program
         return local;
     }
 
-    static void RunBrowserAndWebServer()
-    {
+    static void RunBrowserAndWebServer() {
         var url = "http://127.0.0.1:8000/Content/view.html?Example=true";
         var timeout = "20";
 
@@ -91,13 +77,11 @@ public static class Program
 
         Process.Start(url); // open the URL in default browser
 
-        using (var p = Process.Start(new ProcessStartInfo
-        {
+        using (var p = Process.Start(new ProcessStartInfo {
             FileName = "timeout.exe",
             Arguments = $"/t {timeout}",
             UseShellExecute = false,
-        }))
-        {
+        })) {
             p.WaitForExit();
         }
     }

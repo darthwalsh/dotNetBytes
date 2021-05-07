@@ -2,8 +2,7 @@
 {
     static int x;
 
-    static void Main(string[] args)
-    {
+    static void Main(string[] args) {
         ++x;
     }
 }

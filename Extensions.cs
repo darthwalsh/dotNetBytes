@@ -12,8 +12,7 @@ using System.Text;
 sealed class ExpectedAttribute : Attribute
 {
     public object Value;
-    public ExpectedAttribute(object v)
-    {
+    public ExpectedAttribute(object v) {
         Value = v;
     }
 }
@@ -21,8 +20,7 @@ sealed class ExpectedAttribute : Attribute
 sealed class DescriptionAttribute : Attribute
 {
     public string Description;
-    public DescriptionAttribute(string d)
-    {
+    public DescriptionAttribute(string d) {
         Description = d;
     }
 }
@@ -61,8 +59,7 @@ interface IHaveLiteralValueNode : IHaveLiteralValue
 
 sealed class DefaultValueNode : IHaveLiteralValueNode
 {
-    public DefaultValueNode(object value, CodeNode node)
-    {
+    public DefaultValueNode(object value, CodeNode node) {
         Value = value;
         Node = node;
     }
@@ -83,22 +80,18 @@ internal interface IHaveIndex
 static class StreamExtensions
 {
     // http://jonskeet.uk/csharp/readbinary.html
-    public static void ReadWholeArray(this Stream stream, byte[] data)
-    {
+    public static void ReadWholeArray(this Stream stream, byte[] data) {
         string error;
         if (!stream.TryReadWholeArray(data, out error))
             throw new EndOfStreamException(error);
     }
 
-    public static bool TryReadWholeArray(this Stream stream, byte[] data, out string error)
-    {
+    public static bool TryReadWholeArray(this Stream stream, byte[] data, out string error) {
         var offset = 0;
         var remaining = data.Length;
-        while (remaining > 0)
-        {
+        while (remaining > 0) {
             var read = stream.Read(data, offset, remaining);
-            if (read <= 0)
-            {
+            if (read <= 0) {
                 error = $"End of stream reached with {remaining} bytes left to read";
                 return false;
             }
@@ -109,26 +102,21 @@ static class StreamExtensions
         return true;
     }
 
-    public static Func<Stream, byte[]> ReadByteArray(int length)
-    {
-        return stream =>
-        {
+    public static Func<Stream, byte[]> ReadByteArray(int length) {
+        return stream => {
             var data = new byte[length];
             stream.ReadWholeArray(data);
             return data;
         };
     }
 
-    public static Func<Stream, string> ReadNullTerminated(Encoding encoding, int byteBoundary)
-    {
+    public static Func<Stream, string> ReadNullTerminated(Encoding encoding, int byteBoundary) {
         var builder = new List<byte>();
 
         var buffer = new byte[byteBoundary];
 
-        return stream =>
-        {
-            while (true)
-            {
+        return stream => {
+            while (true) {
                 stream.ReadWholeArray(buffer);
                 builder.AddRange(buffer);
                 if (buffer.Contains((byte)'\0'))
@@ -138,16 +126,14 @@ static class StreamExtensions
     }
 
     //TODO(cleanup) just wrap the input Stream?
-    public static byte ReallyReadByte(this Stream stream)
-    {
+    public static byte ReallyReadByte(this Stream stream) {
         var read = stream.ReadByte();
         if (read == -1)
             throw new EndOfStreamException("End of stream reached with 1 byte left to read");
         return (byte)read;
     }
 
-    public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
-    {
+    public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct {
         var node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
@@ -173,9 +159,8 @@ static class StreamExtensions
         return node;
     }
 
-    public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans) 
-        where FromT : struct where ToT : struct
-    {
+    public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans)
+        where FromT : struct where ToT : struct {
         FromT from;
         var node = stream.ReadStruct(out from, name);
 
@@ -189,46 +174,40 @@ static class StreamExtensions
         return node;
     }
 
-    public static CodeNode ReadStruct<T>(this Stream stream, out T? opt, string name = null) where T : struct
-    {
+    public static CodeNode ReadStruct<T>(this Stream stream, out T? opt, string name = null) where T : struct {
         T t;
         var node = stream.ReadStruct(out t, name);
         opt = t;
         return node;
     }
 
-    public static IEnumerable<CodeNode> ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct
-    {
+    public static IEnumerable<CodeNode> ReadStructs<T>(this Stream stream, out T[] ts, int n, string name = null) where T : struct {
         name = name ?? typeof(T).Name + "s";
 
         var nodes = new List<CodeNode>();
 
         ts = new T[n];
-        for (var i = 0; i < n; ++i)
-        {
+        for (var i = 0; i < n; ++i) {
             nodes.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
         }
 
         return nodes;
     }
 
-    public static IEnumerable<CodeNode> ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanBeRead
-    {
+    public static IEnumerable<CodeNode> ReadClasses<T>(this Stream stream, ref T[] ts, int n = -1, string name = null) where T : class, ICanBeRead {
         name = name ?? typeof(T).Name + "s";
 
         var nodes = new List<CodeNode>();
 
         ts = ts ?? new T[n];
-        for (var i = 0; i < ts.Length; ++i)
-        {
+        for (var i = 0; i < ts.Length; ++i) {
             nodes.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
         }
 
         return nodes;
     }
 
-    public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanBeRead
-    {
+    public static CodeNode ReadClass<T>(this Stream stream, ref T t, string name = null) where T : class, ICanBeRead {
         var start = (int)stream.Position;
 
         t = t ?? Activator.CreateInstance<T>();
@@ -237,25 +216,21 @@ static class StreamExtensions
 
         var iCanRead = t as ICanRead;
         var iCanBeReadInOrder = t as ICanBeReadInOrder;
-        if (iCanRead != null)
-        {
+        if (iCanRead != null) {
             if (iCanBeReadInOrder != null)
                 throw new InvalidOperationException();
 
             node = iCanRead.Read(stream);
         }
-        if (iCanBeReadInOrder != null)
-        {
+        if (iCanBeReadInOrder != null) {
             node = iCanBeReadInOrder.Read(stream);
         }
-        if (node == null)
-        {
+        if (node == null) {
             throw new InvalidOperationException();
         }
 
         var haveName = t as IHaveAName;
-        if (haveName != null)
-        {
+        if (haveName != null) {
             name = name ?? haveName.Name;
         }
 
@@ -264,21 +239,17 @@ static class StreamExtensions
 
         node.End = (int)stream.Position;
 
-        try
-        {
+        try {
             if (t is IHaveValue)
                 node.Value = t.GetString();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             node.AddError(e.ToString());
         }
 
         return node;
     }
 
-    public static CodeNode ReadAnything<T>(this Stream stream, out T t, Func<Stream, T> callback, string name = null)
-    {
+    public static CodeNode ReadAnything<T>(this Stream stream, out T t, Func<Stream, T> callback, string name = null) {
         var node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
@@ -296,39 +267,33 @@ static class StreamExtensions
 
 static class TypeExtensions
 {
-    public static int GetInt32(this object o)
-    {
+    public static int GetInt32(this object o) {
         var convert = o as IConvertible;
 
-        if (convert != null)
-        {
+        if (convert != null) {
             return convert.ToInt32(CultureInfo.InvariantCulture);
         }
 
         throw new InvalidOperationException("MakeInt doesn't support: " + o.GetType().Name);
     }
 
-    public static int GetSize(this object o)
-    {
+    public static int GetSize(this object o) {
         var os = o as IEnumerable;
-        if (os != null)
-        {
+        if (os != null) {
             return os.Cast<object>().Sum(GetSize);
         }
 
         return o.GetType().GetSize();
     }
 
-    public static int GetSize(this Type type)
-    {
+    public static int GetSize(this Type type) {
         if (type.IsEnum)
             return Enum.GetUnderlyingType(type).GetSize();
 
         if (!type.IsConstructedGenericType)
             return Marshal.SizeOf(type);
 
-        return type.GetFields(BindingFlags.Public | BindingFlags.Instance).Sum(field =>
-        {
+        return type.GetFields(BindingFlags.Public | BindingFlags.Instance).Sum(field => {
             return field.FieldType.GetSize();
         });
     }
@@ -342,15 +307,11 @@ static class TypeExtensions
         { '\v', @"\v" },
     };
 
-    public static string EscapeControl(this string s)
-    {
-        return string.Concat(s.Select(c =>
-        {
-            if (char.IsControl(c))
-            {
+    public static string EscapeControl(this string s) {
+        return string.Concat(s.Select(c => {
+            if (char.IsControl(c)) {
                 string ans;
-                if (escapes.TryGetValue(c, out ans))
-                {
+                if (escapes.TryGetValue(c, out ans)) {
                     return ans;
                 }
 
@@ -361,74 +322,62 @@ static class TypeExtensions
         }));
     }
 
-    public static int CountSetBits(this ulong n)
-    {
+    public static int CountSetBits(this ulong n) {
         ulong count = 0;
         for (; n != 0; n >>= 1)
             count += n & 0x1;
         return (int)count;
     }
 
-    public static string GetString(this object o)
-    {
-        if (o == null)
-        {
+    public static string GetString(this object o) {
+        if (o == null) {
             throw new ArgumentNullException();
         }
-        
+
         var s = o as string;
-        if (s != null)
-        {
+        if (s != null) {
             return '"' + s.EscapeControl() + '"';
         }
 
         var cs = o as char[];
-        if (cs != null)
-        {
+        if (cs != null) {
             return new string(cs).GetString();
         }
 
         var os = o as IEnumerable;
-        if (os != null)
-        {
+        if (os != null) {
             return "{" + string.Join(", ", os.Cast<object>().Select(GetString)) + "}";
         }
 
-        if (o is Enum)
-        {
+        if (o is Enum) {
             var en = (Enum)o;
             return "0x" + en.ToString("X") + " " + en.ToString(); ;
         }
 
         var guid = o as Guid?;
-        if (guid != null)
-        {
+        if (guid != null) {
             return guid.ToString();
         }
 
         var hasValue = o as IHaveValue;
-        if (hasValue != null)
-        {
+        if (hasValue != null) {
             var value = hasValue.Value;
             var literalValue = o as IHaveLiteralValue;
-            if (literalValue != null)
-            {
+            if (literalValue != null) {
                 return (string)value;
             }
             return value.GetString();
         }
 
         var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });
-        if (method != null)
-        {
+        if (method != null) {
             return "0x" + (string)method.Invoke(o, new object[] { "X" });
         }
 
         return o.ToString();
     }
 
-    public static void VisitFields(this object ans, int start, CodeNode parent)
-    {
+    public static void VisitFields(this object ans, int start, CodeNode parent) {
         var type = ans.GetType();
 
         if (type.Assembly != typeof(AssemblyBytes).Assembly)
@@ -438,21 +387,18 @@ static class TypeExtensions
             return;
 
         var privateField = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
-        if (privateField != null)
-        {
+        if (privateField != null) {
             throw new InvalidOperationException($"No private fields allowed ! {type.FullName}.{privateField.Name}");
         }
 
-        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
-        {
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance)) {
             var actual = field.GetValue(ans);
             var name = field.Name;
             var desc = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
 
             var nextStart = start + Marshal.OffsetOf(ans.GetType(), name).ToInt32();
 
-            var current = new CodeNode
-            {
+            var current = new CodeNode {
                 Name = name,
                 Description = desc != null ? desc.Description : "",
                 Value = actual.GetString(),
@@ -466,35 +412,26 @@ static class TypeExtensions
             parent.Children.Add(current);
 
             var expected = field.GetCustomAttributes(typeof(ExpectedAttribute), false).FirstOrDefault() as ExpectedAttribute;
-            if (expected == null)
-            {
+            if (expected == null) {
                 continue;
             }
-            try
-            {
-                if (!SmartEquals(expected.Value, actual))
-                {
+            try {
+                if (!SmartEquals(expected.Value, actual)) {
                     Fail(current, $"Expected {name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{current.Start:X}");
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Fail(current, $"Expected {name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{current.Start:X} {e}");
             }
         }
     }
 
-    static bool SmartEquals(object expected, object actual)
-    {
-        if (object.Equals(expected, actual))
-        {
+    static bool SmartEquals(object expected, object actual) {
+        if (object.Equals(expected, actual)) {
             return true;
         }
 
-        if (expected is int && !(actual is int))
-        {
-            if (actual is ulong)
-            {
+        if (expected is int && !(actual is int)) {
+            if (actual is ulong) {
                 return ((ulong)(int)expected) == ((ulong)actual);
             }
 
@@ -504,16 +441,14 @@ static class TypeExtensions
         var expecteds = expected as IEnumerable;
         var actuals = actual as IEnumerable;
 
-        if (expecteds != null && actuals != null)
-        {
+        if (expecteds != null && actuals != null) {
             return expecteds.Cast<object>().SequenceEqual(actuals.Cast<object>());
         }
 
         return false;
     }
 
-    static void Fail(CodeNode node, string message)
-    {
+    static void Fail(CodeNode node, string message) {
         node.AddError(message);
     }
 }
@@ -523,28 +458,24 @@ static class TypeExtensions
 sealed class OrderedFieldAttribute : Attribute
 {
     public int Order;
-    public OrderedFieldAttribute([CallerLineNumber] int i = -1)
-    {
+    public OrderedFieldAttribute([CallerLineNumber] int i = -1) {
         Order = i;
     }
 }
 
 static class OrderedExtensions
 {
-    public static CodeNode Read(this ICanBeReadInOrder o, Stream stream)
-    {
+    public static CodeNode Read(this ICanBeReadInOrder o, Stream stream) {
         o.Node = new CodeNode();
         var ordedFields = o.GetType().GetFields()
-            .OrderBy(field =>
-            {
+            .OrderBy(field => {
                 var attr = (OrderedFieldAttribute)field.GetCustomAttributes(typeof(OrderedFieldAttribute), false).SingleOrDefault();
                 if (attr == null)
                     throw new InvalidOperationException($"{o.GetType().FullName}.{field.Name} is missing [OrderedField]");
                 return attr.Order;
             }).ToList();
 
-        foreach (var field in ordedFields)
-        {
+        foreach (var field in ordedFields) {
             var fieldType = field.FieldType;
 
             // Invoking a method generically is not simple...
