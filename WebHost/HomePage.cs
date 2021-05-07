@@ -18,7 +18,7 @@ namespace WebHost
       public byte[] File;
     }
 
-    static Lazy<Parsed> Example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
+    static Lazy<Parsed> example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
 
     public HomePage()
     {
@@ -28,12 +28,12 @@ namespace WebHost
       Get["/Program.dat"] = _ => new Response
       {
         ContentType = MimeTypes.GetMimeType(".exe"),
-        Contents = s => s.Write(Example.Value.File),
+        Contents = s => s.Write(example.Value.File),
       };
       Get["/bytes.json"] = _ => new Response
       {
         ContentType = MimeTypes.GetMimeType(".json"),
-        Contents = s => s.Write(Example.Value.Json),
+        Contents = s => s.Write(example.Value.Json),
       };
 
       Get["/{file}"] = _ => Response.AsFile($"bin/Content/{_.file}");

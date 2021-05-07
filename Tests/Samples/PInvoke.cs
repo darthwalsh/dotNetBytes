@@ -4,26 +4,26 @@ using System.Text;
 
 public static class PInvoke
 {
-  struct bytes
+  struct Bytes
   {
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-    public int[] vals;
+    public int[] Vals;
   }
 
   [StructLayout(LayoutKind.Explicit)]
-  public struct union
+  public struct Union
   {
     [FieldOffset(0)]
-    public int i;
+    public int I;
     [FieldOffset(0)]
-    public double d;
+    public double D;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 8)]
-  public struct sparse
+  public struct Sparse
   {
-    public int i;
-    public double d;
+    public int I;
+    public double D;
   }
 
   [DllImport("something.dll", SetLastError = true, PreserveSig = true)]
@@ -31,15 +31,15 @@ public static class PInvoke
       [MarshalAs(UnmanagedType.I4)]
         int i,
       string s,
-      union u,
-      sparse sp,
+      Union u,
+      Sparse sp,
       [In, Out] string inout,
       StringBuilder sb,
       IntPtr ip,
       out bool ob,
-      ref bytes bs);
+      ref Bytes bs);
 
   static void Main(string[] args) {
-    var o = new bytes { vals = new int[] { 0 } };
+    var o = new Bytes { Vals = new int[] { 0 } };
   }
 }
