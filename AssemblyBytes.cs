@@ -4,12 +4,12 @@ using System.IO;
 
 public class AssemblyBytes
 {
-  FileFormat FileFormat;
+  FileFormat fileFormat;
 
   CodeNode node;
 
   public AssemblyBytes(Stream s) {
-    node = s.ReadClass(ref FileFormat);
+    node = s.ReadClass(ref fileFormat);
 
     // Widen any nodes to the width of their children
     node.CallBack(n => {

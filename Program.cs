@@ -28,7 +28,7 @@ public static class Program
 
     var local = SetupFiles(path, assmJson);
 
-    GC.KeepAlive(ForceNancyDllToBeCopied);
+    GC.KeepAlive(forceNancyDllToBeCopied);
     using (var host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000"))) {
       host.Start();
 
@@ -86,5 +86,5 @@ public static class Program
     }
   }
 
-  static Nancy.NancyModule ForceNancyDllToBeCopied = null;
+  static Nancy.NancyModule forceNancyDllToBeCopied = null;
 }

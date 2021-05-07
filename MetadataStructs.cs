@@ -52,15 +52,15 @@ class FieldAttributes : ICanRead, IHaveValue
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    access = (Access)(value & AccessMask);
-    flags = (Flags)(value & FlagsMask);
+    access = (Access)(value & accessMask);
+    flags = (Flags)(value & flagsMask);
 
     return node;
   }
 
   public object Value => new Enum[] { access, flags };
 
-  const ushort AccessMask = 0x0007;
+  const ushort accessMask = 0x0007;
 
   public enum Access : ushort
   {
@@ -80,7 +80,7 @@ class FieldAttributes : ICanRead, IHaveValue
     Public = 0x0006,
   }
 
-  const ushort FlagsMask = unchecked((ushort)~AccessMask);
+  const ushort flagsMask = unchecked((ushort)~accessMask);
   [Flags]
   public enum Flags : ushort
   {
@@ -127,15 +127,15 @@ class GenericParamAttributes : ICanRead, IHaveValue
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    variance = (Variance)(value & VarianceMask);
-    specialConstraint = (SpecialConstraint)(value & SpecialConstraintMask);
+    variance = (Variance)(value & varianceMask);
+    specialConstraint = (SpecialConstraint)(value & specialConstraintMask);
 
     return node;
   }
 
   public object Value => new Enum[] { variance, specialConstraint };
 
-  const ushort VarianceMask = 0x0003;
+  const ushort varianceMask = 0x0003;
 
   public enum Variance : ushort
   {
@@ -147,7 +147,7 @@ class GenericParamAttributes : ICanRead, IHaveValue
     Contravariant = 0x0002,
   }
 
-  const ushort SpecialConstraintMask = 0x0004;
+  const ushort specialConstraintMask = 0x0004;
 
   public enum SpecialConstraint : ushort
   {
@@ -171,16 +171,16 @@ class PInvokeAttributes : ICanRead, IHaveValue
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    characterSet = (CharacterSet)(value & CharacterSetMask);
-    callingConvention = (CallingConvention)(value & CallingConventionMask);
-    flags = (Flags)(value & FlagsMask);
+    characterSet = (CharacterSet)(value & characterSetMask);
+    callingConvention = (CallingConvention)(value & callingConventionMask);
+    flags = (Flags)(value & flagsMask);
 
     return node;
   }
 
   public object Value => new Enum[] { characterSet, callingConvention, flags };
 
-  const ushort CharacterSetMask = 0x0007;
+  const ushort characterSetMask = 0x0007;
 
   public enum CharacterSet : ushort
   {
@@ -194,7 +194,7 @@ class PInvokeAttributes : ICanRead, IHaveValue
     Auto = 0x0006,
   }
 
-  const ushort CallingConventionMask = 0x0100;
+  const ushort callingConventionMask = 0x0100;
 
   public enum CallingConvention : ushort
   {
@@ -210,7 +210,7 @@ class PInvokeAttributes : ICanRead, IHaveValue
     FastCall = 0x0500,
   }
 
-  const ushort FlagsMask = unchecked((ushort)~CharacterSetMask & ~CallingConventionMask);
+  const ushort flagsMask = unchecked((ushort)~characterSetMask & ~callingConventionMask);
   [Flags]
   public enum Flags : ushort
   {
@@ -241,16 +241,16 @@ class MethodAttributes : ICanRead, IHaveValue
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    memberAccess = (MemberAccess)(value & MemberAccessMask);
-    vtableLayout = (VtableLayout)(value & VtableLayoutMask);
-    flags = (Flags)(value & FlagsMask);
+    memberAccess = (MemberAccess)(value & memberAccessMask);
+    vtableLayout = (VtableLayout)(value & vtableLayoutMask);
+    flags = (Flags)(value & flagsMask);
 
     return node;
   }
 
   public object Value => new Enum[] { memberAccess, vtableLayout, flags };
 
-  const ushort MemberAccessMask = 0x0007;
+  const ushort memberAccessMask = 0x0007;
 
   public enum MemberAccess : ushort
   {
@@ -270,7 +270,7 @@ class MethodAttributes : ICanRead, IHaveValue
     Public = 0x0006,
   }
 
-  const ushort VtableLayoutMask = 0x0100;
+  const ushort vtableLayoutMask = 0x0100;
 
   public enum VtableLayout : ushort
   {
@@ -280,7 +280,7 @@ class MethodAttributes : ICanRead, IHaveValue
     NewSlot = 0x0100,
   }
 
-  const ushort FlagsMask = unchecked((ushort)~MemberAccessMask & ~VtableLayoutMask);
+  const ushort flagsMask = unchecked((ushort)~memberAccessMask & ~vtableLayoutMask);
   [Flags]
   public enum Flags : ushort
   {
@@ -322,16 +322,16 @@ class MethodImplAttributes : ICanRead, IHaveValue
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    codeType = (CodeType)(value & CodeTypeMask);
-    managed = (Managed)(value & ManagedMask);
-    flags = (Flags)(value & FlagsMask);
+    codeType = (CodeType)(value & codeTypeMask);
+    managed = (Managed)(value & managedMask);
+    flags = (Flags)(value & flagsMask);
 
     return node;
   }
 
   public object Value => new Enum[] { codeType, managed, flags };
 
-  const ushort CodeTypeMask = 0x0003;
+  const ushort codeTypeMask = 0x0003;
 
   public enum CodeType : ushort
   {
@@ -345,7 +345,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
     Runtime = 0x0003,
   }
 
-  const ushort ManagedMask = 0x0004;
+  const ushort managedMask = 0x0004;
 
   public enum Managed : ushort
   {
@@ -355,7 +355,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
     Managed = 0x0000,
   }
 
-  const ushort FlagsMask = unchecked((ushort)~CodeTypeMask & ~ManagedMask);
+  const ushort flagsMask = unchecked((ushort)~codeTypeMask & ~managedMask);
   [Flags]
   public enum Flags : ushort
   {
@@ -434,18 +434,18 @@ class TypeAttributes : ICanRead, IHaveValue
     uint value;
     var node = stream.ReadStruct(out value);
 
-    visibility = (Visibility)(value & VisibilityMask);
-    layout = (Layout)(value & LayoutMask);
-    classSemantics = (ClassSemantics)(value & ClassSemanticsMask);
-    stringInteropFormat = (StringInteropFormat)(value & StringInteropFormatMask);
-    flags = (Flags)(value & FlagsMask);
+    visibility = (Visibility)(value & visibilityMask);
+    layout = (Layout)(value & layoutMask);
+    classSemantics = (ClassSemantics)(value & classSemanticsMask);
+    stringInteropFormat = (StringInteropFormat)(value & stringInteropFormatMask);
+    flags = (Flags)(value & flagsMask);
 
     return node;
   }
 
   public object Value => new Enum[] { visibility, layout, classSemantics, stringInteropFormat, flags };
 
-  const uint VisibilityMask = 0x00000007;
+  const uint visibilityMask = 0x00000007;
 
   public enum Visibility : uint
   {
@@ -467,7 +467,7 @@ class TypeAttributes : ICanRead, IHaveValue
     NestedFamORAssem = 0x00000007,
   }
 
-  const uint LayoutMask = 0x00000018;
+  const uint layoutMask = 0x00000018;
 
   public enum Layout : uint
   {
@@ -479,7 +479,7 @@ class TypeAttributes : ICanRead, IHaveValue
     ExplicitLayout = 0x00000010,
   }
 
-  const uint ClassSemanticsMask = 0x00000020;
+  const uint classSemanticsMask = 0x00000020;
 
   public enum ClassSemantics : uint
   {
@@ -489,7 +489,7 @@ class TypeAttributes : ICanRead, IHaveValue
     Interface = 0x00000020,
   }
 
-  const uint StringInteropFormatMask = 0x00030000;
+  const uint stringInteropFormatMask = 0x00030000;
   public enum StringInteropFormat : uint
   {
     [Description("LPSTR is interpreted as ANSI")]
@@ -502,7 +502,7 @@ class TypeAttributes : ICanRead, IHaveValue
     CustomFormatClass = 0x00030000,
   }
 
-  const uint FlagsMask = ~VisibilityMask & ~LayoutMask & ~ClassSemanticsMask & ~StringInteropFormatMask;
+  const uint flagsMask = ~visibilityMask & ~layoutMask & ~classSemanticsMask & ~stringInteropFormatMask;
   [Flags]
   public enum Flags : uint
   {
