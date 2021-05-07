@@ -195,6 +195,7 @@ namespace Tests
 
         //TODO delete after removing all static fields?
         [TestMethod]
+        [Ignore] // Re-enable to test changes to globals
         public void Race() {
             var factory = Task<int>.Factory;
             var tasks = new List<Task<int>>();
