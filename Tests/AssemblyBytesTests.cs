@@ -232,7 +232,7 @@ namespace Tests
         {
             var factory = Task<int>.Factory;
             var tasks = new List<Task<int>>();
-            for (int i = 0; i < 8; ++i)
+            for (var i = 0; i < 8; ++i)
             {
                 var myI = i;
                 tasks.Add(factory.StartNew(() =>
@@ -259,7 +259,7 @@ namespace Tests
 
         static void RunIL(string path, string args = "")
         {
-            string outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
+            var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
             if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath))
             {
@@ -280,7 +280,7 @@ namespace Tests
         {
             var allArgs = $"{optimize} {noconfig} {args}";
 
-            string outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
+            var outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
 
             if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath))
             {
@@ -318,7 +318,7 @@ namespace Tests
             {
                 p.WaitForExit();
 
-                string stdout = p.StandardOutput.ReadToEnd();
+                var stdout = p.StandardOutput.ReadToEnd();
 
                 Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
             }
@@ -418,13 +418,13 @@ namespace Tests
 
         static void AssertNoErrors(CodeNode node)
         {
-            string error = node.Errors.FirstOrDefault();
+            var error = node.Errors.FirstOrDefault();
             Assert.IsNull(error, error);
         }
 
         static void AssertUniqueNames(CodeNode node)
         {
-            string name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
+            var name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
             Assert.IsNull(name, $"duplicate {name} under {node.Name}");
         }
 
@@ -456,7 +456,7 @@ namespace Tests
                 return;
             }
 
-            HashSet<int> childIncludes = new HashSet<int>();
+            var childIncludes = new HashSet<int>();
             foreach (var child in node.Children)
             {
                 childIncludes.UnionWith(new HashSet<int>(Enumerable.Range(child.Start, child.End - child.Start)));

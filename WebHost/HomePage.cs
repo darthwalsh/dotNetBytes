@@ -80,7 +80,7 @@ namespace WebHost
                 await stream.CopyToAsync(buffer, 4096, cancel);
                 buffer.Position = 0;
 
-                AssemblyBytes assm = new AssemblyBytes(buffer);
+                var assm = new AssemblyBytes(buffer);
 
                 return new Parsed
                 {

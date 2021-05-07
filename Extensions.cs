@@ -92,11 +92,11 @@ static class StreamExtensions
 
     public static bool TryReadWholeArray(this Stream stream, byte[] data, out string error)
     {
-        int offset = 0;
-        int remaining = data.Length;
+        var offset = 0;
+        var remaining = data.Length;
         while (remaining > 0)
         {
-            int read = stream.Read(data, offset, remaining);
+            var read = stream.Read(data, offset, remaining);
             if (read <= 0)
             {
                 error = $"End of stream reached with {remaining} bytes left to read";
@@ -140,7 +140,7 @@ static class StreamExtensions
     //TODO(cleanup) just wrap the input Stream?
     public static byte ReallyReadByte(this Stream stream)
     {
-        int read = stream.ReadByte();
+        var read = stream.ReadByte();
         if (read == -1)
             throw new EndOfStreamException("End of stream reached with 1 byte left to read");
         return (byte)read;
@@ -148,7 +148,7 @@ static class StreamExtensions
 
     public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct
     {
-        CodeNode node = new CodeNode();
+        var node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
 
@@ -204,7 +204,7 @@ static class StreamExtensions
         var nodes = new List<CodeNode>();
 
         ts = new T[n];
-        for (int i = 0; i < n; ++i)
+        for (var i = 0; i < n; ++i)
         {
             nodes.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
         }
@@ -219,7 +219,7 @@ static class StreamExtensions
         var nodes = new List<CodeNode>();
 
         ts = ts ?? new T[n];
-        for (int i = 0; i < ts.Length; ++i)
+        for (var i = 0; i < ts.Length; ++i)
         {
             nodes.Add(stream.ReadClass(ref ts[i], name + "[" + i + "]"));
         }
@@ -235,8 +235,8 @@ static class StreamExtensions
 
         CodeNode node = null;
 
-        ICanRead iCanRead = t as ICanRead;
-        ICanBeReadInOrder iCanBeReadInOrder = t as ICanBeReadInOrder;
+        var iCanRead = t as ICanRead;
+        var iCanBeReadInOrder = t as ICanBeReadInOrder;
         if (iCanRead != null)
         {
             if (iCanBeReadInOrder != null)
@@ -279,7 +279,7 @@ static class StreamExtensions
 
     public static CodeNode ReadAnything<T>(this Stream stream, out T t, Func<Stream, T> callback, string name = null)
     {
-        CodeNode node = new CodeNode();
+        var node = new CodeNode();
         node.Name = name ?? typeof(T).Name;
         node.Start = (int)stream.Position;
 
@@ -396,7 +396,7 @@ static class TypeExtensions
 
         if (o is Enum)
         {
-            Enum en = (Enum)o;
+            var en = (Enum)o;
             return "0x" + en.ToString("X") + " " + en.ToString(); ;
         }
 
@@ -451,7 +451,7 @@ static class TypeExtensions
 
             var nextStart = start + Marshal.OffsetOf(ans.GetType(), name).ToInt32();
 
-            CodeNode current = new CodeNode
+            var current = new CodeNode
             {
                 Name = name,
                 Description = desc != null ? desc.Description : "",
@@ -537,7 +537,7 @@ static class OrderedExtensions
         var ordedFields = o.GetType().GetFields()
             .OrderBy(field =>
             {
-                OrderedFieldAttribute attr = (OrderedFieldAttribute)field.GetCustomAttributes(typeof(OrderedFieldAttribute), false).SingleOrDefault();
+                var attr = (OrderedFieldAttribute)field.GetCustomAttributes(typeof(OrderedFieldAttribute), false).SingleOrDefault();
                 if (attr == null)
                     throw new InvalidOperationException($"{o.GetType().FullName}.{field.Name} is missing [OrderedField]");
                 return attr.Order;
@@ -560,7 +560,7 @@ static class OrderedExtensions
                 throw new InvalidOperationException(fieldType.Name);
 
             // Invoking a method generically is not simple...
-            MethodInfo readClass = typeof(StreamExtensions).GetMethods()
+            var readClass = typeof(StreamExtensions).GetMethods()
                 .Where(m => m.Name == readMethodName && m.GetParameters().Length == 3 && !(m.GetParameters()[1].ParameterType.Name.Contains("Nullable")))
                 .Single()
                 .MakeGenericMethod(fieldType);

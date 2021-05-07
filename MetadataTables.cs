@@ -343,7 +343,7 @@ sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
             stream.ReadClass(ref Implementation, nameof(Implementation)),
         };
 
-        Section section = Singletons.Instance.TildeStream.Section;
+        var section = Singletons.Instance.TildeStream.Section;
         section.ReadNode(strm =>
         {
             section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);

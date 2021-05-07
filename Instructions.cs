@@ -26,15 +26,15 @@ sealed class InstructionStream : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        long readUntil = stream.Position + length;
+        var readUntil = stream.Position + length;
 
-        CodeNode node = new CodeNode();
+        var node = new CodeNode();
 
         while (stream.Position < readUntil)
         {
             var op = GetOp(stream);
             instructions.Add(op);
-            CodeNode opNode = op.Read(stream);
+            var opNode = op.Read(stream);
             opNode.Name = $"Op[{opCount++}]";
             node.Add(opNode);
         }
@@ -533,7 +533,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
             indexNode.End++;
             stream.Position += 1;
 
-            CodeNode node = new CodeNode
+            var node = new CodeNode
             {
                 indexNode,
                 tableNode,
@@ -544,7 +544,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
         }
         else
         {
-            CodeNode node = new CodeNode
+            var node = new CodeNode
             {
                 offsetNode,
                 tableNode,

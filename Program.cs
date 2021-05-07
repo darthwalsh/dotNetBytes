@@ -10,7 +10,7 @@ public static class Program
     {
         try
         {
-            string path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
+            var path = args.FirstOrDefault() ?? @"C:\code\dotNetBytes\view\Program.dat";
 
             Run(path);
         }
@@ -32,10 +32,10 @@ public static class Program
 
         var assmJson = assm.Node.ToJson();
 
-        string local = SetupFiles(path, assmJson);
+        var local = SetupFiles(path, assmJson);
 
         GC.KeepAlive(ForceNancyDllToBeCopied);
-        using (NancyHost host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
+        using (var host = new NancyHost(new HostConfiguration { RewriteLocalhost = false }, new Uri("http://127.0.0.1:8000")))
         {
             host.Start();
 
@@ -83,8 +83,8 @@ public static class Program
 
     static void RunBrowserAndWebServer()
     {
-        string url = "http://127.0.0.1:8000/Content/view.html?Example=true";
-        string timeout = "20";
+        var url = "http://127.0.0.1:8000/Content/view.html?Example=true";
+        var timeout = "20";
 
         Console.WriteLine();
         Console.WriteLine($"Running web server at ${url} for {timeout} seconds...");

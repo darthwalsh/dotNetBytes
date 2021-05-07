@@ -711,14 +711,14 @@ abstract class Heap<T> : ICanRead, IHaveAName
     protected Tuple<T, CodeNode> AddChild(IHaveIndex i)
     {
         var stream = new MemoryStream(data);
-        int index = i.Index;
+        var index = i.Index;
         stream.Position = index;
 
         Tuple<T, CodeNode> childpair;
         if (!children.TryGetValue(index, out childpair))
         {
             T t;
-            CodeNode child = ReadChild(stream, i.Index, out t);
+            var child = ReadChild(stream, i.Index, out t);
             if (child == null)
             {
                 return Tuple.Create(t, parent);
@@ -741,7 +741,7 @@ abstract class Heap<T> : ICanRead, IHaveAName
     //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
     void AdjustChildRanges(int index, CodeNode child)
     {
-        int chI = children.IndexOfKey(index);
+        var chI = children.IndexOfKey(index);
         if (chI != 0)
         {
             AdjustChildren(children.Values[chI - 1].Item2, child);
@@ -764,7 +764,7 @@ abstract class Heap<T> : ICanRead, IHaveAName
 
     protected static void GetEncodedLength(Stream stream, out int length, out int offset)
     {
-        byte first = stream.ReallyReadByte();
+        var first = stream.ReallyReadByte();
         if ((first & 0x80) == 0)
         {
             length = first & 0x7F;
@@ -772,15 +772,15 @@ abstract class Heap<T> : ICanRead, IHaveAName
         }
         else if ((first & 0xC0) == 0x80)
         {
-            byte second = stream.ReallyReadByte();
+            var second = stream.ReallyReadByte();
             length = ((first & 0x3F) << 8) + second;
             offset = 2;
         }
         else if ((first & 0xE0) == 0xC0)
         {
-            byte second = stream.ReallyReadByte();
-            byte third = stream.ReallyReadByte();
-            byte fourth = stream.ReallyReadByte();
+            var second = stream.ReallyReadByte();
+            var third = stream.ReallyReadByte();
+            var fourth = stream.ReallyReadByte();
             length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
             offset = 4;
         }
@@ -828,11 +828,11 @@ sealed class UserStringHeap : Heap<string>
         int offset;
         GetEncodedLength(stream, out length, out offset);
 
-        string error = "oops";
-        bool success = true;
+        var error = "oops";
+        var success = true;
         var node = stream.ReadAnything(out s, str =>
         {
-            byte[] bytes = new byte[length - 1]; // skip terminal byte
+            var bytes = new byte[length - 1]; // skip terminal byte
             success = str.TryReadWholeArray(bytes, out error);
             return Encoding.Unicode.GetString(bytes);
         }, $"UserStringHeap[{index}]");
@@ -1000,7 +1000,7 @@ sealed class TildeStream : ICanRead
 
     IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row)
     {
-        int count = (int)Rows[row];
+        var count = (int)Rows[row];
 
         switch (flag)
         {

@@ -9,7 +9,7 @@
 
     static void Main(string[] args)
     {
-        Transformer t = new Transformer(Transform);
+        var t = new Transformer(Transform);
         t = Transform;
         t = delegate (int y) { return -y; };
         t = y => 2 * y;

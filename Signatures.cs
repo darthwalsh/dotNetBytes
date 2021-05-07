@@ -12,7 +12,7 @@ public static class CompressionExtensions
     //  110xxxxx xxxxxxxx xxxxxxxx xxxxxxxx
     public static uint DecompressUnsigned(this byte[] bytes, int index)
     {
-        byte first = bytes[index];
+        var first = bytes[index];
         switch (GetWidth(first))
         {
             case 1:
@@ -32,7 +32,7 @@ public static class CompressionExtensions
     //  110xxxxx xxxxxxxx xxxxxxxx xxxxxxxb
     public static int DecompressSigned(this byte[] bytes, int index)
     {
-        int sum = (int)bytes.DecompressUnsigned(index);
+        var sum = (int)bytes.DecompressUnsigned(index);
 
         if (sum % 2 == 0)
         {
@@ -40,7 +40,7 @@ public static class CompressionExtensions
         }
 
         int negativeMask;
-        byte first = bytes[index];
+        var first = bytes[index];
         switch (GetWidth(first))
         {
             case 1:
@@ -90,7 +90,7 @@ sealed class TypeSpecSignature : ICanRead
 
     public CodeNode Read(Stream stream)
     {
-        ElementType b = (ElementType)stream.ReallyReadByte();
+        var b = (ElementType)stream.ReallyReadByte();
         switch(b)
         {
             case Ptr:

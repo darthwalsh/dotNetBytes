@@ -49,8 +49,8 @@ namespace Tests
         {
             Assert.AreEqual(0, hex.Length % 2);
 
-            byte[] data = new byte[hex.Length / 2];
-            for (int i = 0; i < data.Length; ++i)
+            var data = new byte[hex.Length / 2];
+            for (var i = 0; i < data.Length; ++i)
             {
                 data[i] = (byte)(GetNibble(hex[2 * i]) << 4);
                 data[i] += (byte)(GetNibble(hex[2 * i + 1]));

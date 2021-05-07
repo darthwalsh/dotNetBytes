@@ -40,7 +40,7 @@ public class CodeNode : IEnumerable<string>
         {
             try
             {
-                IHaveLiteralValueNode d = delayed();
+                var d = delayed();
                 Value = (string)d.Value;
                 Link = d.Node;
             }
@@ -144,7 +144,7 @@ public class CodeNode : IEnumerable<string>
     {
         public static string ToJson(CodeNode node)
         {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = 0x08000000;
             serializer.RegisterConverters(new[] { new CodeNodeConverter() });
             return serializer.Serialize(node);

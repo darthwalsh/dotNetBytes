@@ -16,7 +16,7 @@ sealed class FileFormat : ICanRead
     {
         Singletons.Reset();
 
-        CodeNode node = new CodeNode
+        var node = new CodeNode
         {
             stream.ReadClass(ref PEHeader),
         };
@@ -25,7 +25,7 @@ sealed class FileFormat : ICanRead
             new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
         node.Add(stream.ReadClasses(ref Sections));
-        for (int i = 0; i < Sections.Length; ++i)
+        for (var i = 0; i < Sections.Length; ++i)
         {
             Sections[i].CallBack();
         }
@@ -512,31 +512,31 @@ sealed class Section : ICanRead
                         switch (streamHeader.Name)
                         {
                             case "#Strings":
-                                StringHeap stringHeap = new StringHeap((int)streamHeader.Size);
+                                var stringHeap = new StringHeap((int)streamHeader.Size);
                                 Singletons.Instance.StringHeap = stringHeap;
                                 node.Add(stream.ReadClass(ref stringHeap));
                                 break;
                             case "#US":
-                                UserStringHeap userStringHeap = new UserStringHeap((int)streamHeader.Size);
+                                var userStringHeap = new UserStringHeap((int)streamHeader.Size);
                                 Singletons.Instance.UserStringHeap = userStringHeap;
                                 node.Add(stream.ReadClass(ref userStringHeap));
                                 break;
                             case "#Blob":
-                                BlobHeap blobHeap = new BlobHeap((int)streamHeader.Size);
+                                var blobHeap = new BlobHeap((int)streamHeader.Size);
                                 Singletons.Instance.BlobHeap = blobHeap;
                                 node.Add(stream.ReadClass(ref blobHeap));
                                 break;
                             case "#GUID":
-                                GuidHeap guidHeap = new GuidHeap((int)streamHeader.Size);
+                                var guidHeap = new GuidHeap((int)streamHeader.Size);
                                 Singletons.Instance.GuidHeap = guidHeap;
                                 node.Add(stream.ReadClass(ref guidHeap));
                                 break;
                             case "#~":
-                                TildeStream TildeStream = new TildeStream(this);
+                                var TildeStream = new TildeStream(this);
                                 Singletons.Instance.TildeStream = TildeStream;
                                 node.Add(stream.ReadClass(ref TildeStream));
                                 
-                                CodeNode methods = new CodeNode
+                                var methods = new CodeNode
                                 {
                                     Name = "Methods",
                                 };
@@ -801,8 +801,8 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         };
 
         int length;
-        bool moreSects = false;
-        MethodHeaderType type = (MethodHeaderType)(Header & 0x03);
+        var moreSects = false;
+        var type = (MethodHeaderType)(Header & 0x03);
         switch (type)
         {
             case MethodHeaderType.Tiny:
