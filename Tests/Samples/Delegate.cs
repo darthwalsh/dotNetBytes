@@ -5,9 +5,9 @@
   static int Transform(int x) => x;
 
   static void Main(string[] args) {
-    var t = new Transformer(Transform);
-    t = Transform;
-    t = delegate (int y) { return -y; };
-    t = y => 2 * y;
+    var _ = new Transformer(Transform);
+    _ = Transform;
+    _ = delegate (int y) { return -y; };
+    _ = y => 2 * y;
   }
 }
