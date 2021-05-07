@@ -472,10 +472,10 @@ sealed class ModuleRef : ICanBeReadInOrder, IHaveLiteralValueNode
   public CodeNode Node { get; set; }
 }
 
-// II.22.32
-sealed class NestedClass : ICanBeReadInOrder, IHaveLiteralValueNode
+// II.22.32 (Should be NestedClass but renaming type so field is allowed to be NestedClass)
+sealed class Nestedclass : ICanBeReadInOrder, IHaveLiteralValueNode
 {
-  [OrderedField] public UnknownCodedIndex _NestedClass;
+  [OrderedField] public UnknownCodedIndex NestedClass;
   [OrderedField] public UnknownCodedIndex EnclosingClass;
 
   public object Value => "";

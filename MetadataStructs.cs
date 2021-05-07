@@ -45,24 +45,24 @@ enum EventAttributes : ushort
 // II.23.1.5
 class FieldAttributes : ICanRead, IHaveValue
 {
-  public Access access;
-  public Flags flags;
+  public AccessAttributes Access;
+  public AdditionalFlags Flags;
 
   public CodeNode Read(Stream stream) {
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    access = (Access)(value & accessMask);
-    flags = (Flags)(value & flagsMask);
+    Access = (AccessAttributes)(value & accessMask);
+    Flags = (AdditionalFlags)(value & flagsMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { access, flags };
+  public object Value => new Enum[] { Access, Flags }; // TODO (Description) Enum[] text doesn't show up in GUI
 
   const ushort accessMask = 0x0007;
 
-  public enum Access : ushort
+  public enum AccessAttributes : ushort
   {
     [Description("Member not referenceable")]
     CompilerControlled = 0x0000,
@@ -82,7 +82,7 @@ class FieldAttributes : ICanRead, IHaveValue
 
   const ushort flagsMask = unchecked((ushort)~accessMask);
   [Flags]
-  public enum Flags : ushort
+  public enum AdditionalFlags : ushort
   {
     [Description("Defined on type, else per instance")]
     Static = 0x0010,
@@ -120,24 +120,24 @@ enum FileAttributes : uint
 // II.23.1.7
 class GenericParamAttributes : ICanRead, IHaveValue
 {
-  public Variance variance;
-  public SpecialConstraint specialConstraint;
+  public VarianceAttributes Variance;
+  public SpecialConstraintAttributes SpecialConstraint;
 
   public CodeNode Read(Stream stream) {
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    variance = (Variance)(value & varianceMask);
-    specialConstraint = (SpecialConstraint)(value & specialConstraintMask);
+    Variance = (VarianceAttributes)(value & varianceMask);
+    SpecialConstraint = (SpecialConstraintAttributes)(value & specialConstraintMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { variance, specialConstraint };
+  public object Value => new Enum[] { Variance, SpecialConstraint };
 
   const ushort varianceMask = 0x0003;
 
-  public enum Variance : ushort
+  public enum VarianceAttributes : ushort
   {
     [Description("The generic parameter is non-variant and has no special constraints")]
     None = 0x0000,
@@ -149,7 +149,7 @@ class GenericParamAttributes : ICanRead, IHaveValue
 
   const ushort specialConstraintMask = 0x0004;
 
-  public enum SpecialConstraint : ushort
+  public enum SpecialConstraintAttributes : ushort
   {
     [Description("The generic parameter has the class special constraint")]
     ReferenceTypeConstraint = 0x0004,
@@ -163,26 +163,26 @@ class GenericParamAttributes : ICanRead, IHaveValue
 // II.23.1.8
 class PInvokeAttributes : ICanRead, IHaveValue
 {
-  public CharacterSet characterSet;
-  public CallingConvention callingConvention;
-  public Flags flags;
+  public CharacterSetAttributes CharacterSet;
+  public CallingConventionAttributes CallingConvention;
+  public AdditionalFlags Flags;
 
   public CodeNode Read(Stream stream) {
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    characterSet = (CharacterSet)(value & characterSetMask);
-    callingConvention = (CallingConvention)(value & callingConventionMask);
-    flags = (Flags)(value & flagsMask);
+    CharacterSet = (CharacterSetAttributes)(value & characterSetMask);
+    CallingConvention = (CallingConventionAttributes)(value & callingConventionMask);
+    Flags = (AdditionalFlags)(value & flagsMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { characterSet, callingConvention, flags };
+  public object Value => new Enum[] { CharacterSet, CallingConvention, Flags };
 
   const ushort characterSetMask = 0x0007;
 
-  public enum CharacterSet : ushort
+  public enum CharacterSetAttributes : ushort
   {
     [Description("")]
     NotSpec = 0x0000,
@@ -196,7 +196,7 @@ class PInvokeAttributes : ICanRead, IHaveValue
 
   const ushort callingConventionMask = 0x0100;
 
-  public enum CallingConvention : ushort
+  public enum CallingConventionAttributes : ushort
   {
     [Description("")]
     PlatformAPI = 0x0100,
@@ -212,7 +212,7 @@ class PInvokeAttributes : ICanRead, IHaveValue
 
   const ushort flagsMask = unchecked((ushort)~characterSetMask & ~callingConventionMask);
   [Flags]
-  public enum Flags : ushort
+  public enum AdditionalFlags : ushort
   {
     [Description("PInvoke is to use the member name as specified")]
     NoMangle = 0x0001,
@@ -233,26 +233,26 @@ enum ManifestResourceAttributes : uint
 // II.23.1.10
 class MethodAttributes : ICanRead, IHaveValue
 {
-  public MemberAccess memberAccess;
-  public VtableLayout vtableLayout;
-  public Flags flags;
+  public MemberAccessAttributes MemberAccess;
+  public VtableLayoutAttributes VtableLayout;
+  public AdditionalFlags Flags;
 
   public CodeNode Read(Stream stream) {
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    memberAccess = (MemberAccess)(value & memberAccessMask);
-    vtableLayout = (VtableLayout)(value & vtableLayoutMask);
-    flags = (Flags)(value & flagsMask);
+    MemberAccess = (MemberAccessAttributes)(value & memberAccessMask);
+    VtableLayout = (VtableLayoutAttributes)(value & vtableLayoutMask);
+    Flags = (AdditionalFlags)(value & flagsMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { memberAccess, vtableLayout, flags };
+  public object Value => new Enum[] { MemberAccess, VtableLayout, Flags };
 
   const ushort memberAccessMask = 0x0007;
 
-  public enum MemberAccess : ushort
+  public enum MemberAccessAttributes : ushort
   {
     [Description("Member not referenceable")]
     CompilerControlled = 0x0000,
@@ -272,7 +272,7 @@ class MethodAttributes : ICanRead, IHaveValue
 
   const ushort vtableLayoutMask = 0x0100;
 
-  public enum VtableLayout : ushort
+  public enum VtableLayoutAttributes : ushort
   {
     [Description("Method reuses existing slot in vtable")]
     ReuseSlot = 0x0000,
@@ -282,7 +282,7 @@ class MethodAttributes : ICanRead, IHaveValue
 
   const ushort flagsMask = unchecked((ushort)~memberAccessMask & ~vtableLayoutMask);
   [Flags]
-  public enum Flags : ushort
+  public enum AdditionalFlags : ushort
   {
     [Description("Defined on type, else per instance")]
     Static = 0x0010,
@@ -314,26 +314,26 @@ class MethodAttributes : ICanRead, IHaveValue
 // II.23.1.11
 class MethodImplAttributes : ICanRead, IHaveValue
 {
-  public CodeType codeType;
-  public Managed managed;
-  public Flags flags;
+  public CodeTypeAttributes CodeType;
+  public ManagedAttributes Managed;
+  public AdditionalFlags Flags;
 
   public CodeNode Read(Stream stream) {
     ushort value;
     var node = stream.ReadStruct(out value);
 
-    codeType = (CodeType)(value & codeTypeMask);
-    managed = (Managed)(value & managedMask);
-    flags = (Flags)(value & flagsMask);
+    CodeType = (CodeTypeAttributes)(value & codeTypeMask);
+    Managed = (ManagedAttributes)(value & managedMask);
+    Flags = (AdditionalFlags)(value & flagsMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { codeType, managed, flags };
+  public object Value => new Enum[] { CodeType, Managed, Flags };
 
   const ushort codeTypeMask = 0x0003;
 
-  public enum CodeType : ushort
+  public enum CodeTypeAttributes : ushort
   {
     [Description("Method impl is CIL")]
     IL = 0x0000,
@@ -347,7 +347,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
 
   const ushort managedMask = 0x0004;
 
-  public enum Managed : ushort
+  public enum ManagedAttributes : ushort
   {
     [Description("Method impl is unmanaged")]
     Unmanaged = 0x0004,
@@ -357,7 +357,7 @@ class MethodImplAttributes : ICanRead, IHaveValue
 
   const ushort flagsMask = unchecked((ushort)~codeTypeMask & ~managedMask);
   [Flags]
-  public enum Flags : ushort
+  public enum AdditionalFlags : ushort
   {
     [Description("Method cannot be inlined")]
     NoInlining = 0x0008,
@@ -424,30 +424,30 @@ enum PropertyAttributes : ushort
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
 {
-  public Visibility visibility;
-  public Layout layout;
-  public ClassSemantics classSemantics;
-  public StringInteropFormat stringInteropFormat;
-  public Flags flags;
+  public VisibilityAttributes Visibility;
+  public LayoutAttributes Layout;
+  public ClassSemanticsAttributes ClassSemantics;
+  public StringInteropFormatAttributes StringInteropFormat;
+  public AdditionalFlags Flags;
 
   public CodeNode Read(Stream stream) {
     uint value;
     var node = stream.ReadStruct(out value);
 
-    visibility = (Visibility)(value & visibilityMask);
-    layout = (Layout)(value & layoutMask);
-    classSemantics = (ClassSemantics)(value & classSemanticsMask);
-    stringInteropFormat = (StringInteropFormat)(value & stringInteropFormatMask);
-    flags = (Flags)(value & flagsMask);
+    Visibility = (VisibilityAttributes)(value & visibilityMask);
+    Layout = (LayoutAttributes)(value & layoutMask);
+    ClassSemantics = (ClassSemanticsAttributes)(value & classSemanticsMask);
+    StringInteropFormat = (StringInteropFormatAttributes)(value & stringInteropFormatMask);
+    Flags = (AdditionalFlags)(value & flagsMask);
 
     return node;
   }
 
-  public object Value => new Enum[] { visibility, layout, classSemantics, stringInteropFormat, flags };
+  public object Value => new Enum[] { Visibility, Layout, ClassSemantics, StringInteropFormat, Flags };
 
   const uint visibilityMask = 0x00000007;
 
-  public enum Visibility : uint
+  public enum VisibilityAttributes : uint
   {
     [Description("Class has no public scope")]
     NotPublic = 0x00000000,
@@ -469,7 +469,7 @@ class TypeAttributes : ICanRead, IHaveValue
 
   const uint layoutMask = 0x00000018;
 
-  public enum Layout : uint
+  public enum LayoutAttributes : uint
   {
     [Description("Class fields are auto-laid out")]
     AutoLayout = 0x00000000,
@@ -481,7 +481,7 @@ class TypeAttributes : ICanRead, IHaveValue
 
   const uint classSemanticsMask = 0x00000020;
 
-  public enum ClassSemantics : uint
+  public enum ClassSemanticsAttributes : uint
   {
     [Description("Type is a class")]
     Class = 0x00000000,
@@ -490,7 +490,7 @@ class TypeAttributes : ICanRead, IHaveValue
   }
 
   const uint stringInteropFormatMask = 0x00030000;
-  public enum StringInteropFormat : uint
+  public enum StringInteropFormatAttributes : uint
   {
     [Description("LPSTR is interpreted as ANSI")]
     AnsiClass = 0x00000000,
@@ -504,7 +504,7 @@ class TypeAttributes : ICanRead, IHaveValue
 
   const uint flagsMask = ~visibilityMask & ~layoutMask & ~classSemanticsMask & ~stringInteropFormatMask;
   [Flags]
-  public enum Flags : uint
+  public enum AdditionalFlags : uint
   {
     [Description("Class is abstract")]
     Abstract = 0x00000080,
@@ -899,7 +899,7 @@ sealed class TildeStream : ICanRead
   public FileTable[] Files;
   public ExportedType[] ExportedTypes;
   public ManifestResource[] ManifestResources;
-  public NestedClass[] NestedClasses;
+  public Nestedclass[] NestedClasses;
   public GenericParam[] GenericParams;
   public MethodSpec[] MethodSpecs;
   public GenericParamConstraint[] GenericParamConstraints;
