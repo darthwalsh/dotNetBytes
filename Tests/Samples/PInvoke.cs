@@ -26,7 +26,7 @@ public static class PInvoke
     public double D;
   }
 
-  [DllImport("something.dll", SetLastError = true, PreserveSig = true)]
+  [DllImport("something.dll", SetLastError = true, PreserveSig = true, CharSet = CharSet.Ansi)]
   static extern int Blah(
       [MarshalAs(UnmanagedType.I4)]
         int i,
