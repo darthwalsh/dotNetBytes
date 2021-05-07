@@ -17,9 +17,7 @@ class Singletons
     }
   }
 
-  public static void Reset() {
-    instance = null;
-  }
+  public static void Reset() => instance = null;
 
   public int MethodCount { get; set; }
   public int ResourceEntryCount { get; set; }

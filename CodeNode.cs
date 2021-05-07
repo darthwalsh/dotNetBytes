@@ -45,9 +45,7 @@ public class CodeNode : IEnumerable<string>
     }
   }
 
-  public void AssignPath() {
-    AssignPath(null);
-  }
+  public void AssignPath() => AssignPath(null);
   void AssignPath(string parentPath) {
     if (path != null)
       throw new InvalidOperationException($"path was already {path}");
@@ -72,13 +70,9 @@ public class CodeNode : IEnumerable<string>
     node.LinkPath = node.link.path;
   }
 
-  public void Add(CodeNode node) {
-    Children.Add(node);
-  }
+  public void Add(CodeNode node) => Children.Add(node);
 
-  public void Add(IEnumerable<CodeNode> node) {
-    Children.AddRange(node);
-  }
+  public void Add(IEnumerable<CodeNode> node) => Children.AddRange(node);
 
   public void CallBack(Action<CodeNode> callback) {
     foreach (var c in Children) {
@@ -88,9 +82,7 @@ public class CodeNode : IEnumerable<string>
     callback(this);
   }
 
-  public override string ToString() {
-    return string.Join(Environment.NewLine, Yield());
-  }
+  public override string ToString() => string.Join(Environment.NewLine, Yield());
 
   IEnumerable<string> Yield(int indent = 0) {
     yield return new string(' ', indent) + string.Join(" ", new[]
@@ -107,17 +99,11 @@ public class CodeNode : IEnumerable<string>
     }
   }
 
-  public IEnumerator<string> GetEnumerator() {
-    return Yield().GetEnumerator();
-  }
+  public IEnumerator<string> GetEnumerator() => Yield().GetEnumerator();
 
-  IEnumerator IEnumerable.GetEnumerator() {
-    return GetEnumerator();
-  }
+  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public string ToJson() {
-    return CodeNodeConverter.ToJson(this);
-  }
+  public string ToJson() => CodeNodeConverter.ToJson(this);
 
   class CodeNodeConverter : JavaScriptConverter
   {

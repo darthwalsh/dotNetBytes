@@ -2,9 +2,7 @@
 {
   delegate int Transformer(int x);
 
-  static int Transform(int x) {
-    return x;
-  }
+  static int Transform(int x) => x;
 
   static void Main(string[] args) {
     var t = new Transformer(Transform);

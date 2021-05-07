@@ -2,7 +2,5 @@
 {
   static int x;
 
-  static void Main(string[] args) {
-    ++x;
-  }
+  static void Main(string[] args) => ++x;
 }

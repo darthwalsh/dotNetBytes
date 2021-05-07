@@ -1,6 +1,4 @@
 ﻿public static class ReturnValue
 {
-  static int Main() {
-    return 1;
-  }
+  static int Main() => 1;
 }

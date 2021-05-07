@@ -557,9 +557,7 @@ sealed class Op : ICanRead
     op.Description = opName;
   }
 
-  public CodeNode Read(Stream stream) {
-    return op;
-  }
+  public CodeNode Read(Stream stream) => op;
 }
 
 sealed class OpWith<T> : ICanRead

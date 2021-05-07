@@ -448,9 +448,7 @@ static class TypeExtensions
     return false;
   }
 
-  static void Fail(CodeNode node, string message) {
-    node.AddError(message);
-  }
+  static void Fail(CodeNode node, string message) => node.AddError(message);
 }
 
 // Used to guarantee reflecting over class fields uses line number

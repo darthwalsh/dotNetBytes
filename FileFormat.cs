@@ -588,13 +588,9 @@ sealed class Section : ICanRead
   }
 
   List<Func<Stream, CodeNode>> toReads = new List<Func<Stream, CodeNode>>();
-  public void ReadNode(Func<Stream, CodeNode> read) {
-    toReads.Add(read);
-  }
+  public void ReadNode(Func<Stream, CodeNode> read) => toReads.Add(read);
 
-  public void Reposition(Stream stream, long dataRVA) {
-    stream.Position = start + dataRVA - rva;
-  }
+  public void Reposition(Stream stream, long dataRVA) => stream.Position = start + dataRVA - rva;
 
   public void CallBack() {
     node.Start = start;

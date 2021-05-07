@@ -21,170 +21,104 @@ namespace Tests
     }
 
     [TestMethod]
-    public void NoConfig() {
-      RunCompile(@"Samples\Simple.cs", noconfig: "");
-    }
+    public void NoConfig() => RunCompile(@"Samples\Simple.cs", noconfig: "");
 
     [TestMethod]
-    public void NonOptimized() {
-      RunCompile(@"Samples\Simple.cs", optimize: "");
-    }
+    public void NonOptimized() => RunCompile(@"Samples\Simple.cs", optimize: "");
 
     [TestMethod]
-    public void Library() {
-      RunCompile(@"Samples\Simple.cs", "/t:library");
-    }
+    public void Library() => RunCompile(@"Samples\Simple.cs", "/t:library");
 
     [TestMethod]
-    public void Platformx64() {
-      RunCompile(@"Samples\Simple.cs", "/platform:x64");
-    }
+    public void Platformx64() => RunCompile(@"Samples\Simple.cs", "/platform:x64");
 
     [TestMethod]
-    public void Platformx86() {
-      RunCompile(@"Samples\Simple.cs", "/platform:x86");
-    }
+    public void Platformx86() => RunCompile(@"Samples\Simple.cs", "/platform:x86");
 
     [TestMethod]
-    public void PlatformAnyCPU32() {
-      RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
-    }
+    public void PlatformAnyCPU32() => RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
 
     [TestMethod]
-    public void EmbeddedResource() {
-      RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs");
-    }
+    public void EmbeddedResource() => RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs");
 
     [TestMethod]
-    public void EmbeddedResource2() {
-      RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs /res:Samples\Const.cs");
-    }
+    public void EmbeddedResource2() => RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs /res:Samples\Const.cs");
 
 
     [TestMethod]
-    public void COM() {
-      RunCompile(@"Samples\COM.cs");
-    }
+    public void COM() => RunCompile(@"Samples\COM.cs");
 
     [TestMethod]
-    public void Const() {
-      RunCompile(@"Samples\Const.cs");
-    }
+    public void Const() => RunCompile(@"Samples\Const.cs");
 
     [TestMethod]
-    public void Conversion() {
-      RunCompile(@"Samples\Conversion.cs");
-    }
+    public void Conversion() => RunCompile(@"Samples\Conversion.cs");
 
     [TestMethod]
-    public void Delegate() {
-      RunCompile(@"Samples\Delegate.cs");
-    }
+    public void Delegate() => RunCompile(@"Samples\Delegate.cs");
 
     [TestMethod]
-    public void Event() {
-      RunCompile(@"Samples\Event.cs");
-    }
+    public void Event() => RunCompile(@"Samples\Event.cs");
 
     [TestMethod]
-    public void ExceptionHandling() {
-      RunCompile(@"Samples\ExceptionHandling.cs");
-    }
+    public void ExceptionHandling() => RunCompile(@"Samples\ExceptionHandling.cs");
 
     [TestMethod]
-    public void Fat() {
-      RunCompile(@"Samples\Fat.cs");
-    }
+    public void Fat() => RunCompile(@"Samples\Fat.cs");
 
     [TestMethod]
-    public void FlowControl() {
-      RunCompile(@"Samples\FlowControl.cs");
-    }
+    public void FlowControl() => RunCompile(@"Samples\FlowControl.cs");
 
     [TestMethod]
-    public void Field() {
-      RunCompile(@"Samples\Field.cs");
-    }
+    public void Field() => RunCompile(@"Samples\Field.cs");
 
     [TestMethod]
-    public void Generic() {
-      RunCompile(@"Samples\Generic.cs");
-    }
+    public void Generic() => RunCompile(@"Samples\Generic.cs");
 
     [TestMethod]
-    public void Inheritance() {
-      RunCompile(@"Samples\Inheritance.cs");
-    }
+    public void Inheritance() => RunCompile(@"Samples\Inheritance.cs");
 
     [TestMethod]
-    public void Lock() {
-      RunCompile(@"Samples\Lock.cs");
-    }
+    public void Lock() => RunCompile(@"Samples\Lock.cs");
 
     [TestMethod]
-    public void Param() {
-      RunCompile(@"Samples\Param.cs");
-    }
+    public void Param() => RunCompile(@"Samples\Param.cs");
 
     [TestMethod]
-    public void PInvoke() {
-      RunCompile(@"Samples\PInvoke.cs");
-    }
+    public void PInvoke() => RunCompile(@"Samples\PInvoke.cs");
 
     [TestMethod]
-    public void Property() {
-      RunCompile(@"Samples\Property.cs");
-    }
+    public void Property() => RunCompile(@"Samples\Property.cs");
 
     [TestMethod]
-    public void ReturnValue() {
-      RunCompile(@"Samples\ReturnValue.cs");
-    }
+    public void ReturnValue() => RunCompile(@"Samples\ReturnValue.cs");
 
     [TestMethod]
-    public void Simple() {
-      RunCompile(@"Samples\Simple.cs");
-    }
+    public void Simple() => RunCompile(@"Samples\Simple.cs");
 
     [TestMethod]
-    public void TwoMethods() {
-      RunCompile(@"Samples\TwoMethods.cs");
-    }
+    public void TwoMethods() => RunCompile(@"Samples\TwoMethods.cs");
 
     [TestMethod]
-    public void TwoSameMethods() {
-      RunCompile(@"Samples\TwoSameMethods.cs");
-    }
+    public void TwoSameMethods() => RunCompile(@"Samples\TwoSameMethods.cs");
 
     [TestMethod]
-    public void TypeForwarding() {
-      RunCompile(@"Samples\TypeForwarding.cs");
-    }
+    public void TypeForwarding() => RunCompile(@"Samples\TypeForwarding.cs");
 
     [TestMethod]
-    public void Unsafe() {
-      RunCompile(@"Samples\Unsafe.cs", "/unsafe");
-    }
+    public void Unsafe() => RunCompile(@"Samples\Unsafe.cs", "/unsafe");
 
     [TestMethod]
-    public void SimpleIL() {
-      RunIL(@"Samples\Simple.il");
-    }
+    public void SimpleIL() => RunIL(@"Samples\Simple.il");
 
     [TestMethod]
-    public void Blank() {
-      RunIL(@"Samples\Blank.il", "/dll");
-    }
+    public void Blank() => RunIL(@"Samples\Blank.il", "/dll");
 
     [TestMethod]
-    public void Data() {
-      RunIL(@"Samples\Data.il");
-    }
+    public void Data() => RunIL(@"Samples\Data.il");
 
     [TestMethod]
-    public void FileTable() {
-      RunIL(@"Samples\FileTable.il");
-    }
+    public void FileTable() => RunIL(@"Samples\FileTable.il");
 
     //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
@@ -278,9 +212,7 @@ namespace Tests
       }
     }
 
-    static string CleanFileName(string fileName) {
-      return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
-    }
+    static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
 
     static string FormatJson(string json) {
       dynamic parsedJson = JsonConvert.DeserializeObject(json);
@@ -303,9 +235,7 @@ namespace Tests
       }
     }
 
-    static Stream OpenExampleProgram() {
-      return typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat");
-    }
+    static Stream OpenExampleProgram() => typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat");
 
     static AssemblyBytes Run(Stream s) {
       CodeNode.OnError += error => Assert.Fail(error);
@@ -402,9 +332,7 @@ namespace Tests
     public SlowStream(Stream stream)
         : base(stream) { }
 
-    void Delay() {
-      Thread.Sleep(2);
-    }
+    void Delay() => Thread.Sleep(2);
 
     public override int Read(byte[] buffer, int offset, int count) {
       Delay();

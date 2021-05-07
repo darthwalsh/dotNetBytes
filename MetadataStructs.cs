@@ -772,16 +772,10 @@ sealed class StringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override CodeNode ReadChild(Stream stream, int index, out string s) {
-    return stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
-  }
+  protected override CodeNode ReadChild(Stream stream, int index, out string s) => stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
 
-  public static string Get(StringHeapIndex i) {
-    return Singletons.Instance.StringHeap.AddChild(i).Item1;
-  }
-  public static CodeNode GetNode(StringHeapIndex i) {
-    return Singletons.Instance.StringHeap.AddChild(i).Item2;
-  }
+  public static string Get(StringHeapIndex i) => Singletons.Instance.StringHeap.AddChild(i).Item1;
+  public static CodeNode GetNode(StringHeapIndex i) => Singletons.Instance.StringHeap.AddChild(i).Item2;
 }
 
 // II.24.2.4
@@ -811,12 +805,8 @@ sealed class UserStringHeap : Heap<string>
     return node;
   }
 
-  public static string Get(UserStringHeapIndex i) {
-    return Singletons.Instance.UserStringHeap.AddChild(i).Item1;
-  }
-  public static CodeNode GetNode(UserStringHeapIndex i) {
-    return Singletons.Instance.UserStringHeap.AddChild(i).Item2;
-  }
+  public static string Get(UserStringHeapIndex i) => Singletons.Instance.UserStringHeap.AddChild(i).Item1;
+  public static CodeNode GetNode(UserStringHeapIndex i) => Singletons.Instance.UserStringHeap.AddChild(i).Item2;
 }
 
 sealed class BlobHeap : Heap<byte[]>
@@ -836,12 +826,8 @@ sealed class BlobHeap : Heap<byte[]>
     return node;
   }
 
-  public static byte[] Get(BlobHeapIndex i) {
-    return Singletons.Instance.BlobHeap.AddChild(i).Item1;
-  }
-  public static CodeNode GetNode(BlobHeapIndex i) {
-    return Singletons.Instance.BlobHeap.AddChild(i).Item2;
-  }
+  public static byte[] Get(BlobHeapIndex i) => Singletons.Instance.BlobHeap.AddChild(i).Item1;
+  public static CodeNode GetNode(BlobHeapIndex i) => Singletons.Instance.BlobHeap.AddChild(i).Item2;
 }
 
 // II.24.2.5
@@ -864,12 +850,8 @@ sealed class GuidHeap : Heap<Guid>
     return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
   }
 
-  public static Guid Get(GuidHeapIndex i) {
-    return Singletons.Instance.GuidHeap.AddChild(i).Item1;
-  }
-  public static CodeNode GetNode(GuidHeapIndex i) {
-    return Singletons.Instance.GuidHeap.AddChild(i).Item2;
-  }
+  public static Guid Get(GuidHeapIndex i) => Singletons.Instance.GuidHeap.AddChild(i).Item1;
+  public static CodeNode GetNode(GuidHeapIndex i) => Singletons.Instance.GuidHeap.AddChild(i).Item2;
 }
 
 // II.24.2.6
@@ -1036,9 +1018,7 @@ sealed class TildeStream : ICanRead
     }
   }
 
-  public CodeNode GetCodeNode(MetadataTableFlags flag, int i) {
-    return streamNodes[flag].Skip(i).First();
-  }
+  public CodeNode GetCodeNode(MetadataTableFlags flag, int i) => streamNodes[flag].Skip(i).First();
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
