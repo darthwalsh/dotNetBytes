@@ -46,18 +46,11 @@ public class AssemblyBytes
   }
 
   static void FindOverLength(Stream s, CodeNode node) {
-    long? length = null;
-    try {
-      length = s.Length;
-    } catch { }
-
-    if (length.HasValue) {
-      node.CallBack(n => {
-        if (n.End > length) {
-          throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
-        }
-      });
-    }
+    node.CallBack(n => {
+      if (n.End > s.Length) {
+        throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
+      }
+    });
   }
 
   public CodeNode Node => node;

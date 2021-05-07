@@ -131,3 +131,6 @@ dotnet_style_qualification_for_property = false:suggestion
 
 # IDE0044: Add readonly modifier
 dotnet_style_readonly_field = false
+
+# CA1031: Do not catch general exception types
+dotnet_diagnostic.CA1031.severity = silent
