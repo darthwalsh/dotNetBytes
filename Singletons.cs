@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 // Thread-safe globals for parsing the assembly.
 //TODO(cleanup) pass an instance with the Read() method
