@@ -5,15 +5,15 @@ using Nancy.Responses.Negotiation;
 
 namespace WebHost
 {
-    public class CustomBootstrapper : DefaultNancyBootstrapper
+  public class CustomBootstrapper : DefaultNancyBootstrapper
+  {
+    protected override byte[] FavIcon => null;
+
+    protected override IRootPathProvider RootPathProvider => new AspNetRootPathProvider();
+
+    protected override NancyInternalConfiguration InternalConfiguration => NancyInternalConfiguration.WithOverrides(c =>
     {
-        protected override byte[] FavIcon => null;
-
-        protected override IRootPathProvider RootPathProvider => new AspNetRootPathProvider();
-
-        protected override NancyInternalConfiguration InternalConfiguration => NancyInternalConfiguration.WithOverrides(c =>
-        {
-            c.ResponseProcessors.Remove(typeof(JsonProcessor));
-        });
-    }
+      c.ResponseProcessors.Remove(typeof(JsonProcessor));
+    });
+  }
 }

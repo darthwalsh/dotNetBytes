@@ -6,59 +6,59 @@ using System.Web.Script.Serialization;
 
 public class AssemblyBytes
 {
-    FileFormat FileFormat;
+  FileFormat FileFormat;
 
-    CodeNode node;
+  CodeNode node;
 
-    public AssemblyBytes(Stream s) {
-        node = s.ReadClass(ref FileFormat);
+  public AssemblyBytes(Stream s) {
+    node = s.ReadClass(ref FileFormat);
 
-        // Widen any nodes to the width of their children
-        node.CallBack(n => {
-            if (n.Children.Any()) {
-                n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
-                n.End = Math.Max(n.End, n.Children.Max(c => c.End));
-            }
-        });
+    // Widen any nodes to the width of their children
+    node.CallBack(n => {
+      if (n.Children.Any()) {
+        n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
+        n.End = Math.Max(n.End, n.Children.Max(c => c.End));
+      }
+    });
 
-        // Order child nodes by index, expected for Heaps and sections
-        node.CallBack(n => {
-            n.Children = n.Children.OrderBy(c => c.Start).ToList();
-        });
+    // Order child nodes by index, expected for Heaps and sections
+    node.CallBack(n => {
+      n.Children = n.Children.OrderBy(c => c.Start).ToList();
+    });
 
-        FindOverLength(s, node);
+    FindOverLength(s, node);
 
-        node.CallBack(n => n.UseDelayedValueNode());
+    node.CallBack(n => n.UseDelayedValueNode());
 
-        LinkMethodDefRVA();
+    LinkMethodDefRVA();
 
-        node.AssignPath();
-        node.CallBack(CodeNode.AssignLink);
+    node.AssignPath();
+    node.CallBack(CodeNode.AssignLink);
+  }
+
+  static void LinkMethodDefRVA() {
+    var tildeStream = Singletons.Instance.TildeStream;
+    if (tildeStream.MethodDefs == null) return;
+
+    foreach (var def in tildeStream.MethodDefs.Where(def => def.RVA != 0)) {
+      def.RVANode.Link = tildeStream.Section.MethodsByRVA[def.RVA].Node;
     }
+  }
 
-    static void LinkMethodDefRVA() {
-        var tildeStream = Singletons.Instance.TildeStream;
-        if (tildeStream.MethodDefs == null) return;
+  static void FindOverLength(Stream s, CodeNode node) {
+    long? length = null;
+    try {
+      length = s.Length;
+    } catch { }
 
-        foreach (var def in tildeStream.MethodDefs.Where(def => def.RVA != 0)) {
-            def.RVANode.Link = tildeStream.Section.MethodsByRVA[def.RVA].Node;
+    if (length.HasValue) {
+      node.CallBack(n => {
+        if (n.End > length) {
+          throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
         }
+      });
     }
+  }
 
-    static void FindOverLength(Stream s, CodeNode node) {
-        long? length = null;
-        try {
-            length = s.Length;
-        } catch { }
-
-        if (length.HasValue) {
-            node.CallBack(n => {
-                if (n.End > length) {
-                    throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
-                }
-            });
-        }
-    }
-
-    public CodeNode Node => node;
+  public CodeNode Node => node;
 }

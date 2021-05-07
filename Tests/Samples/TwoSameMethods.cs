@@ -1,8 +1,8 @@
 ﻿public static class TwoSameMethods
 {
-    static void Main() {
-    }
+  static void Main() {
+  }
 
-    static void A() {
-    }
+  static void A() {
+  }
 }

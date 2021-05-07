@@ -1,6 +1,6 @@
 ﻿public static class SimpleProgram
 {
-    static void Main() {
+  static void Main() {
 
-    }
+  }
 }

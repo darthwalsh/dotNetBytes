@@ -1,7 +1,7 @@
 ﻿public static class Const
 {
-    const int x = 2;
+  const int x = 2;
 
-    static void Main(string[] args) {
-    }
+  static void Main(string[] args) {
+  }
 }

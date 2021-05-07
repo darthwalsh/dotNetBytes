@@ -4,6 +4,6 @@ using System.Runtime.CompilerServices;
 
 class TypeForwarding
 {
-    static void Main() {
-    }
+  static void Main() {
+  }
 }
