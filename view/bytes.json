@@ -1503,7 +1503,7 @@
                           "Children": []
                         },
                         {
-                          "Name": "token",
+                          "Name": "Token",
                           "Description": "",
                           "Value": "\"Hello, World!\"",
                           "Start": 594,
@@ -1512,7 +1512,7 @@
                           "Errors": [],
                           "Children": [
                             {
-                              "Name": "index",
+                              "Name": "Index",
                               "Description": "User String Heap index 1",
                               "Value": "\"Hello, World!\"",
                               "Start": 594,
@@ -1522,7 +1522,7 @@
                               "Children": []
                             },
                             {
-                              "Name": "table",
+                              "Name": "Table",
                               "Description": "UserStringHeapIndex",
                               "Value": "0x70",
                               "Start": 597,
@@ -1555,7 +1555,7 @@
                           "Children": []
                         },
                         {
-                          "Name": "value",
+                          "Name": "Value",
                           "Description": "",
                           "Value": "0x2C",
                           "Start": 599,
@@ -1586,7 +1586,7 @@
                           "Children": []
                         },
                         {
-                          "Name": "token",
+                          "Name": "Token",
                           "Description": "",
                           "Value": "",
                           "Start": 601,
@@ -1595,7 +1595,7 @@
                           "Errors": [],
                           "Children": [
                             {
-                              "Name": "offset",
+                              "Name": "Offset",
                               "Description": "",
                               "Value": "0x1",
                               "Start": 601,
@@ -1605,7 +1605,7 @@
                               "Children": []
                             },
                             {
-                              "Name": "table",
+                              "Name": "Table",
                               "Description": "TypeSpec",
                               "Value": "0x1B",
                               "Start": 604,
@@ -1638,7 +1638,7 @@
                           "Children": []
                         },
                         {
-                          "Name": "token",
+                          "Name": "Token",
                           "Description": "",
                           "Value": "Concat",
                           "Start": 606,
@@ -1647,7 +1647,7 @@
                           "Errors": [],
                           "Children": [
                             {
-                              "Name": "offset",
+                              "Name": "Offset",
                               "Description": "",
                               "Value": "0x1",
                               "Start": 606,
@@ -1657,7 +1657,7 @@
                               "Children": []
                             },
                             {
-                              "Name": "table",
+                              "Name": "Table",
                               "Description": "MemberRef",
                               "Value": "0xA",
                               "Start": 609,
@@ -1690,7 +1690,7 @@
                           "Children": []
                         },
                         {
-                          "Name": "token",
+                          "Name": "Token",
                           "Description": "",
                           "Value": "WriteLine",
                           "Start": 611,
@@ -1699,7 +1699,7 @@
                           "Errors": [],
                           "Children": [
                             {
-                              "Name": "offset",
+                              "Name": "Offset",
                               "Description": "",
                               "Value": "0x2",
                               "Start": 611,
@@ -1709,7 +1709,7 @@
                               "Children": []
                             },
                             {
-                              "Name": "table",
+                              "Name": "Table",
                               "Description": "MemberRef",
                               "Value": "0xA",
                               "Start": 614,

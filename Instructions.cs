@@ -503,23 +503,23 @@ sealed class InstructionStream : ICanRead
 // III.1.9
 sealed class MetadataToken : ICanRead, IHaveLiteralValue
 {
-  public UInt24 offset;
-  public byte table;
+  public UInt24 Offset;
+  public byte Table;
 
-  public UserStringHeapIndex index;
+  public UserStringHeapIndex Index;
 
   public object Value { get; set; }
 
 
   public CodeNode Read(Stream stream) {
-    var offsetNode = stream.ReadClass(ref offset, nameof(offset));
-    var tableNode = stream.ReadStruct(out table, nameof(table));
+    var offsetNode = stream.ReadClass(ref Offset, nameof(Offset));
+    var tableNode = stream.ReadStruct(out Table, nameof(Table));
 
-    if (table == 0x70) {
+    if (Table == 0x70) {
       // Reposition stream, and read "XX XX 00 70"
       stream.Position -= 4;
 
-      var indexNode = stream.ReadClass(ref index, nameof(index));
+      var indexNode = stream.ReadClass(ref Index, nameof(Index));
 
       if (stream.ReallyReadByte() != 0)
         throw new NotImplementedException("Too big UserStringHeapIndex");
@@ -532,7 +532,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
                 tableNode,
             };
       tableNode.Description = "UserStringHeapIndex";
-      Value = UserStringHeap.Get(index).GetString();
+      Value = UserStringHeap.Get(Index).GetString();
       return node;
     } else {
       var node = new CodeNode
@@ -540,9 +540,9 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
                 offsetNode,
                 tableNode,
             };
-      var flag = (MetadataTableFlags)(1L << table);
+      var flag = (MetadataTableFlags)(1L << Table);
       tableNode.Description = flag.ToString();
-      var link = Singletons.Instance.TildeStream.GetCodeNode(flag, offset.IntValue - 1); // indexed by 1
+      var link = Singletons.Instance.TildeStream.GetCodeNode(flag, Offset.IntValue - 1); // indexed by 1
       offsetNode.Link = link;
       Value = link.Value;
       return node;
@@ -565,7 +565,7 @@ sealed class OpWith<T> : ICanRead
     where T : struct
 {
   CodeNode op;
-  public T value;
+  public T Value;
   string opName;
 
   public OpWith(CodeNode op, string opName) {
@@ -577,9 +577,9 @@ sealed class OpWith<T> : ICanRead
     var node = new CodeNode
     {
             op,
-            stream.ReadStruct(out value, nameof(value)),
+            stream.ReadStruct(out Value, nameof(Value)),
         };
-    node.Description = opName + " " + value.GetString();
+    node.Description = opName + " " + Value.GetString();
     return node;
   }
 }
@@ -587,7 +587,7 @@ sealed class OpWith<T> : ICanRead
 sealed class OpWithToken : ICanRead
 {
   CodeNode op;
-  public MetadataToken token;
+  public MetadataToken Token;
 
   public OpWithToken(CodeNode op, string opName) {
     this.op = op;
@@ -595,7 +595,7 @@ sealed class OpWithToken : ICanRead
   }
 
   public CodeNode Read(Stream stream) {
-    var tokenNode = stream.ReadClass(ref token, nameof(token));
+    var tokenNode = stream.ReadClass(ref Token, nameof(Token));
     var node = new CodeNode
     {
             op,
@@ -610,8 +610,8 @@ sealed class OpWithToken : ICanRead
 sealed class SwitchOp : ICanRead
 {
   CodeNode op;
-  public uint count;
-  public int[] targets;
+  public uint Count;
+  public int[] Targets;
 
   public SwitchOp(CodeNode op) {
     this.op = op;
@@ -622,10 +622,10 @@ sealed class SwitchOp : ICanRead
     var node = new CodeNode
     {
             op,
-            stream.ReadStruct(out count, nameof(count)),
-            stream.ReadStructs(out targets, (int)count, nameof(targets)), //TODO(links) switch offset
+            stream.ReadStruct(out Count, nameof(Count)),
+            stream.ReadStructs(out Targets, (int)Count, nameof(Targets)), //TODO(links) switch offset
         };
-    node.Description = $"switch ({string.Join(", ", targets)})";
+    node.Description = $"switch ({string.Join(", ", Targets)})";
     return node;
   }
 }
