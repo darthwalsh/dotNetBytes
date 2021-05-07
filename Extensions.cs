@@ -134,9 +134,10 @@ static class StreamExtensions
   }
 
   public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct {
-    var node = new CodeNode();
-    node.Name = name ?? typeof(T).Name;
-    node.Start = (int)stream.Position;
+    var node = new CodeNode {
+      Name = name ?? typeof(T).Name,
+      Start = (int)stream.Position
+    };
 
     // http://stackoverflow.com/a/4159279/771768
     var sz = typeof(T).GetSize();
@@ -250,9 +251,10 @@ static class StreamExtensions
   }
 
   public static CodeNode ReadAnything<T>(this Stream stream, out T t, Func<Stream, T> callback, string name = null) {
-    var node = new CodeNode();
-    node.Name = name ?? typeof(T).Name;
-    node.Start = (int)stream.Position;
+    var node = new CodeNode {
+      Name = name ?? typeof(T).Name,
+      Start = (int)stream.Position
+    };
 
     t = callback(stream);
 

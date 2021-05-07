@@ -429,10 +429,11 @@ sealed class InstructionStream : ICanRead
       case 0xFE:
         byte secondByte;
         var secondOpNode = stream.ReadStruct(out secondByte, "OpCode");
-        var combinedOp = new CodeNode("OpCode");
-        combinedOp.Start = opNode.Start;
-        combinedOp.End = secondOpNode.End;
-        combinedOp.Value = opNode.Value + " " + secondOpNode.Value;
+        var combinedOp = new CodeNode("OpCode") {
+          Start = opNode.Start,
+          End = secondOpNode.End,
+          Value = opNode.Value + " " + secondOpNode.Value
+        };
         switch (secondByte) {
           case 0x00:
             return new Op(combinedOp, "arglist");

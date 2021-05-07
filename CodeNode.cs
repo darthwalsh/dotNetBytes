@@ -108,8 +108,9 @@ public class CodeNode : IEnumerable<string>
   class CodeNodeConverter : JavaScriptConverter
   {
     public static string ToJson(CodeNode node) {
-      var serializer = new JavaScriptSerializer();
-      serializer.MaxJsonLength = 0x08000000;
+      var serializer = new JavaScriptSerializer {
+        MaxJsonLength = 0x08000000
+      };
       serializer.RegisterConverters(new[] { new CodeNodeConverter() });
       return serializer.Serialize(node);
     }
