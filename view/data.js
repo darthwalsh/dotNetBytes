@@ -249,13 +249,11 @@ function drawDetails(o) {
 }
 
 function makeOnClick(o) {
-  return function (ev) {
-    setFocusObject(o);
-  };
+  return _ => setFocusObject(o);
 }
 
 function makeOnHashChange(json) {
-  return function (ev) {
+  return _ => {
     time("makeOnHashChange");
     var hash = window.location.href.split("#")[1];
     var names = hash.split("/");
@@ -306,9 +304,7 @@ function setFocusHelper(o, currentChild) {
     var onclick = null;
     var cursor = "auto";
     if (o.LinkPath) {
-      onclick = function (ev) {
-        window.location.hash = o.LinkPath;
-      };
+      onclick = _ => window.location.hash = o.LinkPath;
       cursor = "pointer";
     }
     for (i = o.Start; i < o.End; ++i) {
@@ -559,9 +555,7 @@ function listenFileChange(el, pollMS, bytesCallBack) {
       });
 
       var fileReader = new FileReader();
-      fileReader.onload = function () {
-        bytesCallBack(new Uint8Array(this.result));
-      };
+      fileReader.onload = () => bytesCallBack(new Uint8Array(this.result));
       fileReader.readAsArrayBuffer(file);
     })
   );
@@ -590,7 +584,7 @@ function readExampleBytes(callback) {
   var req = new XMLHttpRequest();
   req.open("GET", file);
   req.responseType = "arraybuffer";
-  req.onload = function () {
+  req.onload = () => {
     if (this.status === 200 && req.response) {
       callback(new Uint8Array(req.response));
     } else {
@@ -605,8 +599,8 @@ function readExampleJson(callback) {
 
   var req = new XMLHttpRequest();
   req.open("GET", file);
-  req.onload = function () {
-    if (this.status === 200 && req.responseText) {
+  req.onload = () => {
+    if (req.status === 200 && req.responseText) {
       callback(JSON.parse(req.responseText));
     } else {
       assertThrow("Couldn't find " + file);
@@ -619,7 +613,7 @@ function parseFile(bytes, callback) {
   var req = new XMLHttpRequest();
   req.open("POST", "parse", true);
   req.setRequestHeader("Content-type", "application/x-msdownload");
-  req.onload = function () {
+  req.onload = () => {
     if (this.status === 200 && req.responseText) {
       callback(JSON.parse(req.responseText));
     } else {
@@ -629,7 +623,7 @@ function parseFile(bytes, callback) {
   req.send(bytes);
 }
 
-window.onload = function () {
+window.onload = () => {
   var exampleButton = $("example");
   var fileInput = $("fileInput");
 
