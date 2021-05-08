@@ -14,6 +14,7 @@ namespace Tests
   public class AssemblyBytesTests
   {
     [AssemblyInitialize]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "required")]
     public static void AssemblyInit(TestContext context) {
       while (!Directory.Exists("Samples")) {
         Directory.SetCurrentDirectory("..");

@@ -15,8 +15,9 @@ namespace WebHost
       public byte[] File;
     }
 
-    static Lazy<Parsed> example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
+    static readonly Lazy<Parsed> example = new Lazy<Parsed>(() => Parse(typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat")));
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Never bubble up exception")]
     public HomePage()
     {
       Get["/"] = _ => Response.AsFile("bin/Content/view.html");
