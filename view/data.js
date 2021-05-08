@@ -585,7 +585,7 @@ function readExampleBytes(callback) {
   req.open("GET", file);
   req.responseType = "arraybuffer";
   req.onload = () => {
-    if (this.status === 200 && req.response) {
+    if (req.status === 200 && req.response) {
       callback(new Uint8Array(req.response));
     } else {
       assertThrow("Couldn't find " + file);
@@ -623,48 +623,46 @@ function parseFile(bytes, callback) {
   req.send(bytes);
 }
 
-window.onload = () => {
-  var exampleButton = $("example");
-  var fileInput = $("fileInput");
+var exampleButton = $("example");
+var fileInput = $("fileInput");
 
-  /*
-    If URL query is blank:
-    - Wait for the user to input a file
-    - Post file to get JSON form parse 
-    If URL has ?Example
-    - Get EXE from Program.dat
-    - Get JSON parse from bytes.json
-  */
+/*
+  If URL query is blank:
+  - Wait for the user to input a file
+  - Post file to get JSON form parse 
+  If URL has ?Example
+  - Get EXE from Program.dat
+  - Get JSON parse from bytes.json
+*/
 
-  if (window.location.href.indexOf("?Example=true") === -1) {
-    exampleButton.onclick = () => {
-      var hash = window.location.href.split("#")[1] || "";
-      if (hash) {
-        hash = "#" + hash;
-      }
-      window.location.href = "?Example=true" + hash;
-    };
-    exampleButton.value = "Try Example";
+if (window.location.href.indexOf("?Example=true") === -1) {
+  exampleButton.onclick = () => {
+    var hash = window.location.href.split("#")[1] || "";
+    if (hash) {
+      hash = "#" + hash;
+    }
+    window.location.href = "?Example=true" + hash;
+  };
+  exampleButton.value = "Try Example";
 
-    listenFileChange(fileInput, 2000, bytes => {
-      cleanupDisplay();
-      displayHex(bytes);
-      parseFile(bytes, displayParse);
-    });
-  } else {
-    exampleButton.onclick = () => {
-      window.location.href = window.location.href.replace("?Example=true", "");
-    };
-    exampleButton.value = "Leave Example";
-    fileInput.style.display = "none";
+  listenFileChange(fileInput, 2000, bytes => {
+    cleanupDisplay();
+    displayHex(bytes);
+    parseFile(bytes, displayParse);
+  });
+} else {
+  exampleButton.onclick = () => {
+    window.location.href = window.location.href.replace("?Example=true", "");
+  };
+  exampleButton.value = "Leave Example";
+  fileInput.style.display = "none";
 
-    readExampleBytes(bytes => {
-      cleanupDisplay();
-      displayHex(bytes);
-      readExampleJson(displayParse);
-    });
-  }
-};
+  readExampleBytes(bytes => {
+    cleanupDisplay();
+    displayHex(bytes);
+    readExampleJson(displayParse);
+  });
+}
 
 //TODO(HACK) method signatures
 //TODO(ACCS) ? avoid red/gree color palette
