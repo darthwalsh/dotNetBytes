@@ -21,7 +21,9 @@ function timeEnd(name) {
   }
 }
 
-function $(id) { return document.getElementById(id); }
+function $(id) {
+  return document.getElementById(id);
+}
 function create(tag, attr) {
   var el = document.createElement(tag);
 
@@ -34,7 +36,6 @@ function create(tag, attr) {
   return el;
 }
 
-
 // http://stackoverflow.com/a/8023734/771768
 // 0 <= h, s, v <= 1
 function HSVtoRGB(h, s, v) {
@@ -45,12 +46,36 @@ function HSVtoRGB(h, s, v) {
   q = v * (1 - f * s);
   t = v * (1 - (1 - f) * s);
   switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5: r = v; g = p; b = q; break;
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
+    case 5:
+      r = v;
+      g = p;
+      b = q;
+      break;
   }
   r = Math.round(r * 255);
   g = Math.round(g * 255);
@@ -65,7 +90,6 @@ function getColor(n) {
 function getDimColor(n) {
   return HSVtoRGB(n / 12, 0.3, 1);
 }
-
 
 function byteID(i) {
   return "byte" + i;
@@ -101,12 +125,12 @@ function scrollIntoView(o) {
 
   // Need to scroll up
   if (lastBox.bottom < 0) {
-    first.scrollIntoView( /* top: */ true);
+    first.scrollIntoView(/* top: */ true);
   }
 
   // Need to scroll down
   if (firstBox.top > window.innerHeight) {
-    last.scrollIntoView( /* top: */ false);
+    last.scrollIntoView(/* top: */ false);
   }
 }
 
@@ -125,13 +149,11 @@ function Search() {
   var tocDiv = $("toc");
   for (i = 0; i < global.allTocLI.length; ++i) {
     var li = global.allTocLI[i];
-    if (li.textContent.toLowerCase().indexOf(text) === -1)
-      continue;
+    if (li.textContent.toLowerCase().indexOf(text) === -1) continue;
 
     while (li !== tocDiv) {
       li.style.display = "";
-      if (li.previousElementSibling)
-        li.previousElementSibling.style.display = "";
+      if (li.previousElementSibling) li.previousElementSibling.style.display = "";
       li = li.parentElement;
     }
     li.style.display = "";
@@ -179,8 +201,7 @@ function setFocus(o) {
 
   // Reset all the byte display
   var grandparent = o;
-  while (grandparent.parent)
-    grandparent = grandparent.parent;
+  while (grandparent.parent) grandparent = grandparent.parent;
   for (i = grandparent.Start; i < grandparent.End; ++i) {
     setByte(i, "white", null, "auto");
   }
@@ -198,28 +219,28 @@ function setFocus(o) {
 
 function drawDetails(o) {
   var focusDetail = $("focusDetail");
-  while (focusDetail.firstChild)
-    focusDetail.removeChild(focusDetail.firstChild);
+  while (focusDetail.firstChild) focusDetail.removeChild(focusDetail.firstChild);
 
   var detailDiv = createBasicDetailsDOM(focusDetail, o);
-  detailDiv.appendChild(create("p", { textContent: o.Description }));
+  detailDiv.appendChild(create("p", {textContent: o.Description}));
 
   if (o.ReverseLinks) {
-    detailDiv.appendChild(create("p", { textContent: "Referenced by:" }));
+    detailDiv.appendChild(create("p", {textContent: "Referenced by:"}));
 
     var ul = create("ul");
     for (var i = 0; i < o.ReverseLinks.length; ++i) {
       var li = create("li");
 
-      var matchingPrefix = 0;
-      for (; matchingPrefix < o.ReverseLinks[i].length && matchingPrefix < o.NodePath.length; ++matchingPrefix) {
-        if (o.NodePath[matchingPrefix] !== o.ReverseLinks[i][matchingPrefix])
-          break;
+      var prefix = 0;
+      for (; prefix < o.ReverseLinks[i].length && prefix < o.NodePath.length; ++prefix) {
+        if (o.NodePath[prefix] !== o.ReverseLinks[i][prefix]) break;
       }
-      li.appendChild(create("a", {
-        href: "#" + o.ReverseLinks[i],
-        textContent: o.ReverseLinks[i].substring(matchingPrefix)
-      }));
+      li.appendChild(
+        create("a", {
+          href: "#" + o.ReverseLinks[i],
+          textContent: o.ReverseLinks[i].substring(prefix),
+        })
+      );
 
       ul.appendChild(li);
     }
@@ -281,11 +302,13 @@ function setFocusHelper(o, currentChild) {
   }
 
   if (!currentChild && !ch.length) {
-    col = getColor(0); //TODO in-order coloring 
+    col = getColor(0); //TODO in-order coloring
     var onclick = null;
     var cursor = "auto";
     if (o.LinkPath) {
-      onclick = function (ev) { window.location.hash = o.LinkPath; };
+      onclick = function (ev) {
+        window.location.hash = o.LinkPath;
+      };
       cursor = "pointer";
     }
     for (i = o.Start; i < o.End; ++i) {
@@ -318,8 +341,7 @@ function indexPaths(json, prefix) {
 function findLinkReferences(json) {
   if (json.LinkPath) {
     var linked = global.pathIndex[json.LinkPath];
-    if (!linked)
-      assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
+    if (!linked) assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
 
     linked.ReverseLinks = linked.ReverseLinks || [];
     linked.ReverseLinks.push(json.NodePath);
@@ -340,7 +362,7 @@ function drawToc(json) {
 }
 
 function drawTocHelper(o, parentUL) {
-  var li = create("li", { textContent: o.Name, onclick: makeOnClick(o) });
+  var li = create("li", {textContent: o.Name, onclick: makeOnClick(o)});
 
   global.allTocLI.push(li);
 
@@ -361,10 +383,10 @@ function drawTocHelper(o, parentUL) {
 }
 
 function createBasicDetailsDOM(parent, o) {
-  var details = create("div", { onclick: makeOnClick(o) });
+  var details = create("div", {onclick: makeOnClick(o)});
 
-  details.appendChild(create("p", { textContent: o.Name }));
-  details.appendChild(create("p", { textContent: o.Value }));
+  details.appendChild(create("p", {textContent: o.Name}));
+  details.appendChild(create("p", {textContent: o.Value}));
 
   parent.appendChild(details);
 
@@ -376,7 +398,7 @@ function findErrors(o) {
     var errorDiv = createBasicDetailsDOM($("details"), o);
     errorDiv.classList.add("error");
 
-    errorDiv.appendChild(create("p", { textContent: o.Errors[i] }));
+    errorDiv.appendChild(create("p", {textContent: o.Errors[i]}));
   }
 
   for (i = 0; i < o.Children.length; ++i) {
@@ -386,13 +408,27 @@ function findErrors(o) {
 
 function ToHex(code, width) {
   const hexEncodeArray = [
-    '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
   ];
 
   var s = "";
   for (var i = 0; i < width || code; ++i) {
-    s = hexEncodeArray[code & 0x0F] + s;
+    s = hexEncodeArray[code & 0x0f] + s;
     code >>>= 4;
   }
 
@@ -400,7 +436,8 @@ function ToHex(code, width) {
 }
 
 // Like ASCII, but with other nice-width glyphs instead of unprintable characters
-const font = ".αβγδεζηθικλμξπφ" +
+const font =
+  ".αβγδεζηθικλμξπφ" +
   "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
   " !\"#$%&'()*+,-./" +
   "0123456789:;<=>?" +
@@ -419,8 +456,7 @@ const font = ".αβγδεζηθικλμξπφ" +
 
 function removeChildren(id) {
   var el = $(id);
-  while (el.firstChild)
-    el.removeChild(el.firstChild);
+  while (el.firstChild) el.removeChild(el.firstChild);
 }
 
 function removeErrorDetails() {
@@ -433,7 +469,7 @@ function cleanupDisplay() {
   global = {
     pathIndex: {}, // maps path url to node
     allTocUL: [], // all Table of Contents Unordered List DOM elements
-    allTocLI: [] // all Table of Contents List Item DOM elements
+    allTocLI: [], // all Table of Contents List Item DOM elements
   };
   removeChildren("tocSearch");
   removeChildren("toc");
@@ -449,29 +485,31 @@ function displayHex(bytes) {
 
   var rowLabelWidth = ToHex(size - 1).length;
 
-  div.appendChild(create("code", { textContent: Array(rowLabelWidth + 1).join("-") + "    " }));
+  div.appendChild(create("code", {textContent: Array(rowLabelWidth + 1).join("-") + "    "}));
 
   for (var i = 0; i < width; i++) {
-    div.appendChild(create("code", { textContent: ToHex(i, 2) + " " }));
+    div.appendChild(create("code", {textContent: ToHex(i, 2) + " "}));
   }
 
   div.appendChild(create("br"));
 
   for (var j = 0; j < size; j += width) {
-    div.appendChild(create("code", { textContent: ToHex(j, rowLabelWidth) + "    " }));
+    div.appendChild(create("code", {textContent: ToHex(j, rowLabelWidth) + "    "}));
 
     for (i = j; i - j < width; i++) {
-      div.appendChild(create("code", {
-        textContent: ToHex(bytes[i], 2) + " ",
-        id: byteID(i)
-      }));
+      div.appendChild(
+        create("code", {
+          textContent: ToHex(bytes[i], 2) + " ",
+          id: byteID(i),
+        })
+      );
     }
 
-    div.appendChild(create("code", { innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;" }));
+    div.appendChild(create("code", {innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;"}));
 
     for (i = j; i - j < width; i++) {
       var lit = font[bytes[i]];
-      div.appendChild(create("code", { textContent: lit, id: litID(i) }));
+      div.appendChild(create("code", {textContent: lit, id: litID(i)}));
     }
 
     div.appendChild(create("br"));
@@ -496,38 +534,47 @@ function displayParse(json) {
   }
 }
 
-
-// listenFileChange and fileChange Copyright Microsoft, 2017
+// listenFileChange and fileChange
+// Copyright Microsoft, 2017
+// Copyright Carl Walsh, 2021
 /**
- * @param {HTMLInputElement} el 
- * @param {number} pollMS 
- * @param {function} bytesCallBack 
+ * @param {HTMLInputElement} el
+ * @param {number} pollMS
+ * @param {function} bytesCallBack
  */
 function listenFileChange(el, pollMS, bytesCallBack) {
   var time = document.createElement("span");
   time.innerText = "...";
   el.parentNode.insertBefore(time, el.nextSibling);
 
-  el.addEventListener('change', evt => fileChange(evt, pollMS, file => {
-    if (!file) {
-      return;
-    }
-    time.innerText = file.lastModifiedDate.toLocaleString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  el.addEventListener("change", evt =>
+    fileChange(evt, pollMS, file => {
+      if (!file) {
+        return;
+      }
+      time.innerText = file.lastModifiedDate.toLocaleString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
 
-    var fileReader = new FileReader();
-    fileReader.onload = function () {
-      bytesCallBack(new Uint8Array(this.result));
-    };
-    fileReader.readAsArrayBuffer(file);
-  }));
+      var fileReader = new FileReader();
+      fileReader.onload = function () {
+        bytesCallBack(new Uint8Array(this.result));
+      };
+      fileReader.readAsArrayBuffer(file);
+    })
+  );
 }
 
 function fileChange(evt, pollMS, fileCallback) {
-  var files = evt.target.files; /** @type {FileList} */
-  var f = files[0]; /** @type {File} */
+  /** @type {FileList} */
+  var files = evt.target.files;
+  var f = files[0];
 
   fileCallback(f);
-  var lastModified = f.lastModifiedDate; /** @type {Date} */
+  /** @type {Date} */
+  var lastModified = f.lastModifiedDate;
 
   setInterval(() => {
     if (f.lastModifiedDate.getTime() !== lastModified.getTime()) {
@@ -536,7 +583,6 @@ function fileChange(evt, pollMS, fileCallback) {
     }
   }, pollMS);
 }
-
 
 function readExampleBytes(callback) {
   var file = "Program.dat";
@@ -583,7 +629,6 @@ function parseFile(bytes, callback) {
   req.send(bytes);
 }
 
-
 window.onload = function () {
   var exampleButton = $("example");
   var fileInput = $("fileInput");
@@ -612,8 +657,7 @@ window.onload = function () {
       displayHex(bytes);
       parseFile(bytes, displayParse);
     });
-  }
-  else {
+  } else {
     exampleButton.onclick = () => {
       window.location.href = window.location.href.replace("?Example=true", "");
     };
@@ -643,7 +687,7 @@ window.onload = function () {
 //TODO magnifying glass in search boxes, X to close, should filter colored bytes, should set URL
 //TODO search also looks through name/details (optional check box?) (heuristic to show below?)
 //TODO method ops and stack state visualization before op and links between branches, e.g.
-//  load 10 | 
+//  load 10 |
 //  load 2.0| I4
 //  add     | I4 R8
 //  ret     | R8
