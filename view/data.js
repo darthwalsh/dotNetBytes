@@ -149,7 +149,7 @@ function Search() {
   const tocDiv = $("toc");
   for (let i = 0; i < global.allTocLI.length; ++i) {
     let li = global.allTocLI[i];
-    if (li.textContent.toLowerCase().indexOf(text) === -1) continue;
+    if (!li.textContent.toLowerCase().includes(text)) continue;
 
     while (li !== tocDiv) {
       li.style.display = "";
@@ -506,7 +506,7 @@ function displayParse(json) {
 
   $("tocSearch").oninput = Search;
 
-  if (window.location.href.indexOf("#") === -1) {
+  if (!window.location.href.includes("#")) {
     setFocusObject(json);
   } else {
     window.onhashchange();
@@ -618,7 +618,7 @@ const fileInput = $("fileInput");
   - Get JSON parse from bytes.json
 */
 
-if (window.location.href.indexOf("?Example=true") === -1) {
+if (!window.location.href.includes("?Example=true")) {
   exampleButton.onclick = () => {
     let hash = window.location.href.split("#")[1] || "";
     if (hash) {
