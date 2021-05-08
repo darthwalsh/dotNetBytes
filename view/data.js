@@ -1,6 +1,6 @@
 "use strict";
 
-var global;
+let global;
 
 function assertThrow(message) {
   debugger;
@@ -25,10 +25,10 @@ function $(id) {
   return document.getElementById(id);
 }
 function create(tag, attr) {
-  var el = document.createElement(tag);
+  const el = document.createElement(tag);
 
   if (attr) {
-    for (var key in attr) {
+    for (const key in attr) {
       el[key] = attr[key];
     }
   }
@@ -39,7 +39,7 @@ function create(tag, attr) {
 // http://stackoverflow.com/a/8023734/771768
 // 0 <= h, s, v <= 1
 function HSVtoRGB(h, s, v) {
-  var r, g, b, i, f, p, q, t;
+  let r, g, b, i, f, p, q, t;
   i = Math.floor(h * 6);
   f = h * 6 - i;
   p = v * (1 - s);
@@ -103,8 +103,8 @@ function litID(i) {
 // Updating the color or the cursor causes the restyle cost. Updating half only costs half as much.
 // Could probably just avoid setting if no change is needed (remove the other code that sets to white color?)
 function setByte(i, color, onclick, cursor) {
-  var byte = $(byteID(i));
-  var lit = $(litID(i));
+  const byte = $(byteID(i));
+  const lit = $(litID(i));
 
   byte.style.backgroundColor = color;
   lit.style.backgroundColor = color;
@@ -117,11 +117,11 @@ function setByte(i, color, onclick, cursor) {
 }
 
 function scrollIntoView(o) {
-  var first = $(byteID(o.Start));
-  var last = $(byteID(o.End - 1));
+  const first = $(byteID(o.Start));
+  const last = $(byteID(o.End - 1));
 
-  var firstBox = first.getBoundingClientRect();
-  var lastBox = last.getBoundingClientRect();
+  const firstBox = first.getBoundingClientRect();
+  const lastBox = last.getBoundingClientRect();
 
   // Need to scroll up
   if (lastBox.bottom < 0) {
@@ -135,20 +135,20 @@ function scrollIntoView(o) {
 }
 
 function Search() {
-  var text = $("tocSearch").value.toLowerCase();
+  const text = $("tocSearch").value.toLowerCase();
 
   // Hide all the ToC
-  for (var i = 0; i < global.allTocUL.length; ++i) {
+  for (let i = 0; i < global.allTocUL.length; ++i) {
     global.allTocUL[i].style.display = "none";
   }
-  for (i = 0; i < global.allTocLI.length; ++i) {
+  for (let i = 0; i < global.allTocLI.length; ++i) {
     global.allTocLI[i].style.display = "none";
   }
 
   // Unhide all the ToC up the parents
-  var tocDiv = $("toc");
-  for (i = 0; i < global.allTocLI.length; ++i) {
-    var li = global.allTocLI[i];
+  const tocDiv = $("toc");
+  for (let i = 0; i < global.allTocLI.length; ++i) {
+    let li = global.allTocLI[i];
     if (li.textContent.toLowerCase().indexOf(text) === -1) continue;
 
     while (li !== tocDiv) {
@@ -161,8 +161,8 @@ function Search() {
 }
 
 function setFocusObject(o) {
-  var hash = "";
-  for (var hashParent = o; hashParent; hashParent = hashParent.parent) {
+  let hash = "";
+  for (let hashParent = o; hashParent; hashParent = hashParent.parent) {
     hash = hashParent.Name + "/" + hash;
   }
   window.location.hash = hash.substring(0, hash.length - 1);
@@ -170,39 +170,39 @@ function setFocusObject(o) {
 
 function setFocus(o) {
   // Hide all lists in the ToC
-  for (var i = 0; i < global.allTocUL.length; ++i) {
+  for (let i = 0; i < global.allTocUL.length; ++i) {
     global.allTocUL[i].style.display = "none";
   }
   // Unhide all the text elements
-  for (i = 0; i < global.allTocLI.length; ++i) {
+  for (let i = 0; i < global.allTocLI.length; ++i) {
     global.allTocLI[i].style.display = "";
   }
 
   // Unhide all the ToC up the parents
-  var tocDiv = $("toc");
-  var toc = o.tocDom;
-  var parentUL = toc.parentElement;
+  const tocDiv = $("toc");
+  const toc = o.tocDom;
+  let parentUL = toc.parentElement;
   while (parentUL !== tocDiv) {
     parentUL.style.display = "";
     parentUL = parentUL.parentElement;
   }
 
   // Unhide sub-elements
-  var sib = toc.nextElementSibling;
+  const sib = toc.nextElementSibling;
   if (sib) {
     sib.style.display = "";
   }
 
   // Underline the current li
-  for (i = 0; i < global.allTocLI.length; ++i) {
+  for (let i = 0; i < global.allTocLI.length; ++i) {
     global.allTocLI[i].style.textDecoration = "";
   }
   toc.style.textDecoration = "underline";
 
   // Reset all the byte display
-  var grandparent = o;
+  let grandparent = o;
   while (grandparent.parent) grandparent = grandparent.parent;
-  for (i = grandparent.Start; i < grandparent.End; ++i) {
+  for (let i = grandparent.Start; i < grandparent.End; ++i) {
     setByte(i, "white", null, "auto");
   }
 
@@ -218,20 +218,20 @@ function setFocus(o) {
 }
 
 function drawDetails(o) {
-  var focusDetail = $("focusDetail");
+  const focusDetail = $("focusDetail");
   while (focusDetail.firstChild) focusDetail.removeChild(focusDetail.firstChild);
 
-  var detailDiv = createBasicDetailsDOM(focusDetail, o);
+  const detailDiv = createBasicDetailsDOM(focusDetail, o);
   detailDiv.appendChild(create("p", {textContent: o.Description}));
 
   if (o.ReverseLinks) {
     detailDiv.appendChild(create("p", {textContent: "Referenced by:"}));
 
-    var ul = create("ul");
-    for (var i = 0; i < o.ReverseLinks.length; ++i) {
-      var li = create("li");
+    const ul = create("ul");
+    for (let i = 0; i < o.ReverseLinks.length; ++i) {
+      const li = create("li");
 
-      var prefix = 0;
+      let prefix = 0;
       for (; prefix < o.ReverseLinks[i].length && prefix < o.NodePath.length; ++prefix) {
         if (o.NodePath[prefix] !== o.ReverseLinks[i][prefix]) break;
       }
@@ -255,12 +255,12 @@ function makeOnClick(o) {
 function makeOnHashChange(json) {
   return _ => {
     time("makeOnHashChange");
-    var hash = window.location.href.split("#")[1];
-    var names = hash.split("/");
+    const hash = window.location.href.split("#")[1];
+    const names = hash.split("/");
 
-    var o = json;
-    for (var i = 1; i < names.length; ++i) {
-      for (var chi = 0; ; ++chi) {
+    let o = json;
+    for (let i = 1; i < names.length; ++i) {
+      for (let chi = 0; ; ++chi) {
         if (chi === o.Children.length) {
           assertThrow("Couldn't find " + names[i] + " under " + o.Name);
           return;
@@ -284,37 +284,37 @@ function setFocusHelper(o, currentChild) {
     setFocusHelper(o.parent, o);
   }
 
-  var ch = o.Children;
+  const ch = o.Children;
 
-  for (var chI = 0; chI < ch.length; ++chI) {
-    var cc = ch[chI];
+  for (let chI = 0; chI < ch.length; ++chI) {
+    const cc = ch[chI];
     if (cc === currentChild) {
       continue;
     }
 
-    var col = currentChild ? getDimColor(chI) : getColor(chI);
+    const col = currentChild ? getDimColor(chI) : getColor(chI);
 
-    for (var i = cc.Start; i < cc.End; ++i) {
+    for (let i = cc.Start; i < cc.End; ++i) {
       setByte(i, col, makeOnClick(cc), "zoom-in");
     }
   }
 
   if (!currentChild && !ch.length) {
     col = getColor(0); //TODO in-order coloring
-    var onclick = null;
-    var cursor = "auto";
+    let onclick = null;
+    let cursor = "auto";
     if (o.LinkPath) {
       onclick = _ => window.location.hash = o.LinkPath;
       cursor = "pointer";
     }
-    for (i = o.Start; i < o.End; ++i) {
+    for (let i = o.Start; i < o.End; ++i) {
       setByte(i, col, onclick, cursor);
     }
   }
 }
 
 function addParent(json) {
-  for (var i = 0; i < json.Children.length; ++i) {
+  for (let i = 0; i < json.Children.length; ++i) {
     json.Children[i].parent = json;
 
     addParent(json.Children[i]);
@@ -329,27 +329,27 @@ function indexPaths(json, prefix) {
   global.pathIndex[prefix] = json;
   json.NodePath = prefix;
 
-  for (var i = 0; i < json.Children.length; ++i) {
+  for (let i = 0; i < json.Children.length; ++i) {
     indexPaths(json.Children[i], prefix);
   }
 }
 
 function findLinkReferences(json) {
   if (json.LinkPath) {
-    var linked = global.pathIndex[json.LinkPath];
+    const linked = global.pathIndex[json.LinkPath];
     if (!linked) assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
 
     linked.ReverseLinks = linked.ReverseLinks || [];
     linked.ReverseLinks.push(json.NodePath);
   }
 
-  for (var i = 0; i < json.Children.length; ++i) {
+  for (let i = 0; i < json.Children.length; ++i) {
     findLinkReferences(json.Children[i]);
   }
 }
 
 function drawToc(json) {
-  var ul = create("ul");
+  const ul = create("ul");
   $("toc").appendChild(ul);
 
   drawTocHelper(json, ul);
@@ -358,7 +358,7 @@ function drawToc(json) {
 }
 
 function drawTocHelper(o, parentUL) {
-  var li = create("li", {textContent: o.Name, onclick: makeOnClick(o)});
+  const li = create("li", {textContent: o.Name, onclick: makeOnClick(o)});
 
   global.allTocLI.push(li);
 
@@ -366,12 +366,12 @@ function drawTocHelper(o, parentUL) {
 
   parentUL.appendChild(li);
 
-  var ch = o.Children;
+  const ch = o.Children;
 
   if (ch.length) {
-    var ul = create("ul");
+    const ul = create("ul");
     global.allTocUL.push(ul);
-    for (var i = 0; i < ch.length; ++i) {
+    for (let i = 0; i < ch.length; ++i) {
       drawTocHelper(ch[i], ul);
     }
     parentUL.appendChild(ul);
@@ -379,7 +379,7 @@ function drawTocHelper(o, parentUL) {
 }
 
 function createBasicDetailsDOM(parent, o) {
-  var details = create("div", {onclick: makeOnClick(o)});
+  const details = create("div", {onclick: makeOnClick(o)});
 
   details.appendChild(create("p", {textContent: o.Name}));
   details.appendChild(create("p", {textContent: o.Value}));
@@ -390,40 +390,23 @@ function createBasicDetailsDOM(parent, o) {
 }
 
 function findErrors(o) {
-  for (var i = 0; i < o.Errors.length; ++i) {
-    var errorDiv = createBasicDetailsDOM($("details"), o);
+  for (let i = 0; i < o.Errors.length; ++i) {
+    const errorDiv = createBasicDetailsDOM($("details"), o);
     errorDiv.classList.add("error");
 
     errorDiv.appendChild(create("p", {textContent: o.Errors[i]}));
   }
 
-  for (i = 0; i < o.Children.length; ++i) {
+  for (let i = 0; i < o.Children.length; ++i) {
     findErrors(o.Children[i]);
   }
 }
 
 function ToHex(code, width) {
-  const hexEncodeArray = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-  ];
+  const hexEncodeArray = "0123456789ABCDEF".split('');
 
-  var s = "";
-  for (var i = 0; i < width || code; ++i) {
+  let s = "";
+  for (let i = 0; i < width || code; ++i) {
     s = hexEncodeArray[code & 0x0f] + s;
     code >>>= 4;
   }
@@ -451,12 +434,12 @@ const font =
   "ðñòóôõö÷øùúûüýþÿ";
 
 function removeChildren(id) {
-  var el = $(id);
+  const el = $(id);
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
 function removeErrorDetails() {
-  var details = $("details");
+  const details = $("details");
   while (details.firstElementChild.nextElementSibling)
     details.removeChild(details.firstElementChild.nextElementSibling);
 }
@@ -475,24 +458,24 @@ function cleanupDisplay() {
 }
 
 function displayHex(bytes) {
-  var div = $("bytes");
-  var width = 16;
-  var size = bytes.length;
+  const div = $("bytes");
+  const width = 16;
+  const size = bytes.length;
 
-  var rowLabelWidth = ToHex(size - 1).length;
+  const rowLabelWidth = ToHex(size - 1).length;
 
   div.appendChild(create("code", {textContent: Array(rowLabelWidth + 1).join("-") + "    "}));
 
-  for (var i = 0; i < width; i++) {
+  for (let i = 0; i < width; i++) {
     div.appendChild(create("code", {textContent: ToHex(i, 2) + " "}));
   }
 
   div.appendChild(create("br"));
 
-  for (var j = 0; j < size; j += width) {
+  for (let j = 0; j < size; j += width) {
     div.appendChild(create("code", {textContent: ToHex(j, rowLabelWidth) + "    "}));
 
-    for (i = j; i - j < width; i++) {
+    for (let i = j; i - j < width; i++) {
       div.appendChild(
         create("code", {
           textContent: ToHex(bytes[i], 2) + " ",
@@ -503,8 +486,8 @@ function displayHex(bytes) {
 
     div.appendChild(create("code", {innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;"}));
 
-    for (i = j; i - j < width; i++) {
-      var lit = font[bytes[i]];
+    for (let i = j; i - j < width; i++) {
+      const lit = font[bytes[i]];
       div.appendChild(create("code", {textContent: lit, id: litID(i)}));
     }
 
@@ -539,7 +522,7 @@ function displayParse(json) {
  * @param {function} bytesCallBack
  */
 function listenFileChange(el, pollMS, bytesCallBack) {
-  var time = document.createElement("span");
+  const time = document.createElement("span");
   time.innerText = "...";
   el.parentNode.insertBefore(time, el.nextSibling);
 
@@ -554,7 +537,7 @@ function listenFileChange(el, pollMS, bytesCallBack) {
         second: "2-digit",
       });
 
-      var fileReader = new FileReader();
+      const fileReader = new FileReader();
       fileReader.onload = () => bytesCallBack(new Uint8Array(this.result));
       fileReader.readAsArrayBuffer(file);
     })
@@ -563,12 +546,12 @@ function listenFileChange(el, pollMS, bytesCallBack) {
 
 function fileChange(evt, pollMS, fileCallback) {
   /** @type {FileList} */
-  var files = evt.target.files;
-  var f = files[0];
+  const files = evt.target.files;
+  const f = files[0];
 
   fileCallback(f);
   /** @type {Date} */
-  var lastModified = f.lastModifiedDate;
+  const lastModified = f.lastModifiedDate;
 
   setInterval(() => {
     if (f.lastModifiedDate.getTime() !== lastModified.getTime()) {
@@ -579,9 +562,9 @@ function fileChange(evt, pollMS, fileCallback) {
 }
 
 function readExampleBytes(callback) {
-  var file = "Program.dat";
+  const file = "Program.dat";
 
-  var req = new XMLHttpRequest();
+  const req = new XMLHttpRequest();
   req.open("GET", file);
   req.responseType = "arraybuffer";
   req.onload = () => {
@@ -595,9 +578,9 @@ function readExampleBytes(callback) {
 }
 
 function readExampleJson(callback) {
-  var file = "bytes.json";
+  const file = "bytes.json";
 
-  var req = new XMLHttpRequest();
+  const req = new XMLHttpRequest();
   req.open("GET", file);
   req.onload = () => {
     if (req.status === 200 && req.responseText) {
@@ -610,7 +593,7 @@ function readExampleJson(callback) {
 }
 
 function parseFile(bytes, callback) {
-  var req = new XMLHttpRequest();
+  const req = new XMLHttpRequest();
   req.open("POST", "parse", true);
   req.setRequestHeader("Content-type", "application/x-msdownload");
   req.onload = () => {
@@ -623,8 +606,8 @@ function parseFile(bytes, callback) {
   req.send(bytes);
 }
 
-var exampleButton = $("example");
-var fileInput = $("fileInput");
+const exampleButton = $("example");
+const fileInput = $("fileInput");
 
 /*
   If URL query is blank:
@@ -637,7 +620,7 @@ var fileInput = $("fileInput");
 
 if (window.location.href.indexOf("?Example=true") === -1) {
   exampleButton.onclick = () => {
-    var hash = window.location.href.split("#")[1] || "";
+    let hash = window.location.href.split("#")[1] || "";
     if (hash) {
       hash = "#" + hash;
     }
@@ -668,7 +651,8 @@ if (window.location.href.indexOf("?Example=true") === -1) {
 //TODO(ACCS) ? avoid red/gree color palette
 //TODO(HACK) layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
 //TODO(ACCS) keyboarding through ToC
-//TODO visualize all link, link targets
+//TODO(LINK) visualize all link, link targets
+//TODO(LINK) visualize link sizes
 //TODO link-references should include name of linking object instead of path
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
