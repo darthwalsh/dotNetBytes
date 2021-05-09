@@ -137,26 +137,21 @@ function scrollIntoView(o) {
 function Search() {
   const text = $("tocSearch").value.toLowerCase();
 
-  // Hide all the ToC
-  for (let i = 0; i < global.allTocUL.length; ++i) {
-    global.allTocUL[i].style.display = "none";
-  }
-  for (let i = 0; i < global.allTocLI.length; ++i) {
-    global.allTocLI[i].style.display = "none";
-  }
+  global.allTocUL.forEach(ul => (ul.style.display = "none"));
+  global.allTocLI.forEach(li => (li.style.display = "none"));
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
-  for (let i = 0; i < global.allTocLI.length; ++i) {
-    let li = global.allTocLI[i];
+  for (const li of global.allTocLI) {
     if (!li.textContent.toLowerCase().includes(text)) continue;
 
-    while (li !== tocDiv) {
-      li.style.display = "";
-      if (li.previousElementSibling) li.previousElementSibling.style.display = "";
-      li = li.parentElement;
+    let e = li;
+    while (e !== tocDiv) {
+      e.style.display = "";
+      if (e.previousElementSibling) e.previousElementSibling.style.display = "";
+      e = e.parentElement;
     }
-    li.style.display = "";
+    e.style.display = "";
   }
 }
 
@@ -169,14 +164,9 @@ function setFocusObject(o) {
 }
 
 function setFocus(o) {
-  // Hide all lists in the ToC
-  for (let i = 0; i < global.allTocUL.length; ++i) {
-    global.allTocUL[i].style.display = "none";
-  }
+  global.allTocUL.forEach(ul => (ul.style.display = "none"));
   // Unhide all the text elements
-  for (let i = 0; i < global.allTocLI.length; ++i) {
-    global.allTocLI[i].style.display = "";
-  }
+  global.allTocLI.forEach(li => (li.style.display = ""));
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
@@ -193,10 +183,7 @@ function setFocus(o) {
     sib.style.display = "";
   }
 
-  // Underline the current li
-  for (let i = 0; i < global.allTocLI.length; ++i) {
-    global.allTocLI[i].style.textDecoration = "";
-  }
+  global.allTocLI.forEach(li => (li.style.textDecoration = ""));
   toc.style.textDecoration = "underline";
 
   // Reset all the byte display
@@ -228,17 +215,17 @@ function drawDetails(o) {
     detailDiv.appendChild(create("p", {textContent: "Referenced by:"}));
 
     const ul = create("ul");
-    for (let i = 0; i < o.ReverseLinks.length; ++i) {
+    for (const revLink of o.ReverseLinks) {
       const li = create("li");
 
       let prefix = 0;
-      for (; prefix < o.ReverseLinks[i].length && prefix < o.NodePath.length; ++prefix) {
-        if (o.NodePath[prefix] !== o.ReverseLinks[i][prefix]) break;
+      for (; prefix < revLink.length && prefix < o.NodePath.length; ++prefix) {
+        if (o.NodePath[prefix] !== revLink[prefix]) break;
       }
       li.appendChild(
         create("a", {
-          href: "#" + o.ReverseLinks[i],
-          textContent: o.ReverseLinks[i].substring(prefix),
+          href: "#" + revLink,
+          textContent: revLink.substring(prefix),
         })
       );
 
@@ -259,19 +246,13 @@ function makeOnHashChange(json) {
     const names = hash.split("/");
 
     let o = json;
-    for (let i = 1; i < names.length; ++i) {
-      for (let chi = 0; ; ++chi) {
-        if (chi === o.Children.length) {
-          assertThrow("Couldn't find " + names[i] + " under " + o.Name);
-          return;
-        }
-
-        if (names[i] === o.Children[chi].Name) {
-          o = o.Children[chi];
-          break;
-        }
+    names.slice(1).forEach(name => {
+      const [c] = o.Children.filter(c => name == c.Name);
+      if (!c) {
+          assertThrow("Couldn't find " + name + " under " + o.Name);
       }
-    }
+      o = c;
+    });
 
     setFocus(o);
 
@@ -286,13 +267,14 @@ function setFocusHelper(o, currentChild) {
 
   const ch = o.Children;
 
+  let col;
   for (let chI = 0; chI < ch.length; ++chI) {
     const cc = ch[chI];
     if (cc === currentChild) {
       continue;
     }
 
-    const col = currentChild ? getDimColor(chI) : getColor(chI);
+    col = currentChild ? getDimColor(chI) : getColor(chI);
 
     for (let i = cc.Start; i < cc.End; ++i) {
       setByte(i, col, makeOnClick(cc), "zoom-in");
@@ -304,7 +286,7 @@ function setFocusHelper(o, currentChild) {
     let onclick = null;
     let cursor = "auto";
     if (o.LinkPath) {
-      onclick = _ => window.location.hash = o.LinkPath;
+      onclick = _ => (window.location.hash = o.LinkPath);
       cursor = "pointer";
     }
     for (let i = o.Start; i < o.End; ++i) {
@@ -314,10 +296,9 @@ function setFocusHelper(o, currentChild) {
 }
 
 function addParent(json) {
-  for (let i = 0; i < json.Children.length; ++i) {
-    json.Children[i].parent = json;
-
-    addParent(json.Children[i]);
+  for (const c of json.Children) {
+    c.parent = json;
+    addParent(c);
   }
 }
 
@@ -329,8 +310,8 @@ function indexPaths(json, prefix) {
   global.pathIndex[prefix] = json;
   json.NodePath = prefix;
 
-  for (let i = 0; i < json.Children.length; ++i) {
-    indexPaths(json.Children[i], prefix);
+  for (const c of json.Children) {
+    indexPaths(c, prefix);
   }
 }
 
@@ -343,9 +324,7 @@ function findLinkReferences(json) {
     linked.ReverseLinks.push(json.NodePath);
   }
 
-  for (let i = 0; i < json.Children.length; ++i) {
-    findLinkReferences(json.Children[i]);
-  }
+  json.Children.forEach(findLinkReferences);
 }
 
 function drawToc(json) {
@@ -371,8 +350,8 @@ function drawTocHelper(o, parentUL) {
   if (ch.length) {
     const ul = create("ul");
     global.allTocUL.push(ul);
-    for (let i = 0; i < ch.length; ++i) {
-      drawTocHelper(ch[i], ul);
+    for (const c of ch) {
+      drawTocHelper(c, ul);
     }
     parentUL.appendChild(ul);
   }
@@ -390,20 +369,18 @@ function createBasicDetailsDOM(parent, o) {
 }
 
 function findErrors(o) {
-  for (let i = 0; i < o.Errors.length; ++i) {
+  for (const err of o.Errors) {
     const errorDiv = createBasicDetailsDOM($("details"), o);
     errorDiv.classList.add("error");
 
-    errorDiv.appendChild(create("p", {textContent: o.Errors[i]}));
+    errorDiv.appendChild(create("p", {textContent: err}));
   }
 
-  for (let i = 0; i < o.Children.length; ++i) {
-    findErrors(o.Children[i]);
-  }
+  o.Children.forEach(findErrors);
 }
 
 function ToHex(code, width) {
-  const hexEncodeArray = "0123456789ABCDEF".split('');
+  const hexEncodeArray = "0123456789ABCDEF".split("");
 
   let s = "";
   for (let i = 0; i < width || code; ++i) {
