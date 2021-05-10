@@ -1,6 +1,25 @@
 "use strict";
 
-let global;
+/** @typedef {object} CodeNode
+ * @property {string} Name
+ * @property {string} Description
+ * @property {string} Value
+ * 
+ * @property {number} Start absolute position of start
+ * @property {number} End absolute position of end byte, inclusive
+ * @property {string[]} Errors
+ * 
+ * @property {?string} LinkPath optional path like FileFormat/Array[2]/Flag
+ * @property {string} [SelfPath] calculated
+ * @property {string[]} [ReverseLinks] calculated
+ * @property {CodeNode} [parent] calculated
+ * @property {CodeNode[]} Children
+ * 
+ * @property {HTMLLIElement} [tocLIdom] calculated
+ */
+
+/** @type {Object<string, CodeNode} */
+const pathIndex = {};
 
 function assertThrow(message) {
   debugger;
@@ -116,9 +135,10 @@ function setByte(i, color, onclick, cursor) {
   lit.style.cursor = cursor;
 }
 
-function scrollIntoView(o) {
-  const first = $(byteID(o.Start));
-  const last = $(byteID(o.End - 1));
+/** @param {CodeNode} node */
+function scrollIntoView(node) {
+  const first = $(byteID(node.Start));
+  const last = $(byteID(node.End - 1));
 
   const firstBox = first.getBoundingClientRect();
   const lastBox = last.getBoundingClientRect();
@@ -137,12 +157,12 @@ function scrollIntoView(o) {
 function Search() {
   const text = $("tocSearch").value.toLowerCase();
 
-  global.allTocUL.forEach(ul => (ul.style.display = "none"));
-  global.allTocLI.forEach(li => (li.style.display = "none"));
+  allTocUL().forEach(ul => (ul.style.display = "none"));
+  allTocLI().forEach(li => (li.style.display = "none"));
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
-  for (const li of global.allTocLI) {
+  for (const li of allTocLI()) {
     if (!li.textContent.toLowerCase().includes(text)) continue;
 
     let e = li;
@@ -155,22 +175,24 @@ function Search() {
   }
 }
 
-function setFocusObject(o) {
+/** @param {CodeNode} node */
+function setFocusObject(node) {
   let hash = "";
-  for (let hashParent = o; hashParent; hashParent = hashParent.parent) {
+  for (let hashParent = node; hashParent; hashParent = hashParent.parent) {
     hash = hashParent.Name + "/" + hash;
   }
   window.location.hash = hash.substring(0, hash.length - 1);
 }
 
-function setFocus(o) {
-  global.allTocUL.forEach(ul => (ul.style.display = "none"));
+/** @param {CodeNode} node */
+function setFocus(node) {
+  allTocUL().forEach(ul => (ul.style.display = "none"));
   // Unhide all the text elements
-  global.allTocLI.forEach(li => (li.style.display = ""));
+  allTocLI().forEach(li => (li.style.display = ""));
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
-  const toc = o.tocDom;
+  const toc = node.tocLIdom;
   let parentUL = toc.parentElement;
   while (parentUL !== tocDiv) {
     parentUL.style.display = "";
@@ -183,44 +205,46 @@ function setFocus(o) {
     sib.style.display = "";
   }
 
-  global.allTocLI.forEach(li => (li.style.textDecoration = ""));
+  allTocLI().forEach(li => (li.style.textDecoration = ""));
   toc.style.textDecoration = "underline";
 
   // Reset all the byte display
-  let grandparent = o;
+  let grandparent = node;
   while (grandparent.parent) grandparent = grandparent.parent;
   for (let i = grandparent.Start; i < grandparent.End; ++i) {
     setByte(i, "white", null, "auto");
   }
 
   time("setFocusHelper");
-  setFocusHelper(o);
+  setFocusHelper(node);
   timeEnd("setFocusHelper");
 
   time("scrollIntoView");
-  scrollIntoView(o);
+  scrollIntoView(node);
   timeEnd("scrollIntoView");
 
-  drawDetails(o);
+  drawDetails(node);
 }
 
-function drawDetails(o) {
+/** @param {CodeNode} node */
+function drawDetails(node) {
   const focusDetail = $("focusDetail");
   while (focusDetail.firstChild) focusDetail.removeChild(focusDetail.firstChild);
 
-  const detailDiv = createBasicDetailsDOM(focusDetail, o);
-  detailDiv.appendChild(create("p", {textContent: o.Description}));
+  const detailDiv = createBasicDetailsDOM(node);
+  focusDetail.appendChild(detailDiv);
+  detailDiv.appendChild(create("p", {textContent: node.Description}));
 
-  if (o.ReverseLinks) {
+  if (node.ReverseLinks) {
     detailDiv.appendChild(create("p", {textContent: "Referenced by:"}));
 
     const ul = create("ul");
-    for (const revLink of o.ReverseLinks) {
+    for (const revLink of node.ReverseLinks) {
       const li = create("li");
 
       let prefix = 0;
-      for (; prefix < revLink.length && prefix < o.NodePath.length; ++prefix) {
-        if (o.NodePath[prefix] !== revLink[prefix]) break;
+      for (; prefix < revLink.length && prefix < node.SelfPath.length; ++prefix) {
+        if (node.SelfPath[prefix] !== revLink[prefix]) break;
       }
       li.appendChild(
         create("a", {
@@ -235,10 +259,12 @@ function drawDetails(o) {
   }
 }
 
-function makeOnClick(o) {
-  return _ => setFocusObject(o);
+/** @param {CodeNode} node */
+function makeOnClick(node) {
+  return _ => setFocusObject(node);
 }
 
+/** @param {CodeNode} json */
 function makeOnHashChange(json) {
   return _ => {
     time("makeOnHashChange");
@@ -260,12 +286,16 @@ function makeOnHashChange(json) {
   };
 }
 
-function setFocusHelper(o, currentChild) {
-  if (o.parent) {
-    setFocusHelper(o.parent, o);
+/**
+ * @param {CodeNode} node
+ * @param {?CodeNode} currentChild 
+ */
+function setFocusHelper(node, currentChild) {
+  if (node.parent) {
+    setFocusHelper(node.parent, node);
   }
 
-  const ch = o.Children;
+  const ch = node.Children;
 
   let col;
   for (let chI = 0; chI < ch.length; ++chI) {
@@ -285,48 +315,52 @@ function setFocusHelper(o, currentChild) {
     col = getColor(0); //TODO in-order coloring
     let onclick = null;
     let cursor = "auto";
-    if (o.LinkPath) {
-      onclick = _ => (window.location.hash = o.LinkPath);
+    if (node.LinkPath) {
+      onclick = _ => (window.location.hash = node.LinkPath);
       cursor = "pointer";
     }
-    for (let i = o.Start; i < o.End; ++i) {
+    for (let i = node.Start; i < node.End; ++i) {
       setByte(i, col, onclick, cursor);
     }
   }
 }
 
-function addParent(json) {
-  for (const c of json.Children) {
-    c.parent = json;
+/** @param {CodeNode} node */
+function addParent(node) {
+  for (const c of node.Children) {
+    c.parent = node;
     addParent(c);
   }
 }
 
-function indexPaths(json, prefix) {
+/** @param {CodeNode} node */
+function indexPaths(node, prefix) {
   if (prefix) prefix += "/";
   prefix = prefix || "";
-  prefix += json.Name;
+  prefix += node.Name;
 
-  global.pathIndex[prefix] = json;
-  json.NodePath = prefix;
+  pathIndex[prefix] = node;
+  node.SelfPath = prefix;
 
-  for (const c of json.Children) {
+  for (const c of node.Children) {
     indexPaths(c, prefix);
   }
 }
 
-function findLinkReferences(json) {
-  if (json.LinkPath) {
-    const linked = global.pathIndex[json.LinkPath];
-    if (!linked) assertThrow("Link '" + json.LinkPath + "' from " + json.Name + " doesn't exist");
+/** @param {CodeNode} node */
+function findLinkReferences(node) {
+  if (node.LinkPath) {
+    const linked = pathIndex[node.LinkPath];
+    if (!linked) assertThrow("Link '" + node.LinkPath + "' from " + node.Name + " doesn't exist");
 
     linked.ReverseLinks = linked.ReverseLinks || [];
-    linked.ReverseLinks.push(json.NodePath);
+    linked.ReverseLinks.push(node.SelfPath);
   }
 
-  json.Children.forEach(findLinkReferences);
+  node.Children.forEach(findLinkReferences);
 }
 
+/** @param {CodeNode} json */
 function drawToc(json) {
   const ul = create("ul");
   $("toc").appendChild(ul);
@@ -336,20 +370,18 @@ function drawToc(json) {
   $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
-function drawTocHelper(o, parentUL) {
-  const li = create("li", {textContent: o.Name, onclick: makeOnClick(o)});
+/** @param {CodeNode} node */
+function drawTocHelper(node, parentUL) {
+  const li = create("li", {textContent: node.Name, onclick: makeOnClick(node)});
 
-  global.allTocLI.push(li);
-
-  o.tocDom = li;
+  node.tocLIdom = li;
 
   parentUL.appendChild(li);
 
-  const ch = o.Children;
+  const ch = node.Children;
 
   if (ch.length) {
     const ul = create("ul");
-    global.allTocUL.push(ul);
     for (const c of ch) {
       drawTocHelper(c, ul);
     }
@@ -357,26 +389,25 @@ function drawTocHelper(o, parentUL) {
   }
 }
 
-function createBasicDetailsDOM(parent, o) {
-  const details = create("div", {onclick: makeOnClick(o)});
-
-  details.appendChild(create("p", {textContent: o.Name}));
-  details.appendChild(create("p", {textContent: o.Value}));
-
-  parent.appendChild(details);
-
+/** @param {CodeNode} node */
+function createBasicDetailsDOM(node) {
+  const details = create("div", {onclick: makeOnClick(node)});
+  details.appendChild(create("p", {textContent: node.Name}));
+  details.appendChild(create("p", {textContent: node.Value}));
   return details;
 }
 
-function findErrors(o) {
-  for (const err of o.Errors) {
-    const errorDiv = createBasicDetailsDOM($("details"), o);
+/** @param {CodeNode} node */
+function findErrors(node) {
+  for (const err of node.Errors) {
+    const errorDiv = createBasicDetailsDOM(node);
+    $("details").appendChild(errorDiv);
     errorDiv.classList.add("error");
 
     errorDiv.appendChild(create("p", {textContent: err}));
   }
 
-  o.Children.forEach(findErrors);
+  node.Children.forEach(findErrors);
 }
 
 function ToHex(code, width) {
@@ -421,12 +452,18 @@ function removeErrorDetails() {
     details.removeChild(details.firstElementChild.nextElementSibling);
 }
 
+function allTocUL() {
+  return $("toc").querySelectorAll("ul");
+}
+
+function allTocLI() {
+  return $("toc").querySelectorAll("li");
+}
+
 function cleanupDisplay() {
-  global = {
-    pathIndex: {}, // maps path url to node
-    allTocUL: [], // all Table of Contents Unordered List DOM elements
-    allTocLI: [], // all Table of Contents List Item DOM elements
-  };
+  for (const key in pathIndex) {
+    delete pathIndex[key];
+  }
   removeChildren("tocSearch");
   removeChildren("toc");
   removeChildren("bytes");
@@ -472,6 +509,7 @@ function displayHex(bytes) {
   }
 }
 
+/** @param {CodeNode} json */
 function displayParse(json) {
   addParent(json);
   indexPaths(json);
