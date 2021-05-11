@@ -6,7 +6,7 @@
  * @property {string} Value
  *
  * @property {number} Start absolute position of start
- * @property {number} End absolute position of end byte, inclusive
+ * @property {number} End absolute position of end byte, exclusive
  * @property {string[]} Errors
  *
  * @property {?string} LinkPath optional path like FileFormat/Array[2]/Flag
@@ -103,11 +103,27 @@ function HSVtoRGB(h, s, v) {
 }
 
 function getColor(n) {
-  return HSVtoRGB(n / 12, 0.8, 1);
+  return HSVtoRGB(getHue(n), 0.8, 1);
 }
 
 function getDimColor(n) {
-  return HSVtoRGB(n / 12, 0.3, 1);
+  return HSVtoRGB(getHue(n), 0.3, 1);
+}
+
+/**
+ * Picks colors that don't repeat.
+ * [0, 1/3, 2/3, 1/6, 3/6, 5/6, 1/12, 3/12, 5/12, ...]
+ * @param {number} n
+ */
+function getHue(n) {
+  if (n < 3) return n / 3;
+  let denominator = 6;
+  n = 2 * n + 1 - 6;
+  while (n >= denominator) {
+    n -= denominator;
+    denominator *= 2;
+  }
+  return n / denominator;
 }
 
 function byteID(i) {
@@ -154,7 +170,7 @@ function scrollIntoView(node) {
   }
 }
 
-function Search() {
+function searchFilter() {
   const text = $("tocSearch").value.toLowerCase();
 
   allTocUL().forEach(ul => (ul.style.display = "none"));
@@ -172,6 +188,41 @@ function Search() {
       e = e.parentElement;
     }
     e.style.display = "";
+  }
+}
+
+function linkFilter() {
+  allTocUL().forEach(ul => (ul.style.display = "none"));
+  allTocLI().forEach(li => (li.style.display = "none"));
+
+  for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
+    setByte(i, "white", null, "auto");
+  }
+
+  linkFilterHelper(FileFormat, {n: 0});
+}
+
+/**
+ * @param {CodeNode} node
+ * @param {{n: number}} counter
+ */
+function linkFilterHelper(node, counter) {
+  if (node.LinkPath) {
+    for (let i = node.Start; i < node.End; ++i) {
+      setByte(i, getColor(counter.n), _ => (window.location.hash = node.SelfPath), "pointer");
+    }
+    ++counter.n;
+
+    let e = node.tocLIdom;
+    while (e !== $("toc")) {
+      e.style.display = "";
+      if (e.previousElementSibling) e.previousElementSibling.style.display = "";
+      e = e.parentElement;
+    }
+  }
+
+  for (const ch of node.Children) {
+    linkFilterHelper(ch, counter);
   }
 }
 
@@ -209,9 +260,7 @@ function setFocus(node) {
   toc.style.textDecoration = "underline";
 
   // Reset all the byte display
-  let grandparent = node;
-  while (grandparent.parent) grandparent = grandparent.parent;
-  for (let i = grandparent.Start; i < grandparent.End; ++i) {
+  for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
     setByte(i, "white", null, "auto");
   }
 
@@ -268,7 +317,11 @@ function onHashChange() {
   time("makeOnHashChange");
   const hash = window.location.href.split("#")[1] || "FileFormat";
 
-  setFocus(lookupNode(hash));
+  if (hash === "/Links") {
+    linkFilter();
+  } else {
+    setFocus(lookupNode(hash));
+  }
 
   timeEnd("makeOnHashChange");
 }
@@ -520,7 +573,8 @@ function displayParse(o) {
 
   window.onhashchange = onHashChange;
 
-  $("tocSearch").oninput = Search;
+  $("tocSearch").oninput = searchFilter;
+  $("visualLinks").onclick = _ => (window.location.hash = "/Links");
 
   window.onhashchange();
 }
@@ -663,7 +717,7 @@ if (!window.location.href.includes("?Example=true")) {
 //TODO(ACCS) ? avoid red/gree color palette
 //TODO(HACK) layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
 //TODO(ACCS) keyboarding through ToC
-//TODO(LINK) visualize all link, link targets
+//TODO(LINK) link targets, using dim? What if both?
 //TODO(LINK) visualize link sizes
 //TODO link-references should include name of linking object instead of path
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
