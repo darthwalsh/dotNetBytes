@@ -4,22 +4,22 @@
  * @property {string} Name
  * @property {string} Description
  * @property {string} Value
- * 
+ *
  * @property {number} Start absolute position of start
  * @property {number} End absolute position of end byte, inclusive
  * @property {string[]} Errors
- * 
+ *
  * @property {?string} LinkPath optional path like FileFormat/Array[2]/Flag
  * @property {string} [SelfPath] calculated
  * @property {string[]} [ReverseLinks] calculated
  * @property {CodeNode} [parent] calculated
  * @property {CodeNode[]} Children
- * 
+ *
  * @property {HTMLLIElement} [tocLIdom] calculated
  */
 
-/** @type {Object<string, CodeNode} */
-const pathIndex = {};
+/** @type {CodeNode} */
+let FileFormat;
 
 function assertThrow(message) {
   debugger;
@@ -264,31 +264,36 @@ function makeOnClick(node) {
   return _ => setFocusObject(node);
 }
 
-/** @param {CodeNode} json */
-function makeOnHashChange(json) {
-  return _ => {
-    time("makeOnHashChange");
-    const hash = window.location.href.split("#")[1];
-    const names = hash.split("/");
+function onHashChange() {
+  time("makeOnHashChange");
+  const hash = window.location.href.split("#")[1] || "FileFormat";
 
-    let o = json;
-    names.slice(1).forEach(name => {
-      const [c] = o.Children.filter(c => name == c.Name);
-      if (!c) {
-          assertThrow("Couldn't find " + name + " under " + o.Name);
-      }
-      o = c;
-    });
+  setFocus(lookupNode(hash));
 
-    setFocus(o);
+  timeEnd("makeOnHashChange");
+}
 
-    timeEnd("makeOnHashChange");
-  };
+/** @param {string} path */
+function lookupNode(path) {
+  const names = path.split("/");
+
+  let o = FileFormat;
+  if (names[0] != "FileFormat") {
+    assertThrow(`Couldn't find ${names[0]} under ${o.Name}`);
+  }
+  names.slice(1).forEach(name => {
+    const [c] = o.Children.filter(c => name == c.Name);
+    if (!c) {
+      assertThrow(`Couldn't find ${name} under ${o.Name}`);
+    }
+    o = c;
+  });
+  return o;
 }
 
 /**
  * @param {CodeNode} node
- * @param {?CodeNode} currentChild 
+ * @param {?CodeNode} currentChild
  */
 function setFocusHelper(node, currentChild) {
   if (node.parent) {
@@ -334,24 +339,22 @@ function addParent(node) {
 }
 
 /** @param {CodeNode} node */
-function indexPaths(node, prefix) {
+function setSelfPaths(node, prefix) {
   if (prefix) prefix += "/";
   prefix = prefix || "";
   prefix += node.Name;
 
-  pathIndex[prefix] = node;
   node.SelfPath = prefix;
 
   for (const c of node.Children) {
-    indexPaths(c, prefix);
+    setSelfPaths(c, prefix);
   }
 }
 
 /** @param {CodeNode} node */
 function findLinkReferences(node) {
   if (node.LinkPath) {
-    const linked = pathIndex[node.LinkPath];
-    if (!linked) assertThrow("Link '" + node.LinkPath + "' from " + node.Name + " doesn't exist");
+    const linked = lookupNode(node.LinkPath);
 
     linked.ReverseLinks = linked.ReverseLinks || [];
     linked.ReverseLinks.push(node.SelfPath);
@@ -360,12 +363,11 @@ function findLinkReferences(node) {
   node.Children.forEach(findLinkReferences);
 }
 
-/** @param {CodeNode} json */
-function drawToc(json) {
+function drawToc() {
   const ul = create("ul");
   $("toc").appendChild(ul);
 
-  drawTocHelper(json, ul);
+  drawTocHelper(FileFormat, ul);
 
   $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
@@ -461,9 +463,6 @@ function allTocLI() {
 }
 
 function cleanupDisplay() {
-  for (const key in pathIndex) {
-    delete pathIndex[key];
-  }
   removeChildren("tocSearch");
   removeChildren("toc");
   removeChildren("bytes");
@@ -509,23 +508,21 @@ function displayHex(bytes) {
   }
 }
 
-/** @param {CodeNode} json */
-function displayParse(json) {
-  addParent(json);
-  indexPaths(json);
-  findLinkReferences(json);
-  drawToc(json);
-  findErrors(json);
+/** @param {CodeNode} o */
+function displayParse(o) {
+  FileFormat = o;
 
-  window.onhashchange = makeOnHashChange(json);
+  addParent(FileFormat);
+  setSelfPaths(FileFormat);
+  findLinkReferences(FileFormat);
+  drawToc();
+  findErrors(FileFormat);
+
+  window.onhashchange = onHashChange;
 
   $("tocSearch").oninput = Search;
 
-  if (!window.location.href.includes("#")) {
-    setFocusObject(json);
-  } else {
-    window.onhashchange();
-  }
+  window.onhashchange();
 }
 
 // listenFileChange and fileChange
