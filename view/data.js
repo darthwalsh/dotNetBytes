@@ -199,19 +199,35 @@ function linkFilter() {
     setByte(i, "white", null, "auto");
   }
 
-  linkFilterHelper(FileFormat, {n: 0});
+  linkFilterHelper(FileFormat, {});
 }
 
+// TODO pre-order traversal start drawing the biggest link targets
+// TODO then draw links themselves pre-order
+// TODO draw link targets using dim
+// TODO some kind of preview on hover?
 /**
  * @param {CodeNode} node
- * @param {{n: number}} counter
+ * @param {Object<string, number>} targetIndex
  */
-function linkFilterHelper(node, counter) {
+function linkFilterHelper(node, targetIndex) {
   if (node.LinkPath) {
-    for (let i = node.Start; i < node.End; ++i) {
-      setByte(i, getColor(counter.n), _ => (window.location.hash = node.SelfPath), "pointer");
+    let n;
+    if (node.LinkPath in targetIndex) {
+      n = targetIndex[node.LinkPath];
+    } else {
+      n = targetIndex[node.LinkPath] = Object.keys(targetIndex).length;
+      const target = lookupNode(node.LinkPath);
+      for (let i = target.Start; i < target.End; ++i) {
+//         if ($(byteID(i)).style.backgroundColor !== "white") debugger;
+        setByte(i, getDimColor(n), _ => (window.location.hash = node.SelfPath), "auto");
+      }
     }
-    ++counter.n;
+
+    for (let i = node.Start; i < node.End; ++i) {
+//       if ($(byteID(i)).style.backgroundColor !== "white") debugger;
+      setByte(i, getColor(n), _ => (window.location.hash = node.SelfPath), "pointer");
+    }
 
     let e = node.tocLIdom;
     while (e !== $("toc")) {
@@ -222,7 +238,7 @@ function linkFilterHelper(node, counter) {
   }
 
   for (const ch of node.Children) {
-    linkFilterHelper(ch, counter);
+    linkFilterHelper(ch, targetIndex);
   }
 }
 
@@ -709,8 +725,7 @@ if (!window.location.href.includes("?Example=true")) {
 //TODO(ACCS) ? avoid red/gree color palette
 //TODO(HACK) layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
 //TODO(ACCS) keyboarding through ToC
-//TODO(LINK) link targets, using dim? What if both?
-//TODO(LINK) visualize link sizes
+//TODO(LINK) ensure sizes are linked
 //TODO link-references should include name of linking object instead of path
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
 //TODO hover preview
