@@ -604,7 +604,7 @@ function listenFileChange(el, pollMS, bytesCallBack) {
       });
 
       const fileReader = new FileReader();
-      fileReader.onload = () => bytesCallBack(new Uint8Array(this.result));
+      fileReader.onload = e => bytesCallBack(new Uint8Array(e.target.result));
       fileReader.readAsArrayBuffer(file);
     })
   );
@@ -627,49 +627,41 @@ function fileChange(evt, pollMS, fileCallback) {
   }, pollMS);
 }
 
-function readExampleBytes(callback) {
-  const file = "Program.dat";
-
-  const req = new XMLHttpRequest();
-  req.open("GET", file);
-  req.responseType = "arraybuffer";
-  req.onload = () => {
-    if (req.status === 200 && req.response) {
-      callback(new Uint8Array(req.response));
-    } else {
-      assertThrow("Couldn't find " + file);
-    }
-  };
-  req.send();
+// TODO(cleanup) return promise instead of arg callback
+async function readExampleBytes(callback) {
+  try {
+    const response = await fetch("Program.dat");
+    const buf = await response.arrayBuffer();
+    callback(new Uint8Array(buf));
+  } catch (error) {
+    assertThrow("Couldn't find example bytes");
+  }
 }
 
-function readExampleJson(callback) {
-  const file = "bytes.json";
-
-  const req = new XMLHttpRequest();
-  req.open("GET", file);
-  req.onload = () => {
-    if (req.status === 200 && req.responseText) {
-      callback(JSON.parse(req.responseText));
-    } else {
-      assertThrow("Couldn't find " + file);
-    }
-  };
-  req.send();
+async function readExampleJson(callback) {
+  try {
+    const response = await fetch("bytes.json");
+    const o = await response.json();
+    callback(o);
+  } catch (error) {
+    assertThrow("Couldn't find example json");
+  }
 }
 
-function parseFile(bytes, callback) {
-  const req = new XMLHttpRequest();
-  req.open("POST", "parse", true);
-  req.setRequestHeader("Content-type", "application/x-msdownload");
-  req.onload = () => {
-    if (this.status === 200 && req.responseText) {
-      callback(JSON.parse(req.responseText));
-    } else {
-      assertThrow("Error from web server: " + this.status + "\n" + req.responseText);
-    }
-  };
-  req.send(bytes);
+async function parseFile(bytes, callback) {
+  try {
+    const response = await fetch("parse", {
+      method: "POST",
+      body: bytes,
+      headers: {
+        "Content-Type": "application/x-msdownload",
+      },
+    });
+    const o = await response.json();
+    callback(o);
+  } catch (error) {
+    assertThrow("Error from web server: " + error);
+  }
 }
 
 const exampleButton = $("example");
