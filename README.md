@@ -23,7 +23,7 @@ Features
 Try It!
 -------
 
-Try it out at https://dotnetbytes.azurewebsites.net/
+~~Try it out at https://dotnetbytes.azurewebsites.net/~~ Azure took down my account :\\
 
 Motivation
 ----------
