@@ -1,6 +1,3 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/master?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/master)
-
-
 dotNetBytes
 ===========
 
@@ -23,7 +20,7 @@ Features
 Try It!
 -------
 
-~~Try it out at https://dotnetbytes.azurewebsites.net/~~ Azure took down my account :\\
+https://dotnet.carlwa.com/
 
 Motivation
 ----------
@@ -75,4 +72,14 @@ The interface is the frontend POSTS the assembly, and the back-end returns recur
 
 ## Deploying
 
-Changes are tested and deployed by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes)
+Website static file hosting uses [Cloudflare Pages](https://pages.cloudflare.com/).
+
+C# disassembly runs as a serverless function using [Google Cloud Functions](https://cloud.google.com/functions).
+
+Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes).
+
+## Future work
+
+- Get testing working on Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/master?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/master)
+
+- Get `dotnet test` working in [CloudFlare](https://developers.cloudflare.com/pages/platform/build-configuration) or on another *nix environment
