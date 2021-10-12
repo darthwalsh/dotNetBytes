@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -147,23 +148,49 @@ namespace Tests
       Task.WaitAll(tasks.ToArray());
     }
 
-    static string ilasm = Microsoft.Build.Utilities.ToolLocationHelper.GetPathToDotNetFrameworkFile(
-        "ilasm.exe", Microsoft.Build.Utilities.TargetDotNetFrameworkVersion.VersionLatest);
-    static string csc = Path.Combine(
-        Microsoft.Build.Utilities.ToolLocationHelper.GetFoldersInVSInstalls().First(),
-        "MSBuild",
-        "Current",
-        "Bin",
-        "Roslyn",
-        "csc.exe");
+    static string ilasm {
+      get {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+          return Path.Join(AppContext.BaseDirectory, "runtimes", "osx-x64", "native", "ilasm");
+        } else {
+          // windows
+          // Microsoft.Build.Utilities.ToolLocationHelper.GetPathToDotNetFrameworkFile(
+          //     "ilasm.exe", Microsoft.Build.Utilities.TargetDotNetFrameworkVersion.VersionLatest);
+
+          throw new NotImplementedException();
+        }
+      }
+    }
+
+    static string csc {
+      get {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+          return "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll";
+        } else {
+          // windows
+          // Path.Combine(
+          //     Microsoft.Build.Utilities.ToolLocationHelper.GetFoldersInVSInstalls().First(),
+          //     "MSBuild",
+          //     "Current",
+          //     "Bin",
+          //     "Roslyn",
+          //     "csc.exe");
+
+          throw new NotImplementedException();
+        }
+      }
+    }
 
     static void RunIL(string path, string args = "") {
+      path = Path.Join(path.Split(@"\"));
+
       var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
       if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
         Console.Error.WriteLine($"Assembling {outpath}");
 
-        RunProcess(ilasm, $@"""{path}"" /OUTPUT=""{outpath}"" {args}");
+        var switchchar = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "-";
+        RunProcess(ilasm, $@"""{path}"" {switchchar}OUTPUT=""{outpath}"" {args}");
       } else {
         Console.Error.WriteLine($"Using existing {outpath}");
       }
@@ -173,6 +200,8 @@ namespace Tests
 
     //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
     static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
+      path = Path.Join(path.Split(@"\"));
+
       var allArgs = $"{optimize} {noconfig} {args}";
 
       var outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
@@ -180,7 +209,7 @@ namespace Tests
       if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
         Console.Error.WriteLine($"Compiling {outpath}");
 
-        RunProcess(csc, $@"""{path}"" /out:""{outpath}"" {allArgs}");
+        RunProcess("dotnet", $@"{csc} ""{path}"" /out:""{outpath}"" {allArgs}");
       } else {
         Console.Error.WriteLine($"Using existing {outpath}");
       }
@@ -208,12 +237,13 @@ namespace Tests
         p.WaitForExit();
 
         var stdout = p.StandardOutput.ReadToEnd();
+        Console.Error.WriteLine(stdout);
 
         Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
       }
     }
 
-    static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
+    static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Concat(" :").Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
 
     static string FormatJson(string json) {
       dynamic parsedJson = JsonConvert.DeserializeObject(json);
