@@ -44,10 +44,10 @@ There are many ways to help out!
 There's two main parts to the app, a C# back-end and a JavaScript frontend.
 
 There are four major parts:
- - dotNetBytes has the disassembly library, and a command line host to serve static files
- - dotNetBytes/view is the web frontend
- - WebHost is a ASP.NET server, hosting the disassembly library.
- - Test is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
+ - `Lib/` has the disassembly library, and can be executed on the command line to see a pseudo-YAML view of the nested objects
+ - `view/` is the web frontend
+ - `CloudFunction/` is a Google Cloud Function serverless function running Lib.
+ - `Test/` is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
 
 When coding on the frontend, I normally:
  - run [http-server](https://www.npmjs.com/package/http-server) in the `view` folder
@@ -70,7 +70,7 @@ The interface is the frontend POSTS the assembly, and the back-end returns recur
 ### Scenarios for full test pass
 - From http-server, open http://127.0.0.1:8080?Example=true
 - From VS run dotNetBytes, look at "YAML" command line output, click around
-- From VS run WebHost, Open root URL, upload EXE, modify EXE, Try Example
+- From VS run CloudFunction, Open root URL, upload EXE, modify EXE, Try Example !!TODO
 - Run Tests unit project
 
 ## Deploying

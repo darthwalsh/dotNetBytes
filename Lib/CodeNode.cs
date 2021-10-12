@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
+[JsonConverter(typeof(CodeNodeConverter))]
 public class CodeNode : IEnumerable<string>
 {
   public CodeNode() { }
@@ -103,40 +105,38 @@ public class CodeNode : IEnumerable<string>
 
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-  public string ToJson() => CodeNodeConverter.ToJson(this);
+  public string ToJson(JsonSerializerOptions options = null) {
+    if (options is null) {
+      options = new JsonSerializerOptions();
+    } else {
+      options = new JsonSerializerOptions(options);
+    }
+    options.MaxDepth = 256;
 
-  class CodeNodeConverter : JavaScriptConverter
+    return JsonSerializer.Serialize(this, options);
+  }
+
+  sealed class CodeNodeConverter : JsonConverter<CodeNode>
   {
-    public static string ToJson(CodeNode node) {
-      var serializer = new JavaScriptSerializer {
-        MaxJsonLength = 0x08000000
-      };
-      serializer.RegisterConverters(new[] { new CodeNodeConverter() });
-      return serializer.Serialize(node);
-    }
+    public override CodeNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
-    CodeNodeConverter() { }
+    public override void Write(Utf8JsonWriter writer, CodeNode node, JsonSerializerOptions options) {
+      writer.WriteStartObject();
+      writer.WriteString(nameof(node.Name), node.Name);
+      writer.WriteString(nameof(node.Name), node.Name);
+      writer.WriteString(nameof(node.Description), node.Description);
+      writer.WriteString(nameof(node.Value), node.Value);
+      writer.WriteNumber(nameof(node.Start), node.Start);
+      writer.WriteNumber(nameof(node.End), node.End);
+      writer.WriteString(nameof(node.LinkPath), node.LinkPath);
 
-    public override IEnumerable<Type> SupportedTypes => new[] { typeof(CodeNode) };
+      writer.WritePropertyName(nameof(node.Errors));
+      JsonSerializer.Serialize(writer, node.Errors);
 
-    public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer) {
-      throw new InvalidOperationException();
-    }
+      writer.WritePropertyName(nameof(node.Children));
+      JsonSerializer.Serialize(writer, node.Children);
 
-    public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer) {
-      var node = (CodeNode)obj;
-
-      return new Dictionary<string, object>
-      {
-                { nameof(node.Name), node.Name },
-                { nameof(node.Description), node.Description },
-                { nameof(node.Value), node.Value },
-                { nameof(node.Start), node.Start },
-                { nameof(node.End), node.End },
-                { nameof(node.LinkPath), node.LinkPath },
-                { nameof(node.Errors), node.Errors },
-                { nameof(node.Children), node.Children },
-            };
+      writer.WriteEndObject();
     }
   }
 
