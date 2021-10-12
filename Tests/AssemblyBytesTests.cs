@@ -23,109 +23,108 @@ namespace Tests
     }
 
     [TestMethod]
-    public void NoConfig() => RunCompile(@"Samples\Simple.cs", noconfig: "");
+    public void NoConfig() => RunCompile("Simple.cs", noconfig: "");
 
     [TestMethod]
-    public void NonOptimized() => RunCompile(@"Samples\Simple.cs", optimize: "");
+    public void NonOptimized() => RunCompile("Simple.cs", optimize: "");
 
     [TestMethod]
-    public void Library() => RunCompile(@"Samples\Simple.cs", "/t:library");
+    public void Library() => RunCompile("Simple.cs", "/t:library");
 
     [TestMethod]
-    public void Platformx64() => RunCompile(@"Samples\Simple.cs", "/platform:x64");
+    public void Platformx64() => RunCompile("Simple.cs", "/platform:x64");
 
     [TestMethod]
-    public void Platformx86() => RunCompile(@"Samples\Simple.cs", "/platform:x86");
+    public void Platformx86() => RunCompile("Simple.cs", "/platform:x86");
 
     [TestMethod]
-    public void PlatformAnyCPU32() => RunCompile(@"Samples\Simple.cs", "/platform:anycpu32bitpreferred");
+    public void PlatformAnyCPU32() => RunCompile("Simple.cs", "/platform:anycpu32bitpreferred");
 
     [TestMethod]
-    public void EmbeddedResource() => RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs");
+    public void EmbeddedResource() => RunCompile("Simple.cs", @"/res:Simple.cs");
 
     [TestMethod]
-    public void EmbeddedResource2() => RunCompile(@"Samples\Simple.cs", @"/res:Samples\Simple.cs /res:Samples\Const.cs");
+    public void EmbeddedResource2() => RunCompile("Simple.cs", @"/res:Simple.cs /res:Const.cs");
 
 
     [TestMethod]
-    public void COM() => RunCompile(@"Samples\COM.cs");
+    public void COM() => RunCompile("COM.cs");
 
     [TestMethod]
-    public void Const() => RunCompile(@"Samples\Const.cs");
+    public void Const() => RunCompile("Const.cs");
 
     [TestMethod]
-    public void Conversion() => RunCompile(@"Samples\Conversion.cs");
+    public void Conversion() => RunCompile("Conversion.cs");
 
     [TestMethod]
-    public void Delegate() => RunCompile(@"Samples\Delegate.cs");
+    public void Delegate() => RunCompile("Delegate.cs");
 
     [TestMethod]
-    public void Event() => RunCompile(@"Samples\Event.cs");
+    public void Event() => RunCompile("Event.cs");
 
     [TestMethod]
-    public void ExceptionHandling() => RunCompile(@"Samples\ExceptionHandling.cs");
+    public void ExceptionHandling() => RunCompile("ExceptionHandling.cs");
 
     [TestMethod]
-    public void Fat() => RunCompile(@"Samples\Fat.cs");
+    public void Fat() => RunCompile("Fat.cs");
 
     [TestMethod]
-    public void FlowControl() => RunCompile(@"Samples\FlowControl.cs");
+    public void FlowControl() => RunCompile("FlowControl.cs");
 
     [TestMethod]
-    public void Field() => RunCompile(@"Samples\Field.cs");
+    public void Field() => RunCompile("Field.cs");
 
     [TestMethod]
-    public void Generic() => RunCompile(@"Samples\Generic.cs");
+    public void Generic() => RunCompile("Generic.cs");
 
     [TestMethod]
-    public void Inheritance() => RunCompile(@"Samples\Inheritance.cs");
+    public void Inheritance() => RunCompile("Inheritance.cs");
 
     [TestMethod]
-    public void Lock() => RunCompile(@"Samples\Lock.cs");
+    public void Lock() => RunCompile("Lock.cs");
 
     [TestMethod]
-    public void Param() => RunCompile(@"Samples\Param.cs");
+    public void Param() => RunCompile("Param.cs");
 
     [TestMethod]
-    public void PInvoke() => RunCompile(@"Samples\PInvoke.cs");
+    public void PInvoke() => RunCompile("PInvoke.cs");
 
     [TestMethod]
-    public void Property() => RunCompile(@"Samples\Property.cs");
+    public void Property() => RunCompile("Property.cs");
 
     [TestMethod]
-    public void ReturnValue() => RunCompile(@"Samples\ReturnValue.cs");
+    public void ReturnValue() => RunCompile("ReturnValue.cs");
 
     [TestMethod]
-    public void Simple() => RunCompile(@"Samples\Simple.cs");
+    public void Simple() => RunCompile("Simple.cs");
 
     [TestMethod]
-    public void TwoMethods() => RunCompile(@"Samples\TwoMethods.cs");
+    public void TwoMethods() => RunCompile("TwoMethods.cs");
 
     [TestMethod]
-    public void TwoSameMethods() => RunCompile(@"Samples\TwoSameMethods.cs");
+    public void TwoSameMethods() => RunCompile("TwoSameMethods.cs");
 
     [TestMethod]
-    public void TypeForwarding() => RunCompile(@"Samples\TypeForwarding.cs");
+    public void TypeForwarding() => RunCompile("TypeForwarding.cs");
 
     [TestMethod]
-    public void Unsafe() => RunCompile(@"Samples\Unsafe.cs", "/unsafe");
+    public void Unsafe() => RunCompile("Unsafe.cs", "/unsafe");
 
     [TestMethod]
-    public void SimpleIL() => RunIL(@"Samples\Simple.il");
+    public void SimpleIL() => RunIL(@"Simple.il");
 
     [TestMethod]
-    public void Blank() => RunIL(@"Samples\Blank.il", "/dll");
+    public void Blank() => RunIL(@"Blank.il", "/dll");
 
     [TestMethod]
-    public void Data() => RunIL(@"Samples\Data.il");
+    public void Data() => RunIL(@"Data.il");
 
     [TestMethod]
-    public void FileTable() => RunIL(@"Samples\FileTable.il");
+    public void FileTable() => RunIL(@"FileTable.il");
 
     //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
     //TODO Also test with mono
-    //TODO Also test with dotnetcore
 
     //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
 
@@ -165,7 +164,8 @@ namespace Tests
     static string csc {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-          return "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll";
+          var references = Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll").Select(dll => "/reference:" + dll);
+          return string.Join(' ', new [] { "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll" }.Concat(references));
         } else {
           // windows
           // Path.Combine(
@@ -182,14 +182,13 @@ namespace Tests
     }
 
     static void RunIL(string path, string args = "") {
-      path = Path.Join(path.Split(@"\"));
-
       var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
       if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
         Console.Error.WriteLine($"Assembling {outpath}");
 
         var switchchar = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "-";
+        args = string.Join(' ', args.Split(' ').Select(arg => arg.StartsWith('/') ? switchchar + arg.Substring(1) : arg));
         RunProcess(ilasm, $@"""{path}"" {switchchar}OUTPUT=""{outpath}"" {args}");
       } else {
         Console.Error.WriteLine($"Using existing {outpath}");
@@ -200,8 +199,6 @@ namespace Tests
 
     //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
     static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
-      path = Path.Join(path.Split(@"\"));
-
       var allArgs = $"{optimize} {noconfig} {args}";
 
       var outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
@@ -226,7 +223,7 @@ namespace Tests
         FileName = filename,
         Arguments = processArgs,
 
-        WorkingDirectory = Directory.GetCurrentDirectory(),
+        WorkingDirectory = Path.Join(Directory.GetCurrentDirectory(), "Samples"),
 
         CreateNoWindow = true,
         WindowStyle = ProcessWindowStyle.Hidden,
@@ -255,18 +252,26 @@ namespace Tests
       var assm = Run(OpenExampleProgram());
       var expected = FormatJson(assm.Node.ToJson());
 
-      using (var baselineJSON = GetType().Assembly.GetManifestResourceStream("bytes.json"))
-      using (var reader = new StreamReader(baselineJSON)) {
+      using var baselineJSON = File.OpenRead(view("bytes.json"));
+      using var reader = new StreamReader(baselineJSON);
 
-        var actual = FormatJson(reader.ReadToEnd());
-        if (actual != expected) {
-          File.WriteAllText(@"..\..\..\..\view\bytes.json", expected);
-          Assert.Fail("Baseline was out of date, but fixed now!");
-        }
+      var actual = FormatJson(reader.ReadToEnd());
+      if (actual != expected) {
+        File.WriteAllText(view("bytes.json"), expected);
+        Assert.Fail("Baseline was out of date, but fixed now!");
       }
     }
 
-    static Stream OpenExampleProgram() => typeof(AssemblyBytes).Assembly.GetManifestResourceStream("view.Program.dat");
+    static string view(string file) {
+      var d = new DirectoryInfo(Directory.GetCurrentDirectory());
+      for (; d != null; d = d.Parent) {
+        var v = d.GetDirectories("view").SingleOrDefault();
+        if (v != null) return v.GetFiles(file).Single().FullName;
+      }
+      throw new Exception("no view");
+    }
+
+    static Stream OpenExampleProgram() => File.OpenRead(view("Program.dat"));
 
     static AssemblyBytes Run(Stream s) {
       CodeNode.OnError += error => Assert.Fail(error);
