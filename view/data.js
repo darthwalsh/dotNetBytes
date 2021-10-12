@@ -650,7 +650,7 @@ async function readExampleJson(callback) {
 
 async function parseFile(bytes, callback) {
   try {
-    const response = await fetch("parse", {
+    const response = await fetch("http://127.0.0.1:8080", {
       method: "POST",
       body: bytes,
       headers: {

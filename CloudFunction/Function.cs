@@ -1,14 +1,31 @@
 using Google.Cloud.Functions.Framework;
+using Google.Cloud.Functions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CloudFunction
 {
+  public class Startup : FunctionsStartup
+  {
+    public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
+      services.AddCors(options => options.AddPolicy("CorsApi", builder => builder
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
+    }
+    
+    public override void Configure(WebHostBuilderContext context, IApplicationBuilder app) {
+      app.UseCors("CorsApi");
+    }
+  }
+
+  [FunctionsStartup(typeof(Startup))]
   public class Function : IHttpFunction
   {
     [HttpPost]
