@@ -17,8 +17,8 @@ sealed class FileFormat : ICanRead
 
     var node = new CodeNode
     {
-            stream.ReadClass(ref PEHeader),
-        };
+      stream.ReadClass(ref PEHeader),
+    };
 
     Sections = PEHeader.SectionHeaders.Select(header =>
         new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
@@ -133,15 +133,15 @@ struct PEFileHeader
   public ushort NumberOfSections;
   [Description("Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.")]
   public uint TimeDateStamp;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint PointerToSymbolTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint NumberOfSymbols;
   [Description("Size of the optional header, the format is described below.")]
   public ushort OptionalHeaderSize;
-  [Description("Flags indicating attributes of the file, see §II.25.2.2.1.")]
+  [Description("Flags indicating attributes of the file, see Â§II.25.2.2.1.")]
   public ushort Characteristics;
 }
 
@@ -213,9 +213,9 @@ struct PEHeaderStandardFields
 {
   [Description("Identifies version.")]
   public PE32Magic Magic;
-  [Description("Spec says always 6, sometimes more (§II.24.1).")]
+  [Description("Spec says always 6, sometimes more (Â§II.24.1).")]
   public byte LMajor;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public byte LMinor;
   [Description("Size of the code (text) section, or the sum of all code sections if there are multiple sections.")]
@@ -244,24 +244,24 @@ struct PEHeaderWindowsNtSpecificFields<Tint>
   public Tint ImageBase;
   [Description("Shall be greater than File Alignment.")]
   public uint SectionAlignment;
-  [Description("Should be 0x200 (§II.24.1).")]
+  [Description("Should be 0x200 (Â§II.24.1).")]
   [Expected(0x200)]
   public uint FileAlignment;
-  [Description("Should be 5 (§II.24.1).")]
+  [Description("Should be 5 (Â§II.24.1).")]
   public ushort OSMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort OSMinor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort UserMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort UserMinor;
-  [Description("Should be 5 (§II.24.1).")]
+  [Description("Should be 5 (Â§II.24.1).")]
   //[Expected(5)]
   public ushort SubSysMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort SubSysMinor;
   [Description("Shall be zero")]
@@ -271,21 +271,21 @@ struct PEHeaderWindowsNtSpecificFields<Tint>
   public uint ImageSize;
   [Description("Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.")]
   public uint HeaderSize;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint FileChecksum;
   [Description("Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).")]
   public ushort SubSystem;
   [Description("Bits 0x100f shall be zero.")]
   public DllCharacteristics DLLFlags;
-  [Description("Often 1Mb for x86 or 4Mb for x64 (§II.24.1).")]
+  [Description("Often 1Mb for x86 or 4Mb for x64 (Â§II.24.1).")]
   public Tint StackReserveSize;
-  [Description("Often 4Kb for x86 or 16Kb for x64 (§II.24.1).")]
+  [Description("Often 4Kb for x86 or 16Kb for x64 (Â§II.24.1).")]
   public Tint StackCommitSize;
-  [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
+  [Description("Should be 0x100000 (1Mb) (Â§II.24.1).")]
   [Expected(0x100000)]
   public Tint HeapReserveSize;
-  [Description("Often 4Kb for x86 or 8Kb for x64 (§II.24.1).")]
+  [Description("Often 4Kb for x86 or 8Kb for x64 (Â§II.24.1).")]
   public Tint HeapCommitSize;
   [Description("Shall be 0")]
   [Expected(0)]
@@ -341,47 +341,47 @@ struct PEHeaderHeaderDataDirectories
 {
   //TODO(link) RVAandSize all
 
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong ExportTable;
-  [Description("RVA and Size of Import Table, (§II.25.3.1).")]
+  [Description("RVA and Size of Import Table, (Â§II.25.3.1).")]
   public RVAandSize ImportTable;
-  [Description("Always 0, unless resources are compiled in (§II.24.1).")]
+  [Description("Always 0, unless resources are compiled in (Â§II.24.1).")]
   public ulong ResourceTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong ExceptionTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong CertificateTable;
-  [Description("Relocation Table; set to 0 if unused (§).")]
+  [Description("Relocation Table; set to 0 if unused (Â§).")]
   public RVAandSize BaseRelocationTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
   public ulong Debug;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong Copyright;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong GlobalPtr;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong TLSTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong LoadConfigTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong BoundImport;
-  [Description("RVA and Size of Import Address Table,(§II.25.3.1).")]
+  [Description("RVA and Size of Import Address Table,(Â§II.25.3.1).")]
   public RVAandSize ImportAddressTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong DelayImportDescriptor;
-  [Description("CLI Header with directories for runtime data,(§II.25.3.1).")]
+  [Description("CLI Header with directories for runtime data,(Â§II.25.3.1).")]
   public RVAandSize CLIHeader;
-  [Description("Always 0 (§II.24.1)")]
+  [Description("Always 0 (Â§II.24.1)")]
   [Expected(0)]
   public ulong Reserved;
 }
@@ -408,19 +408,19 @@ struct SectionHeader
   public uint SizeOfRawData;
   [Description("Offset of section's first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
   public uint PointerToRawData;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint PointerToRelocations;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint PointerToLinenumbers;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort NumberOfRelocations;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0 (Â§II.24.1).")]
   [Expected(0)]
   public ushort NumberOfLinenumbers;
-  [Description("Flags describing section’s characteristics.")]
+  [Description("Flags describing sectionâ€™s characteristics.")]
   public SectionHeaderCharacteristics Characteristics;
 }
 
@@ -605,13 +605,13 @@ struct ImportTable
 {
   [Description("RVA of the Import Lookup Table")]
   public uint ImportLookupTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint DateTimeStamp;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public uint ForwarderChain;
-  [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
+  [Description("RVA of null-terminated ASCII string â€œmscoree.dllâ€.")]
   public uint Name;
   [Description("RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).")]
   public uint ImportAddressTableRVA;
@@ -645,7 +645,7 @@ struct ImportAddressHintNameTable
   [Description("Shall be 0.")]
   [Expected(0)]
   public ushort Hint;
-  [Description("Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.")]
+  [Description("Case sensitive, null-terminated ASCII string containing name to import. Shall be â€œ_CorExeMainâ€ for a.exe file and â€œ_CorDllMainâ€ for a.dll file.")]
   [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
   public char[] Message;
 }
@@ -721,9 +721,9 @@ struct CLIHeader
   public ushort MajorRuntimeVersion;
   [Description("The minor portion of the version, currently 0.")]
   public ushort MinorRuntimeVersion;
-  [Description("RVA and size of the physical metadata (§II.24).")]
+  [Description("RVA and size of the physical metadata (Â§II.24).")]
   public RVAandSize MetaData;
-  [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
+  [Description("Flags describing this runtime image. (Â§II.25.3.3.1).")]
   public CliHeaderFlags Flags;
   [Description("Token for the MethodDef or File of the entry point for the image")]
   public uint EntryPointToken;
@@ -731,15 +731,15 @@ struct CLIHeader
   public RVAandSize Resources;
   [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]
   public RVAandSize StrongNameSignature;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong CodeManagerTable;
   [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.")]
   public RVAandSize VTableFixups;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong ExportAddressTableJumps;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0 (Â§II.24.1).")]
   [Expected(0)]
   public ulong ManagedNativeHeader;
 }
