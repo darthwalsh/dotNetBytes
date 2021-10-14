@@ -27,19 +27,6 @@ function assertThrow(message) {
   throw message;
 }
 
-const profile = false;
-function time(name) {
-  if (profile) {
-    console.time(name);
-  }
-}
-
-function timeEnd(name) {
-  if (profile) {
-    console.timeEnd(name);
-  }
-}
-
 function $(id) {
   return document.getElementById(id);
 }
@@ -133,10 +120,9 @@ function litID(i) {
   return "lit" + i;
 }
 
-//TODO(PERF) calling this function 10's of thousands of times results in
+//TODO(PERF) calling this function 100's of thousands of times results in
 // a lot of unnecessary delay with style calculations. Instead, should only update if change is needed?
 // Updating the color or the cursor causes the restyle cost. Updating half only costs half as much.
-// Could probably just avoid setting if no change is needed (remove the other code that sets to white color?)
 function setByte(i, color, onclick, cursor) {
   const byte = $(byteID(i));
   const lit = $(litID(i));
@@ -259,18 +245,17 @@ function setFocus(node) {
   allTocLI().forEach(li => (li.style.textDecoration = ""));
   toc.style.textDecoration = "underline";
 
-  // Reset all the byte display
+  const byteSet = Array(FileFormat.End).fill(false);
+
+  setFocusHelper(node, null, byteSet);
+
   for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
-    setByte(i, "white", null, "auto");
+    if (!byteSet[i]) {
+      setByte(i, "white", null, "auto");
+    }
   }
 
-  time("setFocusHelper");
-  setFocusHelper(node);
-  timeEnd("setFocusHelper");
-
-  time("scrollIntoView");
   scrollIntoView(node);
-  timeEnd("scrollIntoView");
 
   drawDetails(node);
 }
@@ -314,7 +299,6 @@ function makeOnClick(node) {
 }
 
 function onHashChange() {
-  time("makeOnHashChange");
   const hash = window.location.href.split("#")[1] || "FileFormat";
 
   if (hash === "/Links") {
@@ -322,8 +306,6 @@ function onHashChange() {
   } else {
     setFocus(lookupNode(hash));
   }
-
-  timeEnd("makeOnHashChange");
 }
 
 /** @param {string} path */
@@ -347,10 +329,11 @@ function lookupNode(path) {
 /**
  * @param {CodeNode} node
  * @param {?CodeNode} currentChild
+ * @param {boolean[]} byteSet
  */
-function setFocusHelper(node, currentChild) {
+function setFocusHelper(node, currentChild, byteSet) {
   if (node.parent) {
-    setFocusHelper(node.parent, node);
+    setFocusHelper(node.parent, node, byteSet);
   }
 
   const ch = node.Children;
@@ -366,6 +349,7 @@ function setFocusHelper(node, currentChild) {
 
     for (let i = cc.Start; i < cc.End; ++i) {
       setByte(i, col, makeOnClick(cc), "zoom-in");
+      byteSet[i] = true;
     }
   }
 
@@ -379,6 +363,7 @@ function setFocusHelper(node, currentChild) {
     }
     for (let i = node.Start; i < node.End; ++i) {
       setByte(i, col, onclick, cursor);
+      byteSet[i] = true;
     }
   }
 }

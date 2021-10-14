@@ -27,6 +27,14 @@
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false
+    },
+    {
+      "name": "Launch Chrome localhost",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8000",
+      "webRoot": "${workspaceFolder}",
+      "runtimeArgs": ["--app=http://localhost:8000"]
     }
   ]
 }
