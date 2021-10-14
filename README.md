@@ -64,10 +64,18 @@ The interface is the frontend POSTS the assembly, and the back-end returns recur
 	  , "Children": [ { $DescriptionsOfTheInnerNodes }, ... ]
     }
 
+Some guarantees about the JSON format:
+
+- Nodes will not have both `Children` and a `LinkPath`
+- A node's `Children` will have unique `Name`
+- A node's `Children` will not have have overlapping `[Start, End)` ranges
+- An array will be represented as strings, i.e. `{Name: Methods, Children:[ {Name: Method[0]}]}`
+- Apart from array nodes with a single element, a node's `Children` will be smaller than the node.
+
 ### Scenarios for full test pass
-- From http-server, open http://127.0.0.1:8080?Example=true
-- From VS run dotNetBytes, look at "YAML" command line output, click around
-- From VS run CloudFunction, Open root URL, upload EXE, modify EXE, Try Example !!TODO
+- From http-server, open http://127.0.0.1:8080?Example=true, click around
+- From VS run dotNetBytes, look at "YAML" command line output
+- From VS run CloudFunction, open root URL, upload EXE, modify EXE !!TODO
 - Run Tests unit project
 
 ## Deploying

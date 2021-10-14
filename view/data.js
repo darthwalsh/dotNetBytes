@@ -123,15 +123,12 @@ function litID(i) {
 //TODO(PERF) calling this function 100's of thousands of times results in
 // a lot of unnecessary delay with style calculations. Instead, should only update if change is needed?
 // Updating the color or the cursor causes the restyle cost. Updating half only costs half as much.
-function setByte(i, color, onclick, cursor) {
+function setByte(i, color, cursor) {
   const byte = $(byteID(i));
   const lit = $(litID(i));
 
   byte.style.backgroundColor = color;
   lit.style.backgroundColor = color;
-
-  byte.onclick = onclick;
-  lit.onclick = onclick;
 
   byte.style.cursor = cursor;
   lit.style.cursor = cursor;
@@ -182,7 +179,7 @@ function linkFilter() {
   allTocLI().forEach(li => (li.style.display = "none"));
 
   for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
-    setByte(i, "white", null, "auto");
+    setByte(i, "white", "auto");
   }
 
   linkFilterHelper(FileFormat, {n: 0});
@@ -195,7 +192,7 @@ function linkFilter() {
 function linkFilterHelper(node, counter) {
   if (node.LinkPath) {
     for (let i = node.Start; i < node.End; ++i) {
-      setByte(i, getColor(counter.n), _ => (window.location.hash = node.SelfPath), "pointer");
+      setByte(i, getColor(counter.n), "pointer");
     }
     ++counter.n;
 
@@ -219,6 +216,46 @@ function setFocusObject(node) {
     hash = hashParent.Name + "/" + hash;
   }
   window.location.hash = hash.substring(0, hash.length - 1);
+}
+
+/** @param {MouseEvent} ev */
+function byteOnClick(ev) {
+  /** @type {string} */
+  const id = ev.target.id;
+
+  const m = /(byte|lit)(\d+)/.exec(id);
+  if (!m) return true;
+  const n = Number(m[2]);
+
+  if (isLinks()) {
+    // Clicking on a link should focus the link source
+    let node = FileFormat;
+    while (node) {
+      if (node.LinkPath) {
+        window.location.hash = node.SelfPath;
+        return true;
+      }
+      node = nodeChild(node, n);
+    }
+  }
+  else {
+    const node = currentNode();
+
+    if (node.Start <= n && n < node.End && node.LinkPath) {
+      window.location.hash = node.LinkPath;
+      return true;
+    }
+
+    for (let parent = node; parent; parent = parent.parent) {
+      const child = nodeChild(parent, n);
+      if (!child) continue;
+
+      if (child !== node) {
+        setFocusObject(child);
+      }
+      return true;
+    }
+  }
 }
 
 /** @param {CodeNode} node */
@@ -246,12 +283,11 @@ function setFocus(node) {
   toc.style.textDecoration = "underline";
 
   const byteSet = Array(FileFormat.End).fill(false);
-
   setFocusHelper(node, null, byteSet);
 
   for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
     if (!byteSet[i]) {
-      setByte(i, "white", null, "auto");
+      setByte(i, "white", "auto");
     }
   }
 
@@ -292,20 +328,20 @@ function drawDetails(node) {
     detailDiv.appendChild(ul);
   }
 }
-
-/** @param {CodeNode} node */
-function makeOnClick(node) {
-  return _ => setFocusObject(node);
+function isLinks() {
+  return window.location.href.split("#")[1] === "/Links";
 }
-
 function onHashChange() {
-  const hash = window.location.href.split("#")[1] || "FileFormat";
-
-  if (hash === "/Links") {
+  if (isLinks()) {
     linkFilter();
   } else {
-    setFocus(lookupNode(hash));
+    setFocus(currentNode());
   }
+}
+
+function currentNode() {
+  const hash = window.location.href.split("#")[1];
+  return hash ? lookupNode(hash) : FileFormat;
 }
 
 /** @param {string} path */
@@ -324,6 +360,19 @@ function lookupNode(path) {
     o = c;
   });
   return o;
+}
+
+/**
+ * @param {CodeNode} node 
+ * @param {Number} n
+ * @returns {?CodeNode}
+ */
+function nodeChild(node, n) {
+  for (const child of node.Children) {
+    if (child.Start <= n && n < child.End) {
+      return child;
+    }
+  }
 }
 
 /**
@@ -348,21 +397,16 @@ function setFocusHelper(node, currentChild, byteSet) {
     col = currentChild ? getDimColor(chI) : getColor(chI);
 
     for (let i = cc.Start; i < cc.End; ++i) {
-      setByte(i, col, makeOnClick(cc), "zoom-in");
+      setByte(i, col, "zoom-in");
       byteSet[i] = true;
     }
   }
 
   if (!currentChild && !ch.length) {
     col = getColor(0); //TODO in-order coloring
-    let onclick = null;
-    let cursor = "auto";
-    if (node.LinkPath) {
-      onclick = _ => (window.location.hash = node.LinkPath);
-      cursor = "pointer";
-    }
+    const cursor = node.LinkPath ? "pointer" : "auto";
     for (let i = node.Start; i < node.End; ++i) {
-      setByte(i, col, onclick, cursor);
+      setByte(i, col, cursor);
       byteSet[i] = true;
     }
   }
@@ -412,7 +456,7 @@ function drawToc() {
 
 /** @param {CodeNode} node */
 function drawTocHelper(node, parentUL) {
-  const li = create("li", {textContent: node.Name, onclick: makeOnClick(node)});
+  const li = create("li", {textContent: node.Name, onclick: _ => setFocusObject(node)});
 
   node.tocLIdom = li;
 
@@ -431,7 +475,7 @@ function drawTocHelper(node, parentUL) {
 
 /** @param {CodeNode} node */
 function createBasicDetailsDOM(node) {
-  const details = create("div", {onclick: makeOnClick(node)});
+  const details = create("div", {onclick: _ => setFocusObject(node)});
   details.appendChild(create("p", {textContent: node.Name}));
   details.appendChild(create("p", {textContent: node.Value}));
   return details;
@@ -544,6 +588,8 @@ function displayHex(bytes) {
 
     div.appendChild(create("br"));
   }
+
+  div.onclick = byteOnClick;
 }
 
 /** @param {CodeNode} o */
