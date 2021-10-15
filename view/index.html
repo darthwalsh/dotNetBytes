@@ -5,13 +5,14 @@
     <title>dotNetBytes</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="style.css" />
-    <script src="data.js" defer></script>
+    <script src="data.js" type="module"></script>
   </head>
 
   <body>
     <div id="leftPanel">
       <input id="example" type="button" />
-      <input id="fileInput" type="file" />
+      <input is="file-watcher" id="fileInput" type="file" />
+      <span id="fileTime"></span>
       <br />
       <input id="tocSearch" placeholder="search" />
       <button id="visualLinks">Links</button>

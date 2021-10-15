@@ -1,4 +1,4 @@
-"use strict";
+import "./fileWatcher.js";
 
 /** @typedef {object} CodeNode
  * @property {string} Name
@@ -237,8 +237,7 @@ function byteOnClick(ev) {
       }
       node = nodeChild(node, n);
     }
-  }
-  else {
+  } else {
     const node = currentNode();
 
     if (node.Start <= n && n < node.End && node.LinkPath) {
@@ -363,7 +362,7 @@ function lookupNode(path) {
 }
 
 /**
- * @param {CodeNode} node 
+ * @param {CodeNode} node
  * @param {Number} n
  * @returns {?CodeNode}
  */
@@ -610,54 +609,6 @@ function displayParse(o) {
   window.onhashchange();
 }
 
-// listenFileChange and fileChange
-// Copyright Microsoft, 2017
-// Copyright Carl Walsh, 2021
-/**
- * @param {HTMLInputElement} el
- * @param {number} pollMS
- * @param {function} bytesCallBack
- */
-function listenFileChange(el, pollMS, bytesCallBack) {
-  const time = document.createElement("span");
-  time.innerText = "...";
-  el.parentNode.insertBefore(time, el.nextSibling);
-
-  el.addEventListener("change", evt =>
-    fileChange(evt, pollMS, file => {
-      if (!file) {
-        return;
-      }
-      time.innerText = file.lastModifiedDate.toLocaleString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-
-      const fileReader = new FileReader();
-      fileReader.onload = e => bytesCallBack(new Uint8Array(e.target.result));
-      fileReader.readAsArrayBuffer(file);
-    })
-  );
-}
-
-function fileChange(evt, pollMS, fileCallback) {
-  /** @type {FileList} */
-  const files = evt.target.files;
-  const f = files[0];
-
-  fileCallback(f);
-  /** @type {Date} */
-  const lastModified = f.lastModifiedDate;
-
-  setInterval(() => {
-    if (f.lastModifiedDate.getTime() !== lastModified.getTime()) {
-      lastModified = f.lastModifiedDate;
-      fileCallback(f);
-    }
-  }, pollMS);
-}
-
 // TODO(cleanup) return promise instead of arg callback
 async function readExampleBytes(callback) {
   try {
@@ -717,9 +668,19 @@ if (!window.location.href.includes("?Example=true")) {
   };
   exampleButton.value = "Try Example";
 
-  listenFileChange(fileInput, 2000, bytes => {
+  fileInput.addEventListener("change", async ev => {
+    const bytes = await ev.bytes.arrayBuffer();
     cleanupDisplay();
-    displayHex(bytes);
+
+    // TODO(API) pseudoelement on the file changing componenet?
+    $("fileTime").innerText = ev.bytes.name + " " + ev.bytes.lastModifiedDate.toLocaleString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    fileInput.style.display = "none";
+
+    displayHex(new Uint8Array(bytes));
     parseFile(bytes, displayParse);
   });
 } else {
