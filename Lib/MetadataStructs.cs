@@ -638,18 +638,17 @@ sealed class MetadataRoot : ICanRead
   public StreamHeader[] StreamHeaders;
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode
-    {
-            stream.ReadStruct(out Signature, nameof(Signature)),
-            stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
-            stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
-            stream.ReadStruct(out Reserved, nameof(Reserved)),
-            stream.ReadStruct(out Length, nameof(Length)),
-            stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadStruct(out Streams, nameof(Streams)),
-            stream.ReadClasses(ref StreamHeaders, Streams),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out Signature, nameof(Signature)),
+      stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
+      stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
+      stream.ReadStruct(out Reserved, nameof(Reserved)),
+      stream.ReadStruct(out Length, nameof(Length)),
+      stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
+      stream.ReadStruct(out Flags, nameof(Flags)),
+      stream.ReadStruct(out Streams, nameof(Streams)),
+      stream.ReadClasses(ref StreamHeaders, Streams),
+    };
   }
 }
 
@@ -666,12 +665,11 @@ sealed class StreamHeader : ICanRead
   public string Name;
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode
-    {
-            stream.ReadStruct(out Offset, nameof(Offset)),
-            stream.ReadStruct(out Size, nameof(Size)),
-            stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out Offset, nameof(Offset)),
+      stream.ReadStruct(out Size, nameof(Size)),
+      stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
+    };
   }
 }
 
@@ -907,17 +905,16 @@ sealed class TildeStream : ICanRead
   Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            stream.ReadStruct(out TildeData),
-            new CodeNode("Rows") {
-                stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
-            },
-            Enum.GetValues(typeof(MetadataTableFlags))
-                .Cast<MetadataTableFlags>()
-                .Where(flag => TildeData.Valid.HasFlag(flag))
-                .SelectMany((flag, row) => CapturingReadTable(stream, flag, row))
-        };
+    var node = new CodeNode {
+      stream.ReadStruct(out TildeData),
+      new CodeNode("Rows") {
+        stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
+      },
+      Enum.GetValues(typeof(MetadataTableFlags))
+          .Cast<MetadataTableFlags>()
+          .Where(flag => TildeData.Valid.HasFlag(flag))
+          .SelectMany((flag, row) => CapturingReadTable(stream, flag, row))
+    };
 
     if (TildeData.HeapSizes != 0)
       throw new NotImplementedException("HeapSizes aren't 4-byte-aware");

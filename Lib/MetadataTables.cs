@@ -334,13 +334,12 @@ sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
   public CodeNode Node { get; private set; }
 
   public CodeNode Read(Stream stream) {
-    Node = new CodeNode
-    {
-            stream.ReadStruct(out Offset, nameof(Offset)),
-            stream.ReadStruct(out Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Implementation, nameof(Implementation)),
-        };
+    Node = new CodeNode {
+      stream.ReadStruct(out Offset, nameof(Offset)),
+      stream.ReadStruct(out Flags, nameof(Flags)),
+      stream.ReadClass(ref Name, nameof(Name)),
+      stream.ReadClass(ref Implementation, nameof(Implementation)),
+    };
 
     var section = Singletons.Instance.TildeStream.Section;
     section.ReadNode(strm => {
@@ -362,11 +361,10 @@ sealed class ResourceEntry : ICanRead, IHaveAName
   public string Name { get; } = $"{nameof(ResourceEntry)}[{Singletons.Instance.ResourceEntryCount++}]";
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode
-    {
-            stream.ReadStruct(out Length, nameof(Length)),
-            stream.ReadAnything(out Data, StreamExtensions.ReadByteArray((int)Length), nameof(Data)),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out Length, nameof(Length)),
+      stream.ReadAnything(out Data, StreamExtensions.ReadByteArray((int)Length), nameof(Data)),
+    };
   }
 }
 
@@ -399,15 +397,14 @@ sealed class MethodDef : ICanRead, IHaveLiteralValueNode // TODO(cleanup) can th
   public CodeNode RVANode { get; private set; }
 
   public CodeNode Read(Stream stream) {
-    Node = new CodeNode
-    {
-            (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),
-            stream.ReadClass(ref ImplFlags, nameof(ImplFlags)),
-            stream.ReadClass(ref Flags, nameof(Flags)),
-            stream.ReadClass(ref Name, nameof(Name)),
-            stream.ReadClass(ref Signature, nameof(Signature)),
-            stream.ReadClass(ref ParamList, nameof(ParamList)),
-        };
+    Node = new CodeNode {
+      (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),
+      stream.ReadClass(ref ImplFlags, nameof(ImplFlags)),
+      stream.ReadClass(ref Flags, nameof(Flags)),
+      stream.ReadClass(ref Name, nameof(Name)),
+      stream.ReadClass(ref Signature, nameof(Signature)),
+      stream.ReadClass(ref ParamList, nameof(ParamList)),
+    };
 
     return Node;
   }

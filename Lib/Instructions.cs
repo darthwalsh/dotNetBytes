@@ -526,20 +526,18 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
       indexNode.End++;
       stream.Position += 1;
 
-      var node = new CodeNode
-      {
-                indexNode,
-                tableNode,
-            };
+      var node = new CodeNode {
+        indexNode,
+        tableNode,
+      };
       tableNode.Description = "UserStringHeapIndex";
       Value = UserStringHeap.Get(Index).GetString();
       return node;
     } else {
-      var node = new CodeNode
-      {
-                offsetNode,
-                tableNode,
-            };
+      var node = new CodeNode {
+        offsetNode,
+        tableNode,
+      };
       var flag = (MetadataTableFlags)(1L << Table);
       tableNode.Description = flag.ToString();
       var link = Singletons.Instance.TildeStream.GetCodeNode(flag, Offset.IntValue - 1); // indexed by 1
@@ -574,11 +572,10 @@ sealed class OpWith<T> : ICanRead
   }
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            op,
-            stream.ReadStruct(out Value, nameof(Value)),
-        };
+    var node = new CodeNode {
+      op,
+      stream.ReadStruct(out Value, nameof(Value)),
+    };
     node.Description = opName + " " + Value.GetString();
     return node;
   }
@@ -596,11 +593,10 @@ sealed class OpWithToken : ICanRead
 
   public CodeNode Read(Stream stream) {
     var tokenNode = stream.ReadClass(ref Token, nameof(Token));
-    var node = new CodeNode
-    {
-            op,
-            tokenNode,
-        };
+    var node = new CodeNode {
+      op,
+      tokenNode,
+    };
     node.Description = op.Description + " " + tokenNode.Value;
 
     return node;
@@ -619,12 +615,11 @@ sealed class SwitchOp : ICanRead
   }
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            op,
-            stream.ReadStruct(out Count, nameof(Count)),
-            stream.ReadStructs(out Targets, (int)Count, nameof(Targets)), //TODO(links) switch offset
-        };
+    var node = new CodeNode {
+      op,
+      stream.ReadStruct(out Count, nameof(Count)),
+      stream.ReadStructs(out Targets, (int)Count, nameof(Targets)), //TODO(links) switch offset
+    };
     node.Description = $"switch ({string.Join(", ", Targets)})";
     return node;
   }

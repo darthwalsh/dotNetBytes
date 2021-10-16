@@ -15,8 +15,7 @@ sealed class FileFormat : ICanRead
   public CodeNode Read(Stream stream) {
     Singletons.Reset();
 
-    var node = new CodeNode
-    {
+    var node = new CodeNode {
       stream.ReadClass(ref PEHeader),
     };
 
@@ -42,14 +41,13 @@ sealed class PEHeader : ICanRead
   public SectionHeader[] SectionHeaders;
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode
-    {
-            stream.ReadStruct(out DosHeader),
-            stream.ReadStruct(out PESignature),
-            stream.ReadStruct(out PEFileHeader),
-            stream.ReadClass(ref PEOptionalHeader),
-            stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out DosHeader),
+      stream.ReadStruct(out PESignature),
+      stream.ReadStruct(out PEFileHeader),
+      stream.ReadClass(ref PEOptionalHeader),
+      stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
+    };
   }
 }
 
@@ -184,10 +182,9 @@ class PEOptionalHeader : ICanRead
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            stream.ReadStruct(out PEHeaderStandardFields),
-        };
+    var node = new CodeNode {
+      stream.ReadStruct(out PEHeaderStandardFields),
+    };
 
     switch (PEHeaderStandardFields.Magic) {
       case PE32Magic.PE32:
@@ -671,11 +668,10 @@ class Relocations : ICanRead
   public Fixup[] Fixups;
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode
-    {
-            stream.ReadStruct(out BaseRelocationTable),
-            stream.ReadClasses(ref Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out BaseRelocationTable),
+      stream.ReadClasses(ref Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
+    };
   }
 }
 
@@ -698,16 +694,15 @@ class Fixup : ICanRead
   public CodeNode Read(Stream stream) {
     byte tmp = 0xCC;
 
-    return new CodeNode
-    {
-            stream.ReadStruct(out Type, nameof(Type), (byte b) => {
-                tmp = b;
-                return (byte)(b >> 4);
-            }),
-            stream.ReadStruct(out Offset, nameof(Offset), (byte b) => {
-                return (short)(((tmp << 8) & 0x0F00) | b);
-            }),
-        };
+    return new CodeNode {
+      stream.ReadStruct(out Type, nameof(Type), (byte b) => {
+        tmp = b;
+        return (byte)(b >> 4);
+      }),
+      stream.ReadStruct(out Offset, nameof(Offset), (byte b) => {
+        return (short)(((tmp << 8) & 0x0F00) | b);
+      }),
+    };
   }
 }
 
@@ -770,10 +765,9 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
 
   public CodeNode Read(Stream stream) {
     var header = stream.ReadStruct(out Header, nameof(Header));
-    Node = new CodeNode
-    {
-            header,
-        };
+    Node = new CodeNode {
+      header,
+    };
 
     int length;
     var moreSects = false;
@@ -855,10 +849,9 @@ sealed class MethodDataSection : ICanRead
   public SmallMethodHeader SmallMethodHeader;
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            stream.ReadStruct(out Header, nameof(MethodHeaderSection))
-        };
+    var node = new CodeNode {
+      stream.ReadStruct(out Header, nameof(MethodHeaderSection))
+    };
 
     if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
@@ -897,11 +890,10 @@ sealed class SmallMethodHeader : ICanRead
   public SmallExceptionHandlingClause[] Clauses;
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            stream.ReadStruct(out DataSize, nameof(DataSize)),
-            stream.ReadStruct(out Reserved, nameof(Reserved)),
-        };
+    var node = new CodeNode {
+      stream.ReadStruct(out DataSize, nameof(DataSize)),
+      stream.ReadStruct(out Reserved, nameof(Reserved)),
+    };
 
     var n = (DataSize - 4) / 12;
     if (n * 12 + 4 != DataSize) {
@@ -921,10 +913,9 @@ sealed class LargeMethodHeader : ICanRead
   public SmallExceptionHandlingClause[] Clauses;
 
   public CodeNode Read(Stream stream) {
-    var node = new CodeNode
-    {
-            stream.ReadClass(ref DataSize, nameof(DataSize)),
-        };
+    var node = new CodeNode {
+      stream.ReadClass(ref DataSize, nameof(DataSize)),
+    };
 
     var n = (DataSize.IntValue - 4) / 12;
     if (n * 24 + 4 != DataSize.IntValue) {
