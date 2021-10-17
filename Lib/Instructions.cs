@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 //TODO(link) Link branch targets
 //TODO(HACK)? §III.1.7.2 validate branch targets are valid offsets
@@ -35,6 +36,8 @@ sealed class InstructionStream : ICanRead
       opNode.Name = $"Op[{opCount++}]";
       node.Add(opNode);
     }
+
+    node.Description = string.Join("\n", node.Children.Select(n => n.Description));
 
     return node;
   }

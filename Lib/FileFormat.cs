@@ -41,13 +41,17 @@ sealed class PEHeader : ICanRead
   public SectionHeader[] SectionHeaders;
 
   public CodeNode Read(Stream stream) {
-    return new CodeNode {
+    var node = new CodeNode {
       stream.ReadStruct(out DosHeader),
       stream.ReadStruct(out PESignature),
       stream.ReadStruct(out PEFileHeader),
       stream.ReadClass(ref PEOptionalHeader),
       stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
     };
+
+    node.GetChild("DosHeader").GetChild("LfaNew").Link = node.GetChild("PESignature");
+
+    return node;
   }
 }
 
@@ -82,7 +86,8 @@ struct DosHeader
   [Expected(0)]
   public ushort InitialRelativeCS;
   [Expected(0x40)]
-  public ushort RawAddressOfRelocation; //TODO(link) all Raw Address, RVA, (sizes?) from understandingCIL
+  [Description("Pointer to the Relocation Table, which is size 0.")]
+  public ushort RawAddressOfRelocation;
   [Expected(0)]
   public ushort OverlayNumber;
   [Expected(0)]
@@ -336,7 +341,8 @@ enum DllCharacteristics : ushort
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct PEHeaderHeaderDataDirectories
 {
-  //TODO(link) RVAandSize all
+  //TODO(link) all Raw Address from understandingCIL
+  //TODO(link) RVAandSize all 
 
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]

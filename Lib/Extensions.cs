@@ -451,6 +451,8 @@ static class TypeExtensions
   }
 
   static void Fail(CodeNode node, string message) => node.AddError(message);
+
+  public static CodeNode GetChild(this CodeNode node, string name) => node.Children.Where(n => n.Name == name).Single();
 }
 
 // Used to guarantee reflecting over class fields uses line number

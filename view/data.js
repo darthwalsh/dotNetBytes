@@ -30,6 +30,7 @@ function assertThrow(message) {
 function $(id) {
   return document.getElementById(id);
 }
+/** @returns {HTMLElement} */
 function create(tag, attr) {
   const el = document.createElement(tag);
 
@@ -302,7 +303,11 @@ function drawDetails(node) {
 
   const detailDiv = createBasicDetailsDOM(node);
   focusDetail.appendChild(detailDiv);
-  detailDiv.appendChild(create("p", {textContent: node.Description}));
+  for (const line of node.Description.split("\n")) {
+    const p = create("p", {textContent: line});
+    p.style.margin = 0;
+    detailDiv.appendChild(p);
+  }
 
   if (node.ReverseLinks) {
     detailDiv.appendChild(create("p", {textContent: "Referenced by:"}));
@@ -631,19 +636,21 @@ async function readExampleJson(callback) {
 }
 
 async function parseFile(bytes, callback) {
+  let json;
   try {
-    const response = await fetch("https://us-central1-dotnetbytes.cloudfunctions.net/parse", {
+    // const response = await fetch("https://us-central1-dotnetbytes.cloudfunctions.net/parse", {
+    const response = await fetch("http://127.0.0.1:8080", {
       method: "POST",
       body: bytes,
       headers: {
         "Content-Type": "application/x-msdownload",
       },
     });
-    const o = await response.json();
-    callback(o);
+    json = await response.json();
   } catch (error) {
     assertThrow("Error from web server: " + error);
   }
+  callback(json);
 }
 
 const exampleButton = $("example");

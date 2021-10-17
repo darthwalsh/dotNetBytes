@@ -157,7 +157,7 @@
             },
             {
               "Name": "RawAddressOfRelocation",
-              "Description": "",
+              "Description": "Pointer to the Relocation Table, which is size 0.",
               "Value": "0x40",
               "Start": 24,
               "End": 26,
@@ -221,7 +221,7 @@
               "Value": "0x80",
               "Start": 60,
               "End": 64,
-              "LinkPath": null,
+              "LinkPath": "FileFormat/PEHeader/PESignature",
               "Errors": [],
               "Children": []
             },
@@ -1476,7 +1476,7 @@
                 },
                 {
                   "Name": "CilOps",
-                  "Description": "",
+                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox \ncall Concat\ncall WriteLine",
                   "Value": "",
                   "Start": 593,
                   "End": 615,
