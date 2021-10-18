@@ -556,7 +556,9 @@ function cleanupDisplay() {
   removeErrorDetails();
 }
 
-function displayHex(bytes) {
+/** @param {ArrayBuffer} buf */
+function displayHex(buf) {
+  const bytes = new Uint8Array(buf);
   const div = $("bytes");
   const width = 16;
   const size = bytes.length;
@@ -614,43 +616,26 @@ function displayParse(o) {
   window.onhashchange();
 }
 
-// TODO(cleanup) return promise instead of arg callback
-async function readExampleBytes(callback) {
-  try {
-    const response = await fetch("Program.dat");
-    const buf = await response.arrayBuffer();
-    callback(new Uint8Array(buf));
-  } catch (error) {
-    assertThrow("Couldn't find example bytes");
-  }
+async function setupExampleBytes() {
+  const bytesResponse = await fetch("Program.dat");
+  const json = await fetch("bytes.json");
+
+  const buf = await bytesResponse.arrayBuffer();
+  displayHex(buf);
+  displayParse(await json.json());
 }
 
-async function readExampleJson(callback) {
-  try {
-    const response = await fetch("bytes.json");
-    const o = await response.json();
-    callback(o);
-  } catch (error) {
-    assertThrow("Couldn't find example json");
-  }
-}
+async function setupFromFile(buf) {
+  displayHex(buf);
 
-async function parseFile(bytes, callback) {
-  let json;
-  try {
-    // const response = await fetch("https://us-central1-dotnetbytes.cloudfunctions.net/parse", {
-    const response = await fetch("http://127.0.0.1:8080", {
-      method: "POST",
-      body: bytes,
-      headers: {
-        "Content-Type": "application/x-msdownload",
-      },
-    });
-    json = await response.json();
-  } catch (error) {
-    assertThrow("Error from web server: " + error);
-  }
-  callback(json);
+  const response = await fetch("https://us-central1-dotnetbytes.cloudfunctions.net/parse", {
+    method: "POST",
+    body: buf,
+    headers: {
+      "Content-Type": "application/x-msdownload",
+    },
+  });
+  displayParse(await response.json());
 }
 
 const exampleButton = $("example");
@@ -676,19 +661,19 @@ if (!window.location.href.includes("?Example=true")) {
   exampleButton.value = "Try Example";
 
   fileInput.addEventListener("change", async ev => {
-    const bytes = await ev.bytes.arrayBuffer();
+    const buf = await ev.bytes.arrayBuffer();
     cleanupDisplay();
 
-    // TODO(API) pseudoelement on the file changing componenet?
-    $("fileTime").innerText = ev.bytes.name + " " + ev.bytes.lastModifiedDate.toLocaleString([], {
+    const dateString = ev.bytes.lastModifiedDate.toLocaleString([], {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
     });
+    // TODO(API) pseudoelement on the file changing componenet?
+    $("fileTime").innerText = ev.bytes.name + " " + dateString;
     fileInput.style.display = "none";
 
-    displayHex(new Uint8Array(bytes));
-    parseFile(bytes, displayParse);
+    setupFromFile(buf);
   });
 } else {
   exampleButton.onclick = () => {
@@ -697,35 +682,20 @@ if (!window.location.href.includes("?Example=true")) {
   exampleButton.value = "Leave Example";
   fileInput.style.display = "none";
 
-  readExampleBytes(bytes => {
-    cleanupDisplay();
-    displayHex(bytes);
-    readExampleJson(displayParse);
-  });
+  setupExampleBytes();
 }
 
-//TODO(HACK) method signatures
-//TODO(ACCS) ? avoid red/gree color palette
-//TODO(HACK) layout bytes dynamically (laptop / smartphone screen) 8 / 16 / 32 bytes wide
-//TODO(ACCS) keyboarding through ToC
 //TODO(LINK) link targets, using dim? What if both?
-//TODO(LINK) visualize link sizes
+//TODO(LINK) visualize link sizes (using onhover to highlight size of target)
 //TODO link-references should include name of linking object instead of path
 //TODO smart colors (better saturations on reds, etc.) (maybe 0, 120, 240, 60, 180, 300, 30, 90, etc?)
-//TODO hover preview
-//TODO(BUG) large lists cause ugly scroll menu?
-//TODO resize ToC dynamically (PERF can load ToC lazily?)
-//TODO PERF on click only update cells that need to change?
-//TODO PERF use one big click handler instead of thousands of little ones
-//TODO magnifying glass in search boxes, X to close, should filter colored bytes, should set URL
-//TODO search also looks through name/details (optional check box?) (heuristic to show below?)
+//TODO onhover tooltip to update details div on right
 //TODO method ops and stack state visualization before op and links between branches, e.g.
 //  load 10 |
 //  load 2.0| I4
 //  add     | I4 R8
 //  ret     | R8
-//TODO favorites "shortcut" pinning
-//TODO details pinning + clearing
 //TODO split monolithic JS file into little libraries
-//  TODO try out file watcher library upload experience in FireFox
-//TODO visualize version number
+
+//MAYBE search boxes: X to close, should filter colored bytes
+//MAYBE search also looks through name/details (optional check box?) (heuristic to show below?)
