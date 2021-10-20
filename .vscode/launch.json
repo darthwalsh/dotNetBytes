@@ -16,7 +16,7 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "run CloudFunction",
+      "name": "CloudFunction",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
@@ -29,12 +29,18 @@
       "stopAtEntry": false
     },
     {
-      "name": "Launch Chrome localhost",
+      "name": "Client",
       "request": "launch",
       "type": "pwa-chrome",
-      "url": "http://localhost:8000",
+      "url": "http://localhost:5500",
       "webRoot": "${workspaceFolder}",
-      "runtimeArgs": ["--app=http://localhost:8000"]
+      "runtimeArgs": ["--app=http://localhost:5500"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "CloudFunction/Client",
+      "configurations": ["CloudFunction", "Client"]
     }
   ]
 }

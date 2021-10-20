@@ -47,8 +47,8 @@ There are four major parts:
  - [`Test`/](Test/) is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
 
 When coding on the frontend, I normally:
- - run `python -m http.server` in the `view` folder
- - open http://127.0.0.1:8000?Example=true
+ - use [`LiveServer` extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+ - run vscode debug task for a separate chrome PWA window, or open http://127.0.0.1:5500?Example=true
  - use Chrome dev-tools to debug HTML, and VS Code / dev-tools for coding or debugging JS
 
 The interface is the frontend POSTS the assembly, and the back-end returns recursive JSON description of the entire assembly, in this recursive format:
