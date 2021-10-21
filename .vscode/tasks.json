@@ -36,7 +36,31 @@
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/CloudFunction/"
+      }
+    },
+    {
+      "label": "cloudPublish",
+      "command": "gcloud",
+      "args": [
+        "--project",
+        "dotnetbytes",
+        "functions",
+        "deploy",
+        "parse",
+        "--entry-point",
+        "CloudFunction.Function",
+        "--source",
+        "${workspaceFolder}",
+        "--runtime",
+        "dotnet3",
+        "--trigger-http",
+        "--allow-unauthenticated",
+        "--set-build-env-vars=GOOGLE_BUILDABLE=CloudFunction"
+      ],
+      "problemMatcher": []
     }
   ]
 }

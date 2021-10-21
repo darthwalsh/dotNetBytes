@@ -36,6 +36,15 @@ There are many ways to help out!
 - You can file issues with any suggestions or features requests you have.
 - You can submit pull requests for any issues or to add testing.
 
+### Debugging
+
+To debug everything, the vscode debug task `CloudFunction/Client` runs both in watch mode..
+
+When coding on the frontend, I normally:
+ - use [`LiveServer` extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+ - run vscode debug task for a separate chrome PWA window, or open http://127.0.0.1:5500?Example=true
+ - use Chrome dev-tools to debug HTML, and VS Code / dev-tools for coding or debugging JS
+
 ### Software design
 
 There's two main parts to the app, a C# back-end and a JavaScript frontend.
@@ -45,11 +54,6 @@ There are four major parts:
  - [`view`/](view/) is the web frontend
  - [`CloudFunction`/](CloudFunction/) is a Google Cloud Function serverless function running `Lib`.
  - [`Test`/](Test/) is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
-
-When coding on the frontend, I normally:
- - use [`LiveServer` extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
- - run vscode debug task for a separate chrome PWA window, or open http://127.0.0.1:5500?Example=true
- - use Chrome dev-tools to debug HTML, and VS Code / dev-tools for coding or debugging JS
 
 The interface is the frontend POSTS the assembly, and the back-end returns recursive JSON description of the entire assembly, in this recursive format:
 
@@ -90,4 +94,4 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 - Get testing working on Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/master?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/master)
 
-- Get `dotnet test` working in [CloudFlare](https://developers.cloudflare.com/pages/platform/build-configuration) or on another *nix environment
+- Get `dotnet test` working in [CloudFlare](https://developers.cloudflare.com/pages/platform/build-configuration) or on another Linux environment

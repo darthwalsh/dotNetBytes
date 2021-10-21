@@ -5,7 +5,7 @@
       "name": "run Lib",
       "type": "coreclr",
       "request": "launch",
-      // "preLaunchTask": "build",
+      "preLaunchTask": "watch",
       "program": "${workspaceFolder}/Lib/bin/Debug/netcoreapp3.1/Lib.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Lib",

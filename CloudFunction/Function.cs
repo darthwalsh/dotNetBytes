@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -17,7 +18,8 @@ namespace CloudFunction
       services.AddCors(options => options.AddPolicy("CorsApi", builder => builder
         .AllowAnyOrigin()
         .AllowAnyHeader()
-        .AllowAnyMethod()));
+        .AllowAnyMethod()
+        .SetPreflightMaxAge(TimeSpan.FromDays(1))));
     }
     
     public override void Configure(WebHostBuilderContext context, IApplicationBuilder app) {

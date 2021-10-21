@@ -628,7 +628,12 @@ async function setupExampleBytes() {
 async function setupFromFile(buf) {
   displayHex(buf);
 
-  const response = await fetch("https://us-central1-dotnetbytes.cloudfunctions.net/parse", {
+  const parseUrl =
+    window.location.href === "http://localhost:5500/"
+      ? "http://127.0.0.1:8080"
+      : "https://us-central1-dotnetbytes.cloudfunctions.net/parse";
+
+  const response = await fetch(parseUrl, {
     method: "POST",
     body: buf,
     headers: {
