@@ -154,11 +154,25 @@ function scrollIntoView(node) {
   }
 }
 
+/** @param {HTMLElement} el */
+function hideToc(el) {
+  el.style.visibility = "hidden";
+  el.style.height = "0";
+  el.style.lineHeight = "0";
+}
+
+/** @param {HTMLElement} el */
+function showToc(el) {
+  el.style.visibility = "";
+  el.style.height = "";
+  el.style.lineHeight = "";
+}
+
 function searchFilter() {
   const text = $("tocSearch").value.toLowerCase();
 
-  allTocUL().forEach(ul => (ul.style.display = "none"));
-  allTocLI().forEach(li => (li.style.display = "none"));
+  allTocUL().forEach(hideToc);
+  allTocLI().forEach(hideToc);
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
@@ -167,17 +181,17 @@ function searchFilter() {
 
     let e = li;
     while (e !== tocDiv) {
-      e.style.display = "";
-      if (e.previousElementSibling) e.previousElementSibling.style.display = "";
+      showToc(e);
+      if (e.previousElementSibling) showToc(e.previousElementSibling);
       e = e.parentElement;
     }
-    e.style.display = "";
+    showToc(e);
   }
 }
 
 function linkFilter() {
-  allTocUL().forEach(ul => (ul.style.display = "none"));
-  allTocLI().forEach(li => (li.style.display = "none"));
+  allTocUL().forEach(hideToc);
+  allTocLI().forEach(hideToc);
 
   for (let i = FileFormat.Start; i < FileFormat.End; ++i) {
     setByte(i, "white", "auto");
@@ -199,8 +213,8 @@ function linkFilterHelper(node, counter) {
 
     let e = node.tocLIdom;
     while (e !== $("toc")) {
-      e.style.display = "";
-      if (e.previousElementSibling) e.previousElementSibling.style.display = "";
+      showToc(e);
+      if (e.previousElementSibling) showToc(e.previousElementSibling);
       e = e.parentElement;
     }
   }
@@ -260,24 +274,22 @@ function byteOnClick(ev) {
 
 /** @param {CodeNode} node */
 function setFocus(node) {
-  allTocUL().forEach(ul => (ul.style.display = "none"));
+  allTocUL().forEach(hideToc);
   // Unhide all the text elements
-  allTocLI().forEach(li => (li.style.display = ""));
+  allTocLI().forEach(showToc);
 
   // Unhide all the ToC up the parents
   const tocDiv = $("toc");
   const toc = node.tocLIdom;
   let parentUL = toc.parentElement;
   while (parentUL !== tocDiv) {
-    parentUL.style.display = "";
+    showToc(parentUL);
     parentUL = parentUL.parentElement;
   }
 
   // Unhide sub-elements
   const sib = toc.nextElementSibling;
-  if (sib) {
-    sib.style.display = "";
-  }
+  if (sib) showToc(sib);
 
   allTocLI().forEach(li => (li.style.textDecoration = ""));
   toc.style.textDecoration = "underline";
@@ -454,8 +466,6 @@ function drawToc() {
   $("toc").appendChild(ul);
 
   drawTocHelper(FileFormat, ul);
-
-  $("bytes").style.marginLeft = $("toc").scrollWidth + 20 + "px";
 }
 
 /** @param {CodeNode} node */
@@ -629,7 +639,7 @@ async function setupFromFile(buf) {
   displayHex(buf);
 
   const parseUrl =
-    window.location.href === "http://localhost:5500/"
+    window.location.href.startsWith("http://localhost:5500")
       ? "http://127.0.0.1:8080"
       : "https://us-central1-dotnetbytes.cloudfunctions.net/parse";
 

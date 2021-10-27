@@ -1,14 +1,13 @@
-#leftPanel {
-  float: left;
-  overflow-y: auto;
-  overflow-x: hidden;
-  height: 100%;
-  padding-right: 50px;
-  position: fixed;
+body {
+  font-family: "Verdana";
+  display: flex;
+  margin: 0;
 }
 
-#bytes {
-  float: left;
+#leftPanel {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
 }
 
 #details {
@@ -22,10 +21,27 @@
   position: fixed;
 }
 
+#bytes {
+  flex-grow: 1;
+}
+
+.fullScroll { 
+  height: 100vh;
+  overflow-y: auto;
+}
+
+#rightPanel {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  border: 0;
+}
+
 .detail {
   border-width: 1px;
   border-style: solid;
   border-color: black;
+  margin-right: 10px;
 }
 
 .error {
@@ -37,10 +53,6 @@
 
 ul {
   list-style-type: none;
-  padding-left: 5%;
+  padding-inline-start: 10px;
   line-height: 150%;
-}
-
-body {
-  font-family: "Verdana";
 }
