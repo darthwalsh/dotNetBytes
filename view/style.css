@@ -25,6 +25,10 @@ body {
   flex-grow: 1;
 }
 
+code {
+  font-family: "Cascadia Code", "CaskaydiaCove Nerd Font Mono", monospace;
+}
+
 .fullScroll { 
   height: 100vh;
   overflow-y: auto;

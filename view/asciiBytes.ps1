@@ -1,7 +1,20 @@
 Push-Location $PSScriptRoot
 
-Set-Content bytes.json '{ "Name": "FileFormat"  , "Description": ""  , "Value": ""  , "Start": 0  , "End": 256  , "LinkPath": null  , "Errors": []  , "Children": [] }'
+$bytes = @(0..255)
+# $bytes += @(0) * 16
+# $bytes += @(0..255) | ForEach-Object { @($_) * 16 }
 
-Set-Content Program.dat ([byte[]]@(0..255)) -AsByteStream
+@{
+  Name        = "FileFormat"
+  Description = ""
+  Value       = ""
+  Start       = 0
+  End         = $bytes.Count
+  LinkPath    = ""
+  Errors      = @()
+  Children    = @()
+} | ConvertTo-Json | Set-Content bytes.json
+
+Set-Content Program.dat ([byte[]]$bytes) -AsByteStream
 
 Pop-Location

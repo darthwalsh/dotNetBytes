@@ -520,8 +520,8 @@ function ToHex(code, width) {
   return s;
 }
 
-// Like ASCII, but with other nice-width glyphs instead of unprintable characters
-const font =
+// Like ASCII, but the upper range has glyphs included in the font.
+const charEncoding =
   ".αβγδεζηθικλμξπφ" +
   "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
   " !\"#$%&'()*+,-./" +
@@ -530,10 +530,10 @@ const font =
   "PQRSTUVWXYZ[\\]^_" +
   "`abcdefghijklmno" +
   "pqrstuvwxyz{|}~₪" +
-  "◦ƒ‽“”♂‡–ˆ‰Š‹Œ♫Ž¬" +
+  "◦ƒ¨“”♂‡–ˆ‰Š‹Œ♫Ž¬" +
   "฿₱₩‘’♀†₸∫™š›œ♪žß" +
-  "€¡¢£¤¥¦§◊©ª«✶₹⸗Ⅎ" +
-  "±°¹²³´…¶≠®º»☼ⱷꜘ¿" +
+  "€¡¢£¤¥¦§◊©ª«¯₹·¸" +
+  "±°¹²³´…¶≠®º»☼¼¾¿" +
   "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ" +
   "àáâãäåæçèéêëìíîï" +
   "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞŸ" +
@@ -598,7 +598,7 @@ function displayHex(buf) {
     div.appendChild(create("code", {innerHTML: "&nbsp;&nbsp;&nbsp;&nbsp;"}));
 
     for (let i = j; i - j < width; i++) {
-      const lit = font[bytes[i]];
+      const lit = charEncoding[bytes[i]];
       div.appendChild(create("code", {textContent: lit, id: litID(i)}));
     }
 
