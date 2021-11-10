@@ -7,57 +7,56 @@ using System.Text;
 
 // II.25 File format extensions to PE 
 
-sealed class FileFormat : ICanRead
+sealed class FileFormat : MyCodeNode
 {
-  public PEHeader PEHeader;
-  public Section[] Sections;
+  [OrderedField] public PEHeader PEHeader;
+  // [OrderedField] public Section[] Sections;
 
-  public CodeNode Read(Stream stream) {
-    Singletons.Reset();
+  // public CodeNode Read(Stream stream) {
+  //   Singletons.Reset();
 
-    var node = new CodeNode {
-      stream.ReadClass(ref PEHeader),
-    };
+  //   var node = new CodeNode {
+  //     stream.ReadClass(ref PEHeader),
+  //   };
 
-    Sections = PEHeader.SectionHeaders.Select(header =>
-        new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
+  //   // Sections = PEHeader.SectionHeaders.Select(header =>
+  //   //     new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
 
-    node.Add(stream.ReadClasses(ref Sections));
-    for (var i = 0; i < Sections.Length; ++i) {
-      Sections[i].CallBack();
-    }
+  //   // node.Add(stream.ReadClasses(ref Sections));
+  //   // for (var i = 0; i < Sections.Length; ++i) {
+  //   //   Sections[i].CallBack();
+  //   // }
 
-    return node;
-  }
+  //   return node;
+  // }
 }
 
 // II.25.2
-sealed class PEHeader : ICanRead
+sealed class PEHeader : MyCodeNode
 {
-  public DosHeader DosHeader;
-  public PESignature PESignature;
-  public PEFileHeader PEFileHeader;
-  public PEOptionalHeader PEOptionalHeader;
-  public SectionHeader[] SectionHeaders;
+  [OrderedField] public DosHeader DosHeader;
+  // public PESignature PESignature;
+  // public PEFileHeader PEFileHeader;
+  // public PEOptionalHeader PEOptionalHeader;
+  // public SectionHeader[] SectionHeaders;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out DosHeader),
-      stream.ReadStruct(out PESignature),
-      stream.ReadStruct(out PEFileHeader),
-      stream.ReadClass(ref PEOptionalHeader),
-      stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
-    };
+  // public CodeNode Read(Stream stream) {
+  //   var node = new CodeNode {
+  //     stream.ReadStruct(out DosHeader),
+  //     stream.ReadStruct(out PESignature),
+  //     stream.ReadStruct(out PEFileHeader),
+  //     stream.ReadClass(ref PEOptionalHeader),
+  //     stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
+  //   };
 
-    node.GetChild("DosHeader").GetChild("LfaNew").Link = node.GetChild("PESignature");
+  //   node.GetChild("DosHeader").GetChild("LfaNew").Link = node.GetChild("PESignature");
 
-    return node;
-  }
+  //   return node;
+  // }
 }
 
 // II.25.2.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct DosHeader
+class DosHeader : MyCodeNode
 {
   [Expected('M')]
   public char MagicM;

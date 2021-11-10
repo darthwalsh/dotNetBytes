@@ -12,16 +12,20 @@ using System.Text;
 sealed class ExpectedAttribute : Attribute
 {
   public object Value;
-  public ExpectedAttribute(object v) {
+  public int Line;
+  public ExpectedAttribute(object v, [CallerLineNumber] int i = -1) {
     Value = v;
+    Line = i;
   }
 }
 
 sealed class DescriptionAttribute : Attribute
 {
   public string Description;
-  public DescriptionAttribute(string d) {
+  public int Line;
+  public DescriptionAttribute(string d, [CallerLineNumber] int i = -1) {
     Description = d;
+    Line = i;
   }
 }
 
