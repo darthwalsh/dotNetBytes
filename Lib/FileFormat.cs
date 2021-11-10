@@ -549,7 +549,7 @@ sealed class Section : ICanRead
                 }
                 break;
               default:
-                node.AddError("Unexpected stream name: " + streamHeader.Name);
+                node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
                 break;
             }
           }
@@ -578,7 +578,7 @@ sealed class Section : ICanRead
           node.Add(stream.ReadClass(ref Relocations));
           break;
         default:
-          node.AddError("Unexpected data directory name: " + nr.name);
+          node.Errors.Add("Unexpected data directory name: " + nr.name);
           break;
       }
     }
@@ -787,7 +787,7 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
 
         if ((FatFormat.FlagsAndSize & 0xF0) != 0x30) {
-          Node.AddError("Expected upper bits of FlagsAndSize to be 3");
+          Node.Errors.Add("Expected upper bits of FlagsAndSize to be 3");
         }
 
         length = (int)FatFormat.CodeSize;
@@ -903,7 +903,7 @@ sealed class SmallMethodHeader : ICanRead
 
     var n = (DataSize - 4) / 12;
     if (n * 12 + 4 != DataSize) {
-      node.AddError("DataSize was not of the form n * 12 + 4");
+      node.Errors.Add("DataSize was not of the form n * 12 + 4");
     }
 
     node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
@@ -925,7 +925,7 @@ sealed class LargeMethodHeader : ICanRead
 
     var n = (DataSize.IntValue - 4) / 12;
     if (n * 24 + 4 != DataSize.IntValue) {
-      node.AddError("DataSize was not of the form n * 24 + 4");
+      node.Errors.Add("DataSize was not of the form n * 24 + 4");
     }
 
     node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));

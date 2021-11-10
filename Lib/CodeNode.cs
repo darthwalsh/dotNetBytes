@@ -20,12 +20,7 @@ public class CodeNode : IEnumerable<string>
 
   public List<CodeNode> Children = new List<CodeNode>();
 
-  List<string> errors = new List<string>();
-  public void AddError(string error) {
-    OnError(error);
-    errors.Add(error);
-  }
-  public IEnumerable<string> Errors => errors.AsReadOnly();
+  public List<string> Errors = new List<string>();
 
   public string LinkPath;
   CodeNode link;
@@ -42,7 +37,7 @@ public class CodeNode : IEnumerable<string>
         Value = (string)d.Value;
         Link = d.Node;
       } catch (Exception e) {
-        AddError("Using DelayedValueNode blew up with " + e.ToString());
+        Errors.Add("Using DelayedValueNode blew up with " + e.ToString());
       }
     }
   }
@@ -139,6 +134,4 @@ public class CodeNode : IEnumerable<string>
       writer.WriteEndObject();
     }
   }
-
-  public static event Action<string> OnError = e => { };
 }

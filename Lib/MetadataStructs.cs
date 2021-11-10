@@ -797,7 +797,7 @@ sealed class UserStringHeap : Heap<string>
     }, $"UserStringHeap[{index}]");
 
     if (!success)
-      node.AddError(error);
+      node.Errors.Add(error);
     node.Description = $@"""{s}"", {offset} leading bits";
     node.Start -= offset;
     return node;

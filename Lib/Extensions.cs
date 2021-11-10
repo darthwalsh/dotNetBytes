@@ -244,7 +244,7 @@ static class StreamExtensions
       if (t is IHaveValue)
         node.Value = t.GetString();
     } catch (Exception e) {
-      node.AddError(e.ToString());
+      node.Errors.Add(e.ToString());
     }
 
     return node;
@@ -450,7 +450,7 @@ static class TypeExtensions
     return false;
   }
 
-  static void Fail(CodeNode node, string message) => node.AddError(message);
+  static void Fail(CodeNode node, string message) => node.Errors.Add(message);
 
   public static CodeNode GetChild(this CodeNode node, string name) => node.Children.Where(n => n.Name == name).Single();
 }

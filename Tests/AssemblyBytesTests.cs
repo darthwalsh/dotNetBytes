@@ -274,8 +274,6 @@ namespace Tests
     static Stream OpenExampleProgram() => File.OpenRead(view("Program.dat"));
 
     static AssemblyBytes Run(Stream s) {
-      CodeNode.OnError += error => Assert.Fail(error);
-
       AssemblyBytes assm;
       try {
         assm = new AssemblyBytes(s);
