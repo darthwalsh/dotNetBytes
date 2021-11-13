@@ -6,13 +6,9 @@ using System.Linq;
 public static class Program
 {
   static void Main(string[] args) {
-    try {
-      var path = args.FirstOrDefault() ?? Path.Join("..", "view", "Program.dat");
+    var path = args.FirstOrDefault() ?? Path.Join("..", "view", "Program.dat");
 
-      Run(path);
-    } catch (Exception e) {
-      Console.WriteLine(e);
-    }
+    Run(path);
   }
 
   public static void Run(string path) {

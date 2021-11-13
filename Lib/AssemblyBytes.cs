@@ -18,7 +18,8 @@ public class AssemblyBytes
     this.Stream = s;
 
     FileFormat fileFormat = new FileFormat();
-    fileFormat.Read(this);;
+    fileFormat.Read(this);
+    fileFormat.Name = "FileFormat";
     node = fileFormat;
 
     // Widen any nodes to the width of their children
@@ -65,6 +66,7 @@ public class AssemblyBytes
 }
 
 [JsonConverter(typeof(MyCodeNodeConverter))]
+[StructLayout(LayoutKind.Sequential)]
 public abstract class MyCodeNode
 {
   public string Name = "oops!"; // Unique name for addressing from parent
@@ -79,9 +81,6 @@ public abstract class MyCodeNode
   public List<string> Errors = new List<string>();
   public virtual MyCodeNode Link { get; } // TODO not sure
   public string LinkPath;
-
-
-  public static event Action<string> OnError = e => { }; // MAYBE foreach children
 
   public void CallBack(Action<MyCodeNode> action) {
     action(this);
@@ -138,46 +137,87 @@ public abstract class MyCodeNode
         }).ToList();
 
     foreach (var field in ordedFields) {
-      var fieldType = field.FieldType;
-
-      if (fieldType.IsArray) {
-        if (fieldType.GetElementType() == typeof(byte) && TryGetAttribute(field, out ExpectedAttribute e)) {
-          var value = (byte[])e.Value;
-          var array = new byte[value.Length];
-
-          bytes.Stream.ReadWholeArray(array);
-          field.SetValue(this, array); // TODO make CodeNode???
-        } else if (fieldType.GetElementType() == typeof(char) && TryGetAttribute(field, out ExpectedAttribute e2)) {
-          var value = (string)e2.Value;
-          var array = new byte[value.Length];
-
-          bytes.Stream.ReadWholeArray(array);
-          field.SetValue(this, array.Select(b=>(char)b).ToArray()); // TODO make CodeNode???
-        } else {
-          throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is an array {fieldType.GetElementType()}[]");
-        }
-      } else if (fieldType.IsClass) {
-        var o = (MyCodeNode)Activator.CreateInstance(fieldType);
-        o.Read(bytes);
-        field.SetValue(this, o);
-        Children.Add(o);
-      }
-      else if (fieldType.IsValueType) {
-        // TODO capture Node metadata somewhere, like in a dict, or a 
-        var sn = typeof(MyStructNode<>).MakeGenericType(fieldType);
-        var o = (MyCodeNode)Activator.CreateInstance(sn);
-        o.Read(bytes);
-        field.SetValue(this, sn.GetField("t").GetValue(o));
-      }
-      else
-        throw new InvalidOperationException(fieldType.Name);
-
+      AddChild(bytes, field.Name);
     }
 
     this.End = (int)bytes.Stream.Position;
   }
 
+  protected void AddChild(AssemblyBytes bytes, string fieldName) {
+    var field = GetType().GetField(fieldName);
+    var type = field.FieldType;
 
+    if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(MyCodeNode))) {
+      var arr = (MyCodeNode[])Activator.CreateInstance(type, GetCount(fieldName));
+      field.SetValue(this, arr);
+      for (var i = 0; i < arr.Length; i++) {
+        var o = (MyCodeNode)Activator.CreateInstance(type.GetElementType());
+        o.Read(bytes);
+        arr[i] = o;
+
+        Children.Add(o);
+        o.Name = $"{fieldName}[{i}]";
+      }
+      return;
+    }
+
+    var child = ReadField(bytes, fieldName);
+    Children.Add(child);
+    child.Name = fieldName;
+    if (TryGetAttribute(field, out DescriptionAttribute desc)) {
+      child.Description = desc.Description;
+    }
+  }
+
+  MyCodeNode ReadField(AssemblyBytes bytes, string fieldName) {
+    var field = GetType().GetField(fieldName);
+    var fieldType = field.FieldType;
+
+    if (fieldType.IsArray) {
+      var elementType = fieldType.GetElementType();
+      if (elementType.IsValueType) {
+        int len;
+        if (TryGetAttribute<ExpectedAttribute>(field, out var e)) {
+          if (e.Value is string s) {
+            len = s.Length;
+          } else {
+            len = ((Array)e.Value).Length;
+          }
+        } else {
+          len = GetCount(fieldName);
+        }
+
+        var sn = typeof(MyStructArrayNode<>).MakeGenericType(elementType);
+        var o = (MyCodeNode)Activator.CreateInstance(sn, len);
+        o.Read(bytes);
+
+        var value = sn.GetField("arr").GetValue(o);
+        field.SetValue(this, value);
+        o.Value = value.GetString();
+        return o;
+      }
+
+      throw new InvalidOperationException($"{GetType().FullName}.{field.Name} is an array {elementType}[]");
+    }
+    if (fieldType.IsClass) {
+      var o = (MyCodeNode)Activator.CreateInstance(fieldType);
+      o.Read(bytes);
+      field.SetValue(this, o);
+      return o;
+    }
+    if (fieldType.IsValueType) {
+      var sn = typeof(MyStructNode<>).MakeGenericType(fieldType);
+      var o = (MyCodeNode)Activator.CreateInstance(sn);
+      o.Read(bytes);
+      var value = sn.GetField("t").GetValue(o);
+      field.SetValue(this, value);
+      o.Value = value.GetString();
+      return o;
+    }
+    throw new InvalidOperationException(fieldType.Name);
+  }
+
+  protected virtual int GetCount(string field) => throw new InvalidOperationException();
 
   static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
     var attrs = member.GetCustomAttributes(typeof(T), false);
@@ -189,6 +229,30 @@ public abstract class MyCodeNode
     return true;
   }
 }
+
+public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
+{
+  public T[] arr;
+
+  public int Length { get; }
+
+  public MyStructArrayNode(int length) {
+    Length = length;
+  }
+
+  public override void Read(AssemblyBytes bytes) {
+    this.Start = (int)bytes.Stream.Position;
+
+    arr = Enumerable.Range(0, Length).Select(_ => {
+      var node = new MyStructNode<T>();
+      node.Read(bytes);
+      return node.t;
+    }).ToArray();
+
+    this.End = (int)bytes.Stream.Position;
+  }
+}
+
 
 public sealed class MyStructNode<T> : MyCodeNode where T : struct
 {
@@ -209,16 +273,5 @@ public sealed class MyStructNode<T> : MyCodeNode where T : struct
     pinnedBuffer.Free();
 
     this.End = (int)bytes.Stream.Position;
-  }
-}
-
-
-
-
-sealed class ArrLengthAttribute : Attribute
-{
-  public int Len { get; }
-  public ArrLengthAttribute(int len) {
-    Len = len;
   }
 }

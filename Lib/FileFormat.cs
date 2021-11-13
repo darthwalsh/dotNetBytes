@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+
+// MyCodeNode is written though reflection
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
 
 // II.25 File format extensions to PE 
 
@@ -35,28 +39,21 @@ sealed class FileFormat : MyCodeNode
 sealed class PEHeader : MyCodeNode
 {
   [OrderedField] public DosHeader DosHeader;
-  // public PESignature PESignature;
-  // public PEFileHeader PEFileHeader;
-  // public PEOptionalHeader PEOptionalHeader;
-  // public SectionHeader[] SectionHeaders;
+  [OrderedField] public PESignature PESignature;
+  [OrderedField] public PEFileHeader PEFileHeader;
+  [OrderedField] public PEOptionalHeader PEOptionalHeader;
+  [OrderedField] public SectionHeader[] SectionHeaders;
 
-  // public CodeNode Read(Stream stream) {
-  //   var node = new CodeNode {
-  //     stream.ReadStruct(out DosHeader),
-  //     stream.ReadStruct(out PESignature),
-  //     stream.ReadStruct(out PEFileHeader),
-  //     stream.ReadClass(ref PEOptionalHeader),
-  //     stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
-  //   };
-
-  //   node.GetChild("DosHeader").GetChild("LfaNew").Link = node.GetChild("PESignature");
-
-  //   return node;
-  // }
+  protected override int GetCount(string field) {
+    if (field == nameof(SectionHeaders)) {
+      return PEFileHeader.NumberOfSections;
+    }
+    return base.GetCount(field);
+  }
 }
 
 // II.25.2.1
-class DosHeader : MyCodeNode
+sealed class DosHeader : MyCodeNode
 {
   [Expected('M')]
   public char MagicM;
@@ -96,26 +93,21 @@ class DosHeader : MyCodeNode
   [Expected(0)]
   public ushort OemInformation;
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00})]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                         0x00, 0x00, 0x00, 0x00})]
   public byte[] Reserved2;
   [Expected(0x80)]
-  public uint LfaNew;
+  public uint LfaNew; // TODO(solonode) links to FileFormat/PEHeader/PESignature
   [Expected(new byte[] { 0x0E, 0x1F, 0xBA, 0x0E, 0x00, 0xB4, 0x09, 0xCD,
-                           0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 14)]
+                         0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
   public byte[] DosCode;
   [Expected("This program cannot be run in DOS mode.\r\r\n$")]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 43)]
   public char[] Message;
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
   public byte[] Reserved3;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PESignature
+class PESignature : MyCodeNode
 {
   [Expected('P')]
   public char MagicP;
@@ -126,8 +118,7 @@ struct PESignature
 }
 
 // II.25.2.2 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEFileHeader
+class PEFileHeader : MyCodeNode
 {
   [Description("0x14c is I386.")]
   public MachineType Machine;
@@ -174,43 +165,46 @@ enum MachineType : ushort
 }
 
 // II.25.2.3
-class PEOptionalHeader : ICanRead
+sealed class PEOptionalHeader : MyCodeNode
 {
   //TODO(Descriptions)
 
   public PEHeaderStandardFields PEHeaderStandardFields;
-  [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
-  public int? BaseOfData;
-  public PEHeaderWindowsNtSpecificFields32? PEHeaderWindowsNtSpecificFields32;
-  public PEHeaderWindowsNtSpecificFields64? PEHeaderWindowsNtSpecificFields64;
+  //TODO(solonode) uncomment [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
+  public int BaseOfData = -1;
+  public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields32;
+  public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64; //TODO(solonode) naming PE32+
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out PEHeaderStandardFields),
-    };
+  public override void Read(AssemblyBytes bytes) {
+    this.Start = (int)bytes.Stream.Position;
+
+    AddChild(bytes, nameof(PEHeaderStandardFields));
 
     switch (PEHeaderStandardFields.Magic) {
       case PE32Magic.PE32:
-        node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData)));
-        node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
+        AddChild(bytes, nameof(BaseOfData));
+        AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields32));
+        Children.Last().Name = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
+        Children.Last().Value = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(solonode)
         break;
       case PE32Magic.PE32plus:
-        node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields64).Children.Single());
+        AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields64));
+        Children.Last().Name = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
+        Children.Last().Value = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(solonode)
         break;
       default:
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
     }
 
-    node.Add(stream.ReadStruct(out PEHeaderHeaderDataDirectories));
+    AddChild(bytes, nameof(PEHeaderHeaderDataDirectories));
 
-    return node;
+    this.End = (int)bytes.Stream.Position;
   }
 }
 
 // II.25.2.3.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderStandardFields
+sealed class PEHeaderStandardFields : MyCodeNode
 {
   [Description("Identifies version.")]
   public PE32Magic Magic;
@@ -238,8 +232,7 @@ enum PE32Magic : ushort
 }
 
 // II.25.2.3.2
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderWindowsNtSpecificFields<Tint>
+sealed class PEHeaderWindowsNtSpecificFields<Tint> : MyCodeNode
 {
   [Description("Shall be a multiple of 0x10000.")]
   public Tint ImageBase;
@@ -337,8 +330,7 @@ enum DllCharacteristics : ushort
 }
 
 // II.25.2.3.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderHeaderDataDirectories
+sealed class PEHeaderHeaderDataDirectories : MyCodeNode
 {
   //TODO(link) all Raw Address from understandingCIL
   //TODO(link) RVAandSize all 
@@ -388,20 +380,21 @@ struct PEHeaderHeaderDataDirectories
   public ulong Reserved;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct RVAandSize
+sealed class RVAandSize : MyCodeNode
 {
-  public uint RVA;
-  public uint Size;
+  public RVAandSize() {
+    Value = "RVAandSize"; //TODO(solonode)
+  }
+
+  [OrderedField] public uint RVA;
+  [OrderedField] public uint Size;
 }
 
 // II.25.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct SectionHeader
+sealed class SectionHeader : MyCodeNode
 {
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-  public char[] Name;
+  public new char[] Name;
   [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
   public uint VirtualSize;
   [Description("For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.")]
@@ -424,6 +417,13 @@ struct SectionHeader
   public ushort NumberOfLinenumbers;
   [Description("Flags describing section’s characteristics.")]
   public SectionHeaderCharacteristics Characteristics;
+
+  protected override int GetCount(string field) {
+    if (field == nameof(Name)) {
+      return 8;
+    }
+    return base.GetCount(field);
+  }
 }
 
 [Flags]
