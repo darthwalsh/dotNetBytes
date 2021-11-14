@@ -1234,6 +1234,517 @@
           ]
         },
         {
+          "Name": "CLIHeader",
+          "Description": "",
+          "Value": "",
+          "Start": 520,
+          "End": 592,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "Cb",
+              "Description": "Size of the header in bytes",
+              "Value": "0x48",
+              "Start": 520,
+              "End": 524,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "MajorRuntimeVersion",
+              "Description": "The minimum version of the runtime required to run this program, currently 2.",
+              "Value": "0x2",
+              "Start": 524,
+              "End": 526,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "MinorRuntimeVersion",
+              "Description": "The minor portion of the version, currently 0.",
+              "Value": "0x0",
+              "Start": 526,
+              "End": 528,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "MetaData",
+              "Description": "RVA and size of the physical metadata (§II.24).",
+              "Value": "RVAandSize",
+              "Start": 528,
+              "End": 536,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "RVA",
+                  "Description": "",
+                  "Value": "0x2068",
+                  "Start": 528,
+                  "End": 532,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x1D0",
+                  "Start": 532,
+                  "End": 536,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Flags",
+              "Description": "Flags describing this runtime image. (§II.25.3.3.1).",
+              "Value": "0x00000001 ILOnly",
+              "Start": 536,
+              "End": 540,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "EntryPointToken",
+              "Description": "Token for the MethodDef or File of the entry point for the image",
+              "Value": "0x6000001",
+              "Start": 540,
+              "End": 544,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Resources",
+              "Description": "RVA and size of implementation-specific resources.",
+              "Value": "RVAandSize",
+              "Start": 544,
+              "End": 552,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "RVA",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 544,
+                  "End": 548,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 548,
+                  "End": 552,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "StrongNameSignature",
+              "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning",
+              "Value": "RVAandSize",
+              "Start": 552,
+              "End": 560,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "RVA",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 552,
+                  "End": 556,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 556,
+                  "End": 560,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "CodeManagerTable",
+              "Description": "Always 0 (§II.24.1).",
+              "Value": "0x0",
+              "Start": 560,
+              "End": 568,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "VTableFixups",
+              "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.",
+              "Value": "RVAandSize",
+              "Start": 568,
+              "End": 576,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "RVA",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 568,
+                  "End": 572,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 572,
+                  "End": 576,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "ExportAddressTableJumps",
+              "Description": "Always 0 (§II.24.1).",
+              "Value": "0x0",
+              "Start": 576,
+              "End": 584,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "ManagedNativeHeader",
+              "Description": "Always 0 (§II.24.1).",
+              "Value": "0x0",
+              "Start": 584,
+              "End": 592,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "MetadataRoot",
+          "Description": "",
+          "Value": "",
+          "Start": 616,
+          "End": 724,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "Signature",
+              "Description": "",
+              "Value": "0x424A5342",
+              "Start": 616,
+              "End": 620,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "MajorVersion",
+              "Description": "",
+              "Value": "0x1",
+              "Start": 620,
+              "End": 622,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "MinorVersion",
+              "Description": "",
+              "Value": "0x1",
+              "Start": 622,
+              "End": 624,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Reserved",
+              "Description": "",
+              "Value": "0x0",
+              "Start": 624,
+              "End": 628,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Length",
+              "Description": "",
+              "Value": "0xC",
+              "Start": 628,
+              "End": 632,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Version",
+              "Description": "",
+              "Value": "\"v4.0.30319\"",
+              "Start": 632,
+              "End": 644,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Flags",
+              "Description": "",
+              "Value": "0x0",
+              "Start": 644,
+              "End": 646,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Streams",
+              "Description": "",
+              "Value": "0x5",
+              "Start": 646,
+              "End": 648,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StreamHeaders[0]",
+              "Description": "",
+              "Value": "",
+              "Start": 648,
+              "End": 660,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x6C",
+                  "Start": 648,
+                  "End": 652,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0xBC",
+                  "Start": 652,
+                  "End": 656,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "",
+                  "Value": "\"#~\"",
+                  "Start": 656,
+                  "End": 660,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "StreamHeaders[1]",
+              "Description": "",
+              "Value": "",
+              "Start": 660,
+              "End": 680,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x128",
+                  "Start": 660,
+                  "End": 664,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x64",
+                  "Start": 664,
+                  "End": 668,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "",
+                  "Value": "\"#Strings\"",
+                  "Start": 668,
+                  "End": 680,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "StreamHeaders[2]",
+              "Description": "",
+              "Value": "",
+              "Start": 680,
+              "End": 692,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x18C",
+                  "Start": 680,
+                  "End": 684,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x20",
+                  "Start": 684,
+                  "End": 688,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "",
+                  "Value": "\"#US\"",
+                  "Start": 688,
+                  "End": 692,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "StreamHeaders[3]",
+              "Description": "",
+              "Value": "",
+              "Start": 692,
+              "End": 708,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x1AC",
+                  "Start": 692,
+                  "End": 696,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x10",
+                  "Start": 696,
+                  "End": 700,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "",
+                  "Value": "\"#GUID\"",
+                  "Start": 700,
+                  "End": 708,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "StreamHeaders[4]",
+              "Description": "",
+              "Value": "",
+              "Start": 708,
+              "End": 724,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x1BC",
+                  "Start": 708,
+                  "End": 712,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Size",
+                  "Description": "",
+                  "Value": "0x14",
+                  "Start": 712,
+                  "End": 716,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "",
+                  "Value": "\"#Blob\"",
+                  "Start": 716,
+                  "End": 724,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
           "Name": "ImportTable",
           "Description": "",
           "Value": "",
@@ -1369,7 +1880,7 @@
         {
           "Name": "RuntimeEngineName",
           "Description": "",
-          "Value": "mscoree.dll",
+          "Value": "\"mscoree.dll\"",
           "Start": 1150,
           "End": 1162,
           "LinkPath": null,

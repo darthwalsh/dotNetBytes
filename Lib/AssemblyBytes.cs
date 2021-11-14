@@ -194,7 +194,14 @@ public abstract class MyCodeNode
     Children.Add(child);
     child.Name = fieldName;
     if (TryGetAttribute(field, out DescriptionAttribute desc)) {
-      child.Description = desc.Description;
+      switch (GetType().Name) { // TODO (solonode) hack for simpler diff
+        case "StreamHeader":
+        case "MetadataRoot":
+          break;
+        default:
+          child.Description = desc.Description;
+          break;
+      }
     }
   }
 
@@ -226,10 +233,19 @@ public abstract class MyCodeNode
         return o;
       }
 
-      throw new InvalidOperationException($"{GetType().FullName}.{field.Name} is an array {elementType}[]");
+      throw new InvalidOperationException($"{GetType().FullName}. {field.Name} is an array {elementType}[]");
     }
     if (fieldType.IsClass) {
-      var o = (MyCodeNode)Activator.CreateInstance(fieldType);
+      // var o = ((MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType)); TODO(solonode) hack for better exception messages
+      MyCodeNode o;
+      try
+      {
+           o = (MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType));
+      }
+      catch (System.Exception e)
+      {
+          throw new NotImplementedException($"{GetType().FullName}. {field.Name}", e); // TODO(solonode) remove!
+      }
       o.Read(bytes);
       field.SetValue(this, o);
       return o;

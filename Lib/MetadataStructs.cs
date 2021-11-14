@@ -44,6 +44,7 @@ enum EventAttributes : ushort
 
 // II.23.1.5
 class FieldAttributes : ICanRead, IHaveValue
+// sealed class FieldAttributes : MyCodeNode
 {
   public AccessAttributes Access;
   public AdditionalFlags Flags;
@@ -119,6 +120,7 @@ enum FileAttributes : uint
 
 // II.23.1.7
 class GenericParamAttributes : ICanRead, IHaveValue
+// sealed class GenericParamAttributes : MyCodeNode
 {
   public VarianceAttributes Variance;
   public SpecialConstraintAttributes SpecialConstraint;
@@ -162,6 +164,7 @@ class GenericParamAttributes : ICanRead, IHaveValue
 
 // II.23.1.8
 class PInvokeAttributes : ICanRead, IHaveValue
+// sealed class PInvokeAttributes : MyCodeNode
 {
   public CharacterSetAttributes CharacterSet;
   public CallingConventionAttributes CallingConvention;
@@ -232,6 +235,7 @@ enum ManifestResourceAttributes : uint
 
 // II.23.1.10
 class MethodAttributes : ICanRead, IHaveValue
+// sealed class MethodAttributes : MyCodeNode
 {
   public MemberAccessAttributes MemberAccess;
   public VtableLayoutAttributes VtableLayout;
@@ -313,6 +317,7 @@ class MethodAttributes : ICanRead, IHaveValue
 
 // II.23.1.11
 class MethodImplAttributes : ICanRead, IHaveValue
+// sealed class MethodImplAttributes : MyCodeNode
 {
   public CodeTypeAttributes CodeType;
   public ManagedAttributes Managed;
@@ -423,6 +428,7 @@ enum PropertyAttributes : ushort
 
 // II.23.1.15
 class TypeAttributes : ICanRead, IHaveValue
+// sealed class TypeAttributes : MyCodeNode
 {
   public VisibilityAttributes Visibility;
   public LayoutAttributes Layout;
@@ -612,7 +618,7 @@ enum ElementType : byte
 }
 
 // II.24.2.1
-sealed class MetadataRoot : ICanRead
+sealed class MetadataRoot : MyCodeNode
 {
   //TODO(descriptions)
 
@@ -629,32 +635,26 @@ sealed class MetadataRoot : ICanRead
   [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
   public uint Length;
   [Description("UTF8-encoded null-terminated version string.")]
-  public string Version;
+  public NullTerminatedString Version = new NullTerminatedString(Encoding.UTF8, 4);
   [Description("Reserved, always 0 (§II.24.1).")]
   [Expected(0)]
   public ushort Flags;
   [Description("Number of streams.")]
   public ushort Streams;
+  [OrderedField]
   public StreamHeader[] StreamHeaders;
 
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out Signature, nameof(Signature)),
-      stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
-      stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
-      stream.ReadStruct(out Reserved, nameof(Reserved)),
-      stream.ReadStruct(out Length, nameof(Length)),
-      stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
-      stream.ReadStruct(out Flags, nameof(Flags)),
-      stream.ReadStruct(out Streams, nameof(Streams)),
-      stream.ReadClasses(ref StreamHeaders, Streams),
-    };
-  }
+  protected override int GetCount(string field) => field switch {
+    nameof(StreamHeaders) => Streams,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.24.2.2
-sealed class StreamHeader : ICanRead
+sealed class StreamHeader : MyCodeNode
 {
+  public StreamHeader(int _) { } // MAYBE try this ctro, then try parameterless ctor
+
   //TODO(descriptions)
 
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
@@ -662,15 +662,7 @@ sealed class StreamHeader : ICanRead
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
   public uint Size;
   [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
-  public string Name;
-
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out Offset, nameof(Offset)),
-      stream.ReadStruct(out Size, nameof(Size)),
-      stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
-    };
-  }
+  public new NullTerminatedString Name = new NullTerminatedString(Encoding.ASCII, 4);
 }
 
 abstract class Heap<T> : ICanRead, IHaveAName
@@ -854,6 +846,7 @@ sealed class GuidHeap : Heap<Guid>
 
 // II.24.2.6
 sealed class TildeStream : ICanRead
+// sealed class TildeStream : MyCodeNode
 {
   public Section Section { get; private set; }
   public TildeStream(Section section) {
@@ -1051,6 +1044,7 @@ enum TildeDateHeapSizes : byte
 }
 
 sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
+// sealed class StringHeapIndex : MyCodeNode
 {
   ushort? shortIndex;
   uint? intIndex;
@@ -1073,6 +1067,7 @@ sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
 }
 
 sealed class UserStringHeapIndex : ICanRead, IHaveValue, IHaveIndex
+// sealed class UserStringHeapIndex : MyCodeNode
 {
   ushort? shortIndex;
   uint? intIndex;
@@ -1094,6 +1089,7 @@ sealed class UserStringHeapIndex : ICanRead, IHaveValue, IHaveIndex
 }
 
 sealed class BlobHeapIndex : ICanRead, IHaveValue, IHaveIndex
+// sealed class BlobHeapIndex : MyCodeNode
 {
   ushort? shortIndex;
   uint? intIndex;
@@ -1115,6 +1111,7 @@ sealed class BlobHeapIndex : ICanRead, IHaveValue, IHaveIndex
 }
 
 sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
+// sealed class GuidHeapIndex : MyCodeNode
 {
   ushort? shortIndex;
   uint? intIndex;
@@ -1136,6 +1133,7 @@ sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
 
 //TODO(links) implement all CodedIndex
 sealed class UnknownCodedIndex : ICanRead
+// sealed class UnknownCodedIndex : MyCodeNode
 {
   public CodeNode Read(Stream stream) {
     ushort index;
@@ -1144,6 +1142,7 @@ sealed class UnknownCodedIndex : ICanRead
 }
 
 abstract class CodedIndex : ICanRead
+// sealed class CodedIndex : MyCodeNode
 {
   CodedIndex() { } // Don't allow subclassing 
 

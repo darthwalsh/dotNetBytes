@@ -425,7 +425,7 @@ sealed class Section : MyCodeNode
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
   public ImportAddressHintNameTable ImportAddressHintNameTable;
-  public NullAsciiString RuntimeEngineName;
+  public NullTerminatedString RuntimeEngineName = new NullTerminatedString(Encoding.ASCII, 1);
   public NativeEntryPoint NativeEntryPoint;
   public ImportAddressTable ImportAddressTable;
   public Relocations Relocations;
@@ -462,15 +462,15 @@ sealed class Section : MyCodeNode
 
       switch (nr.name) {
         case "CLIHeader":
+          AddChild(bytes, nameof(CLIHeader));
+
+          Reposition(bytes, CLIHeader.MetaData.RVA);
+          AddChild(bytes, nameof(MetadataRoot));
+
 #if false
-          node.Add(stream.ReadStruct(out CLIHeader));
-
-          Reposition(stream, CLIHeader.MetaData.RVA);
-          node.Add(stream.ReadClass(ref MetadataRoot));
-
           foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.IndexOf('~'))) // Read #~ after heaps
           {
-            Reposition(stream, streamHeader.Offset + CLIHeader.MetaData.RVA);
+            Reposition(bytes, streamHeader.Offset + CLIHeader.MetaData.RVA);
 
             switch (streamHeader.Name) {
               case "#Strings":
@@ -989,9 +989,15 @@ sealed class UInt24 : MyCodeNode
   }
 }
 
-sealed class NullAsciiString : MyCodeNode // MAYBE generalize to UTF8
+sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record types
 {
-  int byteBoundary = 1; // MAYBE generalize for 4
+  Encoding encoding;
+  int byteBoundary;
+  public NullTerminatedString(Encoding encoding, int byteBoundary) {
+    this.encoding = encoding;
+    this.byteBoundary = byteBoundary;
+    Value = "oops unset!!";
+  }
 
   public override void Read(AssemblyBytes bytes) {
     Start = (int)bytes.Stream.Position;
@@ -1005,7 +1011,7 @@ sealed class NullAsciiString : MyCodeNode // MAYBE generalize to UTF8
       
       if (buffer.Contains((byte)'\0')) {
         End = (int)bytes.Stream.Position;
-        Value = Encoding.ASCII.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
+        Value = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray()).GetString();
         return;
       }
     }
