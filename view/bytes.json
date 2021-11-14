@@ -3,7 +3,7 @@
   "Description": "",
   "Value": "",
   "Start": 0,
-  "End": 456,
+  "End": 2048,
   "LinkPath": null,
   "Errors": [],
   "Children": [
@@ -1186,6 +1186,349 @@
               "LinkPath": null,
               "Errors": [],
               "Children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Sections[0]",
+      "Description": ".text\u0000\u0000\u0000",
+      "Value": "",
+      "Start": 512,
+      "End": 1536,
+      "LinkPath": null,
+      "Errors": [
+        "Skipping CLIHeader"
+      ],
+      "Children": [
+        {
+          "Name": "ImportAddressTable",
+          "Description": "",
+          "Value": "",
+          "Start": 512,
+          "End": 520,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "HintNameTableRVA",
+              "Description": "",
+              "Value": "0x2270",
+              "Start": 512,
+              "End": 516,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "NullTerminated",
+              "Description": "",
+              "Value": "0x0",
+              "Start": 516,
+              "End": 520,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "ImportTable",
+          "Description": "",
+          "Value": "",
+          "Start": 1088,
+          "End": 1128,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "ImportLookupTable",
+              "Description": "RVA of the Import Lookup Table",
+              "Value": "0x2268",
+              "Start": 1088,
+              "End": 1092,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "DateTimeStamp",
+              "Description": "Always 0 (§II.24.1).",
+              "Value": "0x0",
+              "Start": 1092,
+              "End": 1096,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "ForwarderChain",
+              "Description": "Always 0 (§II.24.1).",
+              "Value": "0x0",
+              "Start": 1096,
+              "End": 1100,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Name",
+              "Description": "RVA of null-terminated ASCII string “mscoree.dll”.",
+              "Value": "0x227E",
+              "Start": 1100,
+              "End": 1104,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "ImportAddressTableRVA",
+              "Description": "RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).",
+              "Value": "0x2000",
+              "Start": 1104,
+              "End": 1108,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Reserved",
+              "Description": "End of Import Table. Shall be filled with zeros.",
+              "Value": "{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}",
+              "Start": 1108,
+              "End": 1128,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "ImportLookupTable",
+          "Description": "",
+          "Value": "",
+          "Start": 1128,
+          "End": 1136,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "HintNameTableRVA",
+              "Description": "",
+              "Value": "0x2270",
+              "Start": 1128,
+              "End": 1132,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "NullTerminated",
+              "Description": "",
+              "Value": "0x0",
+              "Start": 1132,
+              "End": 1136,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "ImportAddressHintNameTable",
+          "Description": "",
+          "Value": "",
+          "Start": 1136,
+          "End": 1150,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "Hint",
+              "Description": "Shall be 0.",
+              "Value": "0x0",
+              "Start": 1136,
+              "End": 1138,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Message",
+              "Description": "Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.",
+              "Value": "\"_CorExeMain\\0\"",
+              "Start": 1138,
+              "End": 1150,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "RuntimeEngineName",
+          "Description": "",
+          "Value": "mscoree.dll",
+          "Start": 1150,
+          "End": 1162,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": []
+        },
+        {
+          "Name": "NativeEntryPoint",
+          "Description": "",
+          "Value": "",
+          "Start": 1166,
+          "End": 1172,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "JMP",
+              "Description": "JMP op code in X86",
+              "Value": "0xFF",
+              "Start": 1166,
+              "End": 1167,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "Mod",
+              "Description": "Specifies the jump is in absolute indirect mode",
+              "Value": "0x25",
+              "Start": 1167,
+              "End": 1168,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "JumpTarget",
+              "Description": "Jump target RVA.",
+              "Value": "0x402000",
+              "Start": 1168,
+              "End": 1172,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Sections[1]",
+      "Description": ".reloc\u0000\u0000",
+      "Value": "",
+      "Start": 1536,
+      "End": 2048,
+      "LinkPath": null,
+      "Errors": [],
+      "Children": [
+        {
+          "Name": "Relocations",
+          "Description": "",
+          "Value": "",
+          "Start": 1536,
+          "End": 1548,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "BaseRelocationTable",
+              "Description": "",
+              "Value": "",
+              "Start": 1536,
+              "End": 1544,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "PageRVA",
+                  "Description": "",
+                  "Value": "0x2000",
+                  "Start": 1536,
+                  "End": 1540,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "BlockSize",
+                  "Description": "",
+                  "Value": "0xC",
+                  "Start": 1540,
+                  "End": 1544,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Fixups[0]",
+              "Description": "",
+              "Value": "",
+              "Start": 1544,
+              "End": 1546,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Type",
+                  "Description": "",
+                  "Value": "0x9",
+                  "Start": 1544,
+                  "End": 1545,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x32",
+                  "Start": 1545,
+                  "End": 1546,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Fixups[1]",
+              "Description": "",
+              "Value": "",
+              "Start": 1546,
+              "End": 1548,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Type",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 1546,
+                  "End": 1547,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Offset",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 1547,
+                  "End": 1548,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             }
           ]
         }

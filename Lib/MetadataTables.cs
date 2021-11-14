@@ -341,13 +341,13 @@ sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
       stream.ReadClass(ref Implementation, nameof(Implementation)),
     };
 
-    var section = Singletons.Instance.TildeStream.Section;
-    section.ReadNode(strm => {
-      section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
+    // var section = Singletons.Instance.TildeStream.Section;
+    // section.ReadNode(strm => {
+    //   section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
 
-      ResourceEntry entry = null;
-      return stream.ReadClass(ref entry);
-    });
+    //   ResourceEntry entry = null;
+    //   return stream.ReadClass(ref entry);
+    // });
 
     return Node;
   }
@@ -381,7 +381,7 @@ sealed class MemberRef : ICanBeReadInOrder, IHaveLiteralValueNode
 }
 
 // II.22.26
-sealed class MethodDef : ICanRead, IHaveLiteralValueNode // TODO(cleanup) can this be ICanBeReadInOrder?
+sealed class MethodDef : ICanRead, IHaveLiteralValueNode //TODO(cleanup) can this be ICanBeReadInOrder?
 {
   public uint RVA;
   public MethodImplAttributes ImplFlags;

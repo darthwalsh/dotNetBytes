@@ -515,6 +515,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
 
 
   public CodeNode Read(Stream stream) {
+#if false
     var offsetNode = stream.ReadClass(ref Offset, nameof(Offset));
     var tableNode = stream.ReadStruct(out Table, nameof(Table));
 
@@ -548,6 +549,8 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
       Value = link.Value;
       return node;
     }
+#endif
+    return default;
   }
 }
 

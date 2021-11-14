@@ -1,7 +1,7 @@
 using System;
 
-// Thread-safe globals for parsing the assembly.
-//TODO(cleanup) pass an instance with the Read() method
+// Thread-safe globals for parsing th assembly.
+//TODO(solonode) pass an instance with the Read() method
 class Singletons
 {
   [ThreadStatic]
@@ -15,8 +15,6 @@ class Singletons
       return instance;
     }
   }
-
-  public static void Reset() => instance = null;
 
   public int MethodCount { get; set; }
   public int ResourceEntryCount { get; set; }

@@ -12,15 +12,15 @@ public class AssemblyBytes
 {
   public Stream Stream { get; }
 
-  MyCodeNode node;
+  internal FileFormat fileFormat;
 
   public AssemblyBytes(Stream s) {
     this.Stream = s;
 
-    FileFormat fileFormat = new FileFormat();
+    fileFormat = new FileFormat();
     fileFormat.Read(this);
     fileFormat.Name = "FileFormat";
-    node = fileFormat;
+    MyCodeNode node = fileFormat;
 
     // Widen any nodes to the width of their children
     node.CallBack(n => {
@@ -62,7 +62,36 @@ public class AssemblyBytes
     });
   }
 
-  public MyCodeNode Node => node;
+  public MyCodeNode Node => fileFormat;
+
+  // SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
+  // internal StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
+
+  // SetOnce<UserStringHeap> userStringHeap = new SetOnce<UserStringHeap>();
+  // internal UserStringHeap UserStringHeap { get { return userStringHeap.Value; } set { userStringHeap.Value = value; } }
+
+  // SetOnce<BlobHeap> blobHeap = new SetOnce<BlobHeap>();
+  // internal BlobHeap BlobHeap { get { return blobHeap.Value; } set { blobHeap.Value = value; } }
+
+  // SetOnce<GuidHeap> guidHeap = new SetOnce<GuidHeap>();
+  // internal GuidHeap GuidHeap { get { return guidHeap.Value; } set { guidHeap.Value = value; } }
+
+  // SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
+  // internal TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }
+
+  // class SetOnce<T> where T : class
+  // {
+  //   T t;
+  //   public T Value {
+  //     get {
+  //       return t;
+  //     }
+  //     set {
+  //       if (t != null) throw new InvalidOperationException();
+  //       t = value;
+  //     }
+  //   }
+  // }
 }
 
 [JsonConverter(typeof(MyCodeNodeConverter))]
@@ -77,9 +106,9 @@ public abstract class MyCodeNode
   public int Start = int.MaxValue;
   public int End = int.MinValue;
 
-  public List<MyCodeNode> Children = new List<MyCodeNode>(); // TODO reflect these probably?
+  public List<MyCodeNode> Children = new List<MyCodeNode>();
   public List<string> Errors = new List<string>();
-  public virtual MyCodeNode Link { get; } // TODO not sure
+  public virtual MyCodeNode Link { get; } // TODO need to figure this out.
   public string LinkPath;
 
   public void CallBack(Action<MyCodeNode> action) {
@@ -151,7 +180,7 @@ public abstract class MyCodeNode
       var arr = (MyCodeNode[])Activator.CreateInstance(type, GetCount(fieldName));
       field.SetValue(this, arr);
       for (var i = 0; i < arr.Length; i++) {
-        var o = (MyCodeNode)Activator.CreateInstance(type.GetElementType());
+        var o = (MyCodeNode)Activator.CreateInstance(type.GetElementType(), i);
         o.Read(bytes);
         arr[i] = o;
 
@@ -169,7 +198,7 @@ public abstract class MyCodeNode
     }
   }
 
-  MyCodeNode ReadField(AssemblyBytes bytes, string fieldName) {
+  protected virtual MyCodeNode ReadField(AssemblyBytes bytes, string fieldName) {
     var field = GetType().GetField(fieldName);
     var fieldType = field.FieldType;
 
@@ -217,7 +246,7 @@ public abstract class MyCodeNode
     throw new InvalidOperationException(fieldType.Name);
   }
 
-  protected virtual int GetCount(string field) => throw new InvalidOperationException();
+  protected virtual int GetCount(string field) => throw new InvalidOperationException(GetType().Name);
 
   static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
     var attrs = member.GetCustomAttributes(typeof(T), false);

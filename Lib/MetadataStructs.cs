@@ -58,7 +58,7 @@ class FieldAttributes : ICanRead, IHaveValue
     return node;
   }
 
-  public object Value => new Enum[] { Access, Flags }; // TODO (Description) Enum[] text doesn't show up in GUI
+  public object Value => new Enum[] { Access, Flags }; //TODO (Description) Enum[] text doesn't show up in GUI
 
   const ushort accessMask = 0x0007;
 
