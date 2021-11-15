@@ -1198,9 +1198,7 @@
       "Start": 512,
       "End": 1536,
       "LinkPath": null,
-      "Errors": [
-        "Skipping CLIHeader"
-      ],
+      "Errors": [],
       "Children": [
         {
           "Name": "ImportAddressTable",
@@ -1741,6 +1739,1175 @@
                   "Children": []
                 }
               ]
+            }
+          ]
+        },
+        {
+          "Name": "TildeStream",
+          "Description": "",
+          "Value": "",
+          "Start": 724,
+          "End": 912,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "TildeData",
+              "Description": "",
+              "Value": "",
+              "Start": 724,
+              "End": 748,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Reserved",
+                  "Description": "Reserved, always 0 (§II.24.1).",
+                  "Value": "0x0",
+                  "Start": 724,
+                  "End": 728,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MajorVersion",
+                  "Description": "Major version of table schemata; shall be 2 (§II.24.1).",
+                  "Value": "0x2",
+                  "Start": 728,
+                  "End": 729,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MinorVersion",
+                  "Description": "Minor version of table schemata; shall be 0 (§II.24.1).",
+                  "Value": "0x0",
+                  "Start": 729,
+                  "End": 730,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "HeapSizes",
+                  "Description": "Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)",
+                  "Value": "0x00 0",
+                  "Start": 730,
+                  "End": 731,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Reserved2",
+                  "Description": "Reserved, always 1 (§II.24.1).",
+                  "Value": "0x1",
+                  "Start": 731,
+                  "End": 732,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Valid",
+                  "Description": "Bit vector of present tables, let n be the number of bits that are 1.",
+                  "Value": "0x0000000908000447 Module, TypeRef, TypeDef, MethodDef, MemberRef, TypeSpec, Assembly, AssemblyRef",
+                  "Start": 732,
+                  "End": 740,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Sorted",
+                  "Description": "Bit vector of sorted tables.",
+                  "Value": "0x0000000000000000 0",
+                  "Start": 740,
+                  "End": 748,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Rows",
+              "Description": "",
+              "Value": "",
+              "Start": 748,
+              "End": 780,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Rows[0]",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 748,
+                  "End": 752,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[1]",
+                  "Description": "",
+                  "Value": "0x4",
+                  "Start": 752,
+                  "End": 756,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[2]",
+                  "Description": "",
+                  "Value": "0x2",
+                  "Start": 756,
+                  "End": 760,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[3]",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 760,
+                  "End": 764,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[4]",
+                  "Description": "",
+                  "Value": "0x2",
+                  "Start": 764,
+                  "End": 768,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[5]",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 768,
+                  "End": 772,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[6]",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 772,
+                  "End": 776,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Rows[7]",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 776,
+                  "End": 780,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Modules[0]",
+              "Description": "",
+              "Value": "AddR.exe",
+              "Start": 780,
+              "End": 790,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Generation",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 780,
+                  "End": 782,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index A",
+                  "Value": "AddR.exe",
+                  "Start": 782,
+                  "End": 784,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[10]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Mvid",
+                  "Description": "Guid Heap index 1",
+                  "Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+                  "Start": 784,
+                  "End": 786,
+                  "LinkPath": "FileFormat/Sections[0]/GuidHeap/GuidHeap[1]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "EncId",
+                  "Description": "Guid Heap index 0",
+                  "Value": "00000000-0000-0000-0000-000000000000",
+                  "Start": 786,
+                  "End": 788,
+                  "LinkPath": "FileFormat/Sections[0]/GuidHeap",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "EncBaseId",
+                  "Description": "Guid Heap index 0",
+                  "Value": "00000000-0000-0000-0000-000000000000",
+                  "Start": 788,
+                  "End": 790,
+                  "LinkPath": "FileFormat/Sections[0]/GuidHeap",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeRefs[0]",
+              "Description": "",
+              "Value": "System.Object",
+              "Start": 790,
+              "End": 796,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "ResolutionScope",
+                  "Description": "",
+                  "Value": "mscorlib 0.0.0.0",
+                  "Start": 790,
+                  "End": 792,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 28",
+                  "Value": "Object",
+                  "Start": 792,
+                  "End": 794,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[40]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 2F",
+                  "Value": "System",
+                  "Start": 794,
+                  "End": 796,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeRefs[1]",
+              "Description": "",
+              "Value": "System.Int32",
+              "Start": 796,
+              "End": 802,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "ResolutionScope",
+                  "Description": "",
+                  "Value": "mscorlib 0.0.0.0",
+                  "Start": 796,
+                  "End": 798,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 36",
+                  "Value": "Int32",
+                  "Start": 798,
+                  "End": 800,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[54]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 2F",
+                  "Value": "System",
+                  "Start": 800,
+                  "End": 802,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeRefs[2]",
+              "Description": "",
+              "Value": "System.String",
+              "Start": 802,
+              "End": 808,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "ResolutionScope",
+                  "Description": "",
+                  "Value": "mscorlib 0.0.0.0",
+                  "Start": 802,
+                  "End": 804,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 3C",
+                  "Value": "String",
+                  "Start": 804,
+                  "End": 806,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[60]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 2F",
+                  "Value": "System",
+                  "Start": 806,
+                  "End": 808,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeRefs[3]",
+              "Description": "",
+              "Value": "System.Console",
+              "Start": 808,
+              "End": 814,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "ResolutionScope",
+                  "Description": "",
+                  "Value": "mscorlib 0.0.0.0",
+                  "Start": 808,
+                  "End": 810,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 43",
+                  "Value": "Console",
+                  "Start": 810,
+                  "End": 812,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[67]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 2F",
+                  "Value": "System",
+                  "Start": 812,
+                  "End": 814,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeDefs[0]",
+              "Description": "",
+              "Value": ".<Module>",
+              "Start": 814,
+              "End": 828,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Flags",
+                  "Description": "",
+                  "Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
+                  "Start": 814,
+                  "End": 818,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 19",
+                  "Value": "<Module>",
+                  "Start": 818,
+                  "End": 820,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[25]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 0",
+                  "Value": "",
+                  "Start": 820,
+                  "End": 822,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Extends",
+                  "Description": "",
+                  "Value": "(Nothing)",
+                  "Start": 822,
+                  "End": 824,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "FieldList",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 824,
+                  "End": 826,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MethodList",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 826,
+                  "End": 828,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeDefs[1]",
+              "Description": "",
+              "Value": ".Hello",
+              "Start": 828,
+              "End": 842,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Flags",
+                  "Description": "",
+                  "Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
+                  "Start": 828,
+                  "End": 832,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeName",
+                  "Description": "String Heap index 22",
+                  "Value": "Hello",
+                  "Start": 832,
+                  "End": 834,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[34]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "TypeNamespace",
+                  "Description": "String Heap index 0",
+                  "Value": "",
+                  "Start": 834,
+                  "End": 836,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Extends",
+                  "Description": "",
+                  "Value": "System.Object",
+                  "Start": 836,
+                  "End": 838,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "FieldList",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 838,
+                  "End": 840,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MethodList",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 840,
+                  "End": 842,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "MethodDefs[0]",
+              "Description": "",
+              "Value": "Main",
+              "Start": 842,
+              "End": 856,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "RVA",
+                  "Description": "",
+                  "Value": "0x2050",
+                  "Start": 842,
+                  "End": 846,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "ImplFlags",
+                  "Description": "",
+                  "Value": "{0x0000 IL, 0x0000 Managed, 0x0000 0}",
+                  "Start": 846,
+                  "End": 848,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Flags",
+                  "Description": "",
+                  "Value": "{0x0000 CompilerControlled, 0x0000 ReuseSlot, 0x0010 Static}",
+                  "Start": 848,
+                  "End": 850,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index 4B",
+                  "Value": "Main",
+                  "Start": 850,
+                  "End": 852,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[75]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Signature",
+                  "Description": "Blob Heap index 3",
+                  "Value": "{0x0, 0x0, 0x1}",
+                  "Start": 852,
+                  "End": 854,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "ParamList",
+                  "Description": "",
+                  "Value": "0x1",
+                  "Start": 854,
+                  "End": 856,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "MemberRefs[0]",
+              "Description": "",
+              "Value": "Concat",
+              "Start": 856,
+              "End": 862,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Class",
+                  "Description": "",
+                  "Value": "System.String",
+                  "Start": 856,
+                  "End": 858,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[2]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index 50",
+                  "Value": "Concat",
+                  "Start": 858,
+                  "End": 860,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[80]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Signature",
+                  "Description": "Blob Heap index 7",
+                  "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+                  "Start": 860,
+                  "End": 862,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[7]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "MemberRefs[1]",
+              "Description": "",
+              "Value": "WriteLine",
+              "Start": 862,
+              "End": 868,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Class",
+                  "Description": "",
+                  "Value": "System.Console",
+                  "Start": 862,
+                  "End": 864,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[3]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index 57",
+                  "Value": "WriteLine",
+                  "Start": 864,
+                  "End": 866,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[87]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Signature",
+                  "Description": "Blob Heap index D",
+                  "Value": "{0x0, 0x1, 0x1, 0xE}",
+                  "Start": 866,
+                  "End": 868,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[13]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "TypeSpecs[0]",
+              "Description": "",
+              "Value": "",
+              "Start": 868,
+              "End": 870,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Signature",
+                  "Description": "Blob Heap index 1",
+                  "Value": "{0x8}",
+                  "Start": 868,
+                  "End": 870,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[1]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "Assemblies[0]",
+              "Description": "",
+              "Value": "World 0.0.0.0",
+              "Start": 870,
+              "End": 892,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "HashAlgId",
+                  "Description": "",
+                  "Value": "0x00000000 None",
+                  "Start": 870,
+                  "End": 874,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MajorVersion",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 874,
+                  "End": 876,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MinorVersion",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 876,
+                  "End": 878,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "BuildNumber",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 878,
+                  "End": 880,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "RevisionNumber",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 880,
+                  "End": 882,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Flags",
+                  "Description": "",
+                  "Value": "0x00000000 0",
+                  "Start": 882,
+                  "End": 886,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "PublicKey",
+                  "Description": "Blob Heap index 0",
+                  "Value": "{}",
+                  "Start": 886,
+                  "End": 888,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index 13",
+                  "Value": "World",
+                  "Start": 888,
+                  "End": 890,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[19]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Culture",
+                  "Description": "String Heap index 0",
+                  "Value": "",
+                  "Start": 890,
+                  "End": 892,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            },
+            {
+              "Name": "AssemblyRefs[0]",
+              "Description": "",
+              "Value": "mscorlib 0.0.0.0",
+              "Start": 892,
+              "End": 912,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "MajorVersion",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 892,
+                  "End": 894,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "MinorVersion",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 894,
+                  "End": 896,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "BuildNumber",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 896,
+                  "End": 898,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "RevisionNumber",
+                  "Description": "",
+                  "Value": "0x0",
+                  "Start": 898,
+                  "End": 900,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Flags",
+                  "Description": "",
+                  "Value": "0x00000000 0",
+                  "Start": 900,
+                  "End": 904,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "PublicKeyOrToken",
+                  "Description": "Blob Heap index 0",
+                  "Value": "{}",
+                  "Start": 904,
+                  "End": 906,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Name",
+                  "Description": "String Heap index 1",
+                  "Value": "mscorlib",
+                  "Start": 906,
+                  "End": 908,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[1]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Culture",
+                  "Description": "String Heap index 0",
+                  "Value": "",
+                  "Start": 908,
+                  "End": 910,
+                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "HashValue",
+                  "Description": "Blob Heap index 0",
+                  "Value": "{}",
+                  "Start": 910,
+                  "End": 912,
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Name": "StringHeap",
+          "Description": "",
+          "Value": "",
+          "Start": 912,
+          "End": 1012,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "StringHeap[0]",
+              "Description": "",
+              "Value": "\"\"",
+              "Start": 912,
+              "End": 913,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[1]",
+              "Description": "",
+              "Value": "\"mscorlib\"",
+              "Start": 913,
+              "End": 922,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[10]",
+              "Description": "",
+              "Value": "\"AddR.exe\"",
+              "Start": 922,
+              "End": 931,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[19]",
+              "Description": "",
+              "Value": "\"World\"",
+              "Start": 931,
+              "End": 937,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[25]",
+              "Description": "",
+              "Value": "\"<Module>\"",
+              "Start": 937,
+              "End": 946,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[34]",
+              "Description": "",
+              "Value": "\"Hello\"",
+              "Start": 946,
+              "End": 952,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[40]",
+              "Description": "",
+              "Value": "\"Object\"",
+              "Start": 952,
+              "End": 959,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[47]",
+              "Description": "",
+              "Value": "\"System\"",
+              "Start": 959,
+              "End": 966,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[54]",
+              "Description": "",
+              "Value": "\"Int32\"",
+              "Start": 966,
+              "End": 972,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[60]",
+              "Description": "",
+              "Value": "\"String\"",
+              "Start": 972,
+              "End": 979,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[67]",
+              "Description": "",
+              "Value": "\"Console\"",
+              "Start": 979,
+              "End": 987,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[75]",
+              "Description": "",
+              "Value": "\"Main\"",
+              "Start": 987,
+              "End": 992,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[80]",
+              "Description": "",
+              "Value": "\"Concat\"",
+              "Start": 992,
+              "End": 999,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "StringHeap[87]",
+              "Description": "",
+              "Value": "\"WriteLine\"",
+              "Start": 999,
+              "End": 1009,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "UserStringHeap",
+          "Description": "",
+          "Value": "",
+          "Start": 1012,
+          "End": 1044,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": []
+        },
+        {
+          "Name": "GuidHeap",
+          "Description": "",
+          "Value": "",
+          "Start": 1044,
+          "End": 1060,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "GuidHeap[1]",
+              "Description": "",
+              "Value": "69fa2fb6-53d6-4bf7-9aaa-78d1bb805ef3",
+              "Start": 1044,
+              "End": 1060,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
+        },
+        {
+          "Name": "BlobHeap",
+          "Description": "",
+          "Value": "",
+          "Start": 1060,
+          "End": 1080,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "BlobHeap[0]",
+              "Description": "1 leading bits",
+              "Value": "{}",
+              "Start": 1060,
+              "End": 1061,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "BlobHeap[1]",
+              "Description": "1 leading bits",
+              "Value": "{0x8}",
+              "Start": 1061,
+              "End": 1063,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "BlobHeap[3]",
+              "Description": "1 leading bits",
+              "Value": "{0x0, 0x0, 0x1}",
+              "Start": 1063,
+              "End": 1067,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "BlobHeap[7]",
+              "Description": "1 leading bits",
+              "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+              "Start": 1067,
+              "End": 1073,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            },
+            {
+              "Name": "BlobHeap[13]",
+              "Description": "1 leading bits",
+              "Value": "{0x0, 0x1, 0x1, 0xE}",
+              "Start": 1073,
+              "End": 1078,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
             }
           ]
         },

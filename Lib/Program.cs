@@ -17,6 +17,6 @@ public static class Program
       assm = new AssemblyBytes(fileStream);
     }
 
-    Console.WriteLine(assm.Node.ToString());
+    Console.WriteLine(assm.Node.ToJson());
   }
 }

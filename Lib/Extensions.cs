@@ -357,7 +357,7 @@ static class TypeExtensions
 
     if (o is Enum) {
       var en = (Enum)o;
-      return "0x" + en.ToString("X") + " " + en.ToString(); ;
+      return "0x" + en.ToString("X") + " " + en.ToString();
     }
 
     var guid = o as Guid?;

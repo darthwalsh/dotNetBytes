@@ -19,7 +19,7 @@ public class AssemblyBytes
 
     fileFormat = new FileFormat();
     fileFormat.Read(this);
-    fileFormat.Name = "FileFormat";
+    fileFormat.NodeName = "FileFormat";
     MyCodeNode node = fileFormat;
 
     // Widen any nodes to the width of their children
@@ -41,7 +41,7 @@ public class AssemblyBytes
 
     // LinkMethodDefRVA();
 
-    // node.AssignPath();
+    node.AssignPath();
     // node.CallBack(CodeNode.AssignLink);
   }
 
@@ -64,43 +64,44 @@ public class AssemblyBytes
 
   public MyCodeNode Node => fileFormat;
 
-  // SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
-  // internal StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
+  SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
+  internal StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
 
-  // SetOnce<UserStringHeap> userStringHeap = new SetOnce<UserStringHeap>();
-  // internal UserStringHeap UserStringHeap { get { return userStringHeap.Value; } set { userStringHeap.Value = value; } }
+  SetOnce<UserStringHeap> userStringHeap = new SetOnce<UserStringHeap>();
+  internal UserStringHeap UserStringHeap { get { return userStringHeap.Value; } set { userStringHeap.Value = value; } }
 
-  // SetOnce<BlobHeap> blobHeap = new SetOnce<BlobHeap>();
-  // internal BlobHeap BlobHeap { get { return blobHeap.Value; } set { blobHeap.Value = value; } }
+  SetOnce<BlobHeap> blobHeap = new SetOnce<BlobHeap>();
+  internal BlobHeap BlobHeap { get { return blobHeap.Value; } set { blobHeap.Value = value; } }
 
-  // SetOnce<GuidHeap> guidHeap = new SetOnce<GuidHeap>();
-  // internal GuidHeap GuidHeap { get { return guidHeap.Value; } set { guidHeap.Value = value; } }
+  SetOnce<GuidHeap> guidHeap = new SetOnce<GuidHeap>();
+  internal GuidHeap GuidHeap { get { return guidHeap.Value; } set { guidHeap.Value = value; } }
 
-  // SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
-  // internal TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }
+  SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
+  internal TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }
 
-  // class SetOnce<T> where T : class
-  // {
-  //   T t;
-  //   public T Value {
-  //     get {
-  //       return t;
-  //     }
-  //     set {
-  //       if (t != null) throw new InvalidOperationException();
-  //       t = value;
-  //     }
-  //   }
-  // }
+  class SetOnce<T> where T : class // TODO(solonode) not needed as race conditions aren't likely
+  {
+    T t;
+    public T Value {
+      get {
+        return t;
+      }
+      set {
+        if (t != null) throw new InvalidOperationException();
+        t = value;
+      }
+    }
+  }
 }
 
 [JsonConverter(typeof(MyCodeNodeConverter))]
 [StructLayout(LayoutKind.Sequential)]
 public abstract class MyCodeNode
 {
-  public string Name = "oops!"; // Unique name for addressing from parent
-  public string Description = ""; // Notes about this node based on the language spec
-  public string Value = ""; // A ToString() view of the node.
+  // TODO(solonode) probably best to rename this field to NodeName or something nonconflicting with subclass
+  public virtual string NodeName { get; set; } = "oops!"; // Unique name for addressing from parent
+  public virtual string Description { get; set; } = ""; // Notes about this node based on the language spec
+  public virtual string NodeValue { get; set; } = ""; // A ToString() view of the node.
 
   // Will be widened later
   public int Start = int.MaxValue;
@@ -108,13 +109,29 @@ public abstract class MyCodeNode
 
   public List<MyCodeNode> Children = new List<MyCodeNode>();
   public List<string> Errors = new List<string>();
-  public virtual MyCodeNode Link { get; } // TODO need to figure this out.
-  public string LinkPath;
+
+  protected virtual MyCodeNode Link { get; set; }
+  public string LinkPath { get; private set; }
 
   public void CallBack(Action<MyCodeNode> action) {
     action(this);
     foreach (var child in Children) {
       child.CallBack(action);
+    }
+  }
+
+  public void AssignPath() => AssignPath(null);
+  void AssignPath(string parentPath) {
+    if (LinkPath != null)
+      throw new InvalidOperationException($"path was already {LinkPath}");
+
+    if (parentPath != null)
+      parentPath += "/";
+
+    LinkPath = parentPath + NodeName;
+
+    foreach (var c in Children) {
+      c.AssignPath(LinkPath);
     }
   }
 
@@ -135,13 +152,12 @@ public abstract class MyCodeNode
 
     public override void Write(Utf8JsonWriter writer, MyCodeNode node, JsonSerializerOptions options) {
       writer.WriteStartObject();
-      writer.WriteString(nameof(node.Name), node.Name);
-      writer.WriteString(nameof(node.Name), node.Name);
+      writer.WriteString("Name", node.NodeName);
       writer.WriteString(nameof(node.Description), node.Description);
-      writer.WriteString(nameof(node.Value), node.Value);
+      writer.WriteString("Value", node.NodeValue);
       writer.WriteNumber(nameof(node.Start), node.Start);
       writer.WriteNumber(nameof(node.End), node.End);
-      writer.WriteString(nameof(node.LinkPath), node.LinkPath);
+      writer.WriteString(nameof(node.LinkPath), node.Link?.LinkPath);
 
       writer.WritePropertyName(nameof(node.Errors));
       JsonSerializer.Serialize(writer, node.Errors);
@@ -156,16 +172,20 @@ public abstract class MyCodeNode
   public virtual void Read(AssemblyBytes bytes) {
     this.Start = (int)bytes.Stream.Position;
 
-    var ordedFields = this.GetType().GetFields()
+    var orderedFields = this.GetType().GetFields()
         .Where(field => field.DeclaringType != typeof(MyCodeNode))
-        .OrderBy(field => {
+        .ToList();
+
+    if (orderedFields.Count > 1) {
+      orderedFields = orderedFields.OrderBy(field => {
           if (TryGetAttribute(field, out OrderedFieldAttribute o)) return o.Order;
           if (TryGetAttribute(field, out ExpectedAttribute e)) return e.Line;
           if (TryGetAttribute(field, out DescriptionAttribute d)) return d.Line;
           throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is missing [OrderedField]");
         }).ToList();
+    }
 
-    foreach (var field in ordedFields) {
+    foreach (var field in orderedFields) {
       AddChild(bytes, field.Name);
     }
 
@@ -177,24 +197,15 @@ public abstract class MyCodeNode
     var type = field.FieldType;
 
     if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(MyCodeNode))) {
-      var arr = (MyCodeNode[])Activator.CreateInstance(type, GetCount(fieldName));
-      field.SetValue(this, arr);
-      for (var i = 0; i < arr.Length; i++) {
-        var o = (MyCodeNode)Activator.CreateInstance(type.GetElementType(), i);
-        o.Read(bytes);
-        arr[i] = o;
-
-        Children.Add(o);
-        o.Name = $"{fieldName}[{i}]";
-      }
+      AddChildren(bytes, fieldName, GetCount(fieldName));
       return;
     }
 
     var child = ReadField(bytes, fieldName);
     Children.Add(child);
-    child.Name = fieldName;
+    child.NodeName = fieldName;
     if (TryGetAttribute(field, out DescriptionAttribute desc)) {
-      switch (GetType().Name) { // TODO (solonode) hack for simpler diff
+      switch (GetType().Name) { // TODO(solonode) hack for simpler diff
         case "StreamHeader":
         case "MetadataRoot":
           break;
@@ -202,6 +213,26 @@ public abstract class MyCodeNode
           child.Description = desc.Description;
           break;
       }
+    }
+  }
+
+  protected void AddChildren(AssemblyBytes bytes, string fieldName, int length) {
+    var field = GetType().GetField(fieldName);
+    var type = field.FieldType;
+    var arr = (MyCodeNode[])Activator.CreateInstance(type, length);
+    field.SetValue(this, arr);
+    for (var i = 0; i < arr.Length; i++) {
+      MyCodeNode o;
+      if (type.GetElementType().GetConstructor(new[] { typeof(int) }) != null) {
+        o = (MyCodeNode)Activator.CreateInstance(type.GetElementType(), i);
+      } else {
+        o = (MyCodeNode)Activator.CreateInstance(type.GetElementType());
+      }
+      o.Read(bytes);
+      arr[i] = o;
+
+      Children.Add(o);
+      o.NodeName = $"{fieldName}[{i}]";
     }
   }
 
@@ -229,7 +260,7 @@ public abstract class MyCodeNode
 
         var value = sn.GetField("arr").GetValue(o);
         field.SetValue(this, value);
-        o.Value = value.GetString();
+        o.NodeValue = value.GetString();
         return o;
       }
 
@@ -256,13 +287,14 @@ public abstract class MyCodeNode
       o.Read(bytes);
       var value = sn.GetField("t").GetValue(o);
       field.SetValue(this, value);
-      o.Value = value.GetString();
+      o.NodeValue = value.GetString();
       return o;
     }
     throw new InvalidOperationException(fieldType.Name);
   }
 
-  protected virtual int GetCount(string field) => throw new InvalidOperationException(GetType().Name);
+  protected virtual int GetCount(string field) => 
+    throw new InvalidOperationException($"{GetType().Name} .{field}");
 
   static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
     var attrs = member.GetCustomAttributes(typeof(T), false);
@@ -298,18 +330,38 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
   }
 }
 
+public sealed class MyAnyNode<T> : MyCodeNode // TODO(solonode) review if this is useful
+{
+  Func<Stream, T> f;
+  public T t;
+
+  public MyAnyNode(Func<Stream, T> f) {
+    this.f = f;
+  }
+  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+
+  public void ReadStream(Stream stream) {
+    this.Start = (int)stream.Position;
+
+    t = f(stream);
+    NodeValue = t.GetString();
+    this.End = (int)stream.Position;
+  }
+}
 
 public sealed class MyStructNode<T> : MyCodeNode where T : struct
 {
   public T t;
 
-  public override void Read(AssemblyBytes bytes) {
-    this.Start = (int)bytes.Stream.Position;
+  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+
+  public void ReadStream(Stream stream) {
+    this.Start = (int)stream.Position;
 
     // http://stackoverflow.com/a/4159279/771768
     var sz = typeof(T).GetSize();
     var buffer = new byte[sz];
-    bytes.Stream.ReadWholeArray(buffer);
+    stream.ReadWholeArray(buffer);
     var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
     var ptype = typeof(T);
     if (ptype.IsEnum)
@@ -317,6 +369,7 @@ public sealed class MyStructNode<T> : MyCodeNode where T : struct
     t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
     pinnedBuffer.Free();
 
-    this.End = (int)bytes.Stream.Position;
+    NodeValue = t.GetString();
+    this.End = (int)stream.Position;
   }
 }

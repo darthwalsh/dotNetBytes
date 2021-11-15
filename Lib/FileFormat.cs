@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 // MyCodeNode is written though reflection
-#pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 // II.25 File format extensions to PE 
 
@@ -170,13 +170,13 @@ sealed class PEOptionalHeader : MyCodeNode
       case PE32Magic.PE32:
         AddChild(bytes, nameof(BaseOfData));
         AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields32));
-        Children.Last().Name = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
-        Children.Last().Value = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(solonode)
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(solonode)
         break;
       case PE32Magic.PE32plus:
         AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields64));
-        Children.Last().Name = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
-        Children.Last().Value = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(solonode)
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(solonode)
         break;
       default:
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
@@ -355,7 +355,7 @@ sealed class PEHeaderHeaderDataDirectories : MyCodeNode
 sealed class RVAandSize : MyCodeNode
 {
   public RVAandSize() {
-    Value = "RVAandSize"; //TODO(solonode)
+    NodeValue = "RVAandSize"; //TODO(solonode)
   }
 
   [OrderedField] public uint RVA;
@@ -365,10 +365,8 @@ sealed class RVAandSize : MyCodeNode
 // II.25.3
 sealed class SectionHeader : MyCodeNode
 {
-  public SectionHeader(int _) { }
-
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
-  public new char[] Name;
+  public char[] Name;
   [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
   public uint VirtualSize;
   [Description("For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.")]
@@ -422,6 +420,12 @@ sealed class Section : MyCodeNode
   int rva;
   public CLIHeader CLIHeader;
   public MetadataRoot MetadataRoot;
+  public StringHeap StringHeap;
+  public UserStringHeap UserStringHeap;
+  public BlobHeap BlobHeap;
+  public GuidHeap GuidHeap;
+  public TildeStream TildeStream;
+
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
   public ImportAddressHintNameTable ImportAddressHintNameTable;
@@ -429,8 +433,6 @@ sealed class Section : MyCodeNode
   public NativeEntryPoint NativeEntryPoint;
   public ImportAddressTable ImportAddressTable;
   public Relocations Relocations;
-
-  CodeNode node;
 
   public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
 
@@ -467,64 +469,66 @@ sealed class Section : MyCodeNode
           Reposition(bytes, CLIHeader.MetaData.RVA);
           AddChild(bytes, nameof(MetadataRoot));
 
-#if false
-          foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.IndexOf('~'))) // Read #~ after heaps
+          foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.Str.IndexOf('~'))) // Read #~ after heaps
           {
             Reposition(bytes, streamHeader.Offset + CLIHeader.MetaData.RVA);
 
-            switch (streamHeader.Name) {
+            switch (streamHeader.Name.Str) {
               case "#Strings":
-                var stringHeap = new StringHeap((int)streamHeader.Size);
-                Singletons.Instance.StringHeap = stringHeap;
-                node.Add(stream.ReadClass(ref stringHeap));
+                StringHeap = new StringHeap((int)streamHeader.Size);
+                bytes.StringHeap = StringHeap;
+                AddChild(bytes, nameof(StringHeap));
                 break;
               case "#US":
-                var userStringHeap = new UserStringHeap((int)streamHeader.Size);
-                Singletons.Instance.UserStringHeap = userStringHeap;
-                node.Add(stream.ReadClass(ref userStringHeap));
+                UserStringHeap = new UserStringHeap((int)streamHeader.Size);
+                bytes.UserStringHeap = UserStringHeap;
+                AddChild(bytes, nameof(UserStringHeap));
                 break;
               case "#Blob":
-                var blobHeap = new BlobHeap((int)streamHeader.Size);
-                Singletons.Instance.BlobHeap = blobHeap;
-                node.Add(stream.ReadClass(ref blobHeap));
+                BlobHeap = new BlobHeap((int)streamHeader.Size);
+                bytes.BlobHeap = BlobHeap;
+                AddChild(bytes, nameof(BlobHeap));
                 break;
               case "#GUID":
-                var guidHeap = new GuidHeap((int)streamHeader.Size);
-                Singletons.Instance.GuidHeap = guidHeap;
-                node.Add(stream.ReadClass(ref guidHeap));
+                GuidHeap = new GuidHeap((int)streamHeader.Size);
+                bytes.GuidHeap = GuidHeap;
+                AddChild(bytes, nameof(GuidHeap));
                 break;
               case "#~":
-                var TildeStream = new TildeStream(this);
-                Singletons.Instance.TildeStream = TildeStream;
-                node.Add(stream.ReadClass(ref TildeStream));
+                TildeStream = new TildeStream(this);
+                bytes.TildeStream = TildeStream;
+                AddChild(bytes, nameof(TildeStream));
 
-                var methods = new CodeNode {
-                  Name = "Methods",
-                };
-
-                foreach (var rva in (TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-                    .Select(def => def.RVA)
-                    .Where(rva => rva > 0)
-                    .Distinct()
-                    .OrderBy(rva => rva)) {
-                  Reposition(stream, rva);
-
-                  Method method = null;
-                  methods.Add(stream.ReadClass(ref method));
-                  MethodsByRVA.Add(rva, method);
-                }
-
-                if (methods.Children.Any()) {
-                  node.Add(methods);
-                }
                 break;
+
+              //   var methods = new CodeNode {
+              //     Name = "Methods",
+              //   };
+
+              //   foreach (var rva in (TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
+              //       .Select(def => def.RVA)
+              //       .Where(rva => rva > 0)
+              //       .Distinct()
+              //       .OrderBy(rva => rva)) {
+              //     Reposition(stream, rva);
+
+              //     Method method = null;
+              //     methods.Add(stream.ReadClass(ref method));
+              //     MethodsByRVA.Add(rva, method);
+              //   }
+
+              //   if (methods.Children.Any()) {
+              //     node.Add(methods);
+              //   }
+              //   break;
               default:
-                node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
+                Errors.Add("Unexpected stream name: " + streamHeader.Name.Str);
                 break;
             }
           }
 
           break;
+#if false
     foreach (var toRead in toReads) {
       node.Add(toRead(stream));
     }
@@ -536,8 +540,6 @@ sealed class Section : MyCodeNode
   public void ReadNode(Func<Stream, CodeNode> read) => toReads.Add(read);
 #endif
 
-          Errors.Add("Skipping CLIHeader"); // TODO
-          break;
         case "ImportTable":
           AddChild(bytes, nameof(ImportTable));
 
@@ -581,7 +583,7 @@ sealed class ImportTable : MyCodeNode
   [Expected(0)]
   public uint ForwarderChain;
   [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
-  public new uint Name;
+  public uint Name;
   [Description("RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).")]
   public uint ImportAddressTableRVA;
   [Description("End of Import Table. Shall be filled with zeros.")]
@@ -656,8 +658,6 @@ sealed class BaseRelocationTable : MyCodeNode
 
 sealed class Fixup : MyCodeNode
 {
-  public Fixup(int _) { }
-
   //TODO(Descriptions)
 
   [Description(/*"Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3)."*/ "")] //TODO(solonode) 
@@ -672,13 +672,13 @@ sealed class Fixup : MyCodeNode
         type.Read(bytes);
         Offset = (short)((type.t << 8) & 0x0F00);
         Type = (byte)(type.t >> 4);
-        type.Value = Type.GetString();
+        type.NodeValue = Type.GetString();
         return type;
       case nameof(Offset):
         var offset = new MyStructNode<byte>();
         offset.Read(bytes);
         Offset |= (short)offset.t;
-        offset.Value = Offset.GetString();
+        offset.NodeValue = Offset.GetString();
         return offset;
       default:
         throw new InvalidOperationException();
@@ -737,9 +737,9 @@ sealed class Method : MyCodeNode
   public InstructionStream CilOps;
 
   //TODO(solonode) set field Name / Value?
-  public new string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
+  public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
 
-  public new object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implement IHaveValue? How does that work with CodeNode.DelayedValueNode?
+  // TODO(solonode) done with this I think? public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implement IHaveValue? How does that work with CodeNode.DelayedValueNode?
 
   public CodeNode Node { get; private set; }
 
@@ -977,7 +977,7 @@ enum LargeExceptionClauseFlags : uint
 sealed class UInt24 : MyCodeNode
 {
   public int IntValue { get; private set; }
-  public new object Value => IntValue; // TODO(solonode)
+  public object Value => IntValue; // TODO(solonode)
 
   public CodeNode Read(Stream stream) {
     byte[] b;
@@ -991,27 +991,32 @@ sealed class UInt24 : MyCodeNode
 
 sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record types
 {
+  public string Str { get; private set; }
+
   Encoding encoding;
   int byteBoundary;
   public NullTerminatedString(Encoding encoding, int byteBoundary) {
     this.encoding = encoding;
     this.byteBoundary = byteBoundary;
-    Value = "oops unset!!";
+    NodeValue = "oops unset!!";
   }
 
-  public override void Read(AssemblyBytes bytes) {
-    Start = (int)bytes.Stream.Position;
+  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+
+  public void ReadStream(Stream stream) {
+    Start = (int)stream.Position;
 
     var builder = new List<byte>();
     var buffer = new byte[byteBoundary];
 
     while (true) {
-      bytes.Stream.ReadWholeArray(buffer);
+      stream.ReadWholeArray(buffer);
       builder.AddRange(buffer);
-      
+
       if (buffer.Contains((byte)'\0')) {
-        End = (int)bytes.Stream.Position;
-        Value = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray()).GetString();
+        End = (int)stream.Position;
+        Str = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
+        NodeValue = Str.GetString();
         return;
       }
     }

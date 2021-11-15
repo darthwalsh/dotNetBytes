@@ -515,6 +515,7 @@ sealed class MetadataToken : ICanRead, IHaveLiteralValue
 
 
   public CodeNode Read(Stream stream) {
+    var link = Singletons.Instance.TildeStream.GetCodeNode((MetadataTableFlags)(0), Offset.IntValue - 1); //TODO(solonode) just to keep the GetCodeNode() reference
 #if false
     var offsetNode = stream.ReadClass(ref Offset, nameof(Offset));
     var tableNode = stream.ReadStruct(out Table, nameof(Table));
