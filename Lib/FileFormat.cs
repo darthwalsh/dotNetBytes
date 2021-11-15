@@ -479,27 +479,22 @@ sealed class Section : MyCodeNode
             switch (streamHeader.Name.Str) {
               case "#Strings":
                 StringHeap = new StringHeap((int)streamHeader.Size);
-                Bytes.StringHeap = StringHeap;
                 AddChild(nameof(StringHeap));
                 break;
               case "#US":
                 UserStringHeap = new UserStringHeap((int)streamHeader.Size);
-                Bytes.UserStringHeap = UserStringHeap;
                 AddChild(nameof(UserStringHeap));
                 break;
               case "#Blob":
                 BlobHeap = new BlobHeap((int)streamHeader.Size);
-                Bytes.BlobHeap = BlobHeap;
                 AddChild(nameof(BlobHeap));
                 break;
               case "#GUID":
                 GuidHeap = new GuidHeap((int)streamHeader.Size);
-                Bytes.GuidHeap = GuidHeap;
                 AddChild(nameof(GuidHeap));
                 break;
               case "#~":
                 TildeStream = new TildeStream(this);
-                Bytes.TildeStream = TildeStream;
                 AddChild(nameof(TildeStream));
 
                 break;

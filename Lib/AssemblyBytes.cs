@@ -66,34 +66,11 @@ public class AssemblyBytes
 
   internal Section CLIHeaderSection { get; set; }
 
-  SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
-  internal StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
-
-  SetOnce<UserStringHeap> userStringHeap = new SetOnce<UserStringHeap>();
-  internal UserStringHeap UserStringHeap { get { return userStringHeap.Value; } set { userStringHeap.Value = value; } }
-
-  SetOnce<BlobHeap> blobHeap = new SetOnce<BlobHeap>();
-  internal BlobHeap BlobHeap { get { return blobHeap.Value; } set { blobHeap.Value = value; } }
-
-  SetOnce<GuidHeap> guidHeap = new SetOnce<GuidHeap>();
-  internal GuidHeap GuidHeap { get { return guidHeap.Value; } set { guidHeap.Value = value; } }
-
-  SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
-  internal TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }
-
-  class SetOnce<T> where T : class // TODO(solonode) not needed as race conditions aren't likely; just getter off CLIHeaderSection?
-  {
-    T t;
-    public T Value {
-      get {
-        return t;
-      }
-      set {
-        if (t != null) throw new InvalidOperationException();
-        t = value;
-      }
-    }
-  }
+  internal StringHeap StringHeap => CLIHeaderSection.StringHeap;
+  internal UserStringHeap UserStringHeap => CLIHeaderSection.UserStringHeap;
+  internal BlobHeap BlobHeap => CLIHeaderSection.BlobHeap;
+  internal GuidHeap GuidHeap => CLIHeaderSection.GuidHeap;
+  internal TildeStream TildeStream => CLIHeaderSection.TildeStream;
 }
 
 [JsonConverter(typeof(MyCodeNodeConverter))]
