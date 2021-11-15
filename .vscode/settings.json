@@ -5,5 +5,6 @@
   "cSpell.enabled": false,
   "dotnet-test-explorer.showCodeLens": true,
   "csharp.testsCodeLens.enabled": true,
-  "csharp.referencesCodeLens.enabled": true
+  "csharp.referencesCodeLens.enabled": true,
+  "coverage-gutters.coverageFileNames": ["coverage.info"]
 }
