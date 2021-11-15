@@ -137,22 +137,13 @@ static class StreamExtensions
     return (byte)read;
   }
 
-  public static CodeNode ReadStruct<T>(this Stream stream, out T t, string name = null) where T : struct {
+  public static CodeNode ReadStructNode<T>(this Stream stream, out T t, string name = null) where T : struct {
     var node = new CodeNode {
       Name = name ?? typeof(T).Name,
       Start = (int)stream.Position
     };
 
-    // http://stackoverflow.com/a/4159279/771768
-    var sz = typeof(T).GetSize();
-    var buffer = new byte[sz];
-    stream.ReadWholeArray(buffer);
-    var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-    var ptype = typeof(T);
-    if (ptype.IsEnum)
-      ptype = ptype.GetEnumUnderlyingType();
-    t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
-    pinnedBuffer.Free();
+    t = stream.ReadStruct<T>();
 
     node.End = (int)stream.Position;
 
@@ -164,10 +155,27 @@ static class StreamExtensions
     return node;
   }
 
+  public static T ReadStruct<T>(this Stream stream) where T : struct => (T)stream.ReadStruct(typeof(T));
+
+  public static object ReadStruct(this Stream stream, Type t) {
+    object o;
+    // http://stackoverflow.com/a/4159279/771768
+    var sz = t.GetSize();
+    var buffer = new byte[sz];
+    stream.ReadWholeArray(buffer);
+    var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+    var ptype = t;
+    if (ptype.IsEnum)
+      ptype = ptype.GetEnumUnderlyingType();
+    o = Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
+    pinnedBuffer.Free();
+    return o;
+  }
+
   public static CodeNode ReadStruct<FromT, ToT>(this Stream stream, out ToT t, string name, Func<FromT, ToT> trans)
       where FromT : struct where ToT : struct {
     FromT from;
-    var node = stream.ReadStruct(out from, name);
+    var node = stream.ReadStructNode(out from, name);
 
     t = trans(from);
 
@@ -181,7 +189,7 @@ static class StreamExtensions
 
   public static CodeNode ReadStruct<T>(this Stream stream, out T? opt, string name = null) where T : struct {
     T t;
-    var node = stream.ReadStruct(out t, name);
+    var node = stream.ReadStructNode(out t, name);
     opt = t;
     return node;
   }
@@ -193,7 +201,7 @@ static class StreamExtensions
 
     ts = new T[n];
     for (var i = 0; i < n; ++i) {
-      nodes.Add(stream.ReadStruct(out ts[i], name + "[" + i + "]"));
+      nodes.Add(stream.ReadStructNode(out ts[i], name + "[" + i + "]"));
     }
 
     return nodes;

@@ -17,8 +17,8 @@ public class AssemblyBytes
   public AssemblyBytes(Stream s) {
     this.Stream = s;
 
-    fileFormat = new FileFormat();
-    fileFormat.Read(this);
+    fileFormat = new FileFormat { Bytes = this };
+    fileFormat.Read();
     fileFormat.NodeName = "FileFormat";
     MyCodeNode node = fileFormat;
 
@@ -64,6 +64,8 @@ public class AssemblyBytes
 
   public MyCodeNode Node => fileFormat;
 
+  internal Section CLIHeaderSection { get; set; }
+
   SetOnce<StringHeap> stringHeap = new SetOnce<StringHeap>();
   internal StringHeap StringHeap { get { return stringHeap.Value; } set { stringHeap.Value = value; } }
 
@@ -79,7 +81,7 @@ public class AssemblyBytes
   SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
   internal TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }
 
-  class SetOnce<T> where T : class // TODO(solonode) not needed as race conditions aren't likely
+  class SetOnce<T> where T : class // TODO(solonode) not needed as race conditions aren't likely; just getter off CLIHeaderSection?
   {
     T t;
     public T Value {
@@ -106,6 +108,8 @@ public abstract class MyCodeNode
   // Will be widened later
   public int Start = int.MaxValue;
   public int End = int.MinValue;
+
+  internal AssemblyBytes Bytes { get; set;}
 
   public List<MyCodeNode> Children = new List<MyCodeNode>();
   public List<string> Errors = new List<string>();
@@ -169,8 +173,8 @@ public abstract class MyCodeNode
     }
   }
 
-  public virtual void Read(AssemblyBytes bytes) {
-    this.Start = (int)bytes.Stream.Position;
+  public virtual void Read() {
+    this.Start = (int)Bytes.Stream.Position;
 
     var orderedFields = this.GetType().GetFields()
         .Where(field => field.DeclaringType != typeof(MyCodeNode))
@@ -186,22 +190,22 @@ public abstract class MyCodeNode
     }
 
     foreach (var field in orderedFields) {
-      AddChild(bytes, field.Name);
+      AddChild(field.Name);
     }
 
-    this.End = (int)bytes.Stream.Position;
+    this.End = (int)Bytes.Stream.Position;
   }
 
-  protected void AddChild(AssemblyBytes bytes, string fieldName) {
+  protected void AddChild(string fieldName) {
     var field = GetType().GetField(fieldName);
     var type = field.FieldType;
 
     if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(MyCodeNode))) {
-      AddChildren(bytes, fieldName, GetCount(fieldName));
+      AddChildren(fieldName, GetCount(fieldName));
       return;
     }
 
-    var child = ReadField(bytes, fieldName);
+    var child = ReadField(fieldName);
     Children.Add(child);
     child.NodeName = fieldName;
     if (TryGetAttribute(field, out DescriptionAttribute desc)) {
@@ -216,19 +220,17 @@ public abstract class MyCodeNode
     }
   }
 
-  protected void AddChildren(AssemblyBytes bytes, string fieldName, int length) {
+  protected void AddChildren(string fieldName, int length) {
     var field = GetType().GetField(fieldName);
-    var type = field.FieldType;
-    var arr = (MyCodeNode[])Activator.CreateInstance(type, length);
+    var arr = (MyCodeNode[])Activator.CreateInstance(field.FieldType, length);
     field.SetValue(this, arr);
+    var elType = field.FieldType.GetElementType();
+    var ctorIndexed = elType.GetConstructor(new[] { typeof(int) }) != null;
     for (var i = 0; i < arr.Length; i++) {
-      MyCodeNode o;
-      if (type.GetElementType().GetConstructor(new[] { typeof(int) }) != null) {
-        o = (MyCodeNode)Activator.CreateInstance(type.GetElementType(), i);
-      } else {
-        o = (MyCodeNode)Activator.CreateInstance(type.GetElementType());
-      }
-      o.Read(bytes);
+      var param = ctorIndexed ? new object[] { i } : new object[] { };
+      var o = (MyCodeNode)Activator.CreateInstance(elType, param);
+      o.Bytes = Bytes;
+      o.Read();
       arr[i] = o;
 
       Children.Add(o);
@@ -236,7 +238,7 @@ public abstract class MyCodeNode
     }
   }
 
-  protected virtual MyCodeNode ReadField(AssemblyBytes bytes, string fieldName) {
+  protected virtual MyCodeNode ReadField(string fieldName) {
     var field = GetType().GetField(fieldName);
     var fieldType = field.FieldType;
 
@@ -256,7 +258,11 @@ public abstract class MyCodeNode
 
         var sn = typeof(MyStructArrayNode<>).MakeGenericType(elementType);
         var o = (MyCodeNode)Activator.CreateInstance(sn, len);
-        o.Read(bytes);
+        // var o = new MyAnyNode<object>(stream => Enumerable.Range(0, len)
+        //   .Select(_ => stream.ReadStruct(elementType))
+        //   .ToArray()); // MAYBE get this working but can't cast Object[] to Byte[]
+        o.Bytes = Bytes;
+        o.Read();
 
         var value = sn.GetField("arr").GetValue(o);
         field.SetValue(this, value);
@@ -277,14 +283,16 @@ public abstract class MyCodeNode
       {
           throw new NotImplementedException($"{GetType().FullName}. {field.Name}", e); // TODO(solonode) remove!
       }
-      o.Read(bytes);
+      o.Bytes = Bytes;
+      o.Read();
       field.SetValue(this, o);
       return o;
     }
     if (fieldType.IsValueType) {
       var sn = typeof(MyStructNode<>).MakeGenericType(fieldType);
       var o = (MyCodeNode)Activator.CreateInstance(sn);
-      o.Read(bytes);
+      o.Bytes = Bytes;
+      o.Read();
       var value = sn.GetField("t").GetValue(o);
       field.SetValue(this, value);
       o.NodeValue = value.GetString();
@@ -317,16 +325,16 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
     Length = length;
   }
 
-  public override void Read(AssemblyBytes bytes) {
-    this.Start = (int)bytes.Stream.Position;
+  public override void Read() {
+    this.Start = (int)Bytes.Stream.Position;
 
     arr = Enumerable.Range(0, Length).Select(_ => {
-      var node = new MyStructNode<T>();
-      node.Read(bytes);
+      var node = new MyStructNode<T> { Bytes = Bytes };
+      node.Read();
       return node.t;
     }).ToArray();
 
-    this.End = (int)bytes.Stream.Position;
+    this.End = (int)Bytes.Stream.Position;
   }
 }
 
@@ -338,7 +346,7 @@ public sealed class MyAnyNode<T> : MyCodeNode // TODO(solonode) review if this i
   public MyAnyNode(Func<Stream, T> f) {
     this.f = f;
   }
-  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+  public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
     this.Start = (int)stream.Position;
@@ -353,23 +361,14 @@ public sealed class MyStructNode<T> : MyCodeNode where T : struct
 {
   public T t;
 
-  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+  public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
     this.Start = (int)stream.Position;
 
-    // http://stackoverflow.com/a/4159279/771768
-    var sz = typeof(T).GetSize();
-    var buffer = new byte[sz];
-    stream.ReadWholeArray(buffer);
-    var pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-    var ptype = typeof(T);
-    if (ptype.IsEnum)
-      ptype = ptype.GetEnumUnderlyingType();
-    t = (T)Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
-    pinnedBuffer.Free();
-
+    t = stream.ReadStruct<T>();
     NodeValue = t.GetString();
+    
     this.End = (int)stream.Position;
   }
 }

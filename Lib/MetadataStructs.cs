@@ -49,8 +49,8 @@ sealed class FieldAttributes : MyCodeNode
   AccessAttributes Access;
   AdditionalFlags Flags;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     Access = (AccessAttributes)(Data & accessMask);
@@ -124,8 +124,8 @@ sealed class GenericParamAttributes : MyCodeNode
   VarianceAttributes Variance;
   SpecialConstraintAttributes SpecialConstraint;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     Variance = (VarianceAttributes)(Data & varianceMask);
@@ -168,8 +168,8 @@ sealed class PInvokeAttributes : MyCodeNode
   CallingConventionAttributes CallingConvention;
   AdditionalFlags Flags;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     CharacterSet = (CharacterSetAttributes)(Data & characterSetMask);
@@ -237,8 +237,8 @@ sealed class MethodAttributes : MyCodeNode
   VtableLayoutAttributes VtableLayout;
   AdditionalFlags Flags;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     MemberAccess = (MemberAccessAttributes)(Data & memberAccessMask);
@@ -317,8 +317,8 @@ sealed class MethodImplAttributes : MyCodeNode
   ManagedAttributes Managed;
   AdditionalFlags Flags;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     CodeType = (CodeTypeAttributes)(Data & codeTypeMask);
@@ -428,8 +428,8 @@ sealed class TypeAttributes : MyCodeNode
   StringInteropFormatAttributes StringInteropFormat;
   AdditionalFlags Flags;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
     Visibility = (VisibilityAttributes)(Data & visibilityMask);
@@ -662,16 +662,13 @@ abstract class Heap<T> : MyCodeNode
     data = new byte[size];
   }
 
-  protected AssemblyBytes Bytes { get; private set; }
-
-  public override void Read(AssemblyBytes bytes) {
-    Start = (int)bytes.Stream.Position;
-    Bytes = bytes;
+  public override void Read() {
+    Start = (int)Bytes.Stream.Position;
 
     // Parsing the whole array now isn't sensible
-    bytes.Stream.ReadWholeArray(data);
+    Bytes.Stream.ReadWholeArray(data);
 
-    End = (int)bytes.Stream.Position;
+    End = (int)Bytes.Stream.Position;
   }
 
   // public string Name => GetType().Name;
@@ -794,7 +791,7 @@ sealed class UserStringHeap : Heap<string>
       this.length = length;
     }
 
-    public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+    public override void Read() => ReadStream(Bytes.Stream);
 
     public void ReadStream(Stream stream) {
       Start = (int)stream.Position;
@@ -851,7 +848,7 @@ sealed class GuidHeap : Heap<Guid>
     const int size = 16;
     stream.Position = (index - 1) * size; // GuidHeap is indexed from 1
 
-    var tmpNode = new MyStructNode<Guid>();
+    var tmpNode = new MyStructNode<Guid> { Bytes = Bytes };
     tmpNode.ReadStream(stream);
     g = tmpNode.t;
     tmpNode.NodeName = $"GuidHeap[{index}]";
@@ -872,7 +869,6 @@ sealed class TildeStreamRows : MyCodeNode
 }
 
 // II.24.2.6
-// sealed class TildeStream : ICanRead
 sealed class TildeStream : MyCodeNode
 {
   public Section Section { get; private set; }
@@ -924,19 +920,19 @@ sealed class TildeStream : MyCodeNode
 
   Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>>();
 
-  public override void Read(AssemblyBytes bytes) {
-    Start = (int)bytes.Stream.Position;
+  public override void Read() {
+    Start = (int)Bytes.Stream.Position;
 
-    AddChild(bytes, nameof(TildeData));
+    AddChild(nameof(TildeData));
     Rows = new TildeStreamRows(((ulong)TildeData.Valid).CountSetBits());
-    AddChild(bytes, nameof(Rows));
+    AddChild(nameof(Rows));
 
     int row = 0;
     foreach (var value in Enum.GetValues(typeof(MetadataTableFlags))) {
       var flag = (MetadataTableFlags)value;
       if (!TildeData.Valid.HasFlag(flag))
         continue;
-      ReadTables(bytes, flag, row);
+      ReadTables(flag, row);
       ++row;
     }
 
@@ -945,14 +941,14 @@ sealed class TildeStream : MyCodeNode
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
       throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
 
-    End = (int)bytes.Stream.Position;
+    End = (int)Bytes.Stream.Position;
   }
 
-  void ReadTables(AssemblyBytes bytes, MetadataTableFlags flag, int row) {
+  void ReadTables(MetadataTableFlags flag, int row) {
     var count = (int)Rows.Rows[row].t;
 
     var name = GetFieldName(flag);
-    AddChildren(bytes, name, count);
+    AddChildren(name, count);
 
     var nodes = (IEnumerable<MyCodeNode>)GetType().GetField(name).GetValue(this);
     streamNodes.Add(flag, nodes);
@@ -1035,7 +1031,6 @@ enum TildeDateHeapSizes : byte
   BlobHeapIndexWide = 0x04,
 }
 
-// sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
 sealed class StringHeapIndex : MyCodeNode
 {
   public short Index;
@@ -1047,13 +1042,13 @@ sealed class StringHeapIndex : MyCodeNode
   // public string StringValue => StringHeap.Get(this);
   // public object Value => StringValue; // TODO ?
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
-    NodeValue = bytes.StringHeap.Get(Index);
+    NodeValue = Bytes.StringHeap.Get(Index);
     Description = $"String Heap index {Index:X}";
-    Link = bytes.StringHeap.GetNode(Index);
+    Link = Bytes.StringHeap.GetNode(Index);
   }
 }
 
@@ -1061,13 +1056,13 @@ sealed class UserStringHeapIndex : MyCodeNode
 {
   public short Index;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
-    NodeValue = bytes.UserStringHeap.Get(Index);
+    NodeValue = Bytes.UserStringHeap.Get(Index);
     Description = $"User String Heap index {Index:X}";
-    Link = bytes.UserStringHeap.GetNode(Index);
+    Link = Bytes.UserStringHeap.GetNode(Index);
   }
 }
 
@@ -1075,13 +1070,13 @@ sealed class BlobHeapIndex : MyCodeNode
 {
   public short Index;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
 
-    NodeValue = bytes.BlobHeap.Get(Index).GetString();
+    NodeValue = Bytes.BlobHeap.Get(Index).GetString();
     Description = $"Blob Heap index {Index:X}";
-    Link = bytes.BlobHeap.GetNode(Index);
+    Link = Bytes.BlobHeap.GetNode(Index);
   }
 }
 
@@ -1089,13 +1084,13 @@ sealed class GuidHeapIndex : MyCodeNode
 {
   public short Index;
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear(); // TODO(solonode) this pattern is weird -- write something better
 
-    NodeValue = bytes.GuidHeap.Get(Index).GetString();
+    NodeValue = Bytes.GuidHeap.Get(Index).GetString();
     Description = $"Guid Heap index {Index:X}";
-    Link = bytes.GuidHeap.GetNode(Index);
+    Link = Bytes.GuidHeap.GetNode(Index);
   }
 }
 
@@ -1106,8 +1101,8 @@ sealed class UnknownCodedIndex : MyCodeNode
 
   public override string NodeValue => Index.GetString();
 
-  public override void Read(AssemblyBytes bytes) {
-    base.Read(bytes);
+  public override void Read() {
+    base.Read();
     Children.Clear();
   }
 }
@@ -1118,20 +1113,18 @@ abstract class CodedIndex : MyCodeNode
 
   public int Index { get; private set; }
 
-  protected AssemblyBytes Bytes { get; private set; }
-
   public override string NodeValue => GetLink().NodeValue;
   protected override MyCodeNode Link => GetLink();
 
-  public override void Read(AssemblyBytes bytes) {
-    Start = (int)bytes.Stream.Position;
-    Bytes = bytes;
+  public override void Read() {
+    Start = (int)Bytes.Stream.Position;
+    Bytes = Bytes;
 
-    var readData = new MyStructNode<ushort>();
-    readData.Read(bytes);
+    var readData = new MyStructNode<ushort> { Bytes = Bytes };
+    readData.Read();
     Index = GetIndex(readData.t);
 
-    End = (int)bytes.Stream.Position;
+    End = (int)Bytes.Stream.Position;
   }
 
   protected abstract int GetIndex(int readData);

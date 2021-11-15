@@ -161,20 +161,20 @@ sealed class PEOptionalHeader : MyCodeNode
   public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64; //TODO(solonode) naming PE32+
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
-  public override void Read(AssemblyBytes bytes) {
-    this.Start = (int)bytes.Stream.Position;
+  public override void Read() {
+    this.Start = (int)Bytes.Stream.Position;
 
-    AddChild(bytes, nameof(PEHeaderStandardFields));
+    AddChild(nameof(PEHeaderStandardFields));
 
     switch (PEHeaderStandardFields.Magic) {
       case PE32Magic.PE32:
-        AddChild(bytes, nameof(BaseOfData));
-        AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields32));
+        AddChild(nameof(BaseOfData));
+        AddChild(nameof(PEHeaderWindowsNtSpecificFields32));
         Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
         Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(solonode)
         break;
       case PE32Magic.PE32plus:
-        AddChild(bytes, nameof(PEHeaderWindowsNtSpecificFields64));
+        AddChild(nameof(PEHeaderWindowsNtSpecificFields64));
         Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
         Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(solonode)
         break;
@@ -182,9 +182,9 @@ sealed class PEOptionalHeader : MyCodeNode
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
     }
 
-    AddChild(bytes, nameof(PEHeaderHeaderDataDirectories));
+    AddChild(nameof(PEHeaderHeaderDataDirectories));
 
-    this.End = (int)bytes.Stream.Position;
+    this.End = (int)Bytes.Stream.Position;
   }
 }
 
@@ -434,6 +434,8 @@ sealed class Section : MyCodeNode
   public ImportAddressTable ImportAddressTable;
   public Relocations Relocations;
 
+  public Methods Methods;
+
   public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
 
   int sectionI;
@@ -442,8 +444,8 @@ sealed class Section : MyCodeNode
   }
 
   //TODO(cleanup) reorder children in order (?)
-  public override void Read(AssemblyBytes bytes) {
-    var header = bytes.fileFormat.PEHeader.SectionHeaders[sectionI];
+  public override void Read() {
+    var header = Bytes.fileFormat.PEHeader.SectionHeaders[sectionI];
 
     Start = (int)header.PointerToRawData;
     End = Start + (int)header.SizeOfRawData;
@@ -451,7 +453,7 @@ sealed class Section : MyCodeNode
     string name = new string(header.Name);
     Description = name;
 
-    var optionalHeader = bytes.fileFormat.PEHeader.PEOptionalHeader;
+    var optionalHeader = Bytes.fileFormat.PEHeader.PEOptionalHeader;
     var dataDirs = optionalHeader.PEHeaderHeaderDataDirectories;
 
     foreach (var nr in dataDirs.GetType().GetFields()
@@ -460,44 +462,45 @@ sealed class Section : MyCodeNode
         .Where(nr => nr.rva.RVA > 0)
         .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + End - Start)
         .OrderBy(nr => nr.rva.RVA)) {
-      Reposition(bytes, nr.rva.RVA);
+      Reposition(nr.rva.RVA);
 
       switch (nr.name) {
         case "CLIHeader":
-          AddChild(bytes, nameof(CLIHeader));
+          Bytes.CLIHeaderSection = this;
+          AddChild(nameof(CLIHeader));
 
-          Reposition(bytes, CLIHeader.MetaData.RVA);
-          AddChild(bytes, nameof(MetadataRoot));
+          Reposition(CLIHeader.MetaData.RVA);
+          AddChild(nameof(MetadataRoot));
 
           foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.Str.IndexOf('~'))) // Read #~ after heaps
           {
-            Reposition(bytes, streamHeader.Offset + CLIHeader.MetaData.RVA);
+            Reposition(streamHeader.Offset + CLIHeader.MetaData.RVA);
 
             switch (streamHeader.Name.Str) {
               case "#Strings":
                 StringHeap = new StringHeap((int)streamHeader.Size);
-                bytes.StringHeap = StringHeap;
-                AddChild(bytes, nameof(StringHeap));
+                Bytes.StringHeap = StringHeap;
+                AddChild(nameof(StringHeap));
                 break;
               case "#US":
                 UserStringHeap = new UserStringHeap((int)streamHeader.Size);
-                bytes.UserStringHeap = UserStringHeap;
-                AddChild(bytes, nameof(UserStringHeap));
+                Bytes.UserStringHeap = UserStringHeap;
+                AddChild(nameof(UserStringHeap));
                 break;
               case "#Blob":
                 BlobHeap = new BlobHeap((int)streamHeader.Size);
-                bytes.BlobHeap = BlobHeap;
-                AddChild(bytes, nameof(BlobHeap));
+                Bytes.BlobHeap = BlobHeap;
+                AddChild(nameof(BlobHeap));
                 break;
               case "#GUID":
                 GuidHeap = new GuidHeap((int)streamHeader.Size);
-                bytes.GuidHeap = GuidHeap;
-                AddChild(bytes, nameof(GuidHeap));
+                Bytes.GuidHeap = GuidHeap;
+                AddChild(nameof(GuidHeap));
                 break;
               case "#~":
                 TildeStream = new TildeStream(this);
-                bytes.TildeStream = TildeStream;
-                AddChild(bytes, nameof(TildeStream));
+                Bytes.TildeStream = TildeStream;
+                AddChild(nameof(TildeStream));
 
                 break;
 
@@ -541,25 +544,25 @@ sealed class Section : MyCodeNode
 #endif
 
         case "ImportTable":
-          AddChild(bytes, nameof(ImportTable));
+          AddChild(nameof(ImportTable));
 
-          Reposition(bytes, ImportTable.ImportLookupTable);
-          AddChild(bytes, nameof(ImportLookupTable));
+          Reposition(ImportTable.ImportLookupTable);
+          AddChild(nameof(ImportLookupTable));
 
-          Reposition(bytes, ImportLookupTable.HintNameTableRVA);
-          AddChild(bytes, nameof(ImportAddressHintNameTable));
+          Reposition(ImportLookupTable.HintNameTableRVA);
+          AddChild(nameof(ImportAddressHintNameTable));
 
-          Reposition(bytes, ImportTable.Name);
-          AddChild(bytes, nameof(RuntimeEngineName));
+          Reposition(ImportTable.Name);
+          AddChild(nameof(RuntimeEngineName));
 
-          Reposition(bytes, optionalHeader.PEHeaderStandardFields.EntryPointRVA);
-          AddChild(bytes, nameof(NativeEntryPoint));
+          Reposition(optionalHeader.PEHeaderStandardFields.EntryPointRVA);
+          AddChild(nameof(NativeEntryPoint));
           break;
         case "ImportAddressTable":
-          AddChild(bytes, nameof(ImportAddressTable));
+          AddChild(nameof(ImportAddressTable));
           break;
         case "BaseRelocationTable":
-          AddChild(bytes, nameof(Relocations));
+          AddChild(nameof(Relocations));
           break;
         default:
           throw new NotImplementedException($"{name} {nr.name}");
@@ -567,7 +570,42 @@ sealed class Section : MyCodeNode
     }
   }
 
-  public void Reposition(AssemblyBytes bytes, long dataRVA) => bytes.Stream.Position = Start + dataRVA - rva;
+  public void ReadMethods() {
+    AddChild(nameof(Methods));
+  }
+
+  public void Reposition(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;
+}
+
+// TODO move
+sealed class Methods : MyCodeNode {
+  // List<MethodDef> methodDefs;
+
+  // public Methods() {
+  //   methodDefs = (bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
+  //         .Select(def => def.RVA)
+  //         .Where(rva => rva > 0)
+  //         .Distinct()
+  //         .OrderBy(rva => rva).ToList();
+  // }
+
+  // public override void Read() {
+  //     foreach (var rva in (bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
+  //         .Select(def => def.RVA)
+  //         .Where(rva => rva > 0)
+  //         .Distinct()
+  //         .OrderBy(rva => rva)) {
+  //       bytes.CLIHeaderSection.Reposition(rva);
+
+  //       Method method = null;
+  //       methods.Add(stream.ReadClass(ref method));
+  //       MethodsByRVA.Add(rva, method);
+  //     }
+
+  //     if (methods.Children.Any()) {
+  //       node.Add(methods);
+  //     }
+  // }
 }
 
 
@@ -665,18 +703,18 @@ sealed class Fixup : MyCodeNode
   [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(solonode) 
   public short Offset;
 
-  protected override MyCodeNode ReadField(AssemblyBytes bytes, string fieldName) {
+  protected override MyCodeNode ReadField(string fieldName) {
     switch (fieldName) {
       case nameof(Type):
-        var type = new MyStructNode<byte>();
-        type.Read(bytes);
+        var type = new MyStructNode<byte> { Bytes = Bytes };
+        type.Read();
         Offset = (short)((type.t << 8) & 0x0F00);
         Type = (byte)(type.t >> 4);
         type.NodeValue = Type.GetString();
         return type;
       case nameof(Offset):
-        var offset = new MyStructNode<byte>();
-        offset.Read(bytes);
+        var offset = new MyStructNode<byte> { Bytes = Bytes };
+        offset.Read();
         Offset |= (short)offset.t;
         offset.NodeValue = Offset.GetString();
         return offset;
@@ -1001,7 +1039,7 @@ sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record t
     NodeValue = "oops unset!!";
   }
 
-  public override void Read(AssemblyBytes bytes) => ReadStream(bytes.Stream);
+  public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
     Start = (int)stream.Position;

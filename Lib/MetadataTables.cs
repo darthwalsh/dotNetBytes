@@ -308,7 +308,7 @@ sealed class MethodDef : MyCodeNode
 
   public CodeNode Read(Stream stream) {
     Node = new CodeNode {
-      (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),
+      (RVANode = stream.ReadStructNode(out RVA, nameof(RVA))),
     };
 
     return Node;

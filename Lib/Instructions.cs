@@ -44,7 +44,7 @@ sealed class InstructionStream : ICanRead
 
   ICanRead GetOp(Stream stream) {
     byte firstByte;
-    var opNode = stream.ReadStruct(out firstByte, "OpCode");
+    var opNode = stream.ReadStructNode(out firstByte, "OpCode");
 
     switch (firstByte) {
       case 0x00:
@@ -431,7 +431,7 @@ sealed class InstructionStream : ICanRead
         return new Op(opNode, "conv.u");
       case 0xFE:
         byte secondByte;
-        var secondOpNode = stream.ReadStruct(out secondByte, "OpCode");
+        var secondOpNode = stream.ReadStructNode(out secondByte, "OpCode");
         var combinedOp = new CodeNode("OpCode") {
           Start = opNode.Start,
           End = secondOpNode.End,
@@ -581,7 +581,7 @@ sealed class OpWith<T> : ICanRead
   public CodeNode Read(Stream stream) {
     var node = new CodeNode {
       op,
-      stream.ReadStruct(out Value, nameof(Value)),
+      stream.ReadStructNode(out Value, nameof(Value)),
     };
     node.Description = opName + " " + Value.GetString();
     return node;
@@ -624,7 +624,7 @@ sealed class SwitchOp : ICanRead
   public CodeNode Read(Stream stream) {
     var node = new CodeNode {
       op,
-      stream.ReadStruct(out Count, nameof(Count)),
+      stream.ReadStructNode(out Count, nameof(Count)),
       stream.ReadStructs(out Targets, (int)Count, nameof(Targets)), //TODO(links) switch offset
     };
     node.Description = $"switch ({string.Join(", ", Targets)})";
