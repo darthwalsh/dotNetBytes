@@ -162,7 +162,7 @@ sealed class PEOptionalHeader : MyCodeNode
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
   public override void Read() {
-    this.Start = (int)Bytes.Stream.Position;
+    MarkStarting();
 
     AddChild(nameof(PEHeaderStandardFields));
 
@@ -184,7 +184,7 @@ sealed class PEOptionalHeader : MyCodeNode
 
     AddChild(nameof(PEHeaderHeaderDataDirectories));
 
-    this.End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
 }
 
@@ -1037,7 +1037,7 @@ sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record t
   public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
-    Start = (int)stream.Position;
+    Start = (int)stream.Position; // TODO (solonode) this doesn't work with StringHeap hacked stream. Instead, can Heap<> not copy the byte[]?
 
     var builder = new List<byte>();
     var buffer = new byte[byteBoundary];

@@ -663,12 +663,12 @@ abstract class Heap<T> : MyCodeNode
   }
 
   public override void Read() {
-    Start = (int)Bytes.Stream.Position;
+    MarkStarting();
 
     // Parsing the whole array now isn't sensible
     Bytes.Stream.ReadWholeArray(data);
 
-    End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
 
   // public string Name => GetType().Name;
@@ -750,7 +750,7 @@ sealed class StringHeap : Heap<string>
   }
 
   protected override MyCodeNode ReadChild(Stream stream, int index, out string s) {
-    var TmpString = new NullTerminatedString(Encoding.UTF8, 1);
+    var TmpString = new NullTerminatedString(Encoding.UTF8, 1) { Bytes = Bytes };
     TmpString.ReadStream(stream);
     TmpString.NodeName = $"StringHeap[{index}]";
 
@@ -921,7 +921,7 @@ sealed class TildeStream : MyCodeNode
   Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>>();
 
   public override void Read() {
-    Start = (int)Bytes.Stream.Position;
+    MarkStarting();
 
     AddChild(nameof(TildeData));
     Rows = new TildeStreamRows(((ulong)TildeData.Valid).CountSetBits());
@@ -941,7 +941,7 @@ sealed class TildeStream : MyCodeNode
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
       throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
 
-    End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
 
   void ReadTables(MetadataTableFlags flag, int row) {
@@ -1117,14 +1117,14 @@ abstract class CodedIndex : MyCodeNode
   protected override MyCodeNode Link => GetLink();
 
   public override void Read() {
-    Start = (int)Bytes.Stream.Position;
+    MarkStarting();
     Bytes = Bytes;
 
     var readData = new MyStructNode<ushort> { Bytes = Bytes };
     readData.Read();
     Index = GetIndex(readData.t);
 
-    End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
 
   protected abstract int GetIndex(int readData);

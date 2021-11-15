@@ -151,7 +151,7 @@ public abstract class MyCodeNode
   }
 
   public virtual void Read() {
-    this.Start = (int)Bytes.Stream.Position;
+    MarkStarting();
 
     var orderedFields = this.GetType().GetFields()
         .Where(field => field.DeclaringType != typeof(MyCodeNode))
@@ -170,8 +170,11 @@ public abstract class MyCodeNode
       AddChild(field.Name);
     }
 
-    this.End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
+
+  public void MarkStarting() => Start = (int)Bytes.Stream.Position;
+  public void MarkEnding() => End = (int)Bytes.Stream.Position;
 
   protected void AddChild(string fieldName) {
     var field = GetType().GetField(fieldName);
@@ -303,7 +306,7 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
   }
 
   public override void Read() {
-    this.Start = (int)Bytes.Stream.Position;
+    MarkStarting();
 
     arr = Enumerable.Range(0, Length).Select(_ => {
       var node = new MyStructNode<T> { Bytes = Bytes };
@@ -311,7 +314,7 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
       return node.t;
     }).ToArray();
 
-    this.End = (int)Bytes.Stream.Position;
+    MarkEnding();
   }
 }
 
@@ -326,11 +329,11 @@ public sealed class MyAnyNode<T> : MyCodeNode // TODO(solonode) review if this i
   public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
-    this.Start = (int)stream.Position;
+    Start = (int)stream.Position;
 
     t = f(stream);
     NodeValue = t.GetString();
-    this.End = (int)stream.Position;
+    End = (int)stream.Position;
   }
 }
 
@@ -341,11 +344,11 @@ public sealed class MyStructNode<T> : MyCodeNode where T : struct
   public override void Read() => ReadStream(Bytes.Stream);
 
   public void ReadStream(Stream stream) {
-    this.Start = (int)stream.Position;
+    Start = (int)stream.Position;
 
     t = stream.ReadStruct<T>();
     NodeValue = t.GetString();
     
-    this.End = (int)stream.Position;
+    End = (int)stream.Position;
   }
 }
