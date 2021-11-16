@@ -86,7 +86,7 @@ public abstract class MyCodeNode
   public int Start = int.MaxValue;
   public int End = int.MinValue;
 
-  internal AssemblyBytes Bytes { get; set;}
+  internal AssemblyBytes Bytes { get; set; }
 
   public List<MyCodeNode> Children = new List<MyCodeNode>();
   public List<string> Errors = new List<string>();
@@ -159,11 +159,11 @@ public abstract class MyCodeNode
 
     if (orderedFields.Count > 1) {
       orderedFields = orderedFields.OrderBy(field => {
-          if (TryGetAttribute(field, out OrderedFieldAttribute o)) return o.Order;
-          if (TryGetAttribute(field, out ExpectedAttribute e)) return e.Line;
-          if (TryGetAttribute(field, out DescriptionAttribute d)) return d.Line;
-          throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is missing [OrderedField]");
-        }).ToList();
+        if (TryGetAttribute(field, out OrderedFieldAttribute o)) return o.Order;
+        if (TryGetAttribute(field, out ExpectedAttribute e)) return e.Line;
+        if (TryGetAttribute(field, out DescriptionAttribute d)) return d.Line;
+        throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is missing [OrderedField]");
+      }).ToList();
     }
 
     foreach (var field in orderedFields) {
@@ -255,13 +255,10 @@ public abstract class MyCodeNode
     if (fieldType.IsClass) {
       // var o = ((MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType)); TODO(solonode) hack for better exception messages
       MyCodeNode o;
-      try
-      {
-           o = (MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType));
-      }
-      catch (System.Exception e)
-      {
-          throw new NotImplementedException($"{GetType().FullName}. {field.Name}", e); // TODO(solonode) remove!
+      try {
+        o = (MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType));
+      } catch (System.Exception e) {
+        throw new NotImplementedException($"{GetType().FullName}. {field.Name}", e); // TODO(solonode) remove!
       }
       o.Bytes = Bytes;
       o.Read();
@@ -281,7 +278,7 @@ public abstract class MyCodeNode
     throw new InvalidOperationException(fieldType.Name);
   }
 
-  protected virtual int GetCount(string field) => 
+  protected virtual int GetCount(string field) =>
     throw new InvalidOperationException($"{GetType().Name} .{field}");
 
   static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {

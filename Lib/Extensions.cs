@@ -85,8 +85,7 @@ static class StreamExtensions
 {
   // http://jonskeet.uk/csharp/readbinary.html
   public static void ReadWholeArray(this Stream stream, byte[] data) {
-    string error;
-    if (!stream.TryReadWholeArray(data, out error))
+    if (!stream.TryReadWholeArray(data, out var error))
       throw new EndOfStreamException(error);
   }
 
@@ -324,8 +323,7 @@ static class TypeExtensions
   public static string EscapeControl(this string s) {
     return string.Concat(s.Select(c => {
       if (char.IsControl(c)) {
-        string ans;
-        if (escapes.TryGetValue(c, out ans)) {
+        if (escapes.TryGetValue(c, out var ans)) {
           return ans;
         }
 
