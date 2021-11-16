@@ -425,6 +425,7 @@ sealed class Section : MyCodeNode
   public BlobHeap BlobHeap;
   public GuidHeap GuidHeap;
   public TildeStream TildeStream;
+  public ResourceEntry[] ResourceEntries;
 
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
@@ -497,6 +498,10 @@ sealed class Section : MyCodeNode
                 TildeStream = new TildeStream(this);
                 AddChild(nameof(TildeStream));
 
+                if (TildeStream.ManifestResources != null) {
+                  AddChildren(nameof(ResourceEntries), TildeStream.ManifestResources.Length);
+                }
+
                 break;
 
               //   var methods = new CodeNode {
@@ -526,17 +531,6 @@ sealed class Section : MyCodeNode
           }
 
           break;
-#if false
-    foreach (var toRead in toReads) {
-      node.Add(toRead(stream));
-    }
-
-    return node;
-  }
-
-  List<Func<Stream, CodeNode>> toReads = new List<Func<Stream, CodeNode>>();
-  public void ReadNode(Func<Stream, CodeNode> read) => toReads.Add(read);
-#endif
 
         case "ImportTable":
           AddChild(nameof(ImportTable));

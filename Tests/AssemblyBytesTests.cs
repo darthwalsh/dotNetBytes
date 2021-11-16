@@ -122,7 +122,8 @@ namespace Tests
     [TestMethod]
     public void FileTable() => RunIL(@"FileTable.il");
 
-    // MAYBE https://www.hanselman.com/blog/automatic-unit-testing-in-net-core-plus-code-coverage-in-visual-studio-code
+    // TODO compare local Lib diff vs online CloudFunction; Example doesn't have all features
+
     //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
     //TODO Also test with mono

@@ -17,7 +17,6 @@ class Singletons
   }
 
   public int MethodCount { get; set; }
-  public int ResourceEntryCount { get; set; }
 
   SetOnce<TildeStream> tildeStream = new SetOnce<TildeStream>();
   public TildeStream TildeStream { get { return tildeStream.Value; } set { tildeStream.Value = value; } }

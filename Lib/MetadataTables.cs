@@ -257,27 +257,40 @@ sealed class ManifestResource : MyCodeNode
 
   public override string NodeValue => Name.NodeValue;
 
-  public CodeNode Node { get; private set; }
+  public override void Read() {
+    base.Read();
 
-  public CodeNode Read(Stream stream) {
+    var origPos = Bytes.Stream.Position;
+    try {
+      var section = Bytes.CLIHeaderSection;
+      section.Reposition(section.CLIHeader.Resources.RVA + Offset);
 
-    // var section = Singletons.Instance.TildeStream.Section;
-    // section.ReadNode(strm => {
-    //   section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
-
-    //   ResourceEntry entry = null;
-    //   return stream.ReadClass(ref entry);
-    // });
-    return Node;
+    } finally {
+      Bytes.Stream.Position = origPos;
+    }
   }
 }
 
 sealed class ResourceEntry : MyCodeNode
 {
-  public uint Length;
-  public byte[] Data;
+  int i;
+  public ResourceEntry(int i) {
+    this.i = i;
+  }
 
-  public string Name { get; } = $"{nameof(ResourceEntry)}[{Singletons.Instance.ResourceEntryCount++}]";
+  public override void Read() {
+    var offset = Bytes.TildeStream.ManifestResources[i].Offset;
+    Bytes.CLIHeaderSection.Reposition(offset + Bytes.CLIHeaderSection.CLIHeader.Resources.RVA);
+    base.Read();
+  }
+
+  [OrderedField] public uint Length;
+  [OrderedField] public byte[] Data;
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Data) => (int)Length,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.22.25
