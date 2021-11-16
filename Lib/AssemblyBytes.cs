@@ -37,8 +37,6 @@ public class AssemblyBytes
 
     FindOverLength(s, node);
 
-    // node.CallBack(n => n.UseDelayedValueNode());
-
     // LinkMethodDefRVA();
 
     node.AssignPath();

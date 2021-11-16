@@ -27,21 +27,6 @@ public class CodeNode : IEnumerable<string>
   string path;
   public CodeNode Link { set { link = value; } }
 
-  //TODO(cleanup) have multiple stages of reading, where StringHeaps are parsed first, then metadata, then methods.
-  Func<IHaveLiteralValueNode> delayed;
-  internal Func<IHaveLiteralValueNode> DelayedValueNode { set { delayed = value; } } //TODO(cleanup) remove this hack
-  public void UseDelayedValueNode() {
-    if (delayed != null) {
-      try {
-        var d = delayed();
-        Value = (string)d.Value;
-        Link = d.Node;
-      } catch (Exception e) {
-        Errors.Add("Using DelayedValueNode blew up with " + e.ToString());
-      }
-    }
-  }
-
   public void AssignPath() => AssignPath(null);
   void AssignPath(string parentPath) {
     if (path != null)
