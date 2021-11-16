@@ -285,13 +285,13 @@ namespace Tests
       }
 
       try {
-        // assm.Node.CallBack(AssertChildrenDontOverlap);
+        assm.Node.CallBack(AssertChildrenDontOverlap);
 
-        // assm.Node.CallBack(AssertNoErrors);
+        assm.Node.CallBack(AssertNoErrors);
 
-        // assm.Node.CallBack(AssertUniqueNames);
+        assm.Node.CallBack(AssertUniqueNames);
 
-        // assm.Node.CallBack(AssertLinkOrChildren);
+        assm.Node.CallBack(AssertLinkOrChildren);
 
         // assm.Node.CallBack(AssertParentDifferentSizeThanChild);
 
@@ -312,25 +312,25 @@ namespace Tests
       }
     }
 
-    static void AssertChildrenDontOverlap(CodeNode node) {
+    static void AssertChildrenDontOverlap(MyCodeNode node) {
       foreach (var o in node.Children.Zip(node.Children.Skip(1), (last, next) => new { last, next })) {
         Asserts.IsLessThanOrEqual(o.last.End, o.next.Start);
       }
     }
 
-    static void AssertNoErrors(CodeNode node) {
+    static void AssertNoErrors(MyCodeNode node) {
       var error = node.Errors.FirstOrDefault();
       Assert.IsNull(error, error);
     }
 
-    static void AssertUniqueNames(CodeNode node) {
-      var name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
-      Assert.IsNull(name, $"duplicate {name} under {node.Name}");
+    static void AssertUniqueNames(MyCodeNode node) {
+      var name = node.Children.GroupBy(c => c.NodeName).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
+      Assert.IsNull(name, $"duplicate {name} under {node.NodeName}");
     }
 
-    static void AssertLinkOrChildren(CodeNode node) {
+    static void AssertLinkOrChildren(MyCodeNode node) {
       if (node.LinkPath != null && node.Children.Any()) {
-        Assert.Fail(node.Name);
+        Assert.Fail($"{node.NodeName} has link {node.SelfPath} and {node.Children.Count} children");
       }
     }
 

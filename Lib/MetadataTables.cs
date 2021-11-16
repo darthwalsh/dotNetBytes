@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 // II.22 Metadata logical format: tables 
 
@@ -315,16 +316,8 @@ sealed class MethodDef : MyCodeNode
 
   public override string NodeValue => Name.NodeValue;
 
-  public CodeNode Node { get; private set; }
-
-  public CodeNode RVANode { get; private set; }
-
-  public CodeNode Read(Stream stream) {
-    Node = new CodeNode {
-      (RVANode = stream.ReadStructNode(out RVA, nameof(RVA))),
-    };
-
-    return Node;
+  public void SetLink(Method method) {
+    Children.First().Link = method;
   }
 }
 

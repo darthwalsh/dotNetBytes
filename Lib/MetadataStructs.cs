@@ -848,7 +848,7 @@ sealed class TildeStreamRows : MyCodeNode
   public TildeStreamRows(int count) {
     this.count = count;
   }
-  [OrderedField] public MyStructNode<uint>[] Rows;
+  public MyStructNode<uint>[] Rows; // TODO(solonode) maybe this should be uint[] but then it collapses to a single node
 
   protected override int GetCount(string field) => count;
 }
@@ -1099,7 +1099,7 @@ abstract class CodedIndex : MyCodeNode
   public int Index { get; private set; }
 
   public override string NodeValue => GetLink().NodeValue;
-  protected override MyCodeNode Link => GetLink();
+  public override MyCodeNode Link => GetLink();
 
   public override void Read() {
     MarkStarting();

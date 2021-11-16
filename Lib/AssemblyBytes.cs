@@ -37,19 +37,7 @@ public class AssemblyBytes
 
     FindOverLength(s, node);
 
-    // LinkMethodDefRVA();
-
     node.AssignPath();
-    // node.CallBack(CodeNode.AssignLink);
-  }
-
-  static void LinkMethodDefRVA() {
-    var tildeStream = Singletons.Instance.TildeStream;
-    if (tildeStream.MethodDefs == null) return;
-
-    foreach (var def in tildeStream.MethodDefs.Where(def => def.RVA != 0)) {
-      def.RVANode.Link = tildeStream.Section.MethodsByRVA[def.RVA].Node;
-    }
   }
 
   static void FindOverLength(Stream s, MyCodeNode node) {
@@ -89,8 +77,9 @@ public abstract class MyCodeNode
   public List<MyCodeNode> Children = new List<MyCodeNode>();
   public List<string> Errors = new List<string>();
 
-  protected virtual MyCodeNode Link { get; set; }
-  public string LinkPath { get; private set; }
+  public virtual MyCodeNode Link { get; set; } // TODO (solonode) this should probably be protected but need to figure out RVA
+  public string SelfPath { get; private set; }
+  public string LinkPath => Link?.SelfPath;
 
   public void CallBack(Action<MyCodeNode> action) {
     action(this);
@@ -101,16 +90,16 @@ public abstract class MyCodeNode
 
   public void AssignPath() => AssignPath(null);
   void AssignPath(string parentPath) {
-    if (LinkPath != null)
-      throw new InvalidOperationException($"path was already {LinkPath}");
+    if (SelfPath != null)
+      throw new InvalidOperationException($"path was already {SelfPath}");
 
     if (parentPath != null)
       parentPath += "/";
 
-    LinkPath = parentPath + NodeName;
+    SelfPath = parentPath + NodeName;
 
     foreach (var c in Children) {
-      c.AssignPath(LinkPath);
+      c.AssignPath(SelfPath);
     }
   }
 
@@ -136,7 +125,7 @@ public abstract class MyCodeNode
       writer.WriteString("Value", node.NodeValue);
       writer.WriteNumber(nameof(node.Start), node.Start);
       writer.WriteNumber(nameof(node.End), node.End);
-      writer.WriteString(nameof(node.LinkPath), node.Link?.LinkPath);
+      writer.WriteString("LinkPath", node.Link?.SelfPath);
 
       writer.WritePropertyName(nameof(node.Errors));
       JsonSerializer.Serialize(writer, node.Errors);
@@ -179,7 +168,8 @@ public abstract class MyCodeNode
     var type = field.FieldType;
 
     if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(MyCodeNode))) {
-      AddChildren(fieldName, GetCount(fieldName));
+      var len = ((Array)field.GetValue(this))?.Length ?? GetCount(fieldName);
+      AddChildren(fieldName, len);
       return;
     }
 
@@ -200,13 +190,13 @@ public abstract class MyCodeNode
 
   protected void AddChildren(string fieldName, int length) {
     var field = GetType().GetField(fieldName);
-    var arr = (MyCodeNode[])Activator.CreateInstance(field.FieldType, length);
+    var arr = (MyCodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
     field.SetValue(this, arr);
     var elType = field.FieldType.GetElementType();
     var ctorIndexed = elType.GetConstructor(new[] { typeof(int) }) != null;
     for (var i = 0; i < arr.Length; i++) {
       var param = ctorIndexed ? new object[] { i } : new object[] { };
-      var o = (MyCodeNode)Activator.CreateInstance(elType, param);
+      var o = arr[i] ?? (MyCodeNode)Activator.CreateInstance(elType, param);
       o.Bytes = Bytes;
       o.Read();
       arr[i] = o;

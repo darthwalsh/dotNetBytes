@@ -437,8 +437,6 @@ sealed class Section : MyCodeNode
 
   public Methods Methods;
 
-  public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
-
   int sectionI;
   public Section(int i) {
     sectionI = i;
@@ -502,28 +500,8 @@ sealed class Section : MyCodeNode
                   AddChildren(nameof(ResourceEntries), TildeStream.ManifestResources.Length);
                 }
 
+                AddChild(nameof(Methods));
                 break;
-
-              //   var methods = new CodeNode {
-              //     Name = "Methods",
-              //   };
-
-              //   foreach (var rva in (TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-              //       .Select(def => def.RVA)
-              //       .Where(rva => rva > 0)
-              //       .Distinct()
-              //       .OrderBy(rva => rva)) {
-              //     Reposition(stream, rva);
-
-              //     Method method = null;
-              //     methods.Add(stream.ReadClass(ref method));
-              //     MethodsByRVA.Add(rva, method);
-              //   }
-
-              //   if (methods.Children.Any()) {
-              //     node.Add(methods);
-              //   }
-              //   break;
               default:
                 Errors.Add("Unexpected stream name: " + streamHeader.Name.Str);
                 break;
@@ -559,44 +537,8 @@ sealed class Section : MyCodeNode
     }
   }
 
-  public void ReadMethods() {
-    AddChild(nameof(Methods));
-  }
-
   public void Reposition(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;
 }
-
-// TODO move
-sealed class Methods : MyCodeNode {
-  // List<MethodDef> methodDefs;
-
-  // public Methods() {
-  //   methodDefs = (bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-  //         .Select(def => def.RVA)
-  //         .Where(rva => rva > 0)
-  //         .Distinct()
-  //         .OrderBy(rva => rva).ToList();
-  // }
-
-  // public override void Read() {
-  //     foreach (var rva in (bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-  //         .Select(def => def.RVA)
-  //         .Where(rva => rva > 0)
-  //         .Distinct()
-  //         .OrderBy(rva => rva)) {
-  //       bytes.CLIHeaderSection.Reposition(rva);
-
-  //       Method method = null;
-  //       methods.Add(stream.ReadClass(ref method));
-  //       MethodsByRVA.Add(rva, method);
-  //     }
-
-  //     if (methods.Children.Any()) {
-  //       node.Add(methods);
-  //     }
-  // }
-}
-
 
 // II.25.3.1
 sealed class ImportTable : MyCodeNode
@@ -755,27 +697,42 @@ enum CliHeaderFlags : uint
   TrackDebugData = 0x10000,
 }
 
+sealed class Methods : MyCodeNode
+{
+  public Method[] Method;
+
+  public override void Read() {
+    Method = (Bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
+          .Where(m => m.RVA > 0)
+          .GroupBy(m => m.RVA)
+          .Select(g => g.First()) // Disctinct by RVA
+          .OrderBy(m => m.RVA)
+          .Select(m => new Method(m)).ToArray();
+
+    base.Read();
+  }
+}
+
 // II.25.4
 sealed class Method : MyCodeNode
 {
+  MethodDef def;
+  public Method(MethodDef def) {
+    this.def = def;
+    def.SetLink(this);
+  }
+
   public byte Header; //TODO(pedant) ? enum
   public FatFormat FatFormat;
   public MethodDataSection[] DataSections;
   public InstructionStream CilOps;
 
-  //TODO(solonode) set field Name / Value?
-  public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
+  public override void Read() {
+    Bytes.CLIHeaderSection.Reposition(def.RVA);
+    MarkStarting();
 
-  // TODO(solonode) done with this I think? public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implement IHaveValue? How does that work with CodeNode.DelayedValueNode?
-
-  public CodeNode Node { get; private set; }
-
-#if false
-  public CodeNode Read(Stream stream) {
-    var header = stream.ReadStruct(out Header, nameof(Header));
-    Node = new CodeNode {
-      header,
-    };
+    AddChild(nameof(Header));
+    var header = Children.Single();
 
     int length;
     var moreSects = false;
@@ -786,10 +743,10 @@ sealed class Method : MyCodeNode
         header.Description = $"Tiny Header, 0x{length:X} bytes long";
         break;
       case MethodHeaderType.Fat:
-        Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
+        AddChild(nameof(FatFormat));
 
         if ((FatFormat.FlagsAndSize & 0xF0) != 0x30) {
-          Node.Errors.Add("Expected upper bits of FlagsAndSize to be 3");
+          Errors.Add("Expected upper bits of FlagsAndSize to be 3");
         }
 
         length = (int)FatFormat.CodeSize;
@@ -800,31 +757,54 @@ sealed class Method : MyCodeNode
         throw new InvalidOperationException("Invalid MethodHeaderType " + type);
     }
 
-    CilOps = new InstructionStream(length);
-    Node.Add(stream.ReadClass(ref CilOps, nameof(CilOps)));
+    // CilOps = new InstructionStream(length);
+    // AddChild(nameof(CilOps));
 
-    if (moreSects) {
-      while (stream.Position % 4 != 0) {
-        var b = stream.ReallyReadByte();
-      }
+    // if (moreSects) {
+    //   while (Bytes.Stream.Position % 4 != 0) {
+    //     _ = Bytes.Stream.ReallyReadByte();
+    //   }
 
-      var dataSections = new List<MethodDataSection>();
-      var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
+    //   var dataSections = new MethodDataSections { Bytes = Bytes };
+    //   dataSections.Read();
 
-      MethodDataSection dataSection = null;
-      do {
-        dataSectionNode.Add(stream.ReadClass(ref dataSection, $"MethodDataSections[{dataSections.Count}]"));
-        dataSections.Add(dataSection);
-      }
-      while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
+    //   Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
 
-      DataSections = dataSections.ToArray();
-      Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
-    }
+    //   // var dataSections = new List<MethodDataSection>();
+    //   // var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
 
-    return Node;
+    //   // MethodDataSection dataSection = null;
+    //   // do {
+    //   //   dataSection = new MethodDataSection() { Bytes = Bytes};
+    //   //   dataSection.Read();
+    //   //   dataSection.NodeName = $"MethodDataSections[{dataSections.Count}]";
+    //   //   dataSections.Add(dataSection);
+    //   // }
+    //   // while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
+
+    //   // DataSections = dataSections.ToArray();
+
+    //   // Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
+    // }
+    MarkEnding();
   }
-#endif
+}
+
+sealed class MethodDataSections : MyCodeNode
+{
+  public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
+  public override void Read() {
+    MethodDataSection dataSection = null;
+    do {
+      dataSection = new MethodDataSection() { Bytes = Bytes };
+      dataSection.Read();
+      dataSection.NodeName = $"{nameof(MethodDataSections)}[{Children.Count}]";
+      Children.Add(dataSection);
+    }
+    while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
+
+  }
+
 }
 
 // II.25.4.1 and .4
@@ -856,25 +836,19 @@ sealed class MethodDataSection : MyCodeNode
   public LargeMethodHeader LargeMethodHeader;
   public SmallMethodHeader SmallMethodHeader;
 
-#if false
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out Header, nameof(MethodHeaderSection))
-    };
+  public override void Read() {
+    AddChild(nameof(MethodHeaderSection));
 
     if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
     }
 
     if (Header.HasFlag(MethodHeaderSection.FatFormat)) {
-      node.Add(stream.ReadClass(ref LargeMethodHeader, nameof(LargeMethodHeader)));
+      AddChild(nameof(LargeMethodHeader));
     } else {
-      node.Add(stream.ReadClass(ref SmallMethodHeader, nameof(SmallMethodHeader)));
+      AddChild(nameof(SmallMethodHeader));
     }
-
-    return node;
   }
-#endif
 }
 
 [Flags]
@@ -897,49 +871,42 @@ sealed class SmallMethodHeader : MyCodeNode
   [Description("Padding, always 0.")]
   [Expected(0)]
   public ushort Reserved;
+  [OrderedField]
   public SmallExceptionHandlingClause[] Clauses;
 
-#if false
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out DataSize, nameof(DataSize)),
-      stream.ReadStruct(out Reserved, nameof(Reserved)),
-    };
+  public override void Read() {
+    base.Read();
 
-    var n = (DataSize - 4) / 12;
-    if (n * 12 + 4 != DataSize) {
-      node.Errors.Add("DataSize was not of the form n * 12 + 4");
+    if (Clauses.Length * 12 + 4 != DataSize) {
+      Errors.Add("DataSize was not of the form n * 12 + 4");
     }
-
-    node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
-
-    return node;
   }
-#endif
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Clauses) => (DataSize - 4) / 12,
+    _ => base.GetCount(field),
+  };
 }
 
 sealed class LargeMethodHeader : MyCodeNode
 {
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
   public UInt24 DataSize;
-  public SmallExceptionHandlingClause[] Clauses;
+  [OrderedField]
+  public SmallExceptionHandlingClause[] Clauses; // TODO(solonode) LargeExceptionHandlingClause?
 
-#if false
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadClass(ref DataSize, nameof(DataSize)),
-    };
+  public override void Read() {
+    base.Read();
 
-    var n = (DataSize.IntValue - 4) / 12;
-    if (n * 24 + 4 != DataSize.IntValue) {
-      node.Errors.Add("DataSize was not of the form n * 24 + 4");
+    if (Clauses.Length * 24 + 4 != DataSize.IntValue) {
+      Errors.Add("DataSize was not of the form n * 24 + 4");
     }
-
-    node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
-
-    return node;
   }
-#endif
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Clauses) => (DataSize.IntValue - 4) / 12, // TODO(solonode) should this be 24???
+    _ => base.GetCount(field),
+  };
 }
 
 // II.25.4.6
@@ -1004,15 +971,16 @@ enum LargeExceptionClauseFlags : uint
 sealed class UInt24 : MyCodeNode
 {
   public int IntValue { get; private set; }
-  public object Value => IntValue; // TODO(solonode)
+  public override string NodeValue => IntValue.GetString(); // TODO(solonode) test this is right
 
-  public CodeNode Read(Stream stream) {
-    byte[] b;
-    stream.ReadStructs(out b, 3);
+  public override void Read() {
+    MarkStarting();
 
+    var b = new byte[3];
+    Bytes.Stream.ReadWholeArray(b);
     IntValue = (b[2] << 16) + (b[1] << 8) + b[0];
 
-    return new CodeNode();
+    MarkEnding();
   }
 }
 

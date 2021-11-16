@@ -1447,6 +1447,38 @@
           ]
         },
         {
+          "Name": "Methods",
+          "Description": "",
+          "Value": "",
+          "Start": 592,
+          "End": 593,
+          "LinkPath": null,
+          "Errors": [],
+          "Children": [
+            {
+              "Name": "Method[0]",
+              "Description": "",
+              "Value": "",
+              "Start": 592,
+              "End": 593,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": [
+                {
+                  "Name": "Header",
+                  "Description": "Tiny Header, 0x16 bytes long",
+                  "Value": "0x5A",
+                  "Start": 592,
+                  "End": 593,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
           "Name": "MetadataRoot",
           "Description": "",
           "Value": "",
@@ -2305,7 +2337,7 @@
                   "Value": "0x2050",
                   "Start": 842,
                   "End": 846,
-                  "LinkPath": null,
+                  "LinkPath": "FileFormat/Sections[0]/Methods/Method[0]",
                   "Errors": [],
                   "Children": []
                 },
