@@ -326,14 +326,12 @@ public sealed class MyAnyNode<T> : MyCodeNode // TODO(solonode) review if this i
   public MyAnyNode(Func<Stream, T> f) {
     this.f = f;
   }
-  public override void Read() => ReadStream(Bytes.Stream);
+  public override void Read() {
+    MarkStarting();
 
-  public void ReadStream(Stream stream) {
-    Start = (int)stream.Position;
-
-    t = f(stream);
+    t = f(Bytes.Stream);
     NodeValue = t.GetString();
-    End = (int)stream.Position;
+    MarkEnding();
   }
 }
 
@@ -341,14 +339,12 @@ public sealed class MyStructNode<T> : MyCodeNode where T : struct
 {
   public T t;
 
-  public override void Read() => ReadStream(Bytes.Stream);
+  public override void Read() {
+    MarkStarting();
 
-  public void ReadStream(Stream stream) {
-    Start = (int)stream.Position;
-
-    t = stream.ReadStruct<T>();
+    t = Bytes.Stream.ReadStruct<T>();
     NodeValue = t.GetString();
-    
-    End = (int)stream.Position;
+
+    MarkEnding();
   }
 }

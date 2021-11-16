@@ -1034,20 +1034,18 @@ sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record t
     NodeValue = "oops unset!!";
   }
 
-  public override void Read() => ReadStream(Bytes.Stream);
-
-  public void ReadStream(Stream stream) {
-    Start = (int)stream.Position; // TODO (solonode) this doesn't work with StringHeap hacked stream. Instead, can Heap<> not copy the byte[]?
+  public override void Read() {
+    MarkStarting();
 
     var builder = new List<byte>();
     var buffer = new byte[byteBoundary];
 
     while (true) {
-      stream.ReadWholeArray(buffer);
+      Bytes.Stream.ReadWholeArray(buffer);
       builder.AddRange(buffer);
 
       if (buffer.Contains((byte)'\0')) {
-        End = (int)stream.Position;
+        MarkEnding();
         Str = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
         NodeValue = Str.GetString();
         return;

@@ -655,48 +655,48 @@ sealed class StreamHeader : MyCodeNode
 
 abstract class Heap<T> : MyCodeNode
 {
-  readonly byte[] data;
-  SortedList<int, Tuple<T, MyCodeNode>> children = new SortedList<int, Tuple<T, MyCodeNode>>();
+  int size;
+  SortedList<int, (T, MyCodeNode)> children = new SortedList<int, (T, MyCodeNode)>();
 
   public Heap(int size) {
-    data = new byte[size];
+    this.size = size;
   }
 
   public override void Read() {
     MarkStarting();
 
-    // Parsing the whole array now isn't sensible
-    Bytes.Stream.ReadWholeArray(data);
+    // Parsing the data now isn't possible
+    Bytes.Stream.Position += size;
 
     MarkEnding();
   }
 
-  // public string Name => GetType().Name;
-  protected abstract MyCodeNode ReadChild(Stream stream, int index, out T t);
+  protected abstract (T, MyCodeNode) ReadChild(int index);
 
-  protected Tuple<T, MyCodeNode> AddChild(int index) {
-    var stream = new MemoryStream(data);
-    stream.Position = index;
+  protected (T t, MyCodeNode node) AddChild(int index) {
+    var origPos = Bytes.Stream.Position;
+    try {
+      Bytes.Stream.Position = Start + index;
 
-    Tuple<T, MyCodeNode> childpair;
-    if (!children.TryGetValue(index, out childpair)) {
-      var child = ReadChild(stream, index, out T t);
-      if (child == null) {
-        return Tuple.Create(t, (MyCodeNode)this);
+      if (!children.TryGetValue(index, out var childpair)) {
+        var (t, child) = ReadChild(index);
+        if (child == null) {
+          return (t, this);
+        }
+        child.NodeName = $"{GetType().Name}[{index}]";
+
+        childpair = (t, child);
+        children.Add(index, childpair);
+
+        Children.Add(child);
+
+        AdjustChildRanges(index, child);
       }
 
-      childpair = Tuple.Create(t, child);
-      children.Add(index, childpair);
-
-      child.Start += Start;
-      child.End += Start;
-
-      Children.Add(child);
-
-      AdjustChildRanges(index, child);
+      return childpair;
+    } finally {
+      Bytes.Stream.Position = origPos;
     }
-
-    return childpair;
   }
 
   //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
@@ -718,7 +718,8 @@ abstract class Heap<T> : MyCodeNode
     }
   }
 
-  protected static void GetEncodedLength(Stream stream, out int length, out int offset) {
+  protected void GetEncodedLength(out int length, out int offset) {
+    var stream = Bytes.Stream;
     var first = stream.ReallyReadByte();
     if ((first & 0x80) == 0) {
       length = first & 0x7F;
@@ -738,8 +739,8 @@ abstract class Heap<T> : MyCodeNode
     }
   }
 
-  public T Get(int i) => AddChild(i).Item1;
-  public MyCodeNode GetNode(int i) => AddChild(i).Item2;
+  public T Get(int i) => AddChild(i).t;
+  public MyCodeNode GetNode(int i) => AddChild(i).node;
 }
 
 // II.24.2.3
@@ -749,13 +750,11 @@ sealed class StringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override MyCodeNode ReadChild(Stream stream, int index, out string s) {
-    var TmpString = new NullTerminatedString(Encoding.UTF8, 1) { Bytes = Bytes };
-    TmpString.ReadStream(stream);
-    TmpString.NodeName = $"StringHeap[{index}]";
+  protected override (string, MyCodeNode) ReadChild(int index) {
+    var s = new NullTerminatedString(Encoding.UTF8, 1) { Bytes = Bytes };
+    s.Read();
 
-    s = TmpString.Str;
-    return TmpString;
+    return (s.Str, s);
   }
 }
 
@@ -766,20 +765,16 @@ sealed class UserStringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override MyCodeNode ReadChild(Stream stream, int index, out string s) {
-    int length;
-    int offset;
-    GetEncodedLength(stream, out length, out offset);
+  protected override (string, MyCodeNode) ReadChild(int index) {
+    GetEncodedLength(out var length, out var offset);
 
-    var TmpString = new FixedLengthString(length);
-    TmpString.ReadStream(stream);
-    s = TmpString.Str;
+    var s = new FixedLengthString(length);
+    s.Read();
 
-    TmpString.NodeName = $"UserStringHeap[{index}]";
-    TmpString.Description = $@"""{s}"", {offset} leading bits"; // TODO(pedant) bits or bytes?
-    TmpString.Start -= offset;
+    s.Description = $@"""{s.Str}"", {offset} leading bits"; // TODO(pedant) bits or bytes?
+    s.Start -= offset;
 
-    return TmpString;
+    return (s.Str, s);
   }
 
   sealed class FixedLengthString : MyCodeNode // MAYBE refactor all to record types
@@ -791,19 +786,17 @@ sealed class UserStringHeap : Heap<string>
       this.length = length;
     }
 
-    public override void Read() => ReadStream(Bytes.Stream);
-
-    public void ReadStream(Stream stream) {
-      Start = (int)stream.Position;
+    public override void Read() {
+      MarkStarting();
 
       var arr = new byte[length - 1]; // skip terminal byte
-      if (!stream.TryReadWholeArray(arr, out var error)) {
+      if (!Bytes.Stream.TryReadWholeArray(arr, out var error)) {
         Errors.Add(error);
         return;
       }
       Str = Encoding.Unicode.GetString(arr);
       NodeValue = Str.GetString();
-      End = (int)stream.Position;
+      MarkEnding();
     }
   }
 }
@@ -814,21 +807,16 @@ sealed class BlobHeap : Heap<byte[]>
       : base(size) {
   }
 
-  protected override MyCodeNode ReadChild(Stream stream, int index, out byte[] b) {
+  protected override (byte[], MyCodeNode) ReadChild(int index) {
+    GetEncodedLength(out var length, out var offset);
 
-    int length;
-    int offset;
-    GetEncodedLength(stream, out length, out offset);
+    var b = new MyAnyNode<byte[]>(StreamExtensions.ReadByteArray(length)) { Bytes = Bytes };
+    b.Read();
 
-    var tmpNode = new MyAnyNode<byte[]>(StreamExtensions.ReadByteArray(length));
-    tmpNode.ReadStream(stream);
-    b = tmpNode.t;
+    b.Description = $"{offset} leading bits";
+    b.Start -= offset;
 
-    tmpNode.NodeName = $"BlobHeap[{index}]";
-    tmpNode.Description = $"{offset} leading bits";
-    tmpNode.Start -= offset;
-
-    return tmpNode;
+    return (b.t, b);
   }
 }
 
@@ -839,21 +827,18 @@ sealed class GuidHeap : Heap<Guid>
       : base(size) {
   }
 
-  protected override MyCodeNode ReadChild(Stream stream, int index, out Guid g) {
-    if (index == 0) {
-      g = Guid.Empty;
-      return null;
-    }
+  protected override (Guid, MyCodeNode) ReadChild(int index) {
+    if (index == 0) return (Guid.Empty, null);
+
+    Bytes.Stream.Position -= index; // Undo ReadChild offset
 
     const int size = 16;
-    stream.Position = (index - 1) * size; // GuidHeap is indexed from 1
+    Bytes.Stream.Position += (index - 1) * size; // GuidHeap is indexed from 1
 
-    var tmpNode = new MyStructNode<Guid> { Bytes = Bytes };
-    tmpNode.ReadStream(stream);
-    g = tmpNode.t;
-    tmpNode.NodeName = $"GuidHeap[{index}]";
+    var g = new MyStructNode<Guid> { Bytes = Bytes };
+    g.Read();
 
-    return tmpNode;
+    return (g.t, g);
   }
 }
 
