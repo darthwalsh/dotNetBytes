@@ -768,7 +768,7 @@ sealed class UserStringHeap : Heap<string>
   protected override (string, MyCodeNode) ReadChild(int index) {
     GetEncodedLength(out var length, out var offset);
 
-    var s = new FixedLengthString(length);
+    var s = new FixedLengthString(length) { Bytes = Bytes };
     s.Read();
 
     s.Description = $@"""{s.Str}"", {offset} leading bits"; // TODO(pedant) bits or bytes?
@@ -1045,7 +1045,7 @@ sealed class UserStringHeapIndex : MyCodeNode
     base.Read();
     Children.Clear();
 
-    NodeValue = Bytes.UserStringHeap.Get(Index);
+    NodeValue = Bytes.UserStringHeap.Get(Index).GetString();
     Description = $"User String Heap index {Index:X}";
     Link = Bytes.UserStringHeap.GetNode(Index);
   }

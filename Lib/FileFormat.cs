@@ -757,35 +757,19 @@ sealed class Method : MyCodeNode
         throw new InvalidOperationException("Invalid MethodHeaderType " + type);
     }
 
-    // CilOps = new InstructionStream(length);
-    // AddChild(nameof(CilOps));
+    CilOps = new InstructionStream(length) { Bytes = Bytes };
+    AddChild(nameof(CilOps));
 
-    // if (moreSects) {
-    //   while (Bytes.Stream.Position % 4 != 0) {
-    //     _ = Bytes.Stream.ReallyReadByte();
-    //   }
+    if (moreSects) {
+      while (Bytes.Stream.Position % 4 != 0) {
+        _ = Bytes.Stream.ReallyReadByte();
+      }
 
-    //   var dataSections = new MethodDataSections { Bytes = Bytes };
-    //   dataSections.Read();
+      var dataSections = new MethodDataSections { Bytes = Bytes };
+      dataSections.Read();
 
-    //   Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
-
-    //   // var dataSections = new List<MethodDataSection>();
-    //   // var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
-
-    //   // MethodDataSection dataSection = null;
-    //   // do {
-    //   //   dataSection = new MethodDataSection() { Bytes = Bytes};
-    //   //   dataSection.Read();
-    //   //   dataSection.NodeName = $"MethodDataSections[{dataSections.Count}]";
-    //   //   dataSections.Add(dataSection);
-    //   // }
-    //   // while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
-
-    //   // DataSections = dataSections.ToArray();
-
-    //   // Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
-    // }
+      Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
+    }
     MarkEnding();
   }
 }
@@ -794,6 +778,7 @@ sealed class MethodDataSections : MyCodeNode
 {
   public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
   public override void Read() {
+    MarkStarting();
     MethodDataSection dataSection = null;
     do {
       dataSection = new MethodDataSection() { Bytes = Bytes };
@@ -802,9 +787,8 @@ sealed class MethodDataSections : MyCodeNode
       Children.Add(dataSection);
     }
     while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
-
+    MarkEnding();
   }
-
 }
 
 // II.25.4.1 and .4

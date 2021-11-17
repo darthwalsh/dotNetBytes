@@ -669,7 +669,7 @@ if (!window.location.href.includes("?Example=true")) {
   exampleButton.onclick = () => {
     let hash = window.location.href.split("#")[1] || "";
     if (hash) {
-      hash = "#" + hash;
+      hash = "#" + hash; // TODO this often causes an error -- go to top?
     }
     window.location.href = "?Example=true" + hash;
   };

@@ -1451,7 +1451,7 @@
           "Description": "",
           "Value": "",
           "Start": 592,
-          "End": 593,
+          "End": 615,
           "LinkPath": null,
           "Errors": [],
           "Children": [
@@ -1460,7 +1460,7 @@
               "Description": "",
               "Value": "",
               "Start": 592,
-              "End": 593,
+              "End": 615,
               "LinkPath": null,
               "Errors": [],
               "Children": [
@@ -1473,6 +1473,256 @@
                   "LinkPath": null,
                   "Errors": [],
                   "Children": []
+                },
+                {
+                  "Name": "CilOps",
+                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox \ncall Concat\ncall WriteLine",
+                  "Value": "",
+                  "Start": 593,
+                  "End": 615,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": [
+                    {
+                      "Name": "Op[0]",
+                      "Description": "ldstr \"Hello, World!\"",
+                      "Value": "",
+                      "Start": 593,
+                      "End": 598,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "OpCode",
+                          "Description": "ldstr",
+                          "Value": "0x72",
+                          "Start": 593,
+                          "End": 594,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        },
+                        {
+                          "Name": "Token",
+                          "Description": "",
+                          "Value": "\"Hello, World!\"",
+                          "Start": 594,
+                          "End": 598,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": [
+                            {
+                              "Name": "Index",
+                              "Description": "User String Heap index 1",
+                              "Value": "\"Hello, World!\"",
+                              "Start": 594,
+                              "End": 597,
+                              "LinkPath": "FileFormat/Sections[0]/UserStringHeap/UserStringHeap[1]",
+                              "Errors": [],
+                              "Children": []
+                            },
+                            {
+                              "Name": "Table",
+                              "Description": "UserStringHeapIndex",
+                              "Value": "0x70",
+                              "Start": 597,
+                              "End": 598,
+                              "LinkPath": null,
+                              "Errors": [],
+                              "Children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Op[1]",
+                      "Description": "ldc.i4.s 0x2C",
+                      "Value": "",
+                      "Start": 598,
+                      "End": 600,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "OpCode",
+                          "Description": "",
+                          "Value": "0x1F",
+                          "Start": 598,
+                          "End": 599,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        },
+                        {
+                          "Name": "Value",
+                          "Description": "",
+                          "Value": "0x2C",
+                          "Start": 599,
+                          "End": 600,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Op[2]",
+                      "Description": "box ",
+                      "Value": "",
+                      "Start": 600,
+                      "End": 605,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "OpCode",
+                          "Description": "box",
+                          "Value": "0x8C",
+                          "Start": 600,
+                          "End": 601,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        },
+                        {
+                          "Name": "Token",
+                          "Description": "",
+                          "Value": "",
+                          "Start": 601,
+                          "End": 605,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": [
+                            {
+                              "Name": "Offset",
+                              "Description": "",
+                              "Value": "0x1",
+                              "Start": 601,
+                              "End": 604,
+                              "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeSpecs[0]",
+                              "Errors": [],
+                              "Children": []
+                            },
+                            {
+                              "Name": "Table",
+                              "Description": "TypeSpec",
+                              "Value": "0x1B",
+                              "Start": 604,
+                              "End": 605,
+                              "LinkPath": null,
+                              "Errors": [],
+                              "Children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Op[3]",
+                      "Description": "call Concat",
+                      "Value": "",
+                      "Start": 605,
+                      "End": 610,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "OpCode",
+                          "Description": "call",
+                          "Value": "0x28",
+                          "Start": 605,
+                          "End": 606,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        },
+                        {
+                          "Name": "Token",
+                          "Description": "",
+                          "Value": "Concat",
+                          "Start": 606,
+                          "End": 610,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": [
+                            {
+                              "Name": "Offset",
+                              "Description": "",
+                              "Value": "0x1",
+                              "Start": 606,
+                              "End": 609,
+                              "LinkPath": "FileFormat/Sections[0]/TildeStream/MemberRefs[0]",
+                              "Errors": [],
+                              "Children": []
+                            },
+                            {
+                              "Name": "Table",
+                              "Description": "MemberRef",
+                              "Value": "0xA",
+                              "Start": 609,
+                              "End": 610,
+                              "LinkPath": null,
+                              "Errors": [],
+                              "Children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Op[4]",
+                      "Description": "call WriteLine",
+                      "Value": "",
+                      "Start": 610,
+                      "End": 615,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "OpCode",
+                          "Description": "call",
+                          "Value": "0x28",
+                          "Start": 610,
+                          "End": 611,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        },
+                        {
+                          "Name": "Token",
+                          "Description": "",
+                          "Value": "WriteLine",
+                          "Start": 611,
+                          "End": 615,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": [
+                            {
+                              "Name": "Offset",
+                              "Description": "",
+                              "Value": "0x2",
+                              "Start": 611,
+                              "End": 614,
+                              "LinkPath": "FileFormat/Sections[0]/TildeStream/MemberRefs[1]",
+                              "Errors": [],
+                              "Children": []
+                            },
+                            {
+                              "Name": "Table",
+                              "Description": "MemberRef",
+                              "Value": "0xA",
+                              "Start": 614,
+                              "End": 615,
+                              "LinkPath": null,
+                              "Errors": [],
+                              "Children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -2859,7 +3109,18 @@
           "End": 1044,
           "LinkPath": null,
           "Errors": [],
-          "Children": []
+          "Children": [
+            {
+              "Name": "UserStringHeap[1]",
+              "Description": "\"Hello, World!\", 1 leading bits",
+              "Value": "\"Hello, World!\"",
+              "Start": 1013,
+              "End": 1040,
+              "LinkPath": null,
+              "Errors": [],
+              "Children": []
+            }
+          ]
         },
         {
           "Name": "GuidHeap",

@@ -60,7 +60,6 @@ public class AssemblyBytes
 }
 
 [JsonConverter(typeof(MyCodeNodeConverter))]
-[StructLayout(LayoutKind.Sequential)]
 public abstract class MyCodeNode
 {
   // TODO(solonode) probably best to rename this field to NodeName or something nonconflicting with subclass
