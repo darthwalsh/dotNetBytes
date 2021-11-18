@@ -124,30 +124,11 @@ namespace Tests
 
     // TODO compare local Lib diff vs online CloudFunction; Example doesn't have all features
 
-    //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
+    //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
-    //TODO Also test with mono
+    //MAYBE Also test with mono
 
     //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
-
-    //TODO delete after removing all static fields?
-    [TestMethod]
-    [Ignore] // Re-enable to test changes to globals
-    public void Race() {
-      var factory = Task<int>.Factory;
-      var tasks = new List<Task<int>>();
-      for (var i = 0; i < 8; ++i) {
-        var myI = i;
-        tasks.Add(factory.StartNew(() => {
-          Console.Error.WriteLine($"Starting task {myI}");
-          Run(new SlowStream(OpenExampleProgram()));
-          Console.Error.WriteLine($"Done with task {myI}");
-          return myI;
-        }));
-      }
-
-      Task.WaitAll(tasks.ToArray());
-    }
 
     static string ilasm {
       get {
@@ -334,9 +315,9 @@ namespace Tests
       }
     }
 
-    static IEnumerable<string> exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
     static void AssertParentDifferentSizeThanChild(CodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
+        var exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
@@ -360,24 +341,6 @@ namespace Tests
 
         Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.NodeName}");
       }
-    }
-  }
-
-  class SlowStream : DelegatingStream
-  {
-    public SlowStream(Stream stream)
-        : base(stream) { }
-
-    void Delay() => Thread.Sleep(2);
-
-    public override int Read(byte[] buffer, int offset, int count) {
-      Delay();
-      return base.Read(buffer, offset, count);
-    }
-
-    public override int ReadByte() {
-      Delay();
-      return base.ReadByte();
     }
   }
 }

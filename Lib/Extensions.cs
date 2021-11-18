@@ -63,7 +63,6 @@ static class StreamExtensions
     return true;
   }
 
-  //TODO(cleanup) just wrap the input Stream?
   public static byte ReallyReadByte(this Stream stream) {
     var read = stream.ReadByte();
     if (read == -1)
@@ -98,7 +97,9 @@ static class TypeExtensions
       return convert.ToInt32(CultureInfo.InvariantCulture);
     }
 
-    throw new InvalidOperationException("MakeInt doesn't support: " + o.GetType().Name);
+    return o.GetType().GetFields()
+      .Single(field => field.DeclaringType != typeof(CodeNode))
+      .GetValue(o).GetInt32();
   }
 
   public static int GetSize(this object o) {

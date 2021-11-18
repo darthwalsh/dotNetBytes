@@ -57,7 +57,7 @@ sealed class FieldAttributes : CodeNode
     Flags = (AdditionalFlags)(Data & flagsMask);
   }
 
-  public override string NodeValue => (new Enum[] { Access, Flags }).GetString(); //TODO(Description) Enum[] text doesn't show up in GUI
+  public override string NodeValue => (new Enum[] { Access, Flags }).GetString(); //TODO(Descriptions) Enum[] text doesn't show up in GUI
 
   const ushort accessMask = 0x0007;
 
@@ -610,7 +610,7 @@ enum ElementType : byte
 // II.24.2.1
 sealed class MetadataRoot : CodeNode
 {
-  //TODO(descriptions)
+  //TODO(Descriptions)
 
   [Description("Magic signature for physical metadata : 0x424A5342.")]
   public uint Signature;
@@ -643,7 +643,7 @@ sealed class MetadataRoot : CodeNode
 // II.24.2.2
 sealed class StreamHeader : CodeNode
 {
-  //TODO(descriptions)
+  //TODO(Descriptions)
 
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
   public uint Offset;
@@ -862,7 +862,8 @@ sealed class TildeStreamRows : CodeNode
   public TildeStreamRows(int count) {
     this.count = count;
   }
-  public StructNode<uint>[] Rows; // TODO(solonode) maybe this should be uint[] but then it collapses to a single node
+  // TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row it's own size
+  public StructNode<uint>[] Rows;
 
   protected override int GetCount(string field) => count;
 }
@@ -1034,12 +1035,9 @@ sealed class StringHeapIndex : CodeNode
 {
   public short Index;
   // ushort? shortIndex;
-  // uint? intIndex;// TODO(?) not implemented: Make all Index generic for 4-byte index
+  // uint? intIndex;// TODO(pedant) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
   // public int Index => (int)(intIndex ?? shortIndex);
 
-  public string StringValue => NodeValue;
-  // public string StringValue => StringHeap.Get(this);
-  // public object Value => StringValue; // TODO ?
 
   public override void Read() {
     base.Read();
@@ -1093,7 +1091,7 @@ sealed class GuidHeapIndex : CodeNode
   }
 }
 
-//TODO(links) implement all CodedIndex
+//TODO(link) implement all CodedIndex
 sealed class UnknownCodedIndex : CodeNode
 {
   public ushort Index;

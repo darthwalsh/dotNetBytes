@@ -4,38 +4,33 @@ using System.IO;
 
 public class AssemblyBytes
 {
-  internal FileFormat fileFormat;
-
   public AssemblyBytes(Stream s) {
     this.Stream = s;
 
-    fileFormat = new FileFormat { Bytes = this };
-    fileFormat.Read();
-    fileFormat.NodeName = "FileFormat";
+    FileFormat = new FileFormat { Bytes = this };
+    FileFormat.Read();
+    FileFormat.NodeName = "FileFormat";
     
-    fileFormat.CallBack(n => {
+    FileFormat.CallBack(n => {
       if (n.Children.Any()) {
         n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
         n.End = Math.Max(n.End, n.Children.Max(c => c.End));
       }
     });
-    fileFormat.CallBack(n => {
+    FileFormat.CallBack(n => {
       n.Children = n.Children.OrderBy(c => c.Start).ToList();
     });
 
-    FindOverLength(s, fileFormat);
-    fileFormat.AssignPath();
-  }
-
-  static void FindOverLength(Stream s, CodeNode node) {
-    node.CallBack(n => {
+    FileFormat.CallBack(n => {
       if (n.End > s.Length) {
         throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
       }
     });
-  }
 
-  public CodeNode Node => fileFormat;
+    FileFormat.AssignPath();
+  }
+  internal FileFormat FileFormat { get; private set; }
+  public CodeNode Node => FileFormat;
 
   public Stream Stream { get; }
   internal Section CLIHeaderSection { get; set; }

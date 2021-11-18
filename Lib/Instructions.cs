@@ -8,7 +8,7 @@ using System.Linq;
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 //TODO(link) Link branch targets
-//TODO(HACK)? §III.1.7.2 validate branch targets are valid offsets
+//MAYBE §III.1.7.2 validate branch targets are valid offsets
 //TODO(method) §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
 //TODO(method) §III.1.5 validate operand type like in
 //TODO(method) §III.1.7.4 validate branching stack depth is consistant
@@ -333,7 +333,7 @@ sealed class Op : CodeNode
   }
 
   string With<T>(string description) where T : struct {
-    // Children.Single().Description = description; // TODO(solonode) better diff
+    // Children.Single().Description = description; // TODO(diff-solonode)
 
     var value = new StructNode<T> { Bytes = Bytes };
     value.Read();
@@ -355,7 +355,7 @@ sealed class Op : CodeNode
   string SwitchOp() {
     Children.Single().Description = "switch";
     AddChild(nameof(Count));
-    AddChild(nameof(Targets)); //TODO(links) switch offset
+    AddChild(nameof(Targets)); //TODO(link) switch offset
     return $"switch ({string.Join(", ", Targets)})";
   }
 

@@ -82,7 +82,7 @@ sealed class DosHeader : CodeNode
                          0x00, 0x00, 0x00, 0x00})]
   public byte[] Reserved2;
   [Expected(0x80)]
-  public uint LfaNew; //TODO(solonode) links to FileFormat/PEHeader/PESignature
+  public LfaNewNode LfaNew;
   [Expected(new byte[] { 0x0E, 0x1F, 0xBA, 0x0E, 0x00, 0xB4, 0x09, 0xCD,
                          0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
   public byte[] DosCode;
@@ -90,6 +90,17 @@ sealed class DosHeader : CodeNode
   public char[] Message;
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
   public byte[] Reserved3;
+
+  public sealed class LfaNewNode : CodeNode {
+    public uint val;
+    public override void Read() {
+      base.Read();
+      NodeValue = Children.Single().NodeValue;
+      Children.Clear();
+    }
+
+    public override CodeNode Link => Bytes.FileFormat.PEHeader.PESignature;
+  }
 }
 
 class PESignature : CodeNode
@@ -155,10 +166,10 @@ sealed class PEOptionalHeader : CodeNode
   //TODO(Descriptions)
 
   public PEHeaderStandardFields PEHeaderStandardFields;
-  //TODO(solonode) uncomment [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
+  //TODO(diff-solonode) uncomment [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
   public int BaseOfData = -1;
   public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields32;
-  public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64; //TODO(solonode) naming PE32+
+  public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64;
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
   public override void Read() {
@@ -170,13 +181,13 @@ sealed class PEOptionalHeader : CodeNode
       case PE32Magic.PE32:
         AddChild(nameof(BaseOfData));
         AddChild(nameof(PEHeaderWindowsNtSpecificFields32));
-        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
-        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(solonode)
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(diff-solonode)
         break;
       case PE32Magic.PE32plus:
         AddChild(nameof(PEHeaderWindowsNtSpecificFields64));
-        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields"; //TODO(solonode)
-        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(solonode)
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(diff-solonode)
         break;
       default:
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
@@ -355,7 +366,7 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
 sealed class RVAandSize : CodeNode
 {
   public RVAandSize() {
-    NodeValue = "RVAandSize"; //TODO(solonode)
+    NodeValue = "RVAandSize"; //TODO(diff-solonode)
   }
 
   [OrderedField] public uint RVA;
@@ -442,9 +453,8 @@ sealed class Section : CodeNode
     sectionI = i;
   }
 
-  //TODO(cleanup) reorder children in order (?)
   public override void Read() {
-    var header = Bytes.fileFormat.PEHeader.SectionHeaders[sectionI];
+    var header = Bytes.FileFormat.PEHeader.SectionHeaders[sectionI];
 
     Start = (int)header.PointerToRawData;
     End = Start + (int)header.SizeOfRawData;
@@ -452,7 +462,7 @@ sealed class Section : CodeNode
     string name = new string(header.Name);
     Description = name;
 
-    var optionalHeader = Bytes.fileFormat.PEHeader.PEOptionalHeader;
+    var optionalHeader = Bytes.FileFormat.PEHeader.PEOptionalHeader;
     var dataDirs = optionalHeader.PEHeaderHeaderDataDirectories;
 
     foreach (var nr in dataDirs.GetType().GetFields()
@@ -629,12 +639,12 @@ sealed class Fixup : CodeNode
 {
   //TODO(Descriptions)
 
-  [Description(/*"Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3)."*/ "")] //TODO(solonode) 
+  [Description(/*"Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3)."*/ "")] //TODO(diff-solonode) 
   public byte Type;
-  [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(solonode) 
+  [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(diff-solonode) 
   public short Offset;
 
-  protected override CodeNode ReadField(string fieldName) {
+  protected override CodeNode ReadField(string fieldName) { // MAYBE just override Read()
     switch (fieldName) {
       case nameof(Type):
         var type = new StructNode<byte> { Bytes = Bytes };
@@ -877,7 +887,7 @@ sealed class LargeMethodHeader : CodeNode
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
   public UInt24 DataSize;
   [OrderedField]
-  public SmallExceptionHandlingClause[] Clauses; // TODO(solonode) LargeExceptionHandlingClause?
+  public SmallExceptionHandlingClause[] Clauses; // TODO(fixme) LargeExceptionHandlingClause?
 
   public override void Read() {
     base.Read();
@@ -888,7 +898,7 @@ sealed class LargeMethodHeader : CodeNode
   }
 
   protected override int GetCount(string field) => field switch {
-    nameof(Clauses) => (DataSize.IntValue - 4) / 12, // TODO(solonode) should this be 24???
+    nameof(Clauses) => (DataSize.IntValue - 4) / 12, // TODO(fixme) should this be 24???
     _ => base.GetCount(field),
   };
 }
@@ -899,7 +909,7 @@ sealed class SmallExceptionHandlingClause : CodeNode
   [Description("Flags")]
   public ushort SmallExceptionClauseFlags;
   [Description("Offset in bytes of try block from start of method body.")]
-  public ushort TryOffset; //TODO(links)
+  public ushort TryOffset; //TODO(link)
   [Description("Length in bytes of the try block")]
   public byte TryLength;
   [Description("Location of the handler for this try block")]
@@ -907,7 +917,7 @@ sealed class SmallExceptionHandlingClause : CodeNode
   [Description("Size of the handler code in bytes")]
   public byte HandlerLength;
   [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
-  public uint ClassTokenOrFilterOffset; //TODO(links)
+  public uint ClassTokenOrFilterOffset; //TODO(link)
 }
 
 [Flags]
@@ -955,7 +965,7 @@ enum LargeExceptionClauseFlags : uint
 sealed class UInt24 : CodeNode
 {
   public int IntValue { get; private set; }
-  public override string NodeValue => IntValue.GetString(); // TODO(solonode) test this is right
+  public override string NodeValue => IntValue.GetString();
 
   public override void Read() {
     MarkStarting();
@@ -968,7 +978,7 @@ sealed class UInt24 : CodeNode
   }
 }
 
-sealed class NullTerminatedString : CodeNode // MAYBE refactor all to record types
+sealed class NullTerminatedString : CodeNode
 {
   public string Str { get; private set; }
 

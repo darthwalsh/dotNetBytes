@@ -44,6 +44,7 @@ When coding on the frontend, I normally:
  - use [`LiveServer` extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
  - run vscode debug task for a separate chrome PWA window, or open http://127.0.0.1:5500?Example=true
  - use Chrome dev-tools to debug HTML, and VS Code / dev-tools for coding or debugging JS
+  - FIXME: Only working on macOS with dotnet core installed.
 
 ### Software design
 
@@ -73,14 +74,13 @@ Some guarantees about the JSON format:
 - Nodes will not have both `Children` and a `LinkPath`
 - A node's `Children` will have unique `Name`
 - A node's `Children` will not have have overlapping `[Start, End)` ranges
-- An array will be represented as strings, i.e. `{Name: Methods, Children:[ {Name: Method[0]}]}`
+- An array will be represented with names with string suffix, i.e. `{Name:Methods, Children:[ {Name: Method[0], ...}, {Name: Method[1], ...} ]}`
 - Apart from array nodes with a single element, a node's `Children` will be smaller than the node.
 
 ### Scenarios for full test pass
-- From http-server, open http://127.0.0.1:8080?Example=true, click around
-- From VS run dotNetBytes, look at "YAML" command line output
-- From VS run CloudFunction, open root URL, upload EXE, modify EXE !!TODO
-- Run Tests unit project
+- Run both `CloudFunction` and SPA with `CloudFunction/Client` task and with `python -m http.server 5500 -d view`; click around, upload EXE, modify EXE
+  - For SPA-only changes, can just run http-server, open http://127.0.0.1:8080?Example=true, click around
+- `dotnet test` passes
 
 ## Deploying
 

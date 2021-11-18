@@ -221,7 +221,7 @@
               "Value": "0x80",
               "Start": 60,
               "End": 64,
-              "LinkPath": null,
+              "LinkPath": "FileFormat/PEHeader/PESignature",
               "Errors": [],
               "Children": []
             },

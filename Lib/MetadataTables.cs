@@ -63,7 +63,7 @@ sealed class Assembly : CodeNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public StringHeapIndex Culture;
 
-  public override string NodeValue => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+  public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
 // II.22.3
@@ -93,7 +93,7 @@ sealed class AssemblyRef : CodeNode
   [OrderedField] public StringHeapIndex Culture;
   [OrderedField] public BlobHeapIndex HashValue;
 
-  public override string NodeValue => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
+  public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
 // II.22.6
@@ -170,7 +170,7 @@ sealed class ExportedType : CodeNode
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.Implementation Implementation;
 
-  public override string NodeValue => TypeNamespace.StringValue + "." + TypeName.StringValue;
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.15
@@ -178,7 +178,7 @@ sealed class Field : CodeNode
 {
   [OrderedField] public FieldAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(FieldSig) 
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig 
 
   public override string NodeValue => Name.NodeValue;
 }
@@ -194,7 +194,7 @@ sealed class FieldLayout : CodeNode
 sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-  [OrderedField] public BlobHeapIndex NativeType; //TODO(Signature) II.23.4 Marshalling descriptors
+  [OrderedField] public BlobHeapIndex NativeType; //TODO(Sig) II.23.4 Marshalling descriptors
 }
 
 // II.22.18
@@ -299,7 +299,7 @@ sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(MethodRefSig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodRefSig
 
   public override string NodeValue => Name.NodeValue;
 }
@@ -311,7 +311,7 @@ sealed class MethodDef : CodeNode
   [OrderedField] public MethodImplAttributes ImplFlags;
   [OrderedField] public MethodAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(MethodDefSig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodDefSig
   [OrderedField] public UnknownCodedIndex ParamList;
 
   public override string NodeValue => Name.NodeValue;
@@ -341,7 +341,7 @@ sealed class MethodSemantics : CodeNode
 sealed class MethodSpec : CodeNode
 {
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
-  [OrderedField] public BlobHeapIndex Instantiation; //TODO(MethodSpec Sig)
+  [OrderedField] public BlobHeapIndex Instantiation; //TODO(Sig) MethodSpec Sig
 }
 
 // II.22.30
@@ -386,7 +386,7 @@ sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(PropertySig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) PropertySig
 
   public override string NodeValue => Name.NodeValue;
 }
@@ -401,7 +401,7 @@ sealed class PropertyMap : CodeNode
 // II.22.36
 sealed class StandAloneSig : CodeNode
 {
-  [OrderedField] public BlobHeapIndex Signature; //TODO(StandAloneSig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) StandAloneSig
 }
 
 // II.22.37
@@ -414,7 +414,7 @@ sealed class TypeDef : CodeNode
   [OrderedField] public UnknownCodedIndex FieldList;
   [OrderedField] public UnknownCodedIndex MethodList;
 
-  public override string NodeValue => TypeNamespace.StringValue + "." + TypeName.StringValue;
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.38
@@ -424,11 +424,11 @@ sealed class TypeRef : CodeNode
   [OrderedField] public StringHeapIndex TypeName;
   [OrderedField] public StringHeapIndex TypeNamespace;
 
-  public override string NodeValue => TypeNamespace.StringValue + "." + TypeName.StringValue;
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.39
 sealed class TypeSpec : CodeNode
 {
-  [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig) TypeSpecSignature
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) TypeSpec Sig TypeSpecSignature
 }
