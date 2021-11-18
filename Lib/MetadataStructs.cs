@@ -1511,6 +1511,5 @@ abstract class CodedIndex : MyCodeNode
   class ExtendsNothing : MyCodeNode
   {
     public override string NodeValue => "(Nothing)";
-    public CodeNode Node => null;
   }
 }

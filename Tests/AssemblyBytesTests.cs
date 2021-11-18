@@ -340,7 +340,7 @@ namespace Tests
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
-        Assert.Fail(string.Join("\r\n", node));
+        Assert.Fail($"{node.NodeName} at {node.Start}");
       }
     }
 

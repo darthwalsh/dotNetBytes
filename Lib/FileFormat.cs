@@ -821,7 +821,7 @@ sealed class MethodDataSection : MyCodeNode
   public SmallMethodHeader SmallMethodHeader;
 
   public override void Read() {
-    AddChild(nameof(MethodHeaderSection));
+    AddChild(nameof(Header));
 
     if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
