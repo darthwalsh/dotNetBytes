@@ -177,7 +177,7 @@ namespace Tests
         Console.Error.WriteLine($"Using existing {outpath}");
       }
 
-      Run(File.OpenRead(outpath));
+      Run(outpath);
     }
 
     //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
@@ -197,7 +197,7 @@ namespace Tests
                   Program.Run(outpath);
                   Assert.Fail("Oops comment me out");
       /*/
-      Run(File.OpenRead(outpath));
+      Run(outpath);
       //*/
     }
 
@@ -232,7 +232,7 @@ namespace Tests
 
     [TestMethod]
     public void TestExample() {
-      var assm = Run(OpenExampleProgram());
+      var assm = Run(view("Program.dat"));
       var expected = FormatJson(assm.Node.ToJson());
 
       using var baselineJSON = File.OpenRead(view("bytes.json"));
@@ -254,16 +254,11 @@ namespace Tests
       throw new Exception("no view");
     }
 
-    static Stream OpenExampleProgram() => File.OpenRead(view("Program.dat"));
 
-    static AssemblyBytes Run(Stream s) {
-      AssemblyBytes assm;
-      try {
-        assm = new AssemblyBytes(s);
-      } catch {
-        s.Dispose();
-        throw;
-      }
+    static AssemblyBytes Run(string path) {
+      using var s = File.OpenRead(path);
+
+      AssemblyBytes assm = new AssemblyBytes(s);
 
       try {
         assm.Node.CallBack(AssertChildrenDontOverlap);
@@ -288,8 +283,6 @@ namespace Tests
       } catch {
         System.Console.Error.WriteLine(assm.Node.ToString());
         throw;
-      } finally {
-        s.Dispose();
       }
     }
 
