@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 
 public class AssemblyBytes
 {
@@ -185,6 +183,7 @@ public abstract class MyCodeNode
           break;
       }
     }
+    CheckExpected(field);
   }
 
   protected void AddChildren(string fieldName, int length) {
@@ -203,6 +202,7 @@ public abstract class MyCodeNode
       Children.Add(o);
       o.NodeName = $"{fieldName}[{i}]";
     }
+    CheckExpected(field);
   }
 
   protected virtual MyCodeNode ReadField(string fieldName) {
@@ -225,9 +225,6 @@ public abstract class MyCodeNode
 
         var sn = typeof(MyStructArrayNode<>).MakeGenericType(elementType);
         var o = (MyCodeNode)Activator.CreateInstance(sn, len);
-        // var o = new MyAnyNode<object>(stream => Enumerable.Range(0, len)
-        //   .Select(_ => stream.ReadStruct(elementType))
-        //   .ToArray()); // MAYBE get this working but can't cast Object[] to Byte[]
         o.Bytes = Bytes;
         o.Read();
 
@@ -268,6 +265,15 @@ public abstract class MyCodeNode
   protected virtual int GetCount(string field) =>
     throw new InvalidOperationException($"{GetType().Name} .{field}");
 
+  void CheckExpected(FieldInfo field) {
+    if (TryGetAttribute(field, out ExpectedAttribute expected)) {
+      var actual = field.GetValue(this);
+      if (!TypeExtensions.SmartEquals(expected.Value, actual)) {
+        Errors.Add($"Expected {field.Name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{Start:X}");
+      }
+    }
+  }
+
   static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
     var attrs = member.GetCustomAttributes(typeof(T), false);
     if (!attrs.Any()) {
@@ -298,23 +304,6 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
       return node.t;
     }).ToArray();
 
-    MarkEnding();
-  }
-}
-
-public sealed class MyAnyNode<T> : MyCodeNode // TODO(solonode) review if this is useful
-{
-  Func<Stream, T> f;
-  public T t;
-
-  public MyAnyNode(Func<Stream, T> f) {
-    this.f = f;
-  }
-  public override void Read() {
-    MarkStarting();
-
-    t = f(Bytes.Stream);
-    NodeValue = t.GetString();
     MarkEnding();
   }
 }

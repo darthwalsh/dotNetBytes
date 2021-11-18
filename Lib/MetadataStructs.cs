@@ -810,13 +810,27 @@ sealed class BlobHeap : Heap<byte[]>
   protected override (byte[], MyCodeNode) ReadChild(int index) {
     GetEncodedLength(out var length, out var offset);
 
-    var b = new MyAnyNode<byte[]>(StreamExtensions.ReadByteArray(length)) { Bytes = Bytes };
+    var b = new ByteArrayNode(length) { Bytes = Bytes };
     b.Read();
 
     b.Description = $"{offset} leading bits";
     b.Start -= offset;
 
-    return (b.t, b);
+    return (b.arr, b);
+  }
+
+  sealed class ByteArrayNode : MyCodeNode
+  {
+    public byte[] arr;
+    public ByteArrayNode(int length) {
+      arr = new byte[length];
+    }
+    public override void Read() {
+      MarkStarting();
+      Bytes.Stream.ReadWholeArray(arr);
+      NodeValue = arr.GetString();
+      MarkEnding();
+    }
   }
 }
 
