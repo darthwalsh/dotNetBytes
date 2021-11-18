@@ -293,7 +293,7 @@ namespace Tests
 
         assm.Node.CallBack(AssertLinkOrChildren);
 
-        // assm.Node.CallBack(AssertParentDifferentSizeThanChild);
+        assm.Node.CallBack(AssertParentDifferentSizeThanChild);
 
         byte[] data;
         using (var memory = new MemoryStream()) {
@@ -301,7 +301,7 @@ namespace Tests
           s.CopyTo(memory);
           data = memory.ToArray();
         }
-        // assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
+        assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
 
         return assm;
       } catch {
@@ -335,16 +335,16 @@ namespace Tests
     }
 
     static IEnumerable<string> exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
-    static void AssertParentDifferentSizeThanChild(CodeNode node) {
+    static void AssertParentDifferentSizeThanChild(MyCodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
-        if (exceptions.Any(sub => node.Name.Contains(sub))) {
+        if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
         Assert.Fail(string.Join("\r\n", node));
       }
     }
 
-    static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data) {
+    static void AssertInterestingBytesNotIgnored(MyCodeNode node, byte[] data) {
       if (!node.Children.Any()) {
         return;
       }
@@ -358,7 +358,7 @@ namespace Tests
         if (data[i] == 0 || childIncludes.Contains(i))
           continue;
 
-        Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
+        Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.NodeName}");
       }
     }
   }
