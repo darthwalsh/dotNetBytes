@@ -27,7 +27,7 @@ public class AssemblyBytes
     fileFormat.AssignPath();
   }
 
-  static void FindOverLength(Stream s, MyCodeNode node) {
+  static void FindOverLength(Stream s, CodeNode node) {
     node.CallBack(n => {
       if (n.End > s.Length) {
         throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
@@ -35,7 +35,7 @@ public class AssemblyBytes
     });
   }
 
-  public MyCodeNode Node => fileFormat;
+  public CodeNode Node => fileFormat;
 
   public Stream Stream { get; }
   internal Section CLIHeaderSection { get; set; }

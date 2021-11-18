@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-// MyCodeNode is written though reflection
+// CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 // II.25 File format extensions to PE 
 
-sealed class FileFormat : MyCodeNode
+sealed class FileFormat : CodeNode
 {
   [OrderedField] public PEHeader PEHeader;
   [OrderedField] public Section[] Sections;
@@ -23,7 +23,7 @@ sealed class FileFormat : MyCodeNode
 }
 
 // II.25.2
-sealed class PEHeader : MyCodeNode
+sealed class PEHeader : CodeNode
 {
   [OrderedField] public DosHeader DosHeader;
   [OrderedField] public PESignature PESignature;
@@ -38,7 +38,7 @@ sealed class PEHeader : MyCodeNode
 }
 
 // II.25.2.1
-sealed class DosHeader : MyCodeNode
+sealed class DosHeader : CodeNode
 {
   [Expected('M')]
   public char MagicM;
@@ -92,7 +92,7 @@ sealed class DosHeader : MyCodeNode
   public byte[] Reserved3;
 }
 
-class PESignature : MyCodeNode
+class PESignature : CodeNode
 {
   [Expected('P')]
   public char MagicP;
@@ -103,7 +103,7 @@ class PESignature : MyCodeNode
 }
 
 // II.25.2.2 
-class PEFileHeader : MyCodeNode
+class PEFileHeader : CodeNode
 {
   [Description("0x14c is I386.")]
   public MachineType Machine;
@@ -150,7 +150,7 @@ enum MachineType : ushort
 }
 
 // II.25.2.3
-sealed class PEOptionalHeader : MyCodeNode
+sealed class PEOptionalHeader : CodeNode
 {
   //TODO(Descriptions)
 
@@ -189,7 +189,7 @@ sealed class PEOptionalHeader : MyCodeNode
 }
 
 // II.25.2.3.1
-sealed class PEHeaderStandardFields : MyCodeNode
+sealed class PEHeaderStandardFields : CodeNode
 {
   [Description("Identifies version.")]
   public PE32Magic Magic;
@@ -217,7 +217,7 @@ enum PE32Magic : ushort
 }
 
 // II.25.2.3.2
-sealed class PEHeaderWindowsNtSpecificFields<Tint> : MyCodeNode
+sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
 {
   [Description("Shall be a multiple of 0x10000.")]
   public Tint ImageBase;
@@ -302,7 +302,7 @@ enum DllCharacteristics : ushort
 }
 
 // II.25.2.3.3
-sealed class PEHeaderHeaderDataDirectories : MyCodeNode
+sealed class PEHeaderHeaderDataDirectories : CodeNode
 {
   //TODO(link) all Raw Address from understandingCIL
   //TODO(link) RVAandSize all 
@@ -352,7 +352,7 @@ sealed class PEHeaderHeaderDataDirectories : MyCodeNode
   public ulong Reserved;
 }
 
-sealed class RVAandSize : MyCodeNode
+sealed class RVAandSize : CodeNode
 {
   public RVAandSize() {
     NodeValue = "RVAandSize"; //TODO(solonode)
@@ -363,7 +363,7 @@ sealed class RVAandSize : MyCodeNode
 }
 
 // II.25.3
-sealed class SectionHeader : MyCodeNode
+sealed class SectionHeader : CodeNode
 {
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
   public char[] Name;
@@ -415,7 +415,7 @@ enum SectionHeaderCharacteristics : uint
   MemoryCanBeWrittenTo = 0x80000000,
 }
 
-sealed class Section : MyCodeNode
+sealed class Section : CodeNode
 {
   int rva;
   public CLIHeader CLIHeader;
@@ -541,7 +541,7 @@ sealed class Section : MyCodeNode
 }
 
 // II.25.3.1
-sealed class ImportTable : MyCodeNode
+sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
   public uint ImportLookupTable;
@@ -562,7 +562,7 @@ sealed class ImportTable : MyCodeNode
   public byte[] Reserved;
 }
 
-sealed class ImportAddressTable : MyCodeNode
+sealed class ImportAddressTable : CodeNode
 {
   [OrderedField]
   public uint HintNameTableRVA;
@@ -570,7 +570,7 @@ sealed class ImportAddressTable : MyCodeNode
   public uint NullTerminated;
 }
 
-sealed class ImportLookupTable : MyCodeNode
+sealed class ImportLookupTable : CodeNode
 {
   [OrderedField]
   public uint HintNameTableRVA;
@@ -578,7 +578,7 @@ sealed class ImportLookupTable : MyCodeNode
   public uint NullTerminated;
 }
 
-sealed class ImportAddressHintNameTable : MyCodeNode
+sealed class ImportAddressHintNameTable : CodeNode
 {
   [Description("Shall be 0.")]
   [Expected(0)]
@@ -593,7 +593,7 @@ sealed class ImportAddressHintNameTable : MyCodeNode
 }
 
 // It would be nice to parse all x86 or other kind of assemblies like ARM or JAR, but that's out-of-scope
-sealed class NativeEntryPoint : MyCodeNode
+sealed class NativeEntryPoint : CodeNode
 {
   [Description("JMP op code in X86")]
   [Expected(0xFF)]
@@ -606,7 +606,7 @@ sealed class NativeEntryPoint : MyCodeNode
 }
 
 // II.25.3.2
-sealed class Relocations : MyCodeNode
+sealed class Relocations : CodeNode
 {
   [OrderedField]
   public BaseRelocationTable BaseRelocationTable;
@@ -619,13 +619,13 @@ sealed class Relocations : MyCodeNode
   };
 }
 
-sealed class BaseRelocationTable : MyCodeNode
+sealed class BaseRelocationTable : CodeNode
 {
   [OrderedField] public uint PageRVA;
   [OrderedField] public uint BlockSize;
 }
 
-sealed class Fixup : MyCodeNode
+sealed class Fixup : CodeNode
 {
   //TODO(Descriptions)
 
@@ -634,17 +634,17 @@ sealed class Fixup : MyCodeNode
   [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(solonode) 
   public short Offset;
 
-  protected override MyCodeNode ReadField(string fieldName) {
+  protected override CodeNode ReadField(string fieldName) {
     switch (fieldName) {
       case nameof(Type):
-        var type = new MyStructNode<byte> { Bytes = Bytes };
+        var type = new StructNode<byte> { Bytes = Bytes };
         type.Read();
         Offset = (short)((type.t << 8) & 0x0F00);
         Type = (byte)(type.t >> 4);
         type.NodeValue = Type.GetString();
         return type;
       case nameof(Offset):
-        var offset = new MyStructNode<byte> { Bytes = Bytes };
+        var offset = new StructNode<byte> { Bytes = Bytes };
         offset.Read();
         Offset |= (short)offset.t;
         offset.NodeValue = Offset.GetString();
@@ -656,7 +656,7 @@ sealed class Fixup : MyCodeNode
 }
 
 // II.25.3.3
-sealed class CLIHeader : MyCodeNode
+sealed class CLIHeader : CodeNode
 {
   [Description("Size of the header in bytes")]
   public uint Cb;
@@ -697,7 +697,7 @@ enum CliHeaderFlags : uint
   TrackDebugData = 0x10000,
 }
 
-sealed class Methods : MyCodeNode
+sealed class Methods : CodeNode
 {
   public Method[] Method;
 
@@ -714,7 +714,7 @@ sealed class Methods : MyCodeNode
 }
 
 // II.25.4
-sealed class Method : MyCodeNode
+sealed class Method : CodeNode
 {
   MethodDef def;
   public Method(MethodDef def) {
@@ -774,7 +774,7 @@ sealed class Method : MyCodeNode
   }
 }
 
-sealed class MethodDataSections : MyCodeNode
+sealed class MethodDataSections : CodeNode
 {
   public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
   public override void Read() {
@@ -801,7 +801,7 @@ enum MethodHeaderType : byte
 }
 
 // II.25.4.3
-sealed class FatFormat : MyCodeNode
+sealed class FatFormat : CodeNode
 {
   [Description("Lower four bits is rest of Flags, Upper four bits is size of this header expressed as the count of 4-byte integers occupied (currently 3)")]
   public byte FlagsAndSize;
@@ -814,7 +814,7 @@ sealed class FatFormat : MyCodeNode
 }
 
 // II.25.4.5
-sealed class MethodDataSection : MyCodeNode
+sealed class MethodDataSection : CodeNode
 {
   public MethodHeaderSection Header;
   public LargeMethodHeader LargeMethodHeader;
@@ -848,7 +848,7 @@ enum MethodHeaderSection : byte
   MoreSects = 0x80,
 }
 
-sealed class SmallMethodHeader : MyCodeNode
+sealed class SmallMethodHeader : CodeNode
 {
   [Description("Size of the data for the block, including the header, say n * 12 + 4.")]
   public byte DataSize;
@@ -872,7 +872,7 @@ sealed class SmallMethodHeader : MyCodeNode
   };
 }
 
-sealed class LargeMethodHeader : MyCodeNode
+sealed class LargeMethodHeader : CodeNode
 {
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
   public UInt24 DataSize;
@@ -894,7 +894,7 @@ sealed class LargeMethodHeader : MyCodeNode
 }
 
 // II.25.4.6
-sealed class SmallExceptionHandlingClause : MyCodeNode
+sealed class SmallExceptionHandlingClause : CodeNode
 {
   [Description("Flags")]
   public ushort SmallExceptionClauseFlags;
@@ -923,7 +923,7 @@ enum SmallExceptionClauseFlags : ushort
   Fault = 0x0004,
 }
 
-sealed class LargeExceptionHandlingClause : MyCodeNode
+sealed class LargeExceptionHandlingClause : CodeNode
 {
   [Description("Flags.")]
   public uint LargeExceptionClauseFlags;
@@ -952,7 +952,7 @@ enum LargeExceptionClauseFlags : uint
   Fault = 0x0004,
 }
 
-sealed class UInt24 : MyCodeNode
+sealed class UInt24 : CodeNode
 {
   public int IntValue { get; private set; }
   public override string NodeValue => IntValue.GetString(); // TODO(solonode) test this is right
@@ -968,7 +968,7 @@ sealed class UInt24 : MyCodeNode
   }
 }
 
-sealed class NullTerminatedString : MyCodeNode // MAYBE refactor all to record types
+sealed class NullTerminatedString : CodeNode // MAYBE refactor all to record types
 {
   public string Str { get; private set; }
 

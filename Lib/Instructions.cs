@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 
-// MyCodeNode is written though reflection
+// CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 //TODO(link) Link branch targets
@@ -16,7 +16,7 @@ using System.Linq;
 //TODO(method) §III.1.8 validate all sorts of stack type conversions, null type, etc.
 
 // III
-sealed class InstructionStream : MyCodeNode
+sealed class InstructionStream : CodeNode
 {
   int length;
 
@@ -41,7 +41,7 @@ sealed class InstructionStream : MyCodeNode
 }
 
 // III.1.9
-sealed class MetadataToken : MyCodeNode
+sealed class MetadataToken : CodeNode
 {
   public UInt24 Offset;
   public byte Table;
@@ -78,7 +78,7 @@ sealed class MetadataToken : MyCodeNode
   }
 }
 
-sealed class Op : MyCodeNode
+sealed class Op : CodeNode
 {
   public byte OpCode;
 
@@ -291,7 +291,7 @@ sealed class Op : MyCodeNode
   }
 
   string Extended() {
-    var secondByte = new MyStructNode<byte> { Bytes = Bytes };
+    var secondByte = new StructNode<byte> { Bytes = Bytes };
     secondByte.Read();
 
     var firstNode = Children.Single();
@@ -335,7 +335,7 @@ sealed class Op : MyCodeNode
   string With<T>(string description) where T : struct {
     // Children.Single().Description = description; // TODO(solonode) better diff
 
-    var value = new MyStructNode<T> { Bytes = Bytes };
+    var value = new StructNode<T> { Bytes = Bytes };
     value.Read();
     value.NodeName = "Value";
     Children.Add(value);

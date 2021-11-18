@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using System.Reflection;
 
 [JsonConverter(typeof(CodeNodeConverter))]
-public abstract class MyCodeNode
+public abstract class CodeNode
 {
   public virtual string NodeName { get; set; } = "oops!"; // Unique name for addressing from parent
   public virtual string Description { get; set; } = ""; // Notes about this node based on the language spec
@@ -18,13 +18,13 @@ public abstract class MyCodeNode
 
   internal AssemblyBytes Bytes { get; set; }
 
-  public List<MyCodeNode> Children = new List<MyCodeNode>();
+  public List<CodeNode> Children = new List<CodeNode>();
   public List<string> Errors = new List<string>();
 
-  public virtual MyCodeNode Link { get; set; } // MAYBE this should probably be protected, but need to figure out RVA
+  public virtual CodeNode Link { get; set; } // MAYBE this should probably be protected, but need to figure out RVA
   public string SelfPath { get; private set; }
 
-  public void CallBack(Action<MyCodeNode> action) {
+  public void CallBack(Action<CodeNode> action) {
     action(this);
     foreach (var child in Children) {
       child.CallBack(action);
@@ -50,7 +50,7 @@ public abstract class MyCodeNode
     MarkStarting(); // MAYBE could be done in a non-virtual wrapper
 
     var orderedFields = this.GetType().GetFields()
-        .Where(field => field.DeclaringType != typeof(MyCodeNode))
+        .Where(field => field.DeclaringType != typeof(CodeNode))
         .ToList();
 
     if (orderedFields.Count > 1) {
@@ -76,7 +76,7 @@ public abstract class MyCodeNode
     var field = GetType().GetField(fieldName);
     var type = field.FieldType;
 
-    if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(MyCodeNode))) {
+    if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(CodeNode))) {
       var len = ((Array)field.GetValue(this))?.Length ?? GetCount(fieldName);
       AddChildren(fieldName, len);
       return;
@@ -100,13 +100,13 @@ public abstract class MyCodeNode
 
   protected void AddChildren(string fieldName, int length) {
     var field = GetType().GetField(fieldName);
-    var arr = (MyCodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
+    var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
     field.SetValue(this, arr);
     var elType = field.FieldType.GetElementType();
     var ctorIndexed = elType.GetConstructor(new[] { typeof(int) }) != null;
     for (var i = 0; i < arr.Length; i++) {
       var param = ctorIndexed ? new object[] { i } : new object[] { };
-      var o = arr[i] ?? (MyCodeNode)Activator.CreateInstance(elType, param);
+      var o = arr[i] ?? (CodeNode)Activator.CreateInstance(elType, param);
       o.Bytes = Bytes;
       o.Read();
       arr[i] = o;
@@ -117,7 +117,7 @@ public abstract class MyCodeNode
     CheckExpected(field);
   }
 
-  protected virtual MyCodeNode ReadField(string fieldName) {
+  protected virtual CodeNode ReadField(string fieldName) {
     var field = GetType().GetField(fieldName);
     var fieldType = field.FieldType;
 
@@ -135,8 +135,8 @@ public abstract class MyCodeNode
           len = GetCount(fieldName);
         }
 
-        var sn = typeof(MyStructArrayNode<>).MakeGenericType(elementType);
-        var o = (MyCodeNode)Activator.CreateInstance(sn, len);
+        var sn = typeof(StructArrayNode<>).MakeGenericType(elementType);
+        var o = (CodeNode)Activator.CreateInstance(sn, len);
         o.Bytes = Bytes;
         o.Read();
 
@@ -149,15 +149,15 @@ public abstract class MyCodeNode
       throw new InvalidOperationException($"{GetType().FullName}. {field.Name} is an array {elementType}[]");
     }
     if (fieldType.IsClass) {
-      var o = (MyCodeNode)(field.GetValue(this) ?? (MyCodeNode)Activator.CreateInstance(fieldType));
+      var o = (CodeNode)(field.GetValue(this) ?? (CodeNode)Activator.CreateInstance(fieldType));
       o.Bytes = Bytes;
       o.Read();
       field.SetValue(this, o);
       return o;
     }
     if (fieldType.IsValueType) {
-      var sn = typeof(MyStructNode<>).MakeGenericType(fieldType);
-      var o = (MyCodeNode)Activator.CreateInstance(sn);
+      var sn = typeof(StructNode<>).MakeGenericType(fieldType);
+      var o = (CodeNode)Activator.CreateInstance(sn);
       o.Bytes = Bytes;
       o.Read();
       var value = sn.GetField("t").GetValue(o);
@@ -201,11 +201,11 @@ public abstract class MyCodeNode
     return JsonSerializer.Serialize(this, options);
   }
 
-  sealed class CodeNodeConverter : JsonConverter<MyCodeNode>
+  sealed class CodeNodeConverter : JsonConverter<CodeNode>
   {
-    public override MyCodeNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+    public override CodeNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
-    public override void Write(Utf8JsonWriter writer, MyCodeNode node, JsonSerializerOptions options) {
+    public override void Write(Utf8JsonWriter writer, CodeNode node, JsonSerializerOptions options) {
       writer.WriteStartObject();
       writer.WriteString("Name", node.NodeName);
       writer.WriteString(nameof(node.Description), node.Description);
@@ -225,13 +225,13 @@ public abstract class MyCodeNode
   }
 }
 
-public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
+public sealed class StructArrayNode<T> : CodeNode where T : struct
 {
   public T[] arr;
 
   public int Length { get; }
 
-  public MyStructArrayNode(int length) {
+  public StructArrayNode(int length) {
     Length = length;
   }
 
@@ -239,7 +239,7 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
     MarkStarting();
 
     arr = Enumerable.Range(0, Length).Select(_ => {
-      var node = new MyStructNode<T> { Bytes = Bytes };
+      var node = new StructNode<T> { Bytes = Bytes };
       node.Read();
       return node.t;
     }).ToArray();
@@ -248,7 +248,7 @@ public sealed class MyStructArrayNode<T> : MyCodeNode where T : struct
   }
 }
 
-public sealed class MyStructNode<T> : MyCodeNode where T : struct
+public sealed class StructNode<T> : CodeNode where T : struct
 {
   public T t;
 

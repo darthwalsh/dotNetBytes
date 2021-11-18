@@ -312,30 +312,30 @@ namespace Tests
       }
     }
 
-    static void AssertChildrenDontOverlap(MyCodeNode node) {
+    static void AssertChildrenDontOverlap(CodeNode node) {
       foreach (var o in node.Children.Zip(node.Children.Skip(1), (last, next) => new { last, next })) {
         Asserts.IsLessThanOrEqual(o.last.End, o.next.Start);
       }
     }
 
-    static void AssertNoErrors(MyCodeNode node) {
+    static void AssertNoErrors(CodeNode node) {
       var error = node.Errors.FirstOrDefault();
       Assert.IsNull(error, error);
     }
 
-    static void AssertUniqueNames(MyCodeNode node) {
+    static void AssertUniqueNames(CodeNode node) {
       var name = node.Children.GroupBy(c => c.NodeName).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
       Assert.IsNull(name, $"duplicate {name} under {node.NodeName}");
     }
 
-    static void AssertLinkOrChildren(MyCodeNode node) {
+    static void AssertLinkOrChildren(CodeNode node) {
       if (node.Link?.SelfPath != null && node.Children.Any()) {
         Assert.Fail($"{node.NodeName} has link {node.SelfPath} and {node.Children.Count} children");
       }
     }
 
     static IEnumerable<string> exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
-    static void AssertParentDifferentSizeThanChild(MyCodeNode node) {
+    static void AssertParentDifferentSizeThanChild(CodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
@@ -344,7 +344,7 @@ namespace Tests
       }
     }
 
-    static void AssertInterestingBytesNotIgnored(MyCodeNode node, byte[] data) {
+    static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data) {
       if (!node.Children.Any()) {
         return;
       }

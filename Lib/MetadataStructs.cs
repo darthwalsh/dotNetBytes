@@ -7,7 +7,7 @@ using System.Text;
 
 // II.23 Metadata logical format: other structures 
 
-// MyCodeNode is written though reflection
+// CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 // II.23.1.1
@@ -43,7 +43,7 @@ enum EventAttributes : ushort
 }
 
 // II.23.1.5
-sealed class FieldAttributes : MyCodeNode
+sealed class FieldAttributes : CodeNode
 {
   public ushort Data;
   AccessAttributes Access;
@@ -117,7 +117,7 @@ enum FileAttributes : uint
 }
 
 // II.23.1.7
-sealed class GenericParamAttributes : MyCodeNode
+sealed class GenericParamAttributes : CodeNode
 {
   public ushort Data;
 
@@ -160,7 +160,7 @@ sealed class GenericParamAttributes : MyCodeNode
 }
 
 // II.23.1.8
-sealed class PInvokeAttributes : MyCodeNode
+sealed class PInvokeAttributes : CodeNode
 {
   public ushort Data;
 
@@ -230,7 +230,7 @@ enum ManifestResourceAttributes : uint
 }
 
 // II.23.1.10
-sealed class MethodAttributes : MyCodeNode
+sealed class MethodAttributes : CodeNode
 {
   public ushort Data;
   MemberAccessAttributes MemberAccess;
@@ -310,7 +310,7 @@ sealed class MethodAttributes : MyCodeNode
 }
 
 // II.23.1.11
-sealed class MethodImplAttributes : MyCodeNode
+sealed class MethodImplAttributes : CodeNode
 {
   public ushort Data;
   CodeTypeAttributes CodeType;
@@ -419,7 +419,7 @@ enum PropertyAttributes : ushort
 
 
 // II.23.1.15
-sealed class TypeAttributes : MyCodeNode
+sealed class TypeAttributes : CodeNode
 {
   public uint Data;
   VisibilityAttributes Visibility;
@@ -608,7 +608,7 @@ enum ElementType : byte
 }
 
 // II.24.2.1
-sealed class MetadataRoot : MyCodeNode
+sealed class MetadataRoot : CodeNode
 {
   //TODO(descriptions)
 
@@ -641,7 +641,7 @@ sealed class MetadataRoot : MyCodeNode
 }
 
 // II.24.2.2
-sealed class StreamHeader : MyCodeNode
+sealed class StreamHeader : CodeNode
 {
   //TODO(descriptions)
 
@@ -653,10 +653,10 @@ sealed class StreamHeader : MyCodeNode
   public NullTerminatedString Name = new NullTerminatedString(Encoding.ASCII, 4);
 }
 
-abstract class Heap<T> : MyCodeNode
+abstract class Heap<T> : CodeNode
 {
   int size;
-  SortedList<int, (T, MyCodeNode)> children = new SortedList<int, (T, MyCodeNode)>();
+  SortedList<int, (T, CodeNode)> children = new SortedList<int, (T, CodeNode)>();
 
   public Heap(int size) {
     this.size = size;
@@ -671,9 +671,9 @@ abstract class Heap<T> : MyCodeNode
     MarkEnding();
   }
 
-  protected abstract (T, MyCodeNode) ReadChild(int index);
+  protected abstract (T, CodeNode) ReadChild(int index);
 
-  protected (T t, MyCodeNode node) AddChild(int index) {
+  protected (T t, CodeNode node) AddChild(int index) {
     var origPos = Bytes.Stream.Position;
     try {
       Bytes.Stream.Position = Start + index;
@@ -700,7 +700,7 @@ abstract class Heap<T> : MyCodeNode
   }
 
   //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
-  void AdjustChildRanges(int index, MyCodeNode child) {
+  void AdjustChildRanges(int index, CodeNode child) {
     var chI = children.IndexOfKey(index);
     if (chI != 0) {
       AdjustChildren(children.Values[chI - 1].Item2, child);
@@ -711,7 +711,7 @@ abstract class Heap<T> : MyCodeNode
     }
   }
 
-  static void AdjustChildren(MyCodeNode before, MyCodeNode after) {
+  static void AdjustChildren(CodeNode before, CodeNode after) {
     if (before.End > after.Start) {
       before.Description = @"(Sharing bytes with the next element...)";
       before.End = after.Start;
@@ -740,7 +740,7 @@ abstract class Heap<T> : MyCodeNode
   }
 
   public T Get(int i) => AddChild(i).t;
-  public MyCodeNode GetNode(int i) => AddChild(i).node;
+  public CodeNode GetNode(int i) => AddChild(i).node;
 }
 
 // II.24.2.3
@@ -750,7 +750,7 @@ sealed class StringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override (string, MyCodeNode) ReadChild(int index) {
+  protected override (string, CodeNode) ReadChild(int index) {
     var s = new NullTerminatedString(Encoding.UTF8, 1) { Bytes = Bytes };
     s.Read();
 
@@ -765,7 +765,7 @@ sealed class UserStringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override (string, MyCodeNode) ReadChild(int index) {
+  protected override (string, CodeNode) ReadChild(int index) {
     GetEncodedLength(out var length, out var offset);
 
     var s = new FixedLengthString(length) { Bytes = Bytes };
@@ -777,7 +777,7 @@ sealed class UserStringHeap : Heap<string>
     return (s.Str, s);
   }
 
-  sealed class FixedLengthString : MyCodeNode // MAYBE refactor all to record types
+  sealed class FixedLengthString : CodeNode // MAYBE refactor all to record types
   {
     public string Str { get; private set; } = "oops unset!!";
 
@@ -807,7 +807,7 @@ sealed class BlobHeap : Heap<byte[]>
       : base(size) {
   }
 
-  protected override (byte[], MyCodeNode) ReadChild(int index) {
+  protected override (byte[], CodeNode) ReadChild(int index) {
     GetEncodedLength(out var length, out var offset);
 
     var b = new ByteArrayNode(length) { Bytes = Bytes };
@@ -819,7 +819,7 @@ sealed class BlobHeap : Heap<byte[]>
     return (b.arr, b);
   }
 
-  sealed class ByteArrayNode : MyCodeNode
+  sealed class ByteArrayNode : CodeNode
   {
     public byte[] arr;
     public ByteArrayNode(int length) {
@@ -841,7 +841,7 @@ sealed class GuidHeap : Heap<Guid>
       : base(size) {
   }
 
-  protected override (Guid, MyCodeNode) ReadChild(int index) {
+  protected override (Guid, CodeNode) ReadChild(int index) {
     if (index == 0) return (Guid.Empty, null);
 
     Bytes.Stream.Position -= index; // Undo ReadChild offset
@@ -849,26 +849,26 @@ sealed class GuidHeap : Heap<Guid>
     const int size = 16;
     Bytes.Stream.Position += (index - 1) * size; // GuidHeap is indexed from 1
 
-    var g = new MyStructNode<Guid> { Bytes = Bytes };
+    var g = new StructNode<Guid> { Bytes = Bytes };
     g.Read();
 
     return (g.t, g);
   }
 }
 
-sealed class TildeStreamRows : MyCodeNode
+sealed class TildeStreamRows : CodeNode
 {
   int count;
   public TildeStreamRows(int count) {
     this.count = count;
   }
-  public MyStructNode<uint>[] Rows; // TODO(solonode) maybe this should be uint[] but then it collapses to a single node
+  public StructNode<uint>[] Rows; // TODO(solonode) maybe this should be uint[] but then it collapses to a single node
 
   protected override int GetCount(string field) => count;
 }
 
 // II.24.2.6
-sealed class TildeStream : MyCodeNode
+sealed class TildeStream : CodeNode
 {
   public Section Section { get; private set; }
   public TildeStream(Section section) {
@@ -917,7 +917,7 @@ sealed class TildeStream : MyCodeNode
   [OrderedField] public MethodSpec[] MethodSpecs;
   [OrderedField] public GenericParamConstraint[] GenericParamConstraints;
 
-  Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<MyCodeNode>>();
+  Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
   public override void Read() {
     MarkStarting();
@@ -949,7 +949,7 @@ sealed class TildeStream : MyCodeNode
     var name = GetFieldName(flag);
     AddChildren(name, count);
 
-    var nodes = (IEnumerable<MyCodeNode>)GetType().GetField(name).GetValue(this);
+    var nodes = (IEnumerable<CodeNode>)GetType().GetField(name).GetValue(this);
     streamNodes.Add(flag, nodes);
   }
 
@@ -996,10 +996,10 @@ sealed class TildeStream : MyCodeNode
   };
 
 
-  public MyCodeNode GetCodeNode(MetadataTableFlags flag, int i) => streamNodes[flag].Skip(i).First();
+  public CodeNode GetCodeNode(MetadataTableFlags flag, int i) => streamNodes[flag].Skip(i).First();
 }
 
-sealed class TildeData : MyCodeNode
+sealed class TildeData : CodeNode
 {
   [Description("Reserved, always 0 (§II.24.1).")]
   [Expected(0)]
@@ -1030,7 +1030,7 @@ enum TildeDateHeapSizes : byte
   BlobHeapIndexWide = 0x04,
 }
 
-sealed class StringHeapIndex : MyCodeNode
+sealed class StringHeapIndex : CodeNode
 {
   public short Index;
   // ushort? shortIndex;
@@ -1051,7 +1051,7 @@ sealed class StringHeapIndex : MyCodeNode
   }
 }
 
-sealed class UserStringHeapIndex : MyCodeNode
+sealed class UserStringHeapIndex : CodeNode
 {
   public short Index;
 
@@ -1065,7 +1065,7 @@ sealed class UserStringHeapIndex : MyCodeNode
   }
 }
 
-sealed class BlobHeapIndex : MyCodeNode
+sealed class BlobHeapIndex : CodeNode
 {
   public short Index;
 
@@ -1079,7 +1079,7 @@ sealed class BlobHeapIndex : MyCodeNode
   }
 }
 
-sealed class GuidHeapIndex : MyCodeNode
+sealed class GuidHeapIndex : CodeNode
 {
   public short Index;
 
@@ -1094,7 +1094,7 @@ sealed class GuidHeapIndex : MyCodeNode
 }
 
 //TODO(links) implement all CodedIndex
-sealed class UnknownCodedIndex : MyCodeNode
+sealed class UnknownCodedIndex : CodeNode
 {
   public ushort Index;
 
@@ -1106,20 +1106,20 @@ sealed class UnknownCodedIndex : MyCodeNode
   }
 }
 
-abstract class CodedIndex : MyCodeNode
+abstract class CodedIndex : CodeNode
 {
   CodedIndex() { } // Don't allow subclassing from other types
 
   public int Index { get; private set; }
 
   public override string NodeValue => GetLink().NodeValue;
-  public override MyCodeNode Link => GetLink();
+  public override CodeNode Link => GetLink();
 
   public override void Read() {
     MarkStarting();
     Bytes = Bytes;
 
-    var readData = new MyStructNode<ushort> { Bytes = Bytes };
+    var readData = new StructNode<ushort> { Bytes = Bytes };
     readData.Read();
     Index = GetIndex(readData.t);
 
@@ -1128,7 +1128,7 @@ abstract class CodedIndex : MyCodeNode
 
   protected abstract int GetIndex(int readData);
 
-  protected abstract MyCodeNode GetLink();
+  protected abstract CodeNode GetLink();
 
   public class TypeDefOrRef : CodedIndex
   {
@@ -1146,7 +1146,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 2) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       if (extendsNothing != null) {
         return extendsNothing;
       }
@@ -1176,7 +1176,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 2) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.Field: return Bytes.TildeStream.Fields[Index];
         case Tag.Param: return Bytes.TildeStream.Params[Index];
@@ -1202,7 +1202,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 5) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
         case Tag.Field: return Bytes.TildeStream.Fields[Index];
@@ -1266,7 +1266,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 1) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.Field: return Bytes.TildeStream.Fields[Index];
         case Tag.Param: return Bytes.TildeStream.Params[Index];
@@ -1290,7 +1290,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 2) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
@@ -1316,7 +1316,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 3) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
         case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
@@ -1346,7 +1346,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 1) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.Event: return Bytes.TildeStream.Events[Index];
         case Tag.Property: return Bytes.TildeStream.Properties[Index];
@@ -1370,7 +1370,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 1) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
         case Tag.MemberRef: return Bytes.TildeStream.MemberRefs[Index];
@@ -1394,7 +1394,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 1) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.Field: return Bytes.TildeStream.Fields[Index];
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
@@ -1425,7 +1425,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 2) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       if (extendsNothing != null) {
         return extendsNothing;
       }
@@ -1455,7 +1455,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 3) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
         case Tag.MemberRef: return Bytes.TildeStream.MemberRefs[Index];
@@ -1479,7 +1479,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 2) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.Module: return Bytes.TildeStream.Modules[Index];
         case Tag.ModuleRef: return Bytes.TildeStream.ModuleRefs[Index];
@@ -1507,7 +1507,7 @@ abstract class CodedIndex : MyCodeNode
       return (readData >> 1) - 1;
     }
 
-    protected override MyCodeNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
         case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
         case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
@@ -1522,7 +1522,7 @@ abstract class CodedIndex : MyCodeNode
     }
   }
 
-  class ExtendsNothing : MyCodeNode
+  class ExtendsNothing : CodeNode
   {
     public override string NodeValue => "(Nothing)";
   }

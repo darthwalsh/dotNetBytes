@@ -4,7 +4,7 @@ using System.Linq;
 
 // II.22 Metadata logical format: tables 
 
-// MyCodeNode is written though reflection
+// CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 [Flags]
@@ -51,7 +51,7 @@ public enum MetadataTableFlags : ulong
 }
 
 // II.22.2
-sealed class Assembly : MyCodeNode
+sealed class Assembly : CodeNode
 {
   [OrderedField] public AssemblyHashAlgorithm HashAlgId;
   [OrderedField] public ushort MajorVersion;
@@ -67,7 +67,7 @@ sealed class Assembly : MyCodeNode
 }
 
 // II.22.3
-sealed class AssemblyOS : MyCodeNode
+sealed class AssemblyOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
   [OrderedField] public uint OSMajorVersion;
@@ -75,13 +75,13 @@ sealed class AssemblyOS : MyCodeNode
 }
 
 // II.22.4
-sealed class AssemblyProcessor : MyCodeNode
+sealed class AssemblyProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
 }
 
 // II.22.5
-sealed class AssemblyRef : MyCodeNode
+sealed class AssemblyRef : CodeNode
 {
   [OrderedField] public ushort MajorVersion;
   [OrderedField] public ushort MinorVersion;
@@ -97,7 +97,7 @@ sealed class AssemblyRef : MyCodeNode
 }
 
 // II.22.6
-sealed class AssemblyRefOS : MyCodeNode
+sealed class AssemblyRefOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
   [OrderedField] public uint OSMajorVersion;
@@ -106,14 +106,14 @@ sealed class AssemblyRefOS : MyCodeNode
 }
 
 // II.22.7
-sealed class AssemblyRefProcessor : MyCodeNode
+sealed class AssemblyRefProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
   [OrderedField] public UnknownCodedIndex AssemblyRef;
 }
 
 // II.22.8
-sealed class ClassLayout : MyCodeNode
+sealed class ClassLayout : CodeNode
 {
   [OrderedField] public ushort PackingSize;
   [OrderedField] public uint ClassSize;
@@ -121,7 +121,7 @@ sealed class ClassLayout : MyCodeNode
 }
 
 // II.22.9
-sealed class Constant : MyCodeNode
+sealed class Constant : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Type;
   [OrderedField] public CodedIndex.HasConstant Parent;
@@ -129,7 +129,7 @@ sealed class Constant : MyCodeNode
 }
 
 // II.22.10
-sealed class CustomAttribute : MyCodeNode
+sealed class CustomAttribute : CodeNode
 {
   [OrderedField] public CodedIndex.HasCustomAttribute Parent;
   [OrderedField] public CodedIndex.CustomAttributeType Type;
@@ -137,7 +137,7 @@ sealed class CustomAttribute : MyCodeNode
 }
 
 // II.22.11
-sealed class DeclSecurity : MyCodeNode
+sealed class DeclSecurity : CodeNode
 {
   [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
   [OrderedField] public CodedIndex.HasDeclSecurity Parent;
@@ -145,14 +145,14 @@ sealed class DeclSecurity : MyCodeNode
 }
 
 // II.22.12
-sealed class EventMap : MyCodeNode
+sealed class EventMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
   [OrderedField] public UnknownCodedIndex EventList;
 }
 
 // II.22.13
-sealed class Event : MyCodeNode
+sealed class Event : CodeNode
 {
   [OrderedField] public EventAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
@@ -162,7 +162,7 @@ sealed class Event : MyCodeNode
 }
 
 // II.22.14
-sealed class ExportedType : MyCodeNode
+sealed class ExportedType : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
   [OrderedField] public uint TypeDefId;
@@ -174,7 +174,7 @@ sealed class ExportedType : MyCodeNode
 }
 
 // II.22.15
-sealed class Field : MyCodeNode
+sealed class Field : CodeNode
 {
   [OrderedField] public FieldAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
@@ -184,28 +184,28 @@ sealed class Field : MyCodeNode
 }
 
 // II.22.16
-sealed class FieldLayout : MyCodeNode
+sealed class FieldLayout : CodeNode
 {
   [OrderedField] public uint Offset;
   [OrderedField] public UnknownCodedIndex Field;
 }
 
 // II.22.17
-sealed class FieldMarshal : MyCodeNode
+sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
   [OrderedField] public BlobHeapIndex NativeType; //TODO(Signature) II.23.4 Marshalling descriptors
 }
 
 // II.22.18
-sealed class FieldRVA : MyCodeNode
+sealed class FieldRVA : CodeNode
 {
   [OrderedField] public uint RVA;
   [OrderedField] public UnknownCodedIndex Field;
 }
 
 // II.22.19
-sealed class FileTable : MyCodeNode
+sealed class FileTable : CodeNode
 {
   [OrderedField] public FileAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
@@ -215,7 +215,7 @@ sealed class FileTable : MyCodeNode
 }
 
 // II.22.20
-sealed class GenericParam : MyCodeNode
+sealed class GenericParam : CodeNode
 {
   [OrderedField] public ushort Number;
   [OrderedField] public GenericParamAttributes Flags;
@@ -226,14 +226,14 @@ sealed class GenericParam : MyCodeNode
 }
 
 // II.22.21
-sealed class GenericParamConstraint : MyCodeNode
+sealed class GenericParamConstraint : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Owner;
   [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
 }
 
 // II.22.22
-sealed class ImplMap : MyCodeNode
+sealed class ImplMap : CodeNode
 {
   [OrderedField] public PInvokeAttributes MappingFlags;
   [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
@@ -242,14 +242,14 @@ sealed class ImplMap : MyCodeNode
 }
 
 // II.22.23
-sealed class InterfaceImpl : MyCodeNode
+sealed class InterfaceImpl : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Class;
   [OrderedField] public CodedIndex.TypeDefOrRef Interface;
 }
 
 // II.22.24
-sealed class ManifestResource : MyCodeNode
+sealed class ManifestResource : CodeNode
 {
   [OrderedField] public uint Offset; //TODO(link)
   [OrderedField] public ManifestResourceAttributes Flags;
@@ -272,7 +272,7 @@ sealed class ManifestResource : MyCodeNode
   }
 }
 
-sealed class ResourceEntry : MyCodeNode
+sealed class ResourceEntry : CodeNode
 {
   int i;
   public ResourceEntry(int i) {
@@ -295,7 +295,7 @@ sealed class ResourceEntry : MyCodeNode
 }
 
 // II.22.25
-sealed class MemberRef : MyCodeNode
+sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
@@ -305,7 +305,7 @@ sealed class MemberRef : MyCodeNode
 }
 
 // II.22.26
-sealed class MethodDef : MyCodeNode
+sealed class MethodDef : CodeNode
 {
   [OrderedField] public uint RVA;
   [OrderedField] public MethodImplAttributes ImplFlags;
@@ -322,7 +322,7 @@ sealed class MethodDef : MyCodeNode
 }
 
 // II.22.27
-sealed class MethodImpl : MyCodeNode
+sealed class MethodImpl : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Class;
   [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
@@ -330,7 +330,7 @@ sealed class MethodImpl : MyCodeNode
 }
 
 // II.22.28
-sealed class MethodSemantics : MyCodeNode
+sealed class MethodSemantics : CodeNode
 {
   [OrderedField] public MethodSemanticsAttributes Semantics;
   [OrderedField] public UnknownCodedIndex Method;
@@ -338,14 +338,14 @@ sealed class MethodSemantics : MyCodeNode
 }
 
 // II.22.29
-sealed class MethodSpec : MyCodeNode
+sealed class MethodSpec : CodeNode
 {
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
   [OrderedField] public BlobHeapIndex Instantiation; //TODO(MethodSpec Sig)
 }
 
 // II.22.30
-sealed class Module : MyCodeNode
+sealed class Module : CodeNode
 {
   [OrderedField] public ushort Generation;
   [OrderedField] public StringHeapIndex Name;
@@ -357,7 +357,7 @@ sealed class Module : MyCodeNode
 }
 
 // II.22.31
-sealed class ModuleRef : MyCodeNode
+sealed class ModuleRef : CodeNode
 {
   [OrderedField] public StringHeapIndex Name;
 
@@ -365,14 +365,14 @@ sealed class ModuleRef : MyCodeNode
 }
 
 // II.22.32 (Should be NestedClass but renaming type so field is allowed to be NestedClass)
-sealed class Nestedclass : MyCodeNode
+sealed class Nestedclass : CodeNode
 {
   [OrderedField] public UnknownCodedIndex NestedClass;
   [OrderedField] public UnknownCodedIndex EnclosingClass;
 }
 
 // II.22.33
-sealed class Param : MyCodeNode
+sealed class Param : CodeNode
 {
   [OrderedField] public ParamAttributes Flags;
   [OrderedField] public ushort Sequence;
@@ -382,7 +382,7 @@ sealed class Param : MyCodeNode
 }
 
 // II.22.34
-sealed class Property : MyCodeNode
+sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
@@ -392,20 +392,20 @@ sealed class Property : MyCodeNode
 }
 
 // II.22.35
-sealed class PropertyMap : MyCodeNode
+sealed class PropertyMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
   [OrderedField] public UnknownCodedIndex PropertyList;
 }
 
 // II.22.36
-sealed class StandAloneSig : MyCodeNode
+sealed class StandAloneSig : CodeNode
 {
   [OrderedField] public BlobHeapIndex Signature; //TODO(StandAloneSig)
 }
 
 // II.22.37
-sealed class TypeDef : MyCodeNode
+sealed class TypeDef : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
   [OrderedField] public StringHeapIndex TypeName;
@@ -418,7 +418,7 @@ sealed class TypeDef : MyCodeNode
 }
 
 // II.22.38
-sealed class TypeRef : MyCodeNode
+sealed class TypeRef : CodeNode
 {
   [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
   [OrderedField] public StringHeapIndex TypeName;
@@ -428,7 +428,7 @@ sealed class TypeRef : MyCodeNode
 }
 
 // II.22.39
-sealed class TypeSpec : MyCodeNode
+sealed class TypeSpec : CodeNode
 {
   [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig) TypeSpecSignature
 }
