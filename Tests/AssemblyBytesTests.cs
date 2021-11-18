@@ -329,7 +329,7 @@ namespace Tests
     }
 
     static void AssertLinkOrChildren(MyCodeNode node) {
-      if (node.LinkPath != null && node.Children.Any()) {
+      if (node.Link?.SelfPath != null && node.Children.Any()) {
         Assert.Fail($"{node.NodeName} has link {node.SelfPath} and {node.Children.Count} children");
       }
     }
