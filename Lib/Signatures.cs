@@ -76,7 +76,7 @@ public static class CompressionExtensions
 //II.23.2.14
 sealed class TypeSpecSignature : CodeNode
 {
-  public override void Read() {
+  protected override void InnerRead() {
     var b = (ElementType)Bytes.Stream.ReallyReadByte();
     switch (b) {
       case ElementType.Ptr:

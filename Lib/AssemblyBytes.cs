@@ -12,19 +12,12 @@ public class AssemblyBytes
     FileFormat.NodeName = "FileFormat";
     
     FileFormat.CallBack(n => {
-      if (n.Children.Any()) {
-        n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
-        n.End = Math.Max(n.End, n.Children.Max(c => c.End));
-      }
-    });
-    FileFormat.CallBack(n => {
       n.Children = n.Children.OrderBy(c => c.Start).ToList();
     });
 
     FileFormat.CallBack(n => {
-      if (n.End > s.Length) {
-        throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
-      }
+      if (n.End > s.Length) throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
+      if (n.Start < 0) throw new InvalidOperationException($"Start was set to {n.Start}");
     });
 
     FileFormat.AssignPath();

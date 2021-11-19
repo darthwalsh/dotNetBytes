@@ -231,8 +231,15 @@ namespace Tests
     }
 
     [TestMethod]
-    public void TestExample() {
-      var assm = Run(view("Program.dat"));
+    public void ValidateExample() {
+      Run(view("Program.dat"));
+    }
+
+    [TestMethod]
+    public void BaselineExample() {
+      using var s = File.OpenRead(view("Program.dat"));
+      var assm = new AssemblyBytes(s);
+
       var expected = FormatJson(assm.Node.ToJson());
 
       using var baselineJSON = File.OpenRead(view("bytes.json"));
@@ -261,6 +268,8 @@ namespace Tests
       AssemblyBytes assm = new AssemblyBytes(s);
 
       try {
+        assm.Node.CallBack(AssertSized);
+
         assm.Node.CallBack(AssertChildrenDontOverlap);
 
         assm.Node.CallBack(AssertNoErrors);
@@ -284,6 +293,10 @@ namespace Tests
         System.Console.Error.WriteLine(assm.Node.ToString());
         throw;
       }
+    }
+
+    static void AssertSized(CodeNode node) {
+      Asserts.IsLessThan(node.Start, node.End);
     }
 
     static void AssertChildrenDontOverlap(CodeNode node) {

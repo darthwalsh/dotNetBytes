@@ -24,9 +24,7 @@ sealed class InstructionStream : CodeNode
     this.length = length;
   }
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     while (Bytes.Stream.Position - Start < length) {
       var op = new Op { Bytes = Bytes };
       op.Read();
@@ -35,8 +33,6 @@ sealed class InstructionStream : CodeNode
     }
 
     Description = string.Join("\n", Children.Select(n => n.Description));
-
-    MarkEnding();
   }
 }
 
@@ -48,7 +44,7 @@ sealed class MetadataToken : CodeNode
 
   public UserStringHeapIndex Index;
 
-  public override void Read() {
+  protected override void InnerRead() {
     AddChild(nameof(Offset));
     AddChild(nameof(Table));
 
@@ -82,8 +78,7 @@ sealed class Op : CodeNode
 {
   public byte OpCode;
 
-  public override void Read() {
-    MarkStarting();
+  protected override void InnerRead() {
     AddChild(nameof(OpCode));
 
     Description = OpCode switch {
@@ -286,8 +281,6 @@ sealed class Op : CodeNode
       NodeValue = Children.Single().NodeValue;
       Children.Clear();
     }
-
-    MarkEnding();
   }
 
   string Extended() {

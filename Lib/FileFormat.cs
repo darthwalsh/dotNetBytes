@@ -16,6 +16,11 @@ sealed class FileFormat : CodeNode
   [OrderedField] public PEHeader PEHeader;
   [OrderedField] public Section[] Sections;
 
+  protected override void InnerRead() {
+    base.InnerRead();
+    End = Sections.Max(s => s.End);
+  }
+
   protected override int GetCount(string field) => field switch {
     nameof(Sections) => PEHeader.SectionHeaders.Length,
     _ => base.GetCount(field),
@@ -93,8 +98,8 @@ sealed class DosHeader : CodeNode
 
   public sealed class LfaNewNode : CodeNode {
     public uint val;
-    public override void Read() {
-      base.Read();
+    protected override void InnerRead() {
+      base.InnerRead();
       NodeValue = Children.Single().NodeValue;
       Children.Clear();
     }
@@ -172,9 +177,7 @@ sealed class PEOptionalHeader : CodeNode
   public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64;
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     AddChild(nameof(PEHeaderStandardFields));
 
     switch (PEHeaderStandardFields.Magic) {
@@ -194,8 +197,6 @@ sealed class PEOptionalHeader : CodeNode
     }
 
     AddChild(nameof(PEHeaderHeaderDataDirectories));
-
-    MarkEnding();
   }
 }
 
@@ -453,7 +454,7 @@ sealed class Section : CodeNode
     sectionI = i;
   }
 
-  public override void Read() {
+  protected override void InnerRead() {
     var header = Bytes.FileFormat.PEHeader.SectionHeaders[sectionI];
 
     Start = (int)header.PointerToRawData;
@@ -714,7 +715,7 @@ sealed class Methods : CodeNode
 {
   public Method[] Method;
 
-  public override void Read() {
+  protected override void InnerRead() {
     if (Bytes.TildeStream.MethodDefs == null) return;
 
     var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA);
@@ -731,7 +732,9 @@ sealed class Methods : CodeNode
     }
 
     Method = methods.OrderBy(m => m.RVA).ToArray();
-    base.Read();
+    base.InnerRead();
+    Start = Method.Min(m => m.Start);
+    End = Method.Max(m => m.End);
   }
 }
 
@@ -749,10 +752,9 @@ sealed class Method : CodeNode
 
   public uint RVA { get; private set; }
 
-  public override void Read() {
+  protected override void InnerRead() {
     Bytes.CLIHeaderSection.Reposition(RVA);
-    MarkStarting();
-
+    Start = (int)Bytes.Stream.Position;
     AddChild(nameof(Header));
     var header = Children.Single();
 
@@ -792,15 +794,13 @@ sealed class Method : CodeNode
 
       Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
     }
-    MarkEnding();
   }
 }
 
 sealed class MethodDataSections : CodeNode
 {
   public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
-  public override void Read() {
-    MarkStarting();
+  protected override void InnerRead() {
     MethodDataSection dataSection = null;
     do {
       dataSection = new MethodDataSection() { Bytes = Bytes };
@@ -809,7 +809,6 @@ sealed class MethodDataSections : CodeNode
       Children.Add(dataSection);
     }
     while (dataSection.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
-    MarkEnding();
   }
 }
 
@@ -842,7 +841,7 @@ sealed class MethodDataSection : CodeNode
   public LargeMethodHeader LargeMethodHeader;
   public SmallMethodHeader SmallMethodHeader;
 
-  public override void Read() {
+  protected override void InnerRead() {
     AddChild(nameof(MethodHeaderSection));
     Children.Last().NodeValue = ""; //TODO(diff-solonode)
 
@@ -882,8 +881,8 @@ sealed class SmallMethodHeader : CodeNode
   [OrderedField]
   public SmallExceptionHandlingClause[] Clauses;
 
-  public override void Read() {
-    base.Read();
+  protected override void InnerRead() {
+    base.InnerRead();
 
     if (Clauses.Length * 12 + 4 != DataSize) {
       Errors.Add("DataSize was not of the form n * 12 + 4");
@@ -903,8 +902,8 @@ sealed class LargeMethodHeader : CodeNode
   [OrderedField]
   public SmallExceptionHandlingClause[] Clauses; // TODO(fixme) LargeExceptionHandlingClause?
 
-  public override void Read() {
-    base.Read();
+  protected override void InnerRead() {
+    base.InnerRead();
 
     if (Clauses.Length * 24 + 4 != DataSize.IntValue) {
       Errors.Add("DataSize was not of the form n * 24 + 4");
@@ -981,14 +980,10 @@ sealed class UInt24 : CodeNode
   public int IntValue { get; private set; }
   public override string NodeValue => IntValue.GetString();
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     var b = new byte[3];
     Bytes.Stream.ReadWholeArray(b);
     IntValue = (b[2] << 16) + (b[1] << 8) + b[0];
-
-    MarkEnding();
   }
 }
 
@@ -1004,9 +999,7 @@ sealed class NullTerminatedString : CodeNode
     NodeValue = "oops unset!!";
   }
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     var builder = new List<byte>();
     var buffer = new byte[byteBoundary];
 
@@ -1015,7 +1008,6 @@ sealed class NullTerminatedString : CodeNode
       builder.AddRange(buffer);
 
       if (buffer.Contains((byte)'\0')) {
-        MarkEnding();
         Str = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
         NodeValue = Str.GetString();
         return;

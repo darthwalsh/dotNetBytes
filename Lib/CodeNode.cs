@@ -12,9 +12,9 @@ public abstract class CodeNode
   public virtual string Description { get; set; } = ""; // Notes about this node based on the language spec
   public virtual string NodeValue { get; set; } = ""; // A ToString() view of the node.
 
-  // Will be widened later
-  public int Start = int.MaxValue;
-  public int End = int.MinValue;
+  const int START_END_NOT_SET = -1;
+  public int Start = START_END_NOT_SET;
+  public int End = START_END_NOT_SET; // exclusive range
 
   internal AssemblyBytes Bytes { get; set; }
 
@@ -46,9 +46,15 @@ public abstract class CodeNode
     }
   }
 
-  public virtual void Read() {
-    MarkStarting(); // MAYBE could be done in a non-virtual wrapper
+  public void Read() {
+    Start = (int)Bytes.Stream.Position;
+    InnerRead();
+    if (End == START_END_NOT_SET) {
+      End = (int)Bytes.Stream.Position;
+    }
+  }
 
+  protected virtual void InnerRead() {
     var orderedFields = this.GetType().GetFields()
         .Where(field => field.DeclaringType != typeof(CodeNode))
         .ToList();
@@ -65,12 +71,7 @@ public abstract class CodeNode
     foreach (var field in orderedFields) {
       AddChild(field.Name);
     }
-
-    MarkEnding();
   }
-
-  protected void MarkStarting() => Start = (int)Bytes.Stream.Position;
-  protected void MarkEnding() => End = (int)Bytes.Stream.Position;
 
   protected void AddChild(string fieldName) {
     var field = GetType().GetField(fieldName);
@@ -235,16 +236,12 @@ public sealed class StructArrayNode<T> : CodeNode where T : struct
     Length = length;
   }
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     arr = Enumerable.Range(0, Length).Select(_ => {
       var node = new StructNode<T> { Bytes = Bytes };
       node.Read();
       return node.t;
     }).ToArray();
-
-    MarkEnding();
   }
 }
 
@@ -252,12 +249,8 @@ public sealed class StructNode<T> : CodeNode where T : struct
 {
   public T t;
 
-  public override void Read() {
-    MarkStarting();
-
+  protected override void InnerRead() {
     t = Bytes.Stream.ReadStruct<T>();
     NodeValue = t.GetString();
-
-    MarkEnding();
   }
 }

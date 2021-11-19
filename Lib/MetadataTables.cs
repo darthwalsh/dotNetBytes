@@ -258,13 +258,13 @@ sealed class ManifestResource : CodeNode
 
   public override string NodeValue => Name.NodeValue;
 
-  public override void Read() {
-    base.Read();
+  protected override void InnerRead() {
+    base.InnerRead();
 
     var origPos = Bytes.Stream.Position;
     try {
       var section = Bytes.CLIHeaderSection;
-      section.Reposition(section.CLIHeader.Resources.RVA + Offset);
+      section.Reposition(section.CLIHeader.Resources.RVA + Offset); // TODO what does this do?
 
     } finally {
       Bytes.Stream.Position = origPos;
@@ -279,10 +279,10 @@ sealed class ResourceEntry : CodeNode
     this.i = i;
   }
 
-  public override void Read() {
+  protected override void InnerRead() {
     var offset = Bytes.TildeStream.ManifestResources[i].Offset;
     Bytes.CLIHeaderSection.Reposition(offset + Bytes.CLIHeaderSection.CLIHeader.Resources.RVA);
-    base.Read();
+    base.InnerRead();
   }
 
   [OrderedField] public uint Length;
