@@ -351,12 +351,13 @@ sealed class Op : CodeNode
   }
 
   public uint Count;
-  public int[] Targets;
+  //TODO(link) link each target to op. Using StructNode<uint> keeps each row its own size
+  public StructNode<int>[] Targets;
   string SwitchOp() {
     Children.Single().Description = "switch";
     AddChild(nameof(Count));
-    AddChild(nameof(Targets)); //TODO(link) switch offset
-    return $"switch ({string.Join(", ", Targets)})";
+    AddChild(nameof(Targets)); 
+    return $"switch ({string.Join(", ", Targets.Select(n => n.t))})";
   }
 
   protected override int GetCount(string field) => field switch {

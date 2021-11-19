@@ -862,7 +862,7 @@ sealed class TildeStreamRows : CodeNode
   public TildeStreamRows(int count) {
     this.count = count;
   }
-  // TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row it's own size
+  // TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
   public StructNode<uint>[] Rows;
 
   protected override int GetCount(string field) => count;
