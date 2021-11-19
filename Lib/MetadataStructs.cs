@@ -936,6 +936,17 @@ sealed class TildeStream : CodeNode
       ++row;
     }
 
+    foreach (var ch in Children.Skip(1)) {
+      foreach (var tableCh in ch.Children) {
+        foreach (var f in tableCh.GetType().GetFields()) {
+          if (f.FieldType.IsEnum) {
+            // TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
+            tableCh.NodeValue = "";
+          }
+        }
+      }
+    }
+
     if (TildeData.HeapSizes != 0)
       throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
@@ -949,15 +960,6 @@ sealed class TildeStream : CodeNode
 
     var name = GetFieldName(flag);
     AddChildren(name, count);
-
-    foreach (var tableCh in Children.Last().Children) {
-      foreach (var f in tableCh.GetType().GetFields()) {
-        if (f.FieldType.IsEnum) {
-          // TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
-          tableCh.NodeValue = "";
-        }
-      }
-    }
 
     var nodes = (IEnumerable<CodeNode>)GetType().GetField(name).GetValue(this);
     streamNodes.Add(flag, nodes);
