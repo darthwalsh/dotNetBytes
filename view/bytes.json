@@ -2758,7 +2758,7 @@
                 {
                   "Name": "HashAlgId",
                   "Description": "",
-                  "Value": "0x00000000 None",
+                  "Value": "",
                   "Start": 870,
                   "End": 874,
                   "LinkPath": null,
@@ -2808,7 +2808,7 @@
                 {
                   "Name": "Flags",
                   "Description": "",
-                  "Value": "0x00000000 0",
+                  "Value": "",
                   "Start": 882,
                   "End": 886,
                   "LinkPath": null,
@@ -2899,7 +2899,7 @@
                 {
                   "Name": "Flags",
                   "Description": "",
-                  "Value": "0x00000000 0",
+                  "Value": "",
                   "Start": 900,
                   "End": 904,
                   "LinkPath": null,
