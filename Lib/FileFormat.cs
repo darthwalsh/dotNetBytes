@@ -511,6 +511,9 @@ sealed class Section : CodeNode
                 }
 
                 AddChild(nameof(Methods));
+                if (!Methods.Children.Any()) {
+                  Children.RemoveAt(Children.Count - 1);
+                }
                 break;
               default:
                 Errors.Add("Unexpected stream name: " + streamHeader.Name.Str);
@@ -712,13 +715,22 @@ sealed class Methods : CodeNode
   public Method[] Method;
 
   public override void Read() {
-    Method = (Bytes.TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-          .Where(m => m.RVA > 0)
-          .GroupBy(m => m.RVA)
-          .Select(g => g.First()) // Disctinct by RVA
-          .OrderBy(m => m.RVA)
-          .Select(m => new Method(m)).ToArray();
+    if (Bytes.TildeStream.MethodDefs == null) return;
 
+    var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA);
+    
+    var methods = new List<Method>();
+    foreach (var methodDefGroup in methodDefs) {
+      var rva = methodDefGroup.Key;
+      if (rva == 0) continue;
+      var method = new Method(rva);
+      foreach (var methodDef in methodDefGroup) {
+        methodDef.SetLink(method);
+      }
+      methods.Add(method);
+    }
+
+    Method = methods.OrderBy(m => m.RVA).ToArray();
     base.Read();
   }
 }
@@ -726,19 +738,19 @@ sealed class Methods : CodeNode
 // II.25.4
 sealed class Method : CodeNode
 {
-  MethodDef def;
-  public Method(MethodDef def) {
-    this.def = def;
-    def.SetLink(this);
-  }
-
   public byte Header; //TODO(pedant) ? enum
   public FatFormat FatFormat;
   public MethodDataSection[] DataSections;
   public InstructionStream CilOps;
 
+  public Method(uint rva) {
+    RVA = rva;
+  }
+
+  public uint RVA { get; private set; }
+
   public override void Read() {
-    Bytes.CLIHeaderSection.Reposition(def.RVA);
+    Bytes.CLIHeaderSection.Reposition(RVA);
     MarkStarting();
 
     AddChild(nameof(Header));
