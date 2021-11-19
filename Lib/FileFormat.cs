@@ -808,7 +808,7 @@ sealed class MethodDataSections : CodeNode
       dataSection.NodeName = $"{nameof(MethodDataSections)}[{Children.Count}]";
       Children.Add(dataSection);
     }
-    while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
+    while (dataSection.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
     MarkEnding();
   }
 }
@@ -838,18 +838,19 @@ sealed class FatFormat : CodeNode
 // II.25.4.5
 sealed class MethodDataSection : CodeNode
 {
-  public MethodHeaderSection Header;
+  public MethodHeaderSection MethodHeaderSection;
   public LargeMethodHeader LargeMethodHeader;
   public SmallMethodHeader SmallMethodHeader;
 
   public override void Read() {
-    AddChild(nameof(Header));
+    AddChild(nameof(MethodHeaderSection));
+    Children.Last().NodeValue = ""; //TODO(diff-solonode)
 
-    if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
+    if (!MethodHeaderSection.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
     }
 
-    if (Header.HasFlag(MethodHeaderSection.FatFormat)) {
+    if (MethodHeaderSection.HasFlag(MethodHeaderSection.FatFormat)) {
       AddChild(nameof(LargeMethodHeader));
     } else {
       AddChild(nameof(SmallMethodHeader));
@@ -872,9 +873,10 @@ enum MethodHeaderSection : byte
 
 sealed class SmallMethodHeader : CodeNode
 {
-  [Description("Size of the data for the block, including the header, say n * 12 + 4.")]
+
+  [Description(/*"Size of the data for the block, including the header, say n * 12 + 4."*/ "")] //TODO(diff-solonode)
   public byte DataSize;
-  [Description("Padding, always 0.")]
+  [Description(/*"Padding, always 0."*/ "")] //TODO(diff-solonode)
   [Expected(0)]
   public ushort Reserved;
   [OrderedField]
