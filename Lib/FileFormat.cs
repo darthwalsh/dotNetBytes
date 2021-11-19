@@ -436,7 +436,7 @@ sealed class Section : CodeNode
   public BlobHeap BlobHeap;
   public GuidHeap GuidHeap;
   public TildeStream TildeStream;
-  public ResourceEntry[] ResourceEntries;
+  public ResourceEntry[] ResourceEntry; //TODO(diff-solonode) rename to ResourceEntries
 
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
@@ -507,7 +507,7 @@ sealed class Section : CodeNode
                 AddChild(nameof(TildeStream));
 
                 if (TildeStream.ManifestResources != null) {
-                  AddChildren(nameof(ResourceEntries), TildeStream.ManifestResources.Length);
+                  AddChildren(nameof(ResourceEntry), TildeStream.ManifestResources.Length);
                 }
 
                 AddChild(nameof(Methods));
