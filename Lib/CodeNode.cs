@@ -47,12 +47,19 @@ public abstract class CodeNode
   }
 
   public void Read() {
+    var reposition = BeforeReposition;
+    if (reposition != START_END_NOT_SET) {
+      Bytes.CLIHeaderSection.Reposition(reposition);
+    }
+
     Start = (int)Bytes.Stream.Position;
     InnerRead();
     if (End == START_END_NOT_SET) {
       End = (int)Bytes.Stream.Position;
     }
   }
+
+  protected virtual long BeforeReposition => START_END_NOT_SET; 
 
   protected virtual void InnerRead() {
     var orderedFields = this.GetType().GetFields()

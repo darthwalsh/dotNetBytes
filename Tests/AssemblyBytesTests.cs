@@ -122,8 +122,6 @@ namespace Tests
     [TestMethod]
     public void FileTable() => RunIL(@"FileTable.il");
 
-    // TODO compare local Lib diff vs online CloudFunction; Example doesn't have all features
-
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
     //MAYBE Also test with mono

@@ -752,9 +752,9 @@ sealed class Method : CodeNode
 
   public uint RVA { get; private set; }
 
+  protected override long BeforeReposition => RVA;
+
   protected override void InnerRead() {
-    Bytes.CLIHeaderSection.Reposition(RVA);
-    Start = (int)Bytes.Stream.Position;
     AddChild(nameof(Header));
     var header = Children.Single();
 

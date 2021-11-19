@@ -257,19 +257,6 @@ sealed class ManifestResource : CodeNode
   [OrderedField] public CodedIndex.Implementation Implementation;
 
   public override string NodeValue => Name.NodeValue;
-
-  protected override void InnerRead() {
-    base.InnerRead();
-
-    var origPos = Bytes.Stream.Position;
-    try {
-      var section = Bytes.CLIHeaderSection;
-      section.Reposition(section.CLIHeader.Resources.RVA + Offset); // TODO what does this do?
-
-    } finally {
-      Bytes.Stream.Position = origPos;
-    }
-  }
 }
 
 sealed class ResourceEntry : CodeNode
@@ -279,14 +266,12 @@ sealed class ResourceEntry : CodeNode
     this.i = i;
   }
 
-  protected override void InnerRead() {
-    var offset = Bytes.TildeStream.ManifestResources[i].Offset;
-    Bytes.CLIHeaderSection.Reposition(offset + Bytes.CLIHeaderSection.CLIHeader.Resources.RVA);
-    base.InnerRead();
-  }
-
   [OrderedField] public uint Length;
   [OrderedField] public byte[] Data;
+
+  protected override long BeforeReposition =>
+    Bytes.TildeStream.ManifestResources[i].Offset +
+    Bytes.CLIHeaderSection.CLIHeader.Resources.RVA;
 
   protected override int GetCount(string field) => field switch {
     nameof(Data) => (int)Length,
