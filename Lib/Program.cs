@@ -24,7 +24,6 @@ public static class Program
 /*
 Explanations: 
 
-TODO(solonode)      - Fix before merging wip-solonode with main
 TODO(diff-solonode) - Remove after merging wip-solonode with main. Makes the bytes.json diff much easier to look at.
 TODO(fixme)         - Probablty a bug.
 TODO(Descriptions)  - Before, reference types with [DescirptionAttribute] didn't show up. After fix TODO(diff-solonode) might need to copy more text from spec.

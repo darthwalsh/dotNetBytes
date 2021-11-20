@@ -331,6 +331,13 @@ namespace Tests
 
     static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data) {
       if (!node.Children.Any()) {
+        //TODO(pedant) assert that every interesting byte has a documented Value
+        // foreach (var i in Enumerable.Range(node.Start, node.End - node.Start)) {
+        //   if (data[i] == 0 || node.NodeValue != "")
+        //     continue;
+
+        //   Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was labeled \"\" in node {node.NodeName}");
+        // }
         return;
       }
 
