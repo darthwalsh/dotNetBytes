@@ -326,7 +326,7 @@ sealed class Op : CodeNode
   }
 
   string With<T>(string description) where T : struct {
-    // Children.Single().Description = description; // TODO(diff-solonode)
+    // Children.Single().Description = description; //TODO(diff-solonode)
 
     var value = new StructNode<T> { Bytes = Bytes };
     value.Read();

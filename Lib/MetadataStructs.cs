@@ -767,7 +767,7 @@ sealed class UserStringHeap : Heap<string>
     var s = new FixedLengthString(length) { Bytes = Bytes };
     s.Read();
 
-    s.Description = $@"""{s.Str}"", {offset} leading bits"; // TODO(pedant) bits or bytes?
+    s.Description = $@"""{s.Str}"", {offset} leading bits"; //TODO(pedant) bits or bytes?
     s.Start -= offset;
 
     return (s.Str, s);
@@ -853,7 +853,7 @@ sealed class TildeStreamRows : CodeNode
   public TildeStreamRows(int count) {
     this.count = count;
   }
-  // TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
+  //TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
   public StructNode<uint>[] Rows;
 
   protected override int GetCount(string field) => count;
@@ -929,7 +929,7 @@ sealed class TildeStream : CodeNode
       foreach (var tableCh in ch.Children) {
         foreach (var f in tableCh.GetType().GetFields()) {
           if (f.FieldType.IsEnum) {
-            // TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
+            //TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
             tableCh.NodeValue = "";
           }
         }
@@ -1033,7 +1033,7 @@ sealed class StringHeapIndex : CodeNode
 {
   public short Index;
   // ushort? shortIndex;
-  // uint? intIndex;// TODO(pedant) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
+  // uint? intIndex;//TODO(pedant) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
   // public int Index => (int)(intIndex ?? shortIndex);
 
 
@@ -1081,7 +1081,7 @@ sealed class GuidHeapIndex : CodeNode
 
   protected override void InnerRead() {
     base.InnerRead();
-    Children.Clear(); // TODO(solonode) this pattern is weird -- write something better
+    Children.Clear(); //TODO(solonode) this pattern is weird -- write something better
 
     NodeValue = Bytes.GuidHeap.Get(Index).GetString();
     Description = $"Guid Heap index {Index:X}";

@@ -900,7 +900,7 @@ sealed class LargeMethodHeader : CodeNode
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
   public UInt24 DataSize;
   [OrderedField]
-  public SmallExceptionHandlingClause[] Clauses; // TODO(fixme) LargeExceptionHandlingClause?
+  public SmallExceptionHandlingClause[] Clauses; //TODO(fixme) LargeExceptionHandlingClause?
 
   protected override void InnerRead() {
     base.InnerRead();
@@ -911,7 +911,7 @@ sealed class LargeMethodHeader : CodeNode
   }
 
   protected override int GetCount(string field) => field switch {
-    nameof(Clauses) => (DataSize.IntValue - 4) / 12, // TODO(fixme) should this be 24???
+    nameof(Clauses) => (DataSize.IntValue - 4) / 12, //TODO(fixme) should this be 24???
     _ => base.GetCount(field),
   };
 }
