@@ -33,4 +33,6 @@ public class AssemblyBytes
   internal BlobHeap BlobHeap => CLIHeaderSection.BlobHeap;
   internal GuidHeap GuidHeap => CLIHeaderSection.GuidHeap;
   internal TildeStream TildeStream => CLIHeaderSection.TildeStream;
+
+  public T Read<T>() where T : struct => Stream.ReadStruct<T>();
 }

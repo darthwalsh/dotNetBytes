@@ -257,7 +257,7 @@ public sealed class StructNode<T> : CodeNode where T : struct
   public T t;
 
   protected override void InnerRead() {
-    t = Bytes.Stream.ReadStruct<T>();
+    t = Bytes.Read<T>();
     NodeValue = t.GetString();
   }
 }

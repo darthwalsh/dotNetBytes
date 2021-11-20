@@ -648,7 +648,7 @@ sealed class Fixup : CodeNode
   [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(diff-solonode) 
   public short Offset;
 
-  protected override CodeNode ReadField(string fieldName) { // MAYBE just override Read()
+  protected override CodeNode ReadField(string fieldName) { // MAYBE just override Read() and no children
     switch (fieldName) {
       case nameof(Type):
         var type = new StructNode<byte> { Bytes = Bytes };
@@ -786,7 +786,7 @@ sealed class Method : CodeNode
 
     if (moreSects) {
       while (Bytes.Stream.Position % 4 != 0) {
-        _ = Bytes.Stream.ReallyReadByte();
+        _ = Bytes.Read<byte>();
       }
 
       var dataSections = new MethodDataSections { Bytes = Bytes };

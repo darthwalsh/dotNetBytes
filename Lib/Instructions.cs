@@ -51,12 +51,11 @@ sealed class MetadataToken : CodeNode
     if (Table == 0x70) {
       Children.Clear();
       // Reposition stream, and read "XX XX 00 70"
-      var stream = Bytes.Stream;
-      stream.Position -= 4;
+      Bytes.Stream.Position -= 4;
 
       AddChild(nameof(Index));
 
-      if (stream.ReallyReadByte() != 0)
+      if (Bytes.Read<byte>() != 0)
         throw new NotImplementedException("Too big UserStringHeapIndex");
       Index.End++;
 

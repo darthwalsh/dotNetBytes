@@ -45,16 +45,13 @@ enum EventAttributes : ushort
 // II.23.1.5
 sealed class FieldAttributes : CodeNode
 {
-  public ushort Data;
   AccessAttributes Access;
   AdditionalFlags Flags;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    Access = (AccessAttributes)(Data & accessMask);
-    Flags = (AdditionalFlags)(Data & flagsMask);
+    var data = Bytes.Read<ushort>();
+    Access = (AccessAttributes)(data & accessMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
   public override string NodeValue => (new Enum[] { Access, Flags }).GetString(); //TODO(Descriptions) Enum[] text doesn't show up in GUI
@@ -119,17 +116,13 @@ enum FileAttributes : uint
 // II.23.1.7
 sealed class GenericParamAttributes : CodeNode
 {
-  public ushort Data;
-
   VarianceAttributes Variance;
   SpecialConstraintAttributes SpecialConstraint;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    Variance = (VarianceAttributes)(Data & varianceMask);
-    SpecialConstraint = (SpecialConstraintAttributes)(Data & specialConstraintMask);
+    var data = Bytes.Read<ushort>();
+    Variance = (VarianceAttributes)(data & varianceMask);
+    SpecialConstraint = (SpecialConstraintAttributes)(data & specialConstraintMask);
   }
 
   public override string NodeValue => (new Enum[] { Variance, SpecialConstraint }).GetString();
@@ -162,19 +155,15 @@ sealed class GenericParamAttributes : CodeNode
 // II.23.1.8
 sealed class PInvokeAttributes : CodeNode
 {
-  public ushort Data;
-
   CharacterSetAttributes CharacterSet;
   CallingConventionAttributes CallingConvention;
   AdditionalFlags Flags;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    CharacterSet = (CharacterSetAttributes)(Data & characterSetMask);
-    CallingConvention = (CallingConventionAttributes)(Data & callingConventionMask);
-    Flags = (AdditionalFlags)(Data & flagsMask);
+    var data = Bytes.Read<ushort>();
+    CharacterSet = (CharacterSetAttributes)(data & characterSetMask);
+    CallingConvention = (CallingConventionAttributes)(data & callingConventionMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
   public override string NodeValue => (new Enum[] { CharacterSet, CallingConvention, Flags }).GetString();
@@ -232,18 +221,15 @@ enum ManifestResourceAttributes : uint
 // II.23.1.10
 sealed class MethodAttributes : CodeNode
 {
-  public ushort Data;
   MemberAccessAttributes MemberAccess;
   VtableLayoutAttributes VtableLayout;
   AdditionalFlags Flags;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    MemberAccess = (MemberAccessAttributes)(Data & memberAccessMask);
-    VtableLayout = (VtableLayoutAttributes)(Data & vtableLayoutMask);
-    Flags = (AdditionalFlags)(Data & flagsMask);
+    var data = Bytes.Read<ushort>();
+    MemberAccess = (MemberAccessAttributes)(data & memberAccessMask);
+    VtableLayout = (VtableLayoutAttributes)(data & vtableLayoutMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
   public override string NodeValue => (new Enum[] { MemberAccess, VtableLayout, Flags }).GetString();
@@ -312,18 +298,15 @@ sealed class MethodAttributes : CodeNode
 // II.23.1.11
 sealed class MethodImplAttributes : CodeNode
 {
-  public ushort Data;
   CodeTypeAttributes CodeType;
   ManagedAttributes Managed;
   AdditionalFlags Flags;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    CodeType = (CodeTypeAttributes)(Data & codeTypeMask);
-    Managed = (ManagedAttributes)(Data & managedMask);
-    Flags = (AdditionalFlags)(Data & flagsMask);
+    var data = Bytes.Read<ushort>();
+    CodeType = (CodeTypeAttributes)(data & codeTypeMask);
+    Managed = (ManagedAttributes)(data & managedMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
   public override string NodeValue => (new Enum[] { CodeType, Managed, Flags }).GetString();
@@ -429,14 +412,12 @@ sealed class TypeAttributes : CodeNode
   AdditionalFlags Flags;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
-
-    Visibility = (VisibilityAttributes)(Data & visibilityMask);
-    Layout = (LayoutAttributes)(Data & layoutMask);
-    ClassSemantics = (ClassSemanticsAttributes)(Data & classSemanticsMask);
-    StringInteropFormat = (StringInteropFormatAttributes)(Data & stringInteropFormatMask);
-    Flags = (AdditionalFlags)(Data & flagsMask);
+    var data = Bytes.Read<uint>();
+    Visibility = (VisibilityAttributes)(data & visibilityMask);
+    Layout = (LayoutAttributes)(data & layoutMask);
+    ClassSemantics = (ClassSemanticsAttributes)(data & classSemanticsMask);
+    StringInteropFormat = (StringInteropFormatAttributes)(data & stringInteropFormatMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
   public override string NodeValue => (new Enum[] { Visibility, Layout, ClassSemantics, StringInteropFormat, Flags }).GetString();
@@ -715,23 +696,22 @@ abstract class Heap<T> : CodeNode
   }
 
   protected void GetEncodedLength(out int length, out int offset) {
-    var stream = Bytes.Stream;
-    var first = stream.ReallyReadByte();
+    var first = Bytes.Read<byte>();
     if ((first & 0x80) == 0) {
       length = first & 0x7F;
       offset = 1;
     } else if ((first & 0xC0) == 0x80) {
-      var second = stream.ReallyReadByte();
+      var second = Bytes.Read<byte>();
       length = ((first & 0x3F) << 8) + second;
       offset = 2;
     } else if ((first & 0xE0) == 0xC0) {
-      var second = stream.ReallyReadByte();
-      var third = stream.ReallyReadByte();
-      var fourth = stream.ReallyReadByte();
+      var second = Bytes.Read<byte>();
+      var third = Bytes.Read<byte>();
+      var fourth = Bytes.Read<byte>();
       length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
       offset = 4;
     } else {
-      throw new InvalidOperationException($"Heap byte {stream.Position} can't start with 1111...");
+      throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position} can't start with 1111...");
     }
   }
 
@@ -1038,8 +1018,7 @@ sealed class StringHeapIndex : CodeNode
 
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
+    Index = Bytes.Read<short>();
 
     NodeValue = Bytes.StringHeap.Get(Index);
     Description = $"String Heap index {Index:X}";
@@ -1052,8 +1031,7 @@ sealed class UserStringHeapIndex : CodeNode
   public short Index;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
+    Index = Bytes.Read<short>();
 
     NodeValue = Bytes.UserStringHeap.Get(Index).GetString();
     Description = $"User String Heap index {Index:X}";
@@ -1066,8 +1044,7 @@ sealed class BlobHeapIndex : CodeNode
   public short Index;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
+    Index = Bytes.Read<short>();
 
     NodeValue = Bytes.BlobHeap.Get(Index).GetString();
     Description = $"Blob Heap index {Index:X}";
@@ -1080,8 +1057,7 @@ sealed class GuidHeapIndex : CodeNode
   public short Index;
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear(); //TODO(solonode) this pattern is weird -- write something better
+    Index = Bytes.Read<short>();
 
     NodeValue = Bytes.GuidHeap.Get(Index).GetString();
     Description = $"Guid Heap index {Index:X}";
@@ -1097,8 +1073,7 @@ sealed class UnknownCodedIndex : CodeNode
   public override string NodeValue => Index.GetString();
 
   protected override void InnerRead() {
-    base.InnerRead();
-    Children.Clear();
+    Index = Bytes.Read<ushort>();
   }
 }
 
@@ -1112,11 +1087,7 @@ abstract class CodedIndex : CodeNode
   public override CodeNode Link => GetLink();
 
   protected override void InnerRead() {
-    Bytes = Bytes;
-
-    var readData = new StructNode<ushort> { Bytes = Bytes };
-    readData.Read();
-    Index = GetIndex(readData.t);
+    Index = GetIndex(Bytes.Read<ushort>());
   }
 
   protected abstract int GetIndex(int readData);

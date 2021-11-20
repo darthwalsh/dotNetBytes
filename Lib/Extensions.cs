@@ -63,17 +63,9 @@ static class StreamExtensions
     return true;
   }
 
-  public static byte ReallyReadByte(this Stream stream) {
-    var read = stream.ReadByte();
-    if (read == -1)
-      throw new EndOfStreamException("End of stream reached with 1 byte left to read");
-    return (byte)read;
-  }
-
   public static T ReadStruct<T>(this Stream stream) where T : struct => (T)stream.ReadStruct(typeof(T));
 
   public static object ReadStruct(this Stream stream, Type t) {
-    object o;
     // http://stackoverflow.com/a/4159279/771768
     var sz = t.GetSize();
     var buffer = new byte[sz];
@@ -82,7 +74,7 @@ static class StreamExtensions
     var ptype = t;
     if (ptype.IsEnum)
       ptype = ptype.GetEnumUnderlyingType();
-    o = Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
+    var o = Marshal.PtrToStructure(pinnedBuffer.AddrOfPinnedObject(), ptype);
     pinnedBuffer.Free();
     return o;
   }
