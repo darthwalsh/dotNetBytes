@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using static ElementType;
 
 // II.23.2 Blobs and signatures
 
@@ -75,24 +74,20 @@ public static class CompressionExtensions
 }
 
 //II.23.2.14
-sealed class TypeSpecSignature : ICanRead
+sealed class TypeSpecSignature : CodeNode
 {
-  object Value => ""; //TODO(HACK) needed?
-
-  public CodeNode Node { get; set; }
-
-  public CodeNode Read(Stream stream) {
-    var b = (ElementType)stream.ReallyReadByte();
+  protected override void InnerRead() {
+    var b = (ElementType)Bytes.Read<byte>();
     switch (b) {
-      case Ptr:
+      case ElementType.Ptr:
         throw new NotImplementedException("Ptr");
-      case Fnptr:
+      case ElementType.Fnptr:
         throw new NotImplementedException("Fnptr");
       case ElementType.Array:
         throw new NotImplementedException("Array");
-      case Szarray:
+      case ElementType.Szarray:
         throw new NotImplementedException("Szarray");
-      case Genericinst:
+      case ElementType.Genericinst:
         throw new NotImplementedException("Genericinst");
       default:
         throw new InvalidOperationException(b.ToString());

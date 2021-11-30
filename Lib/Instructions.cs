@@ -1,12 +1,14 @@
 ﻿// Copyright Microsoft, 2017
+// Copyright Carl Walsh, 2021
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
+// CodeNode is written though reflection
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to
+
 //TODO(link) Link branch targets
-//TODO(HACK)? §III.1.7.2 validate branch targets are valid offsets
+//MAYBE §III.1.7.2 validate branch targets are valid offsets
 //TODO(method) §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
 //TODO(method) §III.1.5 validate operand type like in
 //TODO(method) §III.1.7.4 validate branching stack depth is consistant
@@ -14,616 +16,344 @@ using System.Linq;
 //TODO(method) §III.1.8 validate all sorts of stack type conversions, null type, etc.
 
 // III
-sealed class InstructionStream : ICanRead
+sealed class InstructionStream : CodeNode
 {
-  List<object> instructions = new List<object>();
   int length;
-  int opCount = 0;
 
   public InstructionStream(int length) {
     this.length = length;
   }
 
-  public CodeNode Read(Stream stream) {
-    var readUntil = stream.Position + length;
-
-    var node = new CodeNode();
-
-    while (stream.Position < readUntil) {
-      var op = GetOp(stream);
-      instructions.Add(op);
-      var opNode = op.Read(stream);
-      opNode.Name = $"Op[{opCount++}]";
-      node.Add(opNode);
+  protected override void InnerRead() {
+    while (Bytes.Stream.Position - Start < length) {
+      var op = new Op { Bytes = Bytes };
+      op.Read();
+      op.NodeName = $"Op[{Children.Count}]";
+      Children.Add(op);
     }
 
-    node.Description = string.Join("\n", node.Children.Select(n => n.Description));
-
-    return node;
-  }
-
-  ICanRead GetOp(Stream stream) {
-    byte firstByte;
-    var opNode = stream.ReadStruct(out firstByte, "OpCode");
-
-    switch (firstByte) {
-      case 0x00:
-        return new Op(opNode, "nop");
-      case 0x01:
-        return new Op(opNode, "break");
-      case 0x02:
-        return new Op(opNode, "ldarg.0");
-      case 0x03:
-        return new Op(opNode, "ldarg.1");
-      case 0x04:
-        return new Op(opNode, "ldarg.2");
-      case 0x05:
-        return new Op(opNode, "ldarg.3");
-      case 0x06:
-        return new Op(opNode, "ldloc.0");
-      case 0x07:
-        return new Op(opNode, "ldloc.1");
-      case 0x08:
-        return new Op(opNode, "ldloc.2");
-      case 0x09:
-        return new Op(opNode, "ldloc.3");
-      case 0x0A:
-        return new Op(opNode, "stloc.0");
-      case 0x0B:
-        return new Op(opNode, "stloc.1");
-      case 0x0C:
-        return new Op(opNode, "stloc.2");
-      case 0x0D:
-        return new Op(opNode, "stloc.3");
-      case 0x0E:
-        return new OpWith<byte>(opNode, "ldarg.s");
-      case 0x0F:
-        return new OpWith<byte>(opNode, "ldarga.s");
-      case 0x10:
-        return new OpWith<byte>(opNode, "starg.s");
-      case 0x11:
-        return new OpWith<byte>(opNode, "ldloc.s");
-      case 0x12:
-        return new OpWith<byte>(opNode, "ldloca.s");
-      case 0x13:
-        return new OpWith<byte>(opNode, "stloc.s");
-      case 0x14:
-        return new Op(opNode, "ldnull");
-      case 0x15:
-        return new Op(opNode, "ldc.i4.m1");
-      case 0x16:
-        return new Op(opNode, "ldc.i4.0");
-      case 0x17:
-        return new Op(opNode, "ldc.i4.1");
-      case 0x18:
-        return new Op(opNode, "ldc.i4.2");
-      case 0x19:
-        return new Op(opNode, "ldc.i4.3");
-      case 0x1A:
-        return new Op(opNode, "ldc.i4.4");
-      case 0x1B:
-        return new Op(opNode, "ldc.i4.5");
-      case 0x1C:
-        return new Op(opNode, "ldc.i4.6");
-      case 0x1D:
-        return new Op(opNode, "ldc.i4.7");
-      case 0x1E:
-        return new Op(opNode, "ldc.i4.8");
-      case 0x1F:
-        return new OpWith<sbyte>(opNode, "ldc.i4.s");
-      case 0x20:
-        return new OpWith<int>(opNode, "ldc.i4");
-      case 0x21:
-        return new OpWith<long>(opNode, "ldc.i8");
-      case 0x22:
-        return new OpWith<float>(opNode, "ldc.r4");
-      case 0x23:
-        return new OpWith<double>(opNode, "ldc.r8");
-      case 0x25:
-        return new Op(opNode, "dup");
-      case 0x26:
-        return new Op(opNode, "pop");
-      case 0x27:
-        return new OpWithToken(opNode, "jmp");
-      case 0x28:
-        return new OpWithToken(opNode, "call");
-      case 0x29:
-        return new OpWithToken(opNode, "calli");
-      case 0x2A:
-        return new Op(opNode, "ret");
-      case 0x2B:
-        return new OpWith<sbyte>(opNode, "br.s");
-      case 0x2C:
-        return new OpWith<sbyte>(opNode, "brfalse.s");
-      case 0x2D:
-        return new OpWith<sbyte>(opNode, "brtrue.s");
-      case 0x2E:
-        return new OpWith<sbyte>(opNode, "beq.s");
-      case 0x2F:
-        return new OpWith<sbyte>(opNode, "bge.s");
-      case 0x30:
-        return new OpWith<sbyte>(opNode, "bgt.s");
-      case 0x31:
-        return new OpWith<sbyte>(opNode, "ble.s");
-      case 0x32:
-        return new OpWith<sbyte>(opNode, "blt.s");
-      case 0x33:
-        return new OpWith<sbyte>(opNode, "bne.un.s");
-      case 0x34:
-        return new OpWith<sbyte>(opNode, "bge.un.s");
-      case 0x35:
-        return new OpWith<sbyte>(opNode, "bgt.un.s");
-      case 0x36:
-        return new OpWith<sbyte>(opNode, "ble.un.s");
-      case 0x37:
-        return new OpWith<sbyte>(opNode, "blt.un.s");
-      case 0x38:
-        return new OpWith<int>(opNode, "br");
-      case 0x39:
-        return new OpWith<int>(opNode, "brfalse");
-      case 0x3A:
-        return new OpWith<int>(opNode, "brtrue");
-      case 0x3B:
-        return new OpWith<int>(opNode, "beq");
-      case 0x3C:
-        return new OpWith<int>(opNode, "bge");
-      case 0x3D:
-        return new OpWith<int>(opNode, "bgt");
-      case 0x3E:
-        return new OpWith<int>(opNode, "ble");
-      case 0x3F:
-        return new OpWith<int>(opNode, "blt");
-      case 0x40:
-        return new OpWith<int>(opNode, "bne.un");
-      case 0x41:
-        return new OpWith<int>(opNode, "bge.un");
-      case 0x42:
-        return new OpWith<int>(opNode, "bgt.un");
-      case 0x43:
-        return new OpWith<int>(opNode, "ble.un");
-      case 0x44:
-        return new OpWith<int>(opNode, "blt.un");
-      case 0x45:
-        return new SwitchOp(opNode);
-      case 0x46:
-        return new Op(opNode, "ldind.i1");
-      case 0x47:
-        return new Op(opNode, "ldind.u1");
-      case 0x48:
-        return new Op(opNode, "ldind.i2");
-      case 0x49:
-        return new Op(opNode, "ldind.u2");
-      case 0x4A:
-        return new Op(opNode, "ldind.i4");
-      case 0x4B:
-        return new Op(opNode, "ldind.u4");
-      case 0x4C:
-        return new Op(opNode, "ldind.i8");
-      case 0x4D:
-        return new Op(opNode, "ldind.i");
-      case 0x4E:
-        return new Op(opNode, "ldind.r4");
-      case 0x4F:
-        return new Op(opNode, "ldind.r8");
-      case 0x50:
-        return new Op(opNode, "ldind.ref");
-      case 0x51:
-        return new Op(opNode, "stind.ref");
-      case 0x52:
-        return new Op(opNode, "stind.i1");
-      case 0x53:
-        return new Op(opNode, "stind.i2");
-      case 0x54:
-        return new Op(opNode, "stind.i4");
-      case 0x55:
-        return new Op(opNode, "stind.i8");
-      case 0x56:
-        return new Op(opNode, "stind.r4");
-      case 0x57:
-        return new Op(opNode, "stind.r8");
-      case 0x58:
-        return new Op(opNode, "add");
-      case 0x59:
-        return new Op(opNode, "sub");
-      case 0x5A:
-        return new Op(opNode, "mul");
-      case 0x5B:
-        return new Op(opNode, "div");
-      case 0x5C:
-        return new Op(opNode, "div.un");
-      case 0x5D:
-        return new Op(opNode, "rem");
-      case 0x5E:
-        return new Op(opNode, "rem.un");
-      case 0x5F:
-        return new Op(opNode, "and");
-      case 0x60:
-        return new Op(opNode, "or");
-      case 0x61:
-        return new Op(opNode, "xor");
-      case 0x62:
-        return new Op(opNode, "shl");
-      case 0x63:
-        return new Op(opNode, "shr");
-      case 0x64:
-        return new Op(opNode, "shr.un");
-      case 0x65:
-        return new Op(opNode, "neg");
-      case 0x66:
-        return new Op(opNode, "not");
-      case 0x67:
-        return new Op(opNode, "conv.i1");
-      case 0x68:
-        return new Op(opNode, "conv.i2");
-      case 0x69:
-        return new Op(opNode, "conv.i4");
-      case 0x6A:
-        return new Op(opNode, "conv.i8");
-      case 0x6B:
-        return new Op(opNode, "conv.r4");
-      case 0x6C:
-        return new Op(opNode, "conv.r8");
-      case 0x6D:
-        return new Op(opNode, "conv.u4");
-      case 0x6E:
-        return new Op(opNode, "conv.u8");
-      case 0x6F:
-        return new OpWithToken(opNode, "callvirt");
-      case 0x70:
-        return new OpWithToken(opNode, "cpobj");
-      case 0x71:
-        return new OpWithToken(opNode, "ldobj");
-      case 0x72:
-        return new OpWithToken(opNode, "ldstr");
-      case 0x73:
-        return new OpWithToken(opNode, "newobj");
-      case 0x74:
-        return new OpWithToken(opNode, "castclass");
-      case 0x75:
-        return new OpWithToken(opNode, "isinst");
-      case 0x76:
-        return new Op(opNode, "conv.r.un");
-      case 0x79:
-        return new OpWithToken(opNode, "unbox");
-      case 0x7A:
-        return new Op(opNode, "throw");
-      case 0x7B:
-        return new OpWithToken(opNode, "ldfld");
-      case 0x7C:
-        return new OpWithToken(opNode, "ldflda");
-      case 0x7D:
-        return new OpWithToken(opNode, "stfld");
-      case 0x7E:
-        return new OpWithToken(opNode, "ldsfld");
-      case 0x7F:
-        return new OpWithToken(opNode, "ldsflda");
-      case 0x80:
-        return new OpWithToken(opNode, "stsfld");
-      case 0x81:
-        return new OpWithToken(opNode, "stobj");
-      case 0x82:
-        return new Op(opNode, "conv.ovf.i1.un");
-      case 0x83:
-        return new Op(opNode, "conv.ovf.i2.un");
-      case 0x84:
-        return new Op(opNode, "conv.ovf.i4.un");
-      case 0x85:
-        return new Op(opNode, "conv.ovf.i8.un");
-      case 0x86:
-        return new Op(opNode, "conv.ovf.u1.un");
-      case 0x87:
-        return new Op(opNode, "conv.ovf.u2.un");
-      case 0x88:
-        return new Op(opNode, "conv.ovf.u4.un");
-      case 0x89:
-        return new Op(opNode, "conv.ovf.u8.un");
-      case 0x8A:
-        return new Op(opNode, "conv.ovf.i.un");
-      case 0x8B:
-        return new Op(opNode, "conv.ovf.u.un");
-      case 0x8C:
-        return new OpWithToken(opNode, "box");
-      case 0x8D:
-        return new OpWithToken(opNode, "newarr");
-      case 0x8E:
-        return new Op(opNode, "ldlen");
-      case 0x8F:
-        return new OpWithToken(opNode, "ldelema");
-      case 0x90:
-        return new Op(opNode, "ldelem.i1");
-      case 0x91:
-        return new Op(opNode, "ldelem.u1");
-      case 0x92:
-        return new Op(opNode, "ldelem.i2");
-      case 0x93:
-        return new Op(opNode, "ldelem.u2");
-      case 0x94:
-        return new Op(opNode, "ldelem.i4");
-      case 0x95:
-        return new Op(opNode, "ldelem.u4");
-      case 0x96:
-        return new Op(opNode, "ldelem.i8");
-      case 0x97:
-        return new Op(opNode, "ldelem.i");
-      case 0x98:
-        return new Op(opNode, "ldelem.r4");
-      case 0x99:
-        return new Op(opNode, "ldelem.r8");
-      case 0x9A:
-        return new Op(opNode, "ldelem.ref");
-      case 0x9B:
-        return new Op(opNode, "stelem.i");
-      case 0x9C:
-        return new Op(opNode, "stelem.i1");
-      case 0x9D:
-        return new Op(opNode, "stelem.i2");
-      case 0x9E:
-        return new Op(opNode, "stelem.i4");
-      case 0x9F:
-        return new Op(opNode, "stelem.i8");
-      case 0xA0:
-        return new Op(opNode, "stelem.r4");
-      case 0xA1:
-        return new Op(opNode, "stelem.r8");
-      case 0xA2:
-        return new Op(opNode, "stelem.ref");
-      case 0xA3:
-        return new OpWithToken(opNode, "ldelem");
-      case 0xA4:
-        return new OpWithToken(opNode, "stelem");
-      case 0xA5:
-        return new OpWithToken(opNode, "unbox.any");
-      case 0xB3:
-        return new Op(opNode, "conv.ovf.i1");
-      case 0xB4:
-        return new Op(opNode, "conv.ovf.u1");
-      case 0xB5:
-        return new Op(opNode, "conv.ovf.i2");
-      case 0xB6:
-        return new Op(opNode, "conv.ovf.u2");
-      case 0xB7:
-        return new Op(opNode, "conv.ovf.i4");
-      case 0xB8:
-        return new Op(opNode, "conv.ovf.u4");
-      case 0xB9:
-        return new Op(opNode, "conv.ovf.i8");
-      case 0xBA:
-        return new Op(opNode, "conv.ovf.u8");
-      case 0xC2:
-        return new OpWithToken(opNode, "refanyval");
-      case 0xC3:
-        return new OpWithToken(opNode, "ckfinite");
-      case 0xC6:
-        return new OpWithToken(opNode, "mkrefany");
-      case 0xD0:
-        return new OpWithToken(opNode, "ldtoken");
-      case 0xD1:
-        return new Op(opNode, "conv.u2");
-      case 0xD2:
-        return new Op(opNode, "conv.u1");
-      case 0xD3:
-        return new Op(opNode, "conv.i");
-      case 0xD4:
-        return new Op(opNode, "conv.ovf.i");
-      case 0xD5:
-        return new Op(opNode, "conv.ovf.u");
-      case 0xD6:
-        return new Op(opNode, "add.ovf");
-      case 0xD7:
-        return new Op(opNode, "add.ovf.un");
-      case 0xD8:
-        return new Op(opNode, "mul.ovf");
-      case 0xD9:
-        return new Op(opNode, "mul.ovf.un");
-      case 0xDA:
-        return new Op(opNode, "sub.ovf");
-      case 0xDB:
-        return new Op(opNode, "sub.ovf.un");
-      case 0xDC:
-        return new Op(opNode, "endfault"); //TODO(pedant) endfinally?
-      case 0xDD:
-        return new OpWith<int>(opNode, "leave");
-      case 0xDE:
-        return new OpWith<sbyte>(opNode, "leave_s");
-      case 0xDF:
-        return new Op(opNode, "stind.i");
-      case 0xE0:
-        return new Op(opNode, "conv.u");
-      case 0xFE:
-        byte secondByte;
-        var secondOpNode = stream.ReadStruct(out secondByte, "OpCode");
-        var combinedOp = new CodeNode("OpCode") {
-          Start = opNode.Start,
-          End = secondOpNode.End,
-          Value = opNode.Value + " " + secondOpNode.Value
-        };
-        switch (secondByte) {
-          case 0x00:
-            return new Op(combinedOp, "arglist");
-          case 0x01:
-            return new Op(combinedOp, "ceq");
-          case 0x02:
-            return new Op(combinedOp, "cgt");
-          case 0x03:
-            return new Op(combinedOp, "cgt.un");
-          case 0x04:
-            return new Op(combinedOp, "clt");
-          case 0x05:
-            return new Op(combinedOp, "clt.un");
-          case 0x06:
-            return new OpWithToken(combinedOp, "ldftn");
-          case 0x07:
-            return new OpWithToken(combinedOp, "ldvirtftn");
-          case 0x09:
-            return new OpWith<ushort>(combinedOp, "ldarg");
-          case 0x0A:
-            return new OpWith<ushort>(combinedOp, "ldarga");
-          case 0x0B:
-            return new OpWith<ushort>(combinedOp, "starg");
-          case 0x0C:
-            return new OpWith<ushort>(combinedOp, "ldloc");
-          case 0x0D:
-            return new OpWith<ushort>(combinedOp, "ldloca");
-          case 0x0E:
-            return new OpWith<ushort>(combinedOp, "stloc");
-          case 0x0F:
-            return new Op(combinedOp, "localloc");
-          case 0x11:
-            return new Op(combinedOp, "endfilter");
-          case 0x12:
-            throw new NotImplementedException($"unaligned.");
-          case 0x13:
-            throw new NotImplementedException($"volatile.");
-          case 0x14:
-            throw new NotImplementedException($"tail.");
-          case 0x15:
-            return new OpWithToken(combinedOp, "initobj");
-          case 0x16:
-            return new OpWithToken(combinedOp, "constrained.");
-          case 0x17:
-            return new Op(combinedOp, "cpblk");
-          case 0x18:
-            return new Op(combinedOp, "initblk");
-          case 0x19:
-            throw new NotImplementedException($"no.");
-          case 0x1A:
-            return new Op(combinedOp, "rethrow");
-          case 0x1C:
-            return new OpWithToken(combinedOp, "sizeof");
-          case 0x1D:
-            return new Op(combinedOp, "refanytype");
-          case 0x1E:
-            throw new NotImplementedException($"readonly.");
-          default:
-            throw new InvalidOperationException($"unkonwn op 0xFE 0x{secondByte:X}");
-        }
-      default:
-        throw new InvalidOperationException($"unknown op 0x{firstByte:X}");
-    }
+    Description = string.Join("\n", Children.Select(n => n.Description));
   }
 }
 
 // III.1.9
-sealed class MetadataToken : ICanRead, IHaveLiteralValue
+sealed class MetadataToken : CodeNode
 {
   public UInt24 Offset;
   public byte Table;
 
   public UserStringHeapIndex Index;
 
-  public object Value { get; set; }
-
-
-  public CodeNode Read(Stream stream) {
-    var offsetNode = stream.ReadClass(ref Offset, nameof(Offset));
-    var tableNode = stream.ReadStruct(out Table, nameof(Table));
+  protected override void InnerRead() {
+    AddChild(nameof(Offset));
+    AddChild(nameof(Table));
 
     if (Table == 0x70) {
+      Children.Clear();
       // Reposition stream, and read "XX XX 00 70"
-      stream.Position -= 4;
+      Bytes.Stream.Position -= 4;
 
-      var indexNode = stream.ReadClass(ref Index, nameof(Index));
+      AddChild(nameof(Index));
 
-      if (stream.ReallyReadByte() != 0)
+      if (Bytes.Read<byte>() != 0)
         throw new NotImplementedException("Too big UserStringHeapIndex");
-      indexNode.End++;
-      stream.Position += 1;
+      Index.End++;
 
-      var node = new CodeNode {
-        indexNode,
-        tableNode,
-      };
-      tableNode.Description = "UserStringHeapIndex";
-      Value = UserStringHeap.Get(Index).GetString();
-      return node;
+      AddChild(nameof(Table));
+      Children.Last().Description = "UserStringHeapIndex";
+
+      NodeValue = Index.NodeValue;
     } else {
-      var node = new CodeNode {
-        offsetNode,
-        tableNode,
-      };
       var flag = (MetadataTableFlags)(1L << Table);
-      tableNode.Description = flag.ToString();
-      var link = Singletons.Instance.TildeStream.GetCodeNode(flag, Offset.IntValue - 1); // indexed by 1
-      offsetNode.Link = link;
-      Value = link.Value;
-      return node;
+      Children.Last().Description = flag.ToString();
+      var link = Bytes.TildeStream.GetCodeNode(flag, Offset.IntValue - 1); // indexed by 1
+      Children.First().Link = link;
+      NodeValue = link.NodeValue;
     }
   }
 }
 
-sealed class Op : ICanRead
+sealed class Op : CodeNode
 {
-  CodeNode op;
-  public Op(CodeNode op, string opName) {
-    this.op = op;
-    op.Description = opName;
-  }
+  public byte OpCode;
 
-  public CodeNode Read(Stream stream) => op;
-}
+  protected override void InnerRead() {
+    AddChild(nameof(OpCode));
 
-sealed class OpWith<T> : ICanRead
-    where T : struct
-{
-  CodeNode op;
-  public T Value;
-  string opName;
-
-  public OpWith(CodeNode op, string opName) {
-    this.op = op;
-    this.opName = opName;
-  }
-
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      op,
-      stream.ReadStruct(out Value, nameof(Value)),
+    Description = OpCode switch {
+      0x00 => "nop",
+      0x01 => "break",
+      0x02 => "ldarg.0",
+      0x03 => "ldarg.1",
+      0x04 => "ldarg.2",
+      0x05 => "ldarg.3",
+      0x06 => "ldloc.0",
+      0x07 => "ldloc.1",
+      0x08 => "ldloc.2",
+      0x09 => "ldloc.3",
+      0x0A => "stloc.0",
+      0x0B => "stloc.1",
+      0x0C => "stloc.2",
+      0x0D => "stloc.3",
+      0x0E => With<byte>("ldarg.s"),
+      0x0F => With<byte>("ldarga.s"),
+      0x10 => With<byte>("starg.s"),
+      0x11 => With<byte>("ldloc.s"),
+      0x12 => With<byte>("ldloca.s"),
+      0x13 => With<byte>("stloc.s"),
+      0x14 => "ldnull",
+      0x15 => "ldc.i4.m1",
+      0x16 => "ldc.i4.0",
+      0x17 => "ldc.i4.1",
+      0x18 => "ldc.i4.2",
+      0x19 => "ldc.i4.3",
+      0x1A => "ldc.i4.4",
+      0x1B => "ldc.i4.5",
+      0x1C => "ldc.i4.6",
+      0x1D => "ldc.i4.7",
+      0x1E => "ldc.i4.8",
+      0x1F => With<sbyte>("ldc.i4.s"),
+      0x20 => With<int>("ldc.i4"),
+      0x21 => With<long>("ldc.i8"),
+      0x22 => With<float>("ldc.r4"),
+      0x23 => With<double>("ldc.r8"),
+      0x25 => "dup",
+      0x26 => "pop",
+      0x27 => WithToken("jmp"),
+      0x28 => WithToken("call"),
+      0x29 => WithToken("calli"),
+      0x2A => "ret",
+      0x2B => With<sbyte>("br.s"),
+      0x2C => With<sbyte>("brfalse.s"),
+      0x2D => With<sbyte>("brtrue.s"),
+      0x2E => With<sbyte>("beq.s"),
+      0x2F => With<sbyte>("bge.s"),
+      0x30 => With<sbyte>("bgt.s"),
+      0x31 => With<sbyte>("ble.s"),
+      0x32 => With<sbyte>("blt.s"),
+      0x33 => With<sbyte>("bne.un.s"),
+      0x34 => With<sbyte>("bge.un.s"),
+      0x35 => With<sbyte>("bgt.un.s"),
+      0x36 => With<sbyte>("ble.un.s"),
+      0x37 => With<sbyte>("blt.un.s"),
+      0x38 => With<int>("br"),
+      0x39 => With<int>("brfalse"),
+      0x3A => With<int>("brtrue"),
+      0x3B => With<int>("beq"),
+      0x3C => With<int>("bge"),
+      0x3D => With<int>("bgt"),
+      0x3E => With<int>("ble"),
+      0x3F => With<int>("blt"),
+      0x40 => With<int>("bne.un"),
+      0x41 => With<int>("bge.un"),
+      0x42 => With<int>("bgt.un"),
+      0x43 => With<int>("ble.un"),
+      0x44 => With<int>("blt.un"),
+      0x45 => SwitchOp(),
+      0x46 => "ldind.i1",
+      0x47 => "ldind.u1",
+      0x48 => "ldind.i2",
+      0x49 => "ldind.u2",
+      0x4A => "ldind.i4",
+      0x4B => "ldind.u4",
+      0x4C => "ldind.i8",
+      0x4D => "ldind.i",
+      0x4E => "ldind.r4",
+      0x4F => "ldind.r8",
+      0x50 => "ldind.ref",
+      0x51 => "stind.ref",
+      0x52 => "stind.i1",
+      0x53 => "stind.i2",
+      0x54 => "stind.i4",
+      0x55 => "stind.i8",
+      0x56 => "stind.r4",
+      0x57 => "stind.r8",
+      0x58 => "add",
+      0x59 => "sub",
+      0x5A => "mul",
+      0x5B => "div",
+      0x5C => "div.un",
+      0x5D => "rem",
+      0x5E => "rem.un",
+      0x5F => "and",
+      0x60 => "or",
+      0x61 => "xor",
+      0x62 => "shl",
+      0x63 => "shr",
+      0x64 => "shr.un",
+      0x65 => "neg",
+      0x66 => "not",
+      0x67 => "conv.i1",
+      0x68 => "conv.i2",
+      0x69 => "conv.i4",
+      0x6A => "conv.i8",
+      0x6B => "conv.r4",
+      0x6C => "conv.r8",
+      0x6D => "conv.u4",
+      0x6E => "conv.u8",
+      0x6F => WithToken("callvirt"),
+      0x70 => WithToken("cpobj"),
+      0x71 => WithToken("ldobj"),
+      0x72 => WithToken("ldstr"),
+      0x73 => WithToken("newobj"),
+      0x74 => WithToken("castclass"),
+      0x75 => WithToken("isinst"),
+      0x76 => "conv.r.un",
+      0x79 => WithToken("unbox"),
+      0x7A => "throw",
+      0x7B => WithToken("ldfld"),
+      0x7C => WithToken("ldflda"),
+      0x7D => WithToken("stfld"),
+      0x7E => WithToken("ldsfld"),
+      0x7F => WithToken("ldsflda"),
+      0x80 => WithToken("stsfld"),
+      0x81 => WithToken("stobj"),
+      0x82 => "conv.ovf.i1.un",
+      0x83 => "conv.ovf.i2.un",
+      0x84 => "conv.ovf.i4.un",
+      0x85 => "conv.ovf.i8.un",
+      0x86 => "conv.ovf.u1.un",
+      0x87 => "conv.ovf.u2.un",
+      0x88 => "conv.ovf.u4.un",
+      0x89 => "conv.ovf.u8.un",
+      0x8A => "conv.ovf.i.un",
+      0x8B => "conv.ovf.u.un",
+      0x8C => WithToken("box"),
+      0x8D => WithToken("newarr"),
+      0x8E => "ldlen",
+      0x8F => WithToken("ldelema"),
+      0x90 => "ldelem.i1",
+      0x91 => "ldelem.u1",
+      0x92 => "ldelem.i2",
+      0x93 => "ldelem.u2",
+      0x94 => "ldelem.i4",
+      0x95 => "ldelem.u4",
+      0x96 => "ldelem.i8",
+      0x97 => "ldelem.i",
+      0x98 => "ldelem.r4",
+      0x99 => "ldelem.r8",
+      0x9A => "ldelem.ref",
+      0x9B => "stelem.i",
+      0x9C => "stelem.i1",
+      0x9D => "stelem.i2",
+      0x9E => "stelem.i4",
+      0x9F => "stelem.i8",
+      0xA0 => "stelem.r4",
+      0xA1 => "stelem.r8",
+      0xA2 => "stelem.ref",
+      0xA3 => WithToken("ldelem"),
+      0xA4 => WithToken("stelem"),
+      0xA5 => WithToken("unbox.any"),
+      0xB3 => "conv.ovf.i1",
+      0xB4 => "conv.ovf.u1",
+      0xB5 => "conv.ovf.i2",
+      0xB6 => "conv.ovf.u2",
+      0xB7 => "conv.ovf.i4",
+      0xB8 => "conv.ovf.u4",
+      0xB9 => "conv.ovf.i8",
+      0xBA => "conv.ovf.u8",
+      0xC2 => WithToken("refanyval"),
+      0xC3 => WithToken("ckfinite"),
+      0xC6 => WithToken("mkrefany"),
+      0xD0 => WithToken("ldtoken"),
+      0xD1 => "conv.u2",
+      0xD2 => "conv.u1",
+      0xD3 => "conv.i",
+      0xD4 => "conv.ovf.i",
+      0xD5 => "conv.ovf.u",
+      0xD6 => "add.ovf",
+      0xD7 => "add.ovf.un",
+      0xD8 => "mul.ovf",
+      0xD9 => "mul.ovf.un",
+      0xDA => "sub.ovf",
+      0xDB => "sub.ovf.un",
+      0xDC => "endfault", //TODO(pedant) endfinally?
+      0xDD => With<int>("leave"),
+      0xDE => With<sbyte>("leave_s"),
+      0xDF => "stind.i",
+      0xE0 => "conv.u",
+      0xFE => Extended(),
+      _ => throw new InvalidOperationException($"unknown op 0x{OpCode:X}"),
     };
-    node.Description = opName + " " + Value.GetString();
-    return node;
-  }
-}
 
-sealed class OpWithToken : ICanRead
-{
-  CodeNode op;
+    if (Children.Count == 1) {
+      NodeValue = Children.Single().NodeValue;
+      Children.Clear();
+    }
+  }
+
+  string Extended() {
+    var secondByte = new StructNode<byte> { Bytes = Bytes };
+    secondByte.Read();
+
+    var firstNode = Children.Single();
+    firstNode.End = secondByte.End;
+
+    firstNode.NodeValue = firstNode.NodeValue + " " + secondByte.NodeValue;
+
+    return secondByte.t switch {
+      0x00 => "arglist",
+      0x01 => "ceq",
+      0x02 => "cgt",
+      0x03 => "cgt.un",
+      0x04 => "clt",
+      0x05 => "clt.un",
+      0x06 => WithToken("ldftn"),
+      0x07 => WithToken("ldvirtftn"),
+      0x09 => With<ushort>("ldarg"),
+      0x0A => With<ushort>("ldarga"),
+      0x0B => With<ushort>("starg"),
+      0x0C => With<ushort>("ldloc"),
+      0x0D => With<ushort>("ldloca"),
+      0x0E => With<ushort>("stloc"),
+      0x0F => "localloc",
+      0x11 => "endfilter",
+      0x12 => throw new NotImplementedException($"unaligned."),
+      0x13 => throw new NotImplementedException($"volatile."),
+      0x14 => throw new NotImplementedException($"tail."),
+      0x15 => WithToken("initobj"),
+      0x16 => WithToken("constrained."),
+      0x17 => "cpblk",
+      0x18 => "initblk",
+      0x19 => throw new NotImplementedException($"no."),
+      0x1A => "rethrow",
+      0x1C => WithToken("sizeof"),
+      0x1D => "refanytype",
+      0x1E => throw new NotImplementedException($"readonly."),
+      _ => throw new InvalidOperationException($"unkonwn op 0xFE 0x{secondByte:X}"),
+    };
+  }
+
+  string With<T>(string description) where T : struct {
+    // Children.Single().Description = description; //TODO(diff-solonode)
+
+    var value = new StructNode<T> { Bytes = Bytes };
+    value.Read();
+    value.NodeName = "Value";
+    Children.Add(value);
+
+    return $"{description} {value.NodeValue}";
+  }
+
   public MetadataToken Token;
-
-  public OpWithToken(CodeNode op, string opName) {
-    this.op = op;
-    op.Description = opName;
+  string WithToken(string description) {
+    Children.Single().Description = description;
+    AddChild(nameof(Token));
+    return $"{description} {Token.NodeValue}";
   }
 
-  public CodeNode Read(Stream stream) {
-    var tokenNode = stream.ReadClass(ref Token, nameof(Token));
-    var node = new CodeNode {
-      op,
-      tokenNode,
-    };
-    node.Description = op.Description + " " + tokenNode.Value;
-
-    return node;
-  }
-}
-
-sealed class SwitchOp : ICanRead
-{
-  CodeNode op;
   public uint Count;
-  public int[] Targets;
-
-  public SwitchOp(CodeNode op) {
-    this.op = op;
-    op.Description = "switch";
+  //TODO(link) link each target to op. Using StructNode<uint> keeps each row its own size
+  public StructNode<int>[] Targets;
+  string SwitchOp() {
+    Children.Single().Description = "switch";
+    AddChild(nameof(Count));
+    AddChild(nameof(Targets)); 
+    return $"switch ({string.Join(", ", Targets.Select(n => n.t))})";
   }
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      op,
-      stream.ReadStruct(out Count, nameof(Count)),
-      stream.ReadStructs(out Targets, (int)Count, nameof(Targets)), //TODO(links) switch offset
-    };
-    node.Description = $"switch ({string.Join(", ", Targets)})";
-    return node;
-  }
+  protected override int GetCount(string field) => field switch {
+    nameof(Targets) => (int)Count,
+    _ => base.GetCount(field),
+  };
 }

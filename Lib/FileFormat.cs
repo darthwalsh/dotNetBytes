@@ -2,62 +2,48 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// CodeNode is written though reflection
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to
+
 // II.25 File format extensions to PE 
 
-sealed class FileFormat : ICanRead
+sealed class FileFormat : CodeNode
 {
-  public PEHeader PEHeader;
-  public Section[] Sections;
+  [OrderedField] public PEHeader PEHeader;
+  [OrderedField] public Section[] Sections;
 
-  public CodeNode Read(Stream stream) {
-    Singletons.Reset();
-
-    var node = new CodeNode {
-      stream.ReadClass(ref PEHeader),
-    };
-
-    Sections = PEHeader.SectionHeaders.Select(header =>
-        new Section(header, PEHeader.PEOptionalHeader.PEHeaderHeaderDataDirectories, PEHeader.PEOptionalHeader.PEHeaderStandardFields.EntryPointRVA)).ToArray();
-
-    node.Add(stream.ReadClasses(ref Sections));
-    for (var i = 0; i < Sections.Length; ++i) {
-      Sections[i].CallBack();
-    }
-
-    return node;
+  protected override void InnerRead() {
+    base.InnerRead();
+    End = Sections.Max(s => s.End);
   }
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Sections) => PEHeader.SectionHeaders.Length,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.25.2
-sealed class PEHeader : ICanRead
+sealed class PEHeader : CodeNode
 {
-  public DosHeader DosHeader;
-  public PESignature PESignature;
-  public PEFileHeader PEFileHeader;
-  public PEOptionalHeader PEOptionalHeader;
-  public SectionHeader[] SectionHeaders;
+  [OrderedField] public DosHeader DosHeader;
+  [OrderedField] public PESignature PESignature;
+  [OrderedField] public PEFileHeader PEFileHeader;
+  [OrderedField] public PEOptionalHeader PEOptionalHeader;
+  [OrderedField] public SectionHeader[] SectionHeaders;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out DosHeader),
-      stream.ReadStruct(out PESignature),
-      stream.ReadStruct(out PEFileHeader),
-      stream.ReadClass(ref PEOptionalHeader),
-      stream.ReadStructs(out SectionHeaders, PEFileHeader.NumberOfSections),
-    };
-
-    node.GetChild("DosHeader").GetChild("LfaNew").Link = node.GetChild("PESignature");
-
-    return node;
-  }
+  protected override int GetCount(string field) => field switch {
+    nameof(SectionHeaders) => PEFileHeader.NumberOfSections,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.25.2.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct DosHeader
+sealed class DosHeader : CodeNode
 {
   [Expected('M')]
   public char MagicM;
@@ -97,26 +83,32 @@ struct DosHeader
   [Expected(0)]
   public ushort OemInformation;
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00})]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                         0x00, 0x00, 0x00, 0x00})]
   public byte[] Reserved2;
   [Expected(0x80)]
-  public uint LfaNew;
+  public LfaNewNode LfaNew;
   [Expected(new byte[] { 0x0E, 0x1F, 0xBA, 0x0E, 0x00, 0xB4, 0x09, 0xCD,
-                           0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 14)]
+                         0x21, 0xb8, 0x01, 0x4C, 0xCD, 0x21 })]
   public byte[] DosCode;
   [Expected("This program cannot be run in DOS mode.\r\r\n$")]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 43)]
   public char[] Message;
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
   public byte[] Reserved3;
+
+  public sealed class LfaNewNode : CodeNode {
+    public uint val;
+    protected override void InnerRead() {
+      base.InnerRead();
+      NodeValue = Children.Single().NodeValue;
+      Children.Clear();
+    }
+
+    public override CodeNode Link => Bytes.FileFormat.PEHeader.PESignature;
+  }
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PESignature
+class PESignature : CodeNode
 {
   [Expected('P')]
   public char MagicP;
@@ -127,8 +119,7 @@ struct PESignature
 }
 
 // II.25.2.2 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEFileHeader
+class PEFileHeader : CodeNode
 {
   [Description("0x14c is I386.")]
   public MachineType Machine;
@@ -175,43 +166,42 @@ enum MachineType : ushort
 }
 
 // II.25.2.3
-class PEOptionalHeader : ICanRead
+sealed class PEOptionalHeader : CodeNode
 {
   //TODO(Descriptions)
 
   public PEHeaderStandardFields PEHeaderStandardFields;
-  [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
-  public int? BaseOfData;
-  public PEHeaderWindowsNtSpecificFields32? PEHeaderWindowsNtSpecificFields32;
-  public PEHeaderWindowsNtSpecificFields64? PEHeaderWindowsNtSpecificFields64;
+  //TODO(diff-solonode) uncomment [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
+  public int BaseOfData = -1;
+  public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields32;
+  public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64;
   public PEHeaderHeaderDataDirectories PEHeaderHeaderDataDirectories;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out PEHeaderStandardFields),
-    };
+  protected override void InnerRead() {
+    AddChild(nameof(PEHeaderStandardFields));
 
     switch (PEHeaderStandardFields.Magic) {
       case PE32Magic.PE32:
-        node.Add(stream.ReadStruct(out BaseOfData, nameof(BaseOfData)));
-        node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields32).Children.Single());
+        AddChild(nameof(BaseOfData));
+        AddChild(nameof(PEHeaderWindowsNtSpecificFields32));
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(diff-solonode)
         break;
       case PE32Magic.PE32plus:
-        node.Add(stream.ReadStruct(out PEHeaderWindowsNtSpecificFields64).Children.Single());
+        AddChild(nameof(PEHeaderWindowsNtSpecificFields64));
+        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
+        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(diff-solonode)
         break;
       default:
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
     }
 
-    node.Add(stream.ReadStruct(out PEHeaderHeaderDataDirectories));
-
-    return node;
+    AddChild(nameof(PEHeaderHeaderDataDirectories));
   }
 }
 
 // II.25.2.3.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderStandardFields
+sealed class PEHeaderStandardFields : CodeNode
 {
   [Description("Identifies version.")]
   public PE32Magic Magic;
@@ -239,8 +229,7 @@ enum PE32Magic : ushort
 }
 
 // II.25.2.3.2
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderWindowsNtSpecificFields<Tint>
+sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
 {
   [Description("Shall be a multiple of 0x10000.")]
   public Tint ImageBase;
@@ -297,19 +286,6 @@ struct PEHeaderWindowsNtSpecificFields<Tint>
   public uint NumberOfDataDirectories;
 }
 
-// Generic structs aren't copyable by Marshal.PtrToStructure, so make non-generic "subclasses"
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderWindowsNtSpecificFields32
-{
-  public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields;
-}
-
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderWindowsNtSpecificFields64
-{
-  public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields;
-}
-
 [Flags]
 enum DllCharacteristics : ushort
 {
@@ -338,8 +314,7 @@ enum DllCharacteristics : ushort
 }
 
 // II.25.2.3.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct PEHeaderHeaderDataDirectories
+sealed class PEHeaderHeaderDataDirectories : CodeNode
 {
   //TODO(link) all Raw Address from understandingCIL
   //TODO(link) RVAandSize all 
@@ -389,19 +364,20 @@ struct PEHeaderHeaderDataDirectories
   public ulong Reserved;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct RVAandSize
+sealed class RVAandSize : CodeNode
 {
-  public uint RVA;
-  public uint Size;
+  public RVAandSize() {
+    NodeValue = "RVAandSize"; //TODO(diff-solonode)
+  }
+
+  [OrderedField] public uint RVA;
+  [OrderedField] public uint Size;
 }
 
 // II.25.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct SectionHeader
+sealed class SectionHeader : CodeNode
 {
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
   public char[] Name;
   [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
   public uint VirtualSize;
@@ -425,6 +401,11 @@ struct SectionHeader
   public ushort NumberOfLinenumbers;
   [Description("Flags describing section’s characteristics.")]
   public SectionHeaderCharacteristics Characteristics;
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Name) => 8,
+    _ => base.GetCount(field),
+  };
 }
 
 [Flags]
@@ -446,165 +427,135 @@ enum SectionHeaderCharacteristics : uint
   MemoryCanBeWrittenTo = 0x80000000,
 }
 
-sealed class Section : ICanRead
+sealed class Section : CodeNode
 {
-  int start;
-  int end;
   int rva;
-  string name;
-  PEHeaderHeaderDataDirectories data;
-  uint entryPointRVA;
-
   public CLIHeader CLIHeader;
   public MetadataRoot MetadataRoot;
+  public StringHeap StringHeap;
+  public UserStringHeap UserStringHeap;
+  public BlobHeap BlobHeap;
+  public GuidHeap GuidHeap;
+  public TildeStream TildeStream;
+  public ResourceEntry[] ResourceEntry; //TODO(diff-solonode) rename to ResourceEntries
+
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
   public ImportAddressHintNameTable ImportAddressHintNameTable;
+  public NullTerminatedString RuntimeEngineName = new NullTerminatedString(Encoding.ASCII, 1);
   public NativeEntryPoint NativeEntryPoint;
   public ImportAddressTable ImportAddressTable;
   public Relocations Relocations;
 
-  CodeNode node;
+  public Methods Methods;
 
-  public Dictionary<uint, Method> MethodsByRVA { get; } = new Dictionary<uint, Method>();
-
-  public Section(SectionHeader header, PEHeaderHeaderDataDirectories data, uint entryPointRVA) {
-    start = (int)header.PointerToRawData;
-    end = start + (int)header.SizeOfRawData;
-    rva = (int)header.VirtualAddress;
-    name = new string(header.Name);
-    this.data = data;
-    this.entryPointRVA = entryPointRVA;
+  int sectionI;
+  public Section(int i) {
+    sectionI = i;
   }
 
-  //TODO(cleanup) reorder children in order 
-  public CodeNode Read(Stream stream) {
-    node = new CodeNode {
-      Description = name,
-    };
+  protected override void InnerRead() {
+    var header = Bytes.FileFormat.PEHeader.SectionHeaders[sectionI];
 
-    foreach (var nr in data.GetType().GetFields()
+    Start = (int)header.PointerToRawData;
+    End = Start + (int)header.SizeOfRawData;
+    rva = (int)header.VirtualAddress;
+    string name = new string(header.Name);
+    Description = name;
+
+    var optionalHeader = Bytes.FileFormat.PEHeader.PEOptionalHeader;
+    var dataDirs = optionalHeader.PEHeaderHeaderDataDirectories;
+
+    foreach (var nr in dataDirs.GetType().GetFields()
         .Where(field => field.FieldType == typeof(RVAandSize))
-        .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(data) })
+        .Select(field => new { name = field.Name, rva = (RVAandSize)field.GetValue(dataDirs) })
         .Where(nr => nr.rva.RVA > 0)
-        .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + end - start)
+        .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + End - Start)
         .OrderBy(nr => nr.rva.RVA)) {
-      Reposition(stream, nr.rva.RVA);
+      Reposition(nr.rva.RVA); // TODO(link) every Position= or Reposition() should be a Link?!
 
       switch (nr.name) {
         case "CLIHeader":
-          node.Add(stream.ReadStruct(out CLIHeader));
+          Bytes.CLIHeaderSection = this;
+          AddChild(nameof(CLIHeader));
 
-          Reposition(stream, CLIHeader.MetaData.RVA);
-          node.Add(stream.ReadClass(ref MetadataRoot));
+          Reposition(CLIHeader.MetaData.RVA);
+          AddChild(nameof(MetadataRoot));
 
-          foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.IndexOf('~'))) // Read #~ after heaps
+          foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.Str.IndexOf('~'))) // Read #~ after heaps
           {
-            Reposition(stream, streamHeader.Offset + CLIHeader.MetaData.RVA);
+            Reposition(streamHeader.Offset + CLIHeader.MetaData.RVA);
 
-            switch (streamHeader.Name) {
+            switch (streamHeader.Name.Str) {
               case "#Strings":
-                var stringHeap = new StringHeap((int)streamHeader.Size);
-                Singletons.Instance.StringHeap = stringHeap;
-                node.Add(stream.ReadClass(ref stringHeap));
+                StringHeap = new StringHeap((int)streamHeader.Size);
+                AddChild(nameof(StringHeap));
                 break;
               case "#US":
-                var userStringHeap = new UserStringHeap((int)streamHeader.Size);
-                Singletons.Instance.UserStringHeap = userStringHeap;
-                node.Add(stream.ReadClass(ref userStringHeap));
+                UserStringHeap = new UserStringHeap((int)streamHeader.Size);
+                AddChild(nameof(UserStringHeap));
                 break;
               case "#Blob":
-                var blobHeap = new BlobHeap((int)streamHeader.Size);
-                Singletons.Instance.BlobHeap = blobHeap;
-                node.Add(stream.ReadClass(ref blobHeap));
+                BlobHeap = new BlobHeap((int)streamHeader.Size);
+                AddChild(nameof(BlobHeap));
                 break;
               case "#GUID":
-                var guidHeap = new GuidHeap((int)streamHeader.Size);
-                Singletons.Instance.GuidHeap = guidHeap;
-                node.Add(stream.ReadClass(ref guidHeap));
+                GuidHeap = new GuidHeap((int)streamHeader.Size);
+                AddChild(nameof(GuidHeap));
                 break;
               case "#~":
-                var TildeStream = new TildeStream(this);
-                Singletons.Instance.TildeStream = TildeStream;
-                node.Add(stream.ReadClass(ref TildeStream));
+                TildeStream = new TildeStream(this);
+                AddChild(nameof(TildeStream));
 
-                var methods = new CodeNode {
-                  Name = "Methods",
-                };
-
-                foreach (var rva in (TildeStream.MethodDefs ?? Array.Empty<MethodDef>())
-                    .Select(def => def.RVA)
-                    .Where(rva => rva > 0)
-                    .Distinct()
-                    .OrderBy(rva => rva)) {
-                  Reposition(stream, rva);
-
-                  Method method = null;
-                  methods.Add(stream.ReadClass(ref method));
-                  MethodsByRVA.Add(rva, method);
+                if (TildeStream.ManifestResources != null) {
+                  AddChildren(nameof(ResourceEntry), TildeStream.ManifestResources.Length);
                 }
 
-                if (methods.Children.Any()) {
-                  node.Add(methods);
+                AddChild(nameof(Methods));
+                if (!Methods.Children.Any()) {
+                  Children.RemoveAt(Children.Count - 1);
                 }
                 break;
               default:
-                node.Errors.Add("Unexpected stream name: " + streamHeader.Name);
+                Errors.Add("Unexpected stream name: " + streamHeader.Name.Str);
                 break;
             }
           }
 
           break;
+
         case "ImportTable":
-          node.Add(stream.ReadStruct(out ImportTable));
+          AddChild(nameof(ImportTable));
 
-          Reposition(stream, ImportTable.ImportLookupTable);
-          node.Add(stream.ReadStruct(out ImportLookupTable));
+          Reposition(ImportTable.ImportLookupTable);
+          AddChild(nameof(ImportLookupTable));
 
-          Reposition(stream, ImportLookupTable.HintNameTableRVA);
-          node.Add(stream.ReadStruct(out ImportAddressHintNameTable));
+          Reposition(ImportLookupTable.HintNameTableRVA);
+          AddChild(nameof(ImportAddressHintNameTable));
 
-          Reposition(stream, ImportTable.Name);
-          string RuntimeEngineName;
-          node.Add(stream.ReadAnything(out RuntimeEngineName, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 1), "RuntimeEngineName"));
+          Reposition(ImportTable.Name);
+          AddChild(nameof(RuntimeEngineName));
 
-          Reposition(stream, entryPointRVA);
-          node.Add(stream.ReadStruct(out NativeEntryPoint));
+          Reposition(optionalHeader.PEHeaderStandardFields.EntryPointRVA);
+          AddChild(nameof(NativeEntryPoint));
           break;
         case "ImportAddressTable":
-          node.Add(stream.ReadStruct(out ImportAddressTable));
+          AddChild(nameof(ImportAddressTable));
           break;
         case "BaseRelocationTable":
-          node.Add(stream.ReadClass(ref Relocations));
+          AddChild(nameof(Relocations));
           break;
         default:
-          node.Errors.Add("Unexpected data directory name: " + nr.name);
-          break;
+          throw new NotImplementedException($"{name} {nr.name}");
       }
     }
-
-    foreach (var toRead in toReads) {
-      node.Add(toRead(stream));
-    }
-
-    return node;
   }
 
-  List<Func<Stream, CodeNode>> toReads = new List<Func<Stream, CodeNode>>();
-  public void ReadNode(Func<Stream, CodeNode> read) => toReads.Add(read);
-
-  public void Reposition(Stream stream, long dataRVA) => stream.Position = start + dataRVA - rva;
-
-  public void CallBack() {
-    node.Start = start;
-    node.End = end;
-  }
+  public void Reposition(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;
 }
 
-
 // II.25.3.1
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportTable
+sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
   public uint ImportLookupTable;
@@ -622,40 +573,41 @@ struct ImportTable
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                            0x00, 0x00, 0x00, 0x00})]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
   public byte[] Reserved;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportAddressTable
+sealed class ImportAddressTable : CodeNode
 {
+  [OrderedField]
   public uint HintNameTableRVA;
   [Expected(0)]
   public uint NullTerminated;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportLookupTable
+sealed class ImportLookupTable : CodeNode
 {
+  [OrderedField]
   public uint HintNameTableRVA;
   [Expected(0)]
   public uint NullTerminated;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct ImportAddressHintNameTable
+sealed class ImportAddressHintNameTable : CodeNode
 {
   [Description("Shall be 0.")]
   [Expected(0)]
   public ushort Hint;
   [Description("Case sensitive, null-terminated ASCII string containing name to import. Shall be “_CorExeMain” for a.exe file and “_CorDllMain” for a.dll file.")]
-  [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
   public char[] Message;
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Message) => 12,
+    _ => base.GetCount(field),
+  };
 }
 
-//It woul be nice to parse all x86 or other kind of assemblies like ARM or JAR, but that's probably out-of-scope
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct NativeEntryPoint
+// It would be nice to parse all x86 or other kind of assemblies like ARM or JAR, but that's out-of-scope
+sealed class NativeEntryPoint : CodeNode
 {
   [Description("JMP op code in X86")]
   [Expected(0xFF)]
@@ -668,53 +620,57 @@ struct NativeEntryPoint
 }
 
 // II.25.3.2
-class Relocations : ICanRead
+sealed class Relocations : CodeNode
 {
+  [OrderedField]
   public BaseRelocationTable BaseRelocationTable;
+  [OrderedField]
   public Fixup[] Fixups;
 
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out BaseRelocationTable),
-      stream.ReadClasses(ref Fixups, ((int)BaseRelocationTable.BlockSize - 8) / 2),
-    };
-  }
+  protected override int GetCount(string field) => field switch {
+    nameof(Fixups) => ((int)BaseRelocationTable.BlockSize - 8) / 2,
+    _ => base.GetCount(field),
+  };
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct BaseRelocationTable
+sealed class BaseRelocationTable : CodeNode
 {
-  public uint PageRVA;
-  public uint BlockSize;
+  [OrderedField] public uint PageRVA;
+  [OrderedField] public uint BlockSize;
 }
 
-class Fixup : ICanRead
+sealed class Fixup : CodeNode
 {
   //TODO(Descriptions)
 
-  [Description("Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).")]
+  [Description(/*"Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3)."*/ "")] //TODO(diff-solonode) 
   public byte Type;
-  [Description("Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
+  [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(diff-solonode) 
   public short Offset;
 
-  public CodeNode Read(Stream stream) {
-    byte tmp = 0xCC;
-
-    return new CodeNode {
-      stream.ReadStruct(out Type, nameof(Type), (byte b) => {
-        tmp = b;
-        return (byte)(b >> 4);
-      }),
-      stream.ReadStruct(out Offset, nameof(Offset), (byte b) => {
-        return (short)(((tmp << 8) & 0x0F00) | b);
-      }),
-    };
+  protected override CodeNode ReadField(string fieldName) { // MAYBE just override Read() and no children
+    switch (fieldName) {
+      case nameof(Type):
+        var type = new StructNode<byte> { Bytes = Bytes };
+        type.Read();
+        Offset = (short)((type.t << 8) & 0x0F00);
+        Type = (byte)(type.t >> 4);
+        type.NodeValue = Type.GetString();
+        return type;
+      case nameof(Offset):
+        var offset = new StructNode<byte> { Bytes = Bytes };
+        offset.Read();
+        Offset |= (short)offset.t;
+        offset.NodeValue = Offset.GetString();
+        return offset;
+      default:
+        throw new InvalidOperationException();
+    }
   }
 }
 
 // II.25.3.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct CLIHeader
+sealed class CLIHeader : CodeNode
 {
   [Description("Size of the header in bytes")]
   public uint Cb;
@@ -755,25 +711,52 @@ enum CliHeaderFlags : uint
   TrackDebugData = 0x10000,
 }
 
+sealed class Methods : CodeNode
+{
+  public Method[] Method;
+
+  protected override void InnerRead() {
+    if (Bytes.TildeStream.MethodDefs == null) return;
+
+    var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA);
+    
+    var methods = new List<Method>();
+    foreach (var methodDefGroup in methodDefs) {
+      var rva = methodDefGroup.Key;
+      if (rva == 0) continue;
+      var method = new Method(rva);
+      foreach (var methodDef in methodDefGroup) {
+        methodDef.SetLink(method);
+      }
+      methods.Add(method);
+    }
+
+    Method = methods.OrderBy(m => m.RVA).ToArray();
+    base.InnerRead();
+    Start = Method.Min(m => m.Start);
+    End = Method.Max(m => m.End);
+  }
+}
+
 // II.25.4
-sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
+sealed class Method : CodeNode
 {
   public byte Header; //TODO(pedant) ? enum
   public FatFormat FatFormat;
   public MethodDataSection[] DataSections;
   public InstructionStream CilOps;
 
-  public string Name { get; } = $"{nameof(Method)}[{Singletons.Instance.MethodCount++}]";
+  public Method(uint rva) {
+    RVA = rva;
+  }
 
-  public object Value => ""; //TODO(cleanup) clean up all "" Value. Should this just implement IHaveValue? How does that work with CodeNode.DelayedValueNode?
+  public uint RVA { get; private set; }
 
-  public CodeNode Node { get; private set; }
+  protected override long BeforeReposition => RVA;
 
-  public CodeNode Read(Stream stream) {
-    var header = stream.ReadStruct(out Header, nameof(Header));
-    Node = new CodeNode {
-      header,
-    };
+  protected override void InnerRead() {
+    AddChild(nameof(Header));
+    var header = Children.Single();
 
     int length;
     var moreSects = false;
@@ -784,10 +767,10 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         header.Description = $"Tiny Header, 0x{length:X} bytes long";
         break;
       case MethodHeaderType.Fat:
-        Node.Add(stream.ReadStruct(out FatFormat, nameof(FatFormat)));
+        AddChild(nameof(FatFormat));
 
         if ((FatFormat.FlagsAndSize & 0xF0) != 0x30) {
-          Node.Errors.Add("Expected upper bits of FlagsAndSize to be 3");
+          Errors.Add("Expected upper bits of FlagsAndSize to be 3");
         }
 
         length = (int)FatFormat.CodeSize;
@@ -798,29 +781,34 @@ sealed class Method : ICanRead, IHaveAName, IHaveLiteralValueNode
         throw new InvalidOperationException("Invalid MethodHeaderType " + type);
     }
 
-    CilOps = new InstructionStream(length);
-    Node.Add(stream.ReadClass(ref CilOps, nameof(CilOps)));
+    CilOps = new InstructionStream(length) { Bytes = Bytes };
+    AddChild(nameof(CilOps));
 
     if (moreSects) {
-      while (stream.Position % 4 != 0) {
-        var b = stream.ReallyReadByte();
+      while (Bytes.Stream.Position % 4 != 0) {
+        _ = Bytes.Read<byte>();
       }
 
-      var dataSections = new List<MethodDataSection>();
-      var dataSectionNode = new CodeNode { Name = "MethodDataSection" };
+      var dataSections = new MethodDataSections { Bytes = Bytes };
+      dataSections.Read();
 
-      MethodDataSection dataSection = null;
-      do {
-        dataSectionNode.Add(stream.ReadClass(ref dataSection, $"MethodDataSections[{dataSections.Count}]"));
-        dataSections.Add(dataSection);
-      }
-      while (dataSection.Header.HasFlag(MethodHeaderSection.MoreSects));
-
-      DataSections = dataSections.ToArray();
-      Node.Add(dataSectionNode.Children.Count == 1 ? dataSectionNode.Children.Single() : dataSectionNode);
+      Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
     }
+  }
+}
 
-    return Node;
+sealed class MethodDataSections : CodeNode
+{
+  public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
+  protected override void InnerRead() {
+    MethodDataSection dataSection = null;
+    do {
+      dataSection = new MethodDataSection() { Bytes = Bytes };
+      dataSection.Read();
+      dataSection.NodeName = $"{nameof(MethodDataSections)}[{Children.Count}]";
+      Children.Add(dataSection);
+    }
+    while (dataSection.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
   }
 }
 
@@ -834,8 +822,7 @@ enum MethodHeaderType : byte
 }
 
 // II.25.4.3
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct FatFormat
+sealed class FatFormat : CodeNode
 {
   [Description("Lower four bits is rest of Flags, Upper four bits is size of this header expressed as the count of 4-byte integers occupied (currently 3)")]
   public byte FlagsAndSize;
@@ -848,28 +835,25 @@ struct FatFormat
 }
 
 // II.25.4.5
-sealed class MethodDataSection : ICanRead
+sealed class MethodDataSection : CodeNode
 {
-  public MethodHeaderSection Header;
+  public MethodHeaderSection MethodHeaderSection;
   public LargeMethodHeader LargeMethodHeader;
   public SmallMethodHeader SmallMethodHeader;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out Header, nameof(MethodHeaderSection))
-    };
+  protected override void InnerRead() {
+    AddChild(nameof(MethodHeaderSection));
+    Children.Last().NodeValue = ""; //TODO(diff-solonode)
 
-    if (!Header.HasFlag(MethodHeaderSection.EHTable)) {
+    if (!MethodHeaderSection.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
     }
 
-    if (Header.HasFlag(MethodHeaderSection.FatFormat)) {
-      node.Add(stream.ReadClass(ref LargeMethodHeader, nameof(LargeMethodHeader)));
+    if (MethodHeaderSection.HasFlag(MethodHeaderSection.FatFormat)) {
+      AddChild(nameof(LargeMethodHeader));
     } else {
-      node.Add(stream.ReadClass(ref SmallMethodHeader, nameof(SmallMethodHeader)));
+      AddChild(nameof(SmallMethodHeader));
     }
-
-    return node;
   }
 }
 
@@ -886,62 +870,59 @@ enum MethodHeaderSection : byte
   MoreSects = 0x80,
 }
 
-sealed class SmallMethodHeader : ICanRead
+sealed class SmallMethodHeader : CodeNode
 {
-  [Description("Size of the data for the block, including the header, say n * 12 + 4.")]
+
+  [Description(/*"Size of the data for the block, including the header, say n * 12 + 4."*/ "")] //TODO(diff-solonode)
   public byte DataSize;
-  [Description("Padding, always 0.")]
+  [Description(/*"Padding, always 0."*/ "")] //TODO(diff-solonode)
   [Expected(0)]
   public ushort Reserved;
+  [OrderedField]
   public SmallExceptionHandlingClause[] Clauses;
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out DataSize, nameof(DataSize)),
-      stream.ReadStruct(out Reserved, nameof(Reserved)),
-    };
+  protected override void InnerRead() {
+    base.InnerRead();
 
-    var n = (DataSize - 4) / 12;
-    if (n * 12 + 4 != DataSize) {
-      node.Errors.Add("DataSize was not of the form n * 12 + 4");
+    if (Clauses.Length * 12 + 4 != DataSize) {
+      Errors.Add("DataSize was not of the form n * 12 + 4");
     }
-
-    node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
-
-    return node;
   }
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Clauses) => (DataSize - 4) / 12,
+    _ => base.GetCount(field),
+  };
 }
 
-sealed class LargeMethodHeader : ICanRead
+sealed class LargeMethodHeader : CodeNode
 {
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]
   public UInt24 DataSize;
-  public SmallExceptionHandlingClause[] Clauses;
+  [OrderedField]
+  public SmallExceptionHandlingClause[] Clauses; //TODO(fixme) LargeExceptionHandlingClause?
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadClass(ref DataSize, nameof(DataSize)),
-    };
+  protected override void InnerRead() {
+    base.InnerRead();
 
-    var n = (DataSize.IntValue - 4) / 12;
-    if (n * 24 + 4 != DataSize.IntValue) {
-      node.Errors.Add("DataSize was not of the form n * 24 + 4");
+    if (Clauses.Length * 24 + 4 != DataSize.IntValue) {
+      Errors.Add("DataSize was not of the form n * 24 + 4");
     }
-
-    node.Add(stream.ReadStructs(out Clauses, n, nameof(Clauses)));
-
-    return node;
   }
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Clauses) => (DataSize.IntValue - 4) / 12, //TODO(fixme) should this be 24???
+    _ => base.GetCount(field),
+  };
 }
 
 // II.25.4.6
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct SmallExceptionHandlingClause
+sealed class SmallExceptionHandlingClause : CodeNode
 {
   [Description("Flags")]
   public ushort SmallExceptionClauseFlags;
   [Description("Offset in bytes of try block from start of method body.")]
-  public ushort TryOffset; //TODO(links)
+  public ushort TryOffset; //TODO(link)
   [Description("Length in bytes of the try block")]
   public byte TryLength;
   [Description("Location of the handler for this try block")]
@@ -949,7 +930,7 @@ struct SmallExceptionHandlingClause
   [Description("Size of the handler code in bytes")]
   public byte HandlerLength;
   [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
-  public uint ClassTokenOrFilterOffset; //TODO(links)
+  public uint ClassTokenOrFilterOffset; //TODO(link)
 }
 
 [Flags]
@@ -965,8 +946,7 @@ enum SmallExceptionClauseFlags : ushort
   Fault = 0x0004,
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct LargeExceptionHandlingClause
+sealed class LargeExceptionHandlingClause : CodeNode
 {
   [Description("Flags.")]
   public uint LargeExceptionClauseFlags;
@@ -995,17 +975,43 @@ enum LargeExceptionClauseFlags : uint
   Fault = 0x0004,
 }
 
-sealed class UInt24 : ICanRead, IHaveValue
+sealed class UInt24 : CodeNode
 {
   public int IntValue { get; private set; }
-  public object Value => IntValue;
+  public override string NodeValue => IntValue.GetString();
 
-  public CodeNode Read(Stream stream) {
-    byte[] b;
-    stream.ReadStructs(out b, 3);
-
+  protected override void InnerRead() {
+    var b = new byte[3];
+    Bytes.Stream.ReadWholeArray(b);
     IntValue = (b[2] << 16) + (b[1] << 8) + b[0];
+  }
+}
 
-    return new CodeNode();
+sealed class NullTerminatedString : CodeNode
+{
+  public string Str { get; private set; }
+
+  Encoding encoding;
+  int byteBoundary;
+  public NullTerminatedString(Encoding encoding, int byteBoundary) {
+    this.encoding = encoding;
+    this.byteBoundary = byteBoundary;
+    NodeValue = "oops unset!!";
+  }
+
+  protected override void InnerRead() {
+    var builder = new List<byte>();
+    var buffer = new byte[byteBoundary];
+
+    while (true) {
+      Bytes.Stream.ReadWholeArray(buffer);
+      builder.AddRange(buffer);
+
+      if (buffer.Contains((byte)'\0')) {
+        Str = encoding.GetString(builder.TakeWhile(b => b != (byte)'\0').ToArray());
+        NodeValue = Str.GetString();
+        return;
+      }
+    }
   }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 // II.22 Metadata logical format: tables 
 
-// ICanBeReadInOrder is written though reflection
-#pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
+// CodeNode is written though reflection
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 [Flags]
 public enum MetadataTableFlags : ulong
@@ -50,7 +51,7 @@ public enum MetadataTableFlags : ulong
 }
 
 // II.22.2
-sealed class Assembly : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Assembly : CodeNode
 {
   [OrderedField] public AssemblyHashAlgorithm HashAlgId;
   [OrderedField] public ushort MajorVersion;
@@ -62,35 +63,25 @@ sealed class Assembly : ICanBeReadInOrder, IHaveLiteralValueNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public StringHeapIndex Culture;
 
-  public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
 // II.22.3
-sealed class AssemblyOS : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class AssemblyOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
   [OrderedField] public uint OSMajorVersion;
   [OrderedField] public uint OSMinorVersion;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.4
-sealed class AssemblyProcessor : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class AssemblyProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.5
-sealed class AssemblyRef : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class AssemblyRef : CodeNode
 {
   [OrderedField] public ushort MajorVersion;
   [OrderedField] public ushort MinorVersion;
@@ -102,108 +93,76 @@ sealed class AssemblyRef : ICanBeReadInOrder, IHaveLiteralValueNode
   [OrderedField] public StringHeapIndex Culture;
   [OrderedField] public BlobHeapIndex HashValue;
 
-  public object Value => Name.StringValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
 // II.22.6
-sealed class AssemblyRefOS : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class AssemblyRefOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
   [OrderedField] public uint OSMajorVersion;
   [OrderedField] public uint OSMinorVersion;
   [OrderedField] public UnknownCodedIndex AssemblyRef;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.7
-sealed class AssemblyRefProcessor : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class AssemblyRefProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
   [OrderedField] public UnknownCodedIndex AssemblyRef;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.8
-sealed class ClassLayout : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class ClassLayout : CodeNode
 {
   [OrderedField] public ushort PackingSize;
   [OrderedField] public uint ClassSize;
   [OrderedField] public UnknownCodedIndex Parent;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.9
-sealed class Constant : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Constant : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Type;
   [OrderedField] public CodedIndex.HasConstant Parent;
   [OrderedField] public BlobHeapIndex Value;
-
-  object IHaveValue.Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.10
-sealed class CustomAttribute : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class CustomAttribute : CodeNode
 {
   [OrderedField] public CodedIndex.HasCustomAttribute Parent;
   [OrderedField] public CodedIndex.CustomAttributeType Type;
   [OrderedField] public BlobHeapIndex Value; //TODO(pedant) II.23.3 Custom attributes 
-
-  object IHaveValue.Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.11
-sealed class DeclSecurity : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class DeclSecurity : CodeNode
 {
   [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
   [OrderedField] public CodedIndex.HasDeclSecurity Parent;
   [OrderedField] public BlobHeapIndex PermissionSet; // Not implementing parsing this for now
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.12
-sealed class EventMap : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class EventMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
   [OrderedField] public UnknownCodedIndex EventList;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.13
-sealed class Event : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Event : CodeNode
 {
   [OrderedField] public EventAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public CodedIndex.TypeDefOrRef EventType;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.14
-sealed class ExportedType : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class ExportedType : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
   [OrderedField] public uint TypeDefId;
@@ -211,242 +170,167 @@ sealed class ExportedType : ICanBeReadInOrder, IHaveLiteralValueNode
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.Implementation Implementation;
 
-  public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.15
-sealed class Field : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Field : CodeNode
 {
   [OrderedField] public FieldAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(FieldSig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig 
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.16
-sealed class FieldLayout : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class FieldLayout : CodeNode
 {
   [OrderedField] public uint Offset;
   [OrderedField] public UnknownCodedIndex Field;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.17
-sealed class FieldMarshal : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-  [OrderedField] public BlobHeapIndex NativeType; //TODO(Signature) II.23.4 Marshalling descriptors
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
+  [OrderedField] public BlobHeapIndex NativeType; //TODO(Sig) II.23.4 Marshalling descriptors
 }
 
 // II.22.18
-sealed class FieldRVA : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class FieldRVA : CodeNode
 {
   [OrderedField] public uint RVA;
   [OrderedField] public UnknownCodedIndex Field;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.19
-sealed class FileTable : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class FileTable : CodeNode
 {
   [OrderedField] public FileAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public BlobHeapIndex HashValue;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.20
-sealed class GenericParam : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class GenericParam : CodeNode
 {
   [OrderedField] public ushort Number;
   [OrderedField] public GenericParamAttributes Flags;
   [OrderedField] public CodedIndex.TypeOrMethodDef Owner;
   [OrderedField] public StringHeapIndex Name;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.21
-sealed class GenericParamConstraint : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class GenericParamConstraint : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Owner;
   [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.22
-sealed class ImplMap : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class ImplMap : CodeNode
 {
   [OrderedField] public PInvokeAttributes MappingFlags;
   [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
   [OrderedField] public StringHeapIndex ImportName;
   [OrderedField] public UnknownCodedIndex ImportScope;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.23
-sealed class InterfaceImpl : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class InterfaceImpl : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Class;
   [OrderedField] public CodedIndex.TypeDefOrRef Interface;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.24
-sealed class ManifestResource : ICanRead, IHaveLiteralValueNode
+sealed class ManifestResource : CodeNode
 {
-  public uint Offset; //TODO(link)
-  public ManifestResourceAttributes Flags;
-  public StringHeapIndex Name;
-  public CodedIndex.Implementation Implementation;
+  [OrderedField] public uint Offset; //TODO(link)
+  [OrderedField] public ManifestResourceAttributes Flags;
+  [OrderedField] public StringHeapIndex Name;
+  [OrderedField] public CodedIndex.Implementation Implementation;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; private set; }
-
-  public CodeNode Read(Stream stream) {
-    Node = new CodeNode {
-      stream.ReadStruct(out Offset, nameof(Offset)),
-      stream.ReadStruct(out Flags, nameof(Flags)),
-      stream.ReadClass(ref Name, nameof(Name)),
-      stream.ReadClass(ref Implementation, nameof(Implementation)),
-    };
-
-    var section = Singletons.Instance.TildeStream.Section;
-    section.ReadNode(strm => {
-      section.Reposition(strm, section.CLIHeader.Resources.RVA + Offset);
-
-      ResourceEntry entry = null;
-      return stream.ReadClass(ref entry);
-    });
-
-    return Node;
-  }
+  public override string NodeValue => Name.NodeValue;
 }
 
-sealed class ResourceEntry : ICanRead, IHaveAName
+sealed class ResourceEntry : CodeNode
 {
-  public uint Length;
-  public byte[] Data;
-
-  public string Name { get; } = $"{nameof(ResourceEntry)}[{Singletons.Instance.ResourceEntryCount++}]";
-
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out Length, nameof(Length)),
-      stream.ReadAnything(out Data, StreamExtensions.ReadByteArray((int)Length), nameof(Data)),
-    };
+  int i;
+  public ResourceEntry(int i) {
+    this.i = i;
   }
+
+  [OrderedField] public uint Length;
+  [OrderedField] public byte[] Data;
+
+  protected override long BeforeReposition =>
+    Bytes.TildeStream.ManifestResources[i].Offset +
+    Bytes.CLIHeaderSection.CLIHeader.Resources.RVA;
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Data) => (int)Length,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.22.25
-sealed class MemberRef : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(MethodRefSig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodRefSig
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.26
-sealed class MethodDef : ICanRead, IHaveLiteralValueNode // TODO(cleanup) can this be ICanBeReadInOrder?
+sealed class MethodDef : CodeNode
 {
-  public uint RVA;
-  public MethodImplAttributes ImplFlags;
-  public MethodAttributes Flags;
-  public StringHeapIndex Name;
-  public BlobHeapIndex Signature; //TODO(MethodDefSig)
-  public UnknownCodedIndex ParamList;
+  [OrderedField] public uint RVA;
+  [OrderedField] public MethodImplAttributes ImplFlags;
+  [OrderedField] public MethodAttributes Flags;
+  [OrderedField] public StringHeapIndex Name;
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodDefSig
+  [OrderedField] public UnknownCodedIndex ParamList;
 
-  public object Value => Name.Value;
+  public override string NodeValue => Name.NodeValue;
 
-  public CodeNode Node { get; private set; }
-
-  public CodeNode RVANode { get; private set; }
-
-  public CodeNode Read(Stream stream) {
-    Node = new CodeNode {
-      (RVANode = stream.ReadStruct(out RVA, nameof(RVA))),
-      stream.ReadClass(ref ImplFlags, nameof(ImplFlags)),
-      stream.ReadClass(ref Flags, nameof(Flags)),
-      stream.ReadClass(ref Name, nameof(Name)),
-      stream.ReadClass(ref Signature, nameof(Signature)),
-      stream.ReadClass(ref ParamList, nameof(ParamList)),
-    };
-
-    return Node;
+  public void SetLink(Method method) {
+    Children.First().Link = method;
   }
 }
 
 // II.22.27
-sealed class MethodImpl : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class MethodImpl : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Class;
   [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
   [OrderedField] public CodedIndex.MethodDefOrRef MethodDeclaration;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.28
-sealed class MethodSemantics : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class MethodSemantics : CodeNode
 {
   [OrderedField] public MethodSemanticsAttributes Semantics;
   [OrderedField] public UnknownCodedIndex Method;
   [OrderedField] public CodedIndex.HasSemantics Association;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.29
-sealed class MethodSpec : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class MethodSpec : CodeNode
 {
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
-  [OrderedField] public BlobHeapIndex Instantiation; //TODO(MethodSpec Sig)
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
+  [OrderedField] public BlobHeapIndex Instantiation; //TODO(Sig) MethodSpec Sig
 }
 
 // II.22.30
-sealed class Module : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Module : CodeNode
 {
   [OrderedField] public ushort Generation;
   [OrderedField] public StringHeapIndex Name;
@@ -454,78 +338,59 @@ sealed class Module : ICanBeReadInOrder, IHaveLiteralValueNode
   [OrderedField] public GuidHeapIndex EncId;
   [OrderedField] public GuidHeapIndex EncBaseId;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.31
-sealed class ModuleRef : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class ModuleRef : CodeNode
 {
   [OrderedField] public StringHeapIndex Name;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.32 (Should be NestedClass but renaming type so field is allowed to be NestedClass)
-sealed class Nestedclass : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Nestedclass : CodeNode
 {
   [OrderedField] public UnknownCodedIndex NestedClass;
   [OrderedField] public UnknownCodedIndex EnclosingClass;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.33
-sealed class Param : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Param : CodeNode
 {
   [OrderedField] public ParamAttributes Flags;
   [OrderedField] public ushort Sequence;
   [OrderedField] public StringHeapIndex Name;
 
-  public object Value => Name.Value;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.34
-sealed class Property : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(PropertySig)
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) PropertySig
 
-  public object Value => Name.Value;
-  public CodeNode Node { get; set; }
+  public override string NodeValue => Name.NodeValue;
 }
 
 // II.22.35
-sealed class PropertyMap : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class PropertyMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
   [OrderedField] public UnknownCodedIndex PropertyList;
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
 }
 
 // II.22.36
-sealed class StandAloneSig : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class StandAloneSig : CodeNode
 {
-  [OrderedField] public BlobHeapIndex Signature; //TODO(StandAloneSig)
-
-  public object Value => "";
-
-  public CodeNode Node { get; set; }
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) StandAloneSig
 }
 
 // II.22.37
-sealed class TypeDef : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class TypeDef : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
   [OrderedField] public StringHeapIndex TypeName;
@@ -534,28 +399,21 @@ sealed class TypeDef : ICanBeReadInOrder, IHaveLiteralValueNode
   [OrderedField] public UnknownCodedIndex FieldList;
   [OrderedField] public UnknownCodedIndex MethodList;
 
-  public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.38
-sealed class TypeRef : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class TypeRef : CodeNode
 {
   [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
   [OrderedField] public StringHeapIndex TypeName;
   [OrderedField] public StringHeapIndex TypeNamespace;
 
-  public object Value => TypeNamespace.StringValue + "." + TypeName.StringValue;
-
-  public CodeNode Node { get; set; }
+  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
 }
 
 // II.22.39
-sealed class TypeSpec : ICanBeReadInOrder, IHaveLiteralValueNode
+sealed class TypeSpec : CodeNode
 {
-  [OrderedField] public BlobHeapIndex Signature; //TODO(TypeSpec Sig) TypeSpecSignature
-
-  public object Value => "";
-  public CodeNode Node { get; set; }
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) TypeSpec Sig TypeSpecSignature
 }

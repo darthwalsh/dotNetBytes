@@ -122,30 +122,11 @@ namespace Tests
     [TestMethod]
     public void FileTable() => RunIL(@"FileTable.il");
 
-    //TODO(HACK) create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
+    //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
-    //TODO Also test with mono
+    //MAYBE Also test with mono
 
     //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
-
-    //TODO delete after removing all static fields?
-    [TestMethod]
-    [Ignore] // Re-enable to test changes to globals
-    public void Race() {
-      var factory = Task<int>.Factory;
-      var tasks = new List<Task<int>>();
-      for (var i = 0; i < 8; ++i) {
-        var myI = i;
-        tasks.Add(factory.StartNew(() => {
-          Console.Error.WriteLine($"Starting task {myI}");
-          Run(new SlowStream(OpenExampleProgram()));
-          Console.Error.WriteLine($"Done with task {myI}");
-          return myI;
-        }));
-      }
-
-      Task.WaitAll(tasks.ToArray());
-    }
 
     static string ilasm {
       get {
@@ -194,7 +175,7 @@ namespace Tests
         Console.Error.WriteLine($"Using existing {outpath}");
       }
 
-      Run(File.OpenRead(outpath));
+      Run(outpath);
     }
 
     //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
@@ -214,7 +195,7 @@ namespace Tests
                   Program.Run(outpath);
                   Assert.Fail("Oops comment me out");
       /*/
-      Run(File.OpenRead(outpath));
+      Run(outpath);
       //*/
     }
 
@@ -248,8 +229,15 @@ namespace Tests
     }
 
     [TestMethod]
-    public void TestExample() {
-      var assm = Run(OpenExampleProgram());
+    public void ValidateExample() {
+      Run(view("Program.dat"));
+    }
+
+    [TestMethod]
+    public void BaselineExample() {
+      using var s = File.OpenRead(view("Program.dat"));
+      var assm = new AssemblyBytes(s);
+
       var expected = FormatJson(assm.Node.ToJson());
 
       using var baselineJSON = File.OpenRead(view("bytes.json"));
@@ -271,18 +259,15 @@ namespace Tests
       throw new Exception("no view");
     }
 
-    static Stream OpenExampleProgram() => File.OpenRead(view("Program.dat"));
 
-    static AssemblyBytes Run(Stream s) {
-      AssemblyBytes assm;
-      try {
-        assm = new AssemblyBytes(s);
-      } catch {
-        s.Dispose();
-        throw;
-      }
+    static AssemblyBytes Run(string path) {
+      using var s = File.OpenRead(path);
+
+      AssemblyBytes assm = new AssemblyBytes(s);
 
       try {
+        assm.Node.CallBack(AssertSized);
+
         assm.Node.CallBack(AssertChildrenDontOverlap);
 
         assm.Node.CallBack(AssertNoErrors);
@@ -305,9 +290,11 @@ namespace Tests
       } catch {
         System.Console.Error.WriteLine(assm.Node.ToString());
         throw;
-      } finally {
-        s.Dispose();
       }
+    }
+
+    static void AssertSized(CodeNode node) {
+      Asserts.IsLessThan(node.Start, node.End);
     }
 
     static void AssertChildrenDontOverlap(CodeNode node) {
@@ -322,28 +309,35 @@ namespace Tests
     }
 
     static void AssertUniqueNames(CodeNode node) {
-      var name = node.Children.GroupBy(c => c.Name).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
-      Assert.IsNull(name, $"duplicate {name} under {node.Name}");
+      var name = node.Children.GroupBy(c => c.NodeName).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
+      Assert.IsNull(name, $"duplicate {name} under {node.NodeName}");
     }
 
     static void AssertLinkOrChildren(CodeNode node) {
-      if (node.LinkPath != null && node.Children.Any()) {
-        Assert.Fail(node.Name);
+      if (node.Link?.SelfPath != null && node.Children.Any()) {
+        Assert.Fail($"{node.NodeName} has link {node.SelfPath} and {node.Children.Count} children");
       }
     }
 
-    static IEnumerable<string> exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
     static void AssertParentDifferentSizeThanChild(CodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
-        if (exceptions.Any(sub => node.Name.Contains(sub))) {
+        var exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
+        if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
-        Assert.Fail(string.Join("\r\n", node));
+        Assert.Fail($"{node.NodeName} at {node.Start}");
       }
     }
 
     static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data) {
       if (!node.Children.Any()) {
+        //TODO(pedant) assert that every interesting byte has a documented Value
+        // foreach (var i in Enumerable.Range(node.Start, node.End - node.Start)) {
+        //   if (data[i] == 0 || node.NodeValue != "")
+        //     continue;
+
+        //   Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was labeled \"\" in node {node.NodeName}");
+        // }
         return;
       }
 
@@ -356,26 +350,8 @@ namespace Tests
         if (data[i] == 0 || childIncludes.Contains(i))
           continue;
 
-        Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.Name}");
+        Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was non-zero in node {node.NodeName}");
       }
-    }
-  }
-
-  class SlowStream : DelegatingStream
-  {
-    public SlowStream(Stream stream)
-        : base(stream) { }
-
-    void Delay() => Thread.Sleep(2);
-
-    public override int Read(byte[] buffer, int offset, int count) {
-      Delay();
-      return base.Read(buffer, offset, count);
-    }
-
-    public override int ReadByte() {
-      Delay();
-      return base.ReadByte();
     }
   }
 }

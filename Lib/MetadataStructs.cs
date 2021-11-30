@@ -7,8 +7,8 @@ using System.Text;
 
 // II.23 Metadata logical format: other structures 
 
-// ICanBeReadInOrder is written though reflection
-#pragma warning disable 0649 // CS0649: Field '...' is never assigned to, and will always have its default value
+// CodeNode is written though reflection
+#pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 // II.23.1.1
 enum AssemblyHashAlgorithm : uint
@@ -43,22 +43,18 @@ enum EventAttributes : ushort
 }
 
 // II.23.1.5
-class FieldAttributes : ICanRead, IHaveValue
+sealed class FieldAttributes : CodeNode
 {
-  public AccessAttributes Access;
-  public AdditionalFlags Flags;
+  AccessAttributes Access;
+  AdditionalFlags Flags;
 
-  public CodeNode Read(Stream stream) {
-    ushort value;
-    var node = stream.ReadStruct(out value);
-
-    Access = (AccessAttributes)(value & accessMask);
-    Flags = (AdditionalFlags)(value & flagsMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<ushort>();
+    Access = (AccessAttributes)(data & accessMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public object Value => new Enum[] { Access, Flags }; // TODO (Description) Enum[] text doesn't show up in GUI
+  public override string NodeValue => (new Enum[] { Access, Flags }).GetString(); //TODO(Descriptions) Enum[] text doesn't show up in GUI
 
   const ushort accessMask = 0x0007;
 
@@ -118,22 +114,18 @@ enum FileAttributes : uint
 }
 
 // II.23.1.7
-class GenericParamAttributes : ICanRead, IHaveValue
+sealed class GenericParamAttributes : CodeNode
 {
-  public VarianceAttributes Variance;
-  public SpecialConstraintAttributes SpecialConstraint;
+  VarianceAttributes Variance;
+  SpecialConstraintAttributes SpecialConstraint;
 
-  public CodeNode Read(Stream stream) {
-    ushort value;
-    var node = stream.ReadStruct(out value);
-
-    Variance = (VarianceAttributes)(value & varianceMask);
-    SpecialConstraint = (SpecialConstraintAttributes)(value & specialConstraintMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<ushort>();
+    Variance = (VarianceAttributes)(data & varianceMask);
+    SpecialConstraint = (SpecialConstraintAttributes)(data & specialConstraintMask);
   }
 
-  public object Value => new Enum[] { Variance, SpecialConstraint };
+  public override string NodeValue => (new Enum[] { Variance, SpecialConstraint }).GetString();
 
   const ushort varianceMask = 0x0003;
 
@@ -161,24 +153,20 @@ class GenericParamAttributes : ICanRead, IHaveValue
 }
 
 // II.23.1.8
-class PInvokeAttributes : ICanRead, IHaveValue
+sealed class PInvokeAttributes : CodeNode
 {
-  public CharacterSetAttributes CharacterSet;
-  public CallingConventionAttributes CallingConvention;
-  public AdditionalFlags Flags;
+  CharacterSetAttributes CharacterSet;
+  CallingConventionAttributes CallingConvention;
+  AdditionalFlags Flags;
 
-  public CodeNode Read(Stream stream) {
-    ushort value;
-    var node = stream.ReadStruct(out value);
-
-    CharacterSet = (CharacterSetAttributes)(value & characterSetMask);
-    CallingConvention = (CallingConventionAttributes)(value & callingConventionMask);
-    Flags = (AdditionalFlags)(value & flagsMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<ushort>();
+    CharacterSet = (CharacterSetAttributes)(data & characterSetMask);
+    CallingConvention = (CallingConventionAttributes)(data & callingConventionMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public object Value => new Enum[] { CharacterSet, CallingConvention, Flags };
+  public override string NodeValue => (new Enum[] { CharacterSet, CallingConvention, Flags }).GetString();
 
   const ushort characterSetMask = 0x0007;
 
@@ -231,24 +219,20 @@ enum ManifestResourceAttributes : uint
 }
 
 // II.23.1.10
-class MethodAttributes : ICanRead, IHaveValue
+sealed class MethodAttributes : CodeNode
 {
-  public MemberAccessAttributes MemberAccess;
-  public VtableLayoutAttributes VtableLayout;
-  public AdditionalFlags Flags;
+  MemberAccessAttributes MemberAccess;
+  VtableLayoutAttributes VtableLayout;
+  AdditionalFlags Flags;
 
-  public CodeNode Read(Stream stream) {
-    ushort value;
-    var node = stream.ReadStruct(out value);
-
-    MemberAccess = (MemberAccessAttributes)(value & memberAccessMask);
-    VtableLayout = (VtableLayoutAttributes)(value & vtableLayoutMask);
-    Flags = (AdditionalFlags)(value & flagsMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<ushort>();
+    MemberAccess = (MemberAccessAttributes)(data & memberAccessMask);
+    VtableLayout = (VtableLayoutAttributes)(data & vtableLayoutMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public object Value => new Enum[] { MemberAccess, VtableLayout, Flags };
+  public override string NodeValue => (new Enum[] { MemberAccess, VtableLayout, Flags }).GetString();
 
   const ushort memberAccessMask = 0x0007;
 
@@ -312,24 +296,20 @@ class MethodAttributes : ICanRead, IHaveValue
 }
 
 // II.23.1.11
-class MethodImplAttributes : ICanRead, IHaveValue
+sealed class MethodImplAttributes : CodeNode
 {
-  public CodeTypeAttributes CodeType;
-  public ManagedAttributes Managed;
-  public AdditionalFlags Flags;
+  CodeTypeAttributes CodeType;
+  ManagedAttributes Managed;
+  AdditionalFlags Flags;
 
-  public CodeNode Read(Stream stream) {
-    ushort value;
-    var node = stream.ReadStruct(out value);
-
-    CodeType = (CodeTypeAttributes)(value & codeTypeMask);
-    Managed = (ManagedAttributes)(value & managedMask);
-    Flags = (AdditionalFlags)(value & flagsMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<ushort>();
+    CodeType = (CodeTypeAttributes)(data & codeTypeMask);
+    Managed = (ManagedAttributes)(data & managedMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public object Value => new Enum[] { CodeType, Managed, Flags };
+  public override string NodeValue => (new Enum[] { CodeType, Managed, Flags }).GetString();
 
   const ushort codeTypeMask = 0x0003;
 
@@ -422,28 +402,25 @@ enum PropertyAttributes : ushort
 
 
 // II.23.1.15
-class TypeAttributes : ICanRead, IHaveValue
+sealed class TypeAttributes : CodeNode
 {
-  public VisibilityAttributes Visibility;
-  public LayoutAttributes Layout;
-  public ClassSemanticsAttributes ClassSemantics;
-  public StringInteropFormatAttributes StringInteropFormat;
-  public AdditionalFlags Flags;
+  public uint Data;
+  VisibilityAttributes Visibility;
+  LayoutAttributes Layout;
+  ClassSemanticsAttributes ClassSemantics;
+  StringInteropFormatAttributes StringInteropFormat;
+  AdditionalFlags Flags;
 
-  public CodeNode Read(Stream stream) {
-    uint value;
-    var node = stream.ReadStruct(out value);
-
-    Visibility = (VisibilityAttributes)(value & visibilityMask);
-    Layout = (LayoutAttributes)(value & layoutMask);
-    ClassSemantics = (ClassSemanticsAttributes)(value & classSemanticsMask);
-    StringInteropFormat = (StringInteropFormatAttributes)(value & stringInteropFormatMask);
-    Flags = (AdditionalFlags)(value & flagsMask);
-
-    return node;
+  protected override void InnerRead() {
+    var data = Bytes.Read<uint>();
+    Visibility = (VisibilityAttributes)(data & visibilityMask);
+    Layout = (LayoutAttributes)(data & layoutMask);
+    ClassSemantics = (ClassSemanticsAttributes)(data & classSemanticsMask);
+    StringInteropFormat = (StringInteropFormatAttributes)(data & stringInteropFormatMask);
+    Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public object Value => new Enum[] { Visibility, Layout, ClassSemantics, StringInteropFormat, Flags };
+  public override string NodeValue => (new Enum[] { Visibility, Layout, ClassSemantics, StringInteropFormat, Flags }).GetString();
 
   const uint visibilityMask = 0x00000007;
 
@@ -612,9 +589,9 @@ enum ElementType : byte
 }
 
 // II.24.2.1
-sealed class MetadataRoot : ICanRead
+sealed class MetadataRoot : CodeNode
 {
-  //TODO(descriptions)
+  //TODO(Descriptions)
 
   [Description("Magic signature for physical metadata : 0x424A5342.")]
   public uint Signature;
@@ -629,98 +606,74 @@ sealed class MetadataRoot : ICanRead
   [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
   public uint Length;
   [Description("UTF8-encoded null-terminated version string.")]
-  public string Version;
+  public NullTerminatedString Version = new NullTerminatedString(Encoding.UTF8, 4);
   [Description("Reserved, always 0 (§II.24.1).")]
   [Expected(0)]
   public ushort Flags;
   [Description("Number of streams.")]
   public ushort Streams;
+  [OrderedField]
   public StreamHeader[] StreamHeaders;
 
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out Signature, nameof(Signature)),
-      stream.ReadStruct(out MajorVersion, nameof(MajorVersion)),
-      stream.ReadStruct(out MinorVersion, nameof(MinorVersion)),
-      stream.ReadStruct(out Reserved, nameof(Reserved)),
-      stream.ReadStruct(out Length, nameof(Length)),
-      stream.ReadAnything(out Version, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 4), "Version"),
-      stream.ReadStruct(out Flags, nameof(Flags)),
-      stream.ReadStruct(out Streams, nameof(Streams)),
-      stream.ReadClasses(ref StreamHeaders, Streams),
-    };
-  }
+  protected override int GetCount(string field) => field switch {
+    nameof(StreamHeaders) => Streams,
+    _ => base.GetCount(field),
+  };
 }
 
 // II.24.2.2
-sealed class StreamHeader : ICanRead
+sealed class StreamHeader : CodeNode
 {
-  //TODO(descriptions)
+  //TODO(Descriptions)
 
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
   public uint Offset;
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
   public uint Size;
   [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
-  public string Name;
-
-  public CodeNode Read(Stream stream) {
-    return new CodeNode {
-      stream.ReadStruct(out Offset, nameof(Offset)),
-      stream.ReadStruct(out Size, nameof(Size)),
-      stream.ReadAnything(out Name, StreamExtensions.ReadNullTerminated(Encoding.ASCII, 4), "Name"),
-    };
-  }
+  public NullTerminatedString Name = new NullTerminatedString(Encoding.ASCII, 4);
 }
 
-abstract class Heap<T> : ICanRead, IHaveAName
+abstract class Heap<T> : CodeNode
 {
-  readonly byte[] data;
-  CodeNode parent;
-  int offset;
-  SortedList<int, Tuple<T, CodeNode>> children = new SortedList<int, Tuple<T, CodeNode>>();
+  int size;
+  SortedList<int, (T, CodeNode)> children = new SortedList<int, (T, CodeNode)>();
 
   public Heap(int size) {
-    data = new byte[size];
+    this.size = size;
   }
 
-  public CodeNode Read(Stream stream) {
-    offset = (int)stream.Position;
-
-    // Parsing the whole array now isn't sensible
-    stream.ReadWholeArray(data);
-
-    return parent = new CodeNode();
+  protected override void InnerRead() {
+    // Parsing the data now isn't possible
+    Bytes.Stream.Position += size;
   }
 
-  public string Name => GetType().Name;
-  protected abstract CodeNode ReadChild(Stream stream, int index, out T t);
+  protected abstract (T, CodeNode) ReadChild(int index);
 
-  protected Tuple<T, CodeNode> AddChild(IHaveIndex i) {
-    var stream = new MemoryStream(data);
-    var index = i.Index;
-    stream.Position = index;
+  protected (T t, CodeNode node) AddChild(int index) {
+    var origPos = Bytes.Stream.Position;
+    try {
+      Bytes.Stream.Position = Start + index;
 
-    Tuple<T, CodeNode> childpair;
-    if (!children.TryGetValue(index, out childpair)) {
-      T t;
-      var child = ReadChild(stream, i.Index, out t);
-      if (child == null) {
-        return Tuple.Create(t, parent);
+      if (!children.TryGetValue(index, out var childpair)) {
+        var (t, child) = ReadChild(index);
+        if (child == null) {
+          return (t, this);
+        }
+        child.NodeName = $"{GetType().Name}[{index}]";
+
+        childpair = (t, child);
+        children.Add(index, childpair);
+
+        Children.Add(child);
+
+        AdjustChildRanges(index, child);
       }
 
-      childpair = Tuple.Create(t, child);
-      children.Add(index, childpair);
-
-      child.Start += offset;
-      child.End += offset;
-
-      parent.Add(child);
-
-      AdjustChildRanges(index, child);
+      return childpair;
+    } finally {
+      Bytes.Stream.Position = origPos;
     }
-
-    return childpair;
   }
 
   //TODO(pedant) Binary heaps members are allowed to overlap to save space, allow for this in javascript
@@ -742,25 +695,28 @@ abstract class Heap<T> : ICanRead, IHaveAName
     }
   }
 
-  protected static void GetEncodedLength(Stream stream, out int length, out int offset) {
-    var first = stream.ReallyReadByte();
+  protected void GetEncodedLength(out int length, out int offset) {
+    var first = Bytes.Read<byte>();
     if ((first & 0x80) == 0) {
       length = first & 0x7F;
       offset = 1;
     } else if ((first & 0xC0) == 0x80) {
-      var second = stream.ReallyReadByte();
+      var second = Bytes.Read<byte>();
       length = ((first & 0x3F) << 8) + second;
       offset = 2;
     } else if ((first & 0xE0) == 0xC0) {
-      var second = stream.ReallyReadByte();
-      var third = stream.ReallyReadByte();
-      var fourth = stream.ReallyReadByte();
+      var second = Bytes.Read<byte>();
+      var third = Bytes.Read<byte>();
+      var fourth = Bytes.Read<byte>();
       length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
       offset = 4;
     } else {
-      throw new InvalidOperationException($"Heap byte {stream.Position} can't start with 1111...");
+      throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position} can't start with 1111...");
     }
   }
+
+  public T Get(int i) => AddChild(i).t;
+  public CodeNode GetNode(int i) => AddChild(i).node;
 }
 
 // II.24.2.3
@@ -770,10 +726,12 @@ sealed class StringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override CodeNode ReadChild(Stream stream, int index, out string s) => stream.ReadAnything(out s, StreamExtensions.ReadNullTerminated(Encoding.UTF8, 1), $"StringHeap[{index}]");
+  protected override (string, CodeNode) ReadChild(int index) {
+    var s = new NullTerminatedString(Encoding.UTF8, 1) { Bytes = Bytes };
+    s.Read();
 
-  public static string Get(StringHeapIndex i) => Singletons.Instance.StringHeap.AddChild(i).Item1;
-  public static CodeNode GetNode(StringHeapIndex i) => Singletons.Instance.StringHeap.AddChild(i).Item2;
+    return (s.Str, s);
+  }
 }
 
 // II.24.2.4
@@ -783,28 +741,37 @@ sealed class UserStringHeap : Heap<string>
       : base(size) {
   }
 
-  protected override CodeNode ReadChild(Stream stream, int index, out string s) {
-    int length;
-    int offset;
-    GetEncodedLength(stream, out length, out offset);
+  protected override (string, CodeNode) ReadChild(int index) {
+    GetEncodedLength(out var length, out var offset);
 
-    var error = "oops";
-    var success = true;
-    var node = stream.ReadAnything(out s, str => {
-      var bytes = new byte[length - 1]; // skip terminal byte
-      success = str.TryReadWholeArray(bytes, out error);
-      return Encoding.Unicode.GetString(bytes);
-    }, $"UserStringHeap[{index}]");
+    var s = new FixedLengthString(length) { Bytes = Bytes };
+    s.Read();
 
-    if (!success)
-      node.Errors.Add(error);
-    node.Description = $@"""{s}"", {offset} leading bits";
-    node.Start -= offset;
-    return node;
+    s.Description = $@"""{s.Str}"", {offset} leading bits"; //TODO(pedant) bits or bytes?
+    s.Start -= offset;
+
+    return (s.Str, s);
   }
 
-  public static string Get(UserStringHeapIndex i) => Singletons.Instance.UserStringHeap.AddChild(i).Item1;
-  public static CodeNode GetNode(UserStringHeapIndex i) => Singletons.Instance.UserStringHeap.AddChild(i).Item2;
+  sealed class FixedLengthString : CodeNode // MAYBE refactor all to record types
+  {
+    public string Str { get; private set; } = "oops unset!!";
+
+    int length;
+    public FixedLengthString(int length) {
+      this.length = length;
+    }
+
+    protected override void InnerRead() {
+      var arr = new byte[length - 1]; // skip terminal byte
+      if (!Bytes.Stream.TryReadWholeArray(arr, out var error)) {
+        Errors.Add(error);
+        return;
+      }
+      Str = Encoding.Unicode.GetString(arr);
+      NodeValue = Str.GetString();
+    }
+  }
 }
 
 sealed class BlobHeap : Heap<byte[]>
@@ -813,19 +780,29 @@ sealed class BlobHeap : Heap<byte[]>
       : base(size) {
   }
 
-  protected override CodeNode ReadChild(Stream stream, int index, out byte[] b) {
-    int length;
-    int offset;
-    GetEncodedLength(stream, out length, out offset);
+  protected override (byte[], CodeNode) ReadChild(int index) {
+    GetEncodedLength(out var length, out var offset);
 
-    var node = stream.ReadAnything(out b, StreamExtensions.ReadByteArray(length), $"BlobHeap[{index}]");
-    node.Description = $"{offset} leading bits";
-    node.Start -= offset;
-    return node;
+    var b = new ByteArrayNode(length) { Bytes = Bytes };
+    b.Read();
+
+    b.Description = $"{offset} leading bits";
+    b.Start -= offset;
+
+    return (b.arr, b);
   }
 
-  public static byte[] Get(BlobHeapIndex i) => Singletons.Instance.BlobHeap.AddChild(i).Item1;
-  public static CodeNode GetNode(BlobHeapIndex i) => Singletons.Instance.BlobHeap.AddChild(i).Item2;
+  sealed class ByteArrayNode : CodeNode
+  {
+    public byte[] arr;
+    public ByteArrayNode(int length) {
+      arr = new byte[length];
+    }
+    protected override void InnerRead() {
+      Bytes.Stream.ReadWholeArray(arr);
+      NodeValue = arr.GetString();
+    }
+  }
 }
 
 // II.24.2.5
@@ -835,191 +812,173 @@ sealed class GuidHeap : Heap<Guid>
       : base(size) {
   }
 
-  protected override CodeNode ReadChild(Stream stream, int index, out Guid g) {
-    if (index == 0) {
-      g = Guid.Empty;
-      return null;
-    }
+  protected override (Guid, CodeNode) ReadChild(int index) {
+    if (index == 0) return (Guid.Empty, null);
+
+    Bytes.Stream.Position -= index; // Undo ReadChild offset
 
     const int size = 16;
+    Bytes.Stream.Position += (index - 1) * size; // GuidHeap is indexed from 1
 
-    stream.Position = (index - 1) * size; // GuidHeap is indexed from 1
+    var g = new StructNode<Guid> { Bytes = Bytes };
+    g.Read();
 
-    return stream.ReadAnything(out g, s => new Guid(StreamExtensions.ReadByteArray(16)(s)), $"GuidHeap[{index}]");
+    return (g.t, g);
   }
+}
 
-  public static Guid Get(GuidHeapIndex i) => Singletons.Instance.GuidHeap.AddChild(i).Item1;
-  public static CodeNode GetNode(GuidHeapIndex i) => Singletons.Instance.GuidHeap.AddChild(i).Item2;
+sealed class TildeStreamRows : CodeNode
+{
+  int count;
+  public TildeStreamRows(int count) {
+    this.count = count;
+  }
+  //TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
+  public StructNode<uint>[] Rows;
+
+  protected override int GetCount(string field) => count;
 }
 
 // II.24.2.6
-sealed class TildeStream : ICanRead
+sealed class TildeStream : CodeNode
 {
   public Section Section { get; private set; }
   public TildeStream(Section section) {
     Section = section;
   }
 
-  public TildeData TildeData;
-  public uint[] Rows;
+  [OrderedField] public TildeData TildeData;
+  [OrderedField] public TildeStreamRows Rows;
 
-  public Module[] Modules;
-  public TypeRef[] TypeRefs;
-  public TypeDef[] TypeDefs;
-  public Field[] Fields;
-  public MethodDef[] MethodDefs;
-  public Param[] Params;
-  public InterfaceImpl[] InterfaceImpls;
-  public MemberRef[] MemberRefs;
-  public Constant[] Constants;
-  public CustomAttribute[] CustomAttributes;
-  public FieldMarshal[] FieldMarshals;
-  public DeclSecurity[] DeclSecuritys;
-  public ClassLayout[] ClassLayouts;
-  public FieldLayout[] FieldLayouts;
-  public StandAloneSig[] StandAloneSigs;
-  public EventMap[] EventMaps;
-  public Event[] Events;
-  public PropertyMap[] PropertyMaps;
-  public Property[] Properties;
-  public MethodSemantics[] MethodSemantics;
-  public MethodImpl[] MethodImpls;
-  public ModuleRef[] ModuleRefs;
-  public TypeSpec[] TypeSpecs;
-  public ImplMap[] ImplMaps;
-  public FieldRVA[] FieldRVAs;
-  public Assembly[] Assemblies;
-  public AssemblyProcessor[] AssemblyProcessors;
-  public AssemblyOS[] AssemblyOSs;
-  public AssemblyRef[] AssemblyRefs;
-  public AssemblyRefProcessor[] AssemblyRefProcessors;
-  public AssemblyRefOS[] AssemblyRefOSs;
-  public FileTable[] Files;
-  public ExportedType[] ExportedTypes;
-  public ManifestResource[] ManifestResources;
-  public Nestedclass[] NestedClasses;
-  public GenericParam[] GenericParams;
-  public MethodSpec[] MethodSpecs;
-  public GenericParamConstraint[] GenericParamConstraints;
+  [OrderedField] public Module[] Modules;
+  [OrderedField] public TypeRef[] TypeRefs;
+  [OrderedField] public TypeDef[] TypeDefs;
+  [OrderedField] public Field[] Fields;
+  [OrderedField] public MethodDef[] MethodDefs;
+  [OrderedField] public Param[] Params;
+  [OrderedField] public InterfaceImpl[] InterfaceImpls;
+  [OrderedField] public MemberRef[] MemberRefs;
+  [OrderedField] public Constant[] Constants;
+  [OrderedField] public CustomAttribute[] CustomAttributes;
+  [OrderedField] public FieldMarshal[] FieldMarshals;
+  [OrderedField] public DeclSecurity[] DeclSecuritys;
+  [OrderedField] public ClassLayout[] ClassLayouts;
+  [OrderedField] public FieldLayout[] FieldLayouts;
+  [OrderedField] public StandAloneSig[] StandAloneSigs;
+  [OrderedField] public EventMap[] EventMaps;
+  [OrderedField] public Event[] Events;
+  [OrderedField] public PropertyMap[] PropertyMaps;
+  [OrderedField] public Property[] Properties;
+  [OrderedField] public MethodSemantics[] MethodSemantics;
+  [OrderedField] public MethodImpl[] MethodImpls;
+  [OrderedField] public ModuleRef[] ModuleRefs;
+  [OrderedField] public TypeSpec[] TypeSpecs;
+  [OrderedField] public ImplMap[] ImplMaps;
+  [OrderedField] public FieldRVA[] FieldRVAs;
+  [OrderedField] public Assembly[] Assemblies;
+  [OrderedField] public AssemblyProcessor[] AssemblyProcessors;
+  [OrderedField] public AssemblyOS[] AssemblyOSs;
+  [OrderedField] public AssemblyRef[] AssemblyRefs;
+  [OrderedField] public AssemblyRefProcessor[] AssemblyRefProcessors;
+  [OrderedField] public AssemblyRefOS[] AssemblyRefOSs;
+  [OrderedField] public FileTable[] Files;
+  [OrderedField] public ExportedType[] ExportedTypes;
+  [OrderedField] public ManifestResource[] ManifestResources;
+  [OrderedField] public Nestedclass[] NestedClasses;
+  [OrderedField] public GenericParam[] GenericParams;
+  [OrderedField] public MethodSpec[] MethodSpecs;
+  [OrderedField] public GenericParamConstraint[] GenericParamConstraints;
 
   Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
-  public CodeNode Read(Stream stream) {
-    var node = new CodeNode {
-      stream.ReadStruct(out TildeData),
-      new CodeNode("Rows") {
-        stream.ReadStructs(out Rows, ((ulong)TildeData.Valid).CountSetBits(), "Rows"),
-      },
-      Enum.GetValues(typeof(MetadataTableFlags))
-          .Cast<MetadataTableFlags>()
-          .Where(flag => TildeData.Valid.HasFlag(flag))
-          .SelectMany((flag, row) => CapturingReadTable(stream, flag, row))
-    };
+  protected override void InnerRead() {
+    AddChild(nameof(TildeData));
+    Rows = new TildeStreamRows(((ulong)TildeData.Valid).CountSetBits());
+    AddChild(nameof(Rows));
+
+    int row = 0;
+    foreach (var value in Enum.GetValues(typeof(MetadataTableFlags))) {
+      var flag = (MetadataTableFlags)value;
+      if (!TildeData.Valid.HasFlag(flag))
+        continue;
+      ReadTables(flag, row);
+      ++row;
+    }
+
+    foreach (var ch in Children.Skip(1)) {
+      foreach (var tableCh in ch.Children) {
+        foreach (var f in tableCh.GetType().GetFields()) {
+          if (f.FieldType.IsEnum) {
+            //TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
+            tableCh.NodeValue = "";
+          }
+        }
+      }
+    }
 
     if (TildeData.HeapSizes != 0)
       throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
-    if (Rows.Max() >= (1 << 11))
+    if (Rows.Rows.Max(r => r.t) >= (1 << 11))
       throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
-
-    return node;
   }
 
-  IEnumerable<CodeNode> CapturingReadTable(Stream stream, MetadataTableFlags flag, int row) {
-    var nodes = ReadTable(stream, flag, row);
+  void ReadTables(MetadataTableFlags flag, int row) {
+    var count = (int)Rows.Rows[row].t;
+
+    var name = GetFieldName(flag);
+    AddChildren(name, count);
+
+    var nodes = (IEnumerable<CodeNode>)GetType().GetField(name).GetValue(this);
     streamNodes.Add(flag, nodes);
-    return nodes;
   }
 
-  IEnumerable<CodeNode> ReadTable(Stream stream, MetadataTableFlags flag, int row) {
-    var count = (int)Rows[row];
+  string GetFieldName(MetadataTableFlags flag) => flag switch {
+    MetadataTableFlags.Module => nameof(Modules),
+    MetadataTableFlags.TypeRef => nameof(TypeRefs),
+    MetadataTableFlags.TypeDef => nameof(TypeDefs),
+    MetadataTableFlags.Field => nameof(Fields),
+    MetadataTableFlags.MethodDef => nameof(MethodDefs),
+    MetadataTableFlags.Param => nameof(Params),
+    MetadataTableFlags.InterfaceImpl => nameof(InterfaceImpls),
+    MetadataTableFlags.MemberRef => nameof(MemberRefs),
+    MetadataTableFlags.Constant => nameof(Constants),
+    MetadataTableFlags.CustomAttribute => nameof(CustomAttributes),
+    MetadataTableFlags.FieldMarshal => nameof(FieldMarshals),
+    MetadataTableFlags.DeclSecurity => nameof(DeclSecuritys),
+    MetadataTableFlags.ClassLayout => nameof(ClassLayouts),
+    MetadataTableFlags.FieldLayout => nameof(FieldLayouts),
+    MetadataTableFlags.StandAloneSig => nameof(StandAloneSigs),
+    MetadataTableFlags.EventMap => nameof(EventMaps),
+    MetadataTableFlags.Event => nameof(Events),
+    MetadataTableFlags.PropertyMap => nameof(PropertyMaps),
+    MetadataTableFlags.Property => nameof(Properties),
+    MetadataTableFlags.MethodSemantics => nameof(MethodSemantics),
+    MetadataTableFlags.MethodImpl => nameof(MethodImpls),
+    MetadataTableFlags.ModuleRef => nameof(ModuleRefs),
+    MetadataTableFlags.TypeSpec => nameof(TypeSpecs),
+    MetadataTableFlags.ImplMap => nameof(ImplMaps),
+    MetadataTableFlags.FieldRVA => nameof(FieldRVAs),
+    MetadataTableFlags.Assembly => nameof(Assemblies),
+    MetadataTableFlags.AssemblyProcessor => nameof(AssemblyProcessors),
+    MetadataTableFlags.AssemblyOS => nameof(AssemblyOSs),
+    MetadataTableFlags.AssemblyRef => nameof(AssemblyRefs),
+    MetadataTableFlags.AssemblyRefProcessor => nameof(AssemblyRefProcessors),
+    MetadataTableFlags.AssemblyRefOS => nameof(AssemblyRefOSs),
+    MetadataTableFlags.File => nameof(Files),
+    MetadataTableFlags.ExportedType => nameof(ExportedTypes),
+    MetadataTableFlags.ManifestResource => nameof(ManifestResources),
+    MetadataTableFlags.NestedClass => nameof(NestedClasses),
+    MetadataTableFlags.GenericParam => nameof(GenericParams),
+    MetadataTableFlags.MethodSpec => nameof(MethodSpecs),
+    MetadataTableFlags.GenericParamConstraint => nameof(GenericParamConstraints),
+    _ => throw new InvalidOperationException("Not a real MetadataTableFlags " + flag),
+  };
 
-    switch (flag) {
-      case MetadataTableFlags.Module:
-        return stream.ReadClasses(ref Modules, count);
-      case MetadataTableFlags.TypeRef:
-        return stream.ReadClasses(ref TypeRefs, count);
-      case MetadataTableFlags.TypeDef:
-        return stream.ReadClasses(ref TypeDefs, count);
-      case MetadataTableFlags.Field:
-        return stream.ReadClasses(ref Fields, count);
-      case MetadataTableFlags.MethodDef:
-        return stream.ReadClasses(ref MethodDefs, count);
-      case MetadataTableFlags.Param:
-        return stream.ReadClasses(ref Params, count);
-      case MetadataTableFlags.InterfaceImpl:
-        return stream.ReadClasses(ref InterfaceImpls, count);
-      case MetadataTableFlags.MemberRef:
-        return stream.ReadClasses(ref MemberRefs, count);
-      case MetadataTableFlags.Constant:
-        return stream.ReadClasses(ref Constants, count);
-      case MetadataTableFlags.CustomAttribute:
-        return stream.ReadClasses(ref CustomAttributes, count);
-      case MetadataTableFlags.FieldMarshal:
-        return stream.ReadClasses(ref FieldMarshals, count);
-      case MetadataTableFlags.DeclSecurity:
-        return stream.ReadClasses(ref DeclSecuritys, count);
-      case MetadataTableFlags.ClassLayout:
-        return stream.ReadClasses(ref ClassLayouts, count);
-      case MetadataTableFlags.FieldLayout:
-        return stream.ReadClasses(ref FieldLayouts, count);
-      case MetadataTableFlags.StandAloneSig:
-        return stream.ReadClasses(ref StandAloneSigs, count);
-      case MetadataTableFlags.EventMap:
-        return stream.ReadClasses(ref EventMaps, count);
-      case MetadataTableFlags.Event:
-        return stream.ReadClasses(ref Events, count);
-      case MetadataTableFlags.PropertyMap:
-        return stream.ReadClasses(ref PropertyMaps, count);
-      case MetadataTableFlags.Property:
-        return stream.ReadClasses(ref Properties, count, nameof(Properties));
-      case MetadataTableFlags.MethodSemantics:
-        return stream.ReadClasses(ref MethodSemantics, count, nameof(MethodSemantics));
-      case MetadataTableFlags.MethodImpl:
-        return stream.ReadClasses(ref MethodImpls, count);
-      case MetadataTableFlags.ModuleRef:
-        return stream.ReadClasses(ref ModuleRefs, count);
-      case MetadataTableFlags.TypeSpec:
-        return stream.ReadClasses(ref TypeSpecs, count);
-      case MetadataTableFlags.ImplMap:
-        return stream.ReadClasses(ref ImplMaps, count);
-      case MetadataTableFlags.FieldRVA:
-        return stream.ReadClasses(ref FieldRVAs, count);
-      case MetadataTableFlags.Assembly:
-        return stream.ReadClasses(ref Assemblies, count, nameof(Assemblies));
-      case MetadataTableFlags.AssemblyProcessor:
-        return stream.ReadClasses(ref AssemblyProcessors, count);
-      case MetadataTableFlags.AssemblyOS:
-        return stream.ReadClasses(ref AssemblyOSs, count);
-      case MetadataTableFlags.AssemblyRef:
-        return stream.ReadClasses(ref AssemblyRefs, count);
-      case MetadataTableFlags.AssemblyRefProcessor:
-        return stream.ReadClasses(ref AssemblyRefProcessors, count);
-      case MetadataTableFlags.AssemblyRefOS:
-        return stream.ReadClasses(ref AssemblyRefOSs, count);
-      case MetadataTableFlags.File:
-        return stream.ReadClasses(ref Files, count, nameof(Files));
-      case MetadataTableFlags.ExportedType:
-        return stream.ReadClasses(ref ExportedTypes, count);
-      case MetadataTableFlags.ManifestResource:
-        return stream.ReadClasses(ref ManifestResources, count);
-      case MetadataTableFlags.NestedClass:
-        return stream.ReadClasses(ref NestedClasses, count, nameof(NestedClasses));
-      case MetadataTableFlags.GenericParam:
-        return stream.ReadClasses(ref GenericParams, count);
-      case MetadataTableFlags.MethodSpec:
-        return stream.ReadClasses(ref MethodSpecs, count);
-      case MetadataTableFlags.GenericParamConstraint:
-        return stream.ReadClasses(ref GenericParamConstraints, count);
-      default:
-        throw new InvalidOperationException("Not a real MetadataTableFlags " + flag);
-    }
-  }
 
   public CodeNode GetCodeNode(MetadataTableFlags flag, int i) => streamNodes[flag].Skip(i).First();
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct TildeData
+sealed class TildeData : CodeNode
 {
   [Description("Reserved, always 0 (§II.24.1).")]
   [Expected(0)]
@@ -1050,123 +1009,94 @@ enum TildeDateHeapSizes : byte
   BlobHeapIndexWide = 0x04,
 }
 
-sealed class StringHeapIndex : ICanRead, IHaveLiteralValue, IHaveIndex
+sealed class StringHeapIndex : CodeNode
 {
-  ushort? shortIndex;
-  uint? intIndex;
+  public short Index;
+  // ushort? shortIndex;
+  // uint? intIndex;//TODO(pedant) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
+  // public int Index => (int)(intIndex ?? shortIndex);
 
-  public int Index => (int)(intIndex ?? shortIndex);
 
-  public string StringValue => StringHeap.Get(this);
-  public object Value => StringValue;
+  protected override void InnerRead() {
+    Index = Bytes.Read<short>();
 
-  public CodeNode Read(Stream stream) {
-    ushort index;
-    var node = stream.ReadStruct(out index, nameof(index));
-    shortIndex = index;
-
-    node.Link = StringHeap.GetNode(this);
-    node.Description = $"String Heap index {index:X}";
-
-    return node;
+    NodeValue = Bytes.StringHeap.Get(Index);
+    Description = $"String Heap index {Index:X}";
+    Link = Bytes.StringHeap.GetNode(Index);
   }
 }
 
-sealed class UserStringHeapIndex : ICanRead, IHaveValue, IHaveIndex
+sealed class UserStringHeapIndex : CodeNode
 {
-  ushort? shortIndex;
-  uint? intIndex;
+  public short Index;
 
-  public int Index => (int)(intIndex ?? shortIndex);
+  protected override void InnerRead() {
+    Index = Bytes.Read<short>();
 
-  public object Value => UserStringHeap.Get(this);
-
-  public CodeNode Read(Stream stream) {
-    ushort index;
-    var node = stream.ReadStruct(out index, nameof(index));
-    shortIndex = index;
-
-    node.Link = UserStringHeap.GetNode(this);
-    node.Description = $"User String Heap index {index:X}";
-
-    return node;
+    NodeValue = Bytes.UserStringHeap.Get(Index).GetString();
+    Description = $"User String Heap index {Index:X}";
+    Link = Bytes.UserStringHeap.GetNode(Index);
   }
 }
 
-sealed class BlobHeapIndex : ICanRead, IHaveValue, IHaveIndex
+sealed class BlobHeapIndex : CodeNode
 {
-  ushort? shortIndex;
-  uint? intIndex;
+  public short Index;
 
-  public int Index => (int)(intIndex ?? shortIndex);
+  protected override void InnerRead() {
+    Index = Bytes.Read<short>();
 
-  public object Value => BlobHeap.Get(this);
-
-  public CodeNode Read(Stream stream) {
-    ushort index;
-    var node = stream.ReadStruct(out index, nameof(index));
-    shortIndex = index;
-
-    node.Link = BlobHeap.GetNode(this);
-    node.Description = $"Blob Heap index {index:X}";
-
-    return node;
+    NodeValue = Bytes.BlobHeap.Get(Index).GetString();
+    Description = $"Blob Heap index {Index:X}";
+    Link = Bytes.BlobHeap.GetNode(Index);
   }
 }
 
-sealed class GuidHeapIndex : ICanRead, IHaveValue, IHaveIndex
+sealed class GuidHeapIndex : CodeNode
 {
-  ushort? shortIndex;
-  uint? intIndex;
+  public short Index;
 
-  public int Index => (int)(intIndex ?? shortIndex);
-  public object Value => GuidHeap.Get(this);
+  protected override void InnerRead() {
+    Index = Bytes.Read<short>();
 
-  public CodeNode Read(Stream stream) {
-    ushort index;
-    var node = stream.ReadStruct(out index, nameof(index));
-    shortIndex = index;
-
-    node.Link = GuidHeap.GetNode(this);
-    node.Description = $"Guid Heap index {index:X}";
-
-    return node;
+    NodeValue = Bytes.GuidHeap.Get(Index).GetString();
+    Description = $"Guid Heap index {Index:X}";
+    Link = Bytes.GuidHeap.GetNode(Index);
   }
 }
 
-//TODO(links) implement all CodedIndex
-sealed class UnknownCodedIndex : ICanRead
+//TODO(link) implement all CodedIndex
+sealed class UnknownCodedIndex : CodeNode
 {
-  public CodeNode Read(Stream stream) {
-    ushort index;
-    return stream.ReadStruct(out index, nameof(index));
+  public ushort Index;
+
+  public override string NodeValue => Index.GetString();
+
+  protected override void InnerRead() {
+    Index = Bytes.Read<ushort>();
   }
 }
 
-abstract class CodedIndex : ICanRead
+abstract class CodedIndex : CodeNode
 {
-  CodedIndex() { } // Don't allow subclassing 
+  CodedIndex() { } // Don't allow subclassing from other types
 
   public int Index { get; private set; }
 
-  public CodeNode Read(Stream stream) {
-    ushort readData;
-    var node = stream.ReadStruct(out readData, "index");
+  public override string NodeValue => GetLink().NodeValue;
+  public override CodeNode Link => GetLink();
 
-    Index = GetIndex(readData);
-
-    node.DelayedValueNode = GetLink;
-
-    return node;
+  protected override void InnerRead() {
+    Index = GetIndex(Bytes.Read<ushort>());
   }
 
   protected abstract int GetIndex(int readData);
 
-  protected abstract IHaveLiteralValueNode GetLink();
+  protected abstract CodeNode GetLink();
 
   public class TypeDefOrRef : CodedIndex
   {
-    IHaveLiteralValueNode extendsNothing;
+    ExtendsNothing extendsNothing;
 
     Tag tag;
 
@@ -1180,15 +1110,15 @@ abstract class CodedIndex : ICanRead
       return (readData >> 2) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       if (extendsNothing != null) {
         return extendsNothing;
       }
 
       switch (tag) {
-        case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
-        case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
-        case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
+        case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
+        case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
+        case Tag.TypeSpec: return Bytes.TildeStream.TypeSpecs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1210,11 +1140,11 @@ abstract class CodedIndex : ICanRead
       return (readData >> 2) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
-        case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
-        case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
+        case Tag.Field: return Bytes.TildeStream.Fields[Index];
+        case Tag.Param: return Bytes.TildeStream.Params[Index];
+        case Tag.Property: return Bytes.TildeStream.Properties[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1236,30 +1166,30 @@ abstract class CodedIndex : ICanRead
       return (readData >> 5) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
-        case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
-        case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
-        case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
-        case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
-        case Tag.InterfaceImpl: return Singletons.Instance.TildeStream.InterfaceImpls[Index];
-        case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
-        case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
-        //case Tag.Permission: return Singletons.Instance.TildeStream.Permissions[Index]; //TODO(pedant) DeclSecuritys?
-        case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
-        case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
-        case Tag.StandAloneSig: return Singletons.Instance.TildeStream.StandAloneSigs[Index];
-        case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
-        case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
-        case Tag.Assembly: return Singletons.Instance.TildeStream.Assemblies[Index];
-        case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
-        case Tag.File: return Singletons.Instance.TildeStream.Files[Index];
-        case Tag.ExportedType: return Singletons.Instance.TildeStream.ExportedTypes[Index];
-        case Tag.ManifestResource: return Singletons.Instance.TildeStream.ManifestResources[Index];
-        case Tag.GenericParam: return Singletons.Instance.TildeStream.GenericParams[Index];
-        case Tag.GenericParamConstraint: return Singletons.Instance.TildeStream.GenericParamConstraints[Index];
-        case Tag.MethodSpec: return Singletons.Instance.TildeStream.MethodSpecs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
+        case Tag.Field: return Bytes.TildeStream.Fields[Index];
+        case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
+        case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
+        case Tag.Param: return Bytes.TildeStream.Params[Index];
+        case Tag.InterfaceImpl: return Bytes.TildeStream.InterfaceImpls[Index];
+        case Tag.MemberRef: return Bytes.TildeStream.MemberRefs[Index];
+        case Tag.Module: return Bytes.TildeStream.Modules[Index];
+        //case Tag.Permission: return Bytes.TildeStream.Permissions[Index]; //TODO(pedant) DeclSecuritys?
+        case Tag.Property: return Bytes.TildeStream.Properties[Index];
+        case Tag.Event: return Bytes.TildeStream.Events[Index];
+        case Tag.StandAloneSig: return Bytes.TildeStream.StandAloneSigs[Index];
+        case Tag.ModuleRef: return Bytes.TildeStream.ModuleRefs[Index];
+        case Tag.TypeSpec: return Bytes.TildeStream.TypeSpecs[Index];
+        case Tag.Assembly: return Bytes.TildeStream.Assemblies[Index];
+        case Tag.AssemblyRef: return Bytes.TildeStream.AssemblyRefs[Index];
+        case Tag.File: return Bytes.TildeStream.Files[Index];
+        case Tag.ExportedType: return Bytes.TildeStream.ExportedTypes[Index];
+        case Tag.ManifestResource: return Bytes.TildeStream.ManifestResources[Index];
+        case Tag.GenericParam: return Bytes.TildeStream.GenericParams[Index];
+        case Tag.GenericParamConstraint: return Bytes.TildeStream.GenericParamConstraints[Index];
+        case Tag.MethodSpec: return Bytes.TildeStream.MethodSpecs[Index];
       }
       throw new NotImplementedException(tag.ToString());
     }
@@ -1300,10 +1230,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 1) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
-        case Tag.Param: return Singletons.Instance.TildeStream.Params[Index];
+        case Tag.Field: return Bytes.TildeStream.Fields[Index];
+        case Tag.Param: return Bytes.TildeStream.Params[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1324,11 +1254,11 @@ abstract class CodedIndex : ICanRead
       return (readData >> 2) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
-        case Tag.Assembly: return Singletons.Instance.TildeStream.Assemblies[Index];
+        case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
+        case Tag.Assembly: return Bytes.TildeStream.Assemblies[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1350,13 +1280,13 @@ abstract class CodedIndex : ICanRead
       return (readData >> 3) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
-        case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
-        case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
-        case Tag.TypeSpec: return Singletons.Instance.TildeStream.TypeSpecs[Index];
+        case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
+        case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
+        case Tag.ModuleRef: return Bytes.TildeStream.ModuleRefs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
+        case Tag.TypeSpec: return Bytes.TildeStream.TypeSpecs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1380,10 +1310,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 1) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.Event: return Singletons.Instance.TildeStream.Events[Index];
-        case Tag.Property: return Singletons.Instance.TildeStream.Properties[Index];
+        case Tag.Event: return Bytes.TildeStream.Events[Index];
+        case Tag.Property: return Bytes.TildeStream.Properties[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1404,10 +1334,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 1) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
-        case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
+        case Tag.MemberRef: return Bytes.TildeStream.MemberRefs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1428,10 +1358,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 1) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.Field: return Singletons.Instance.TildeStream.Fields[Index];
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+        case Tag.Field: return Bytes.TildeStream.Fields[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1445,7 +1375,7 @@ abstract class CodedIndex : ICanRead
 
   public class Implementation : CodedIndex
   {
-    IHaveLiteralValueNode extendsNothing;
+    ExtendsNothing extendsNothing;
 
     Tag tag;
 
@@ -1459,15 +1389,15 @@ abstract class CodedIndex : ICanRead
       return (readData >> 2) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       if (extendsNothing != null) {
         return extendsNothing;
       }
 
       switch (tag) {
-        case Tag.File: return Singletons.Instance.TildeStream.Files[Index];
-        case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
-        case Tag.ExportedType: return Singletons.Instance.TildeStream.ExportedTypes[Index];
+        case Tag.File: return Bytes.TildeStream.Files[Index];
+        case Tag.AssemblyRef: return Bytes.TildeStream.AssemblyRefs[Index];
+        case Tag.ExportedType: return Bytes.TildeStream.ExportedTypes[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1489,10 +1419,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 3) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
-        case Tag.MemberRef: return Singletons.Instance.TildeStream.MemberRefs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
+        case Tag.MemberRef: return Bytes.TildeStream.MemberRefs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1513,12 +1443,12 @@ abstract class CodedIndex : ICanRead
       return (readData >> 2) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.Module: return Singletons.Instance.TildeStream.Modules[Index];
-        case Tag.ModuleRef: return Singletons.Instance.TildeStream.ModuleRefs[Index];
-        case Tag.AssemblyRef: return Singletons.Instance.TildeStream.AssemblyRefs[Index];
-        case Tag.TypeRef: return Singletons.Instance.TildeStream.TypeRefs[Index];
+        case Tag.Module: return Bytes.TildeStream.Modules[Index];
+        case Tag.ModuleRef: return Bytes.TildeStream.ModuleRefs[Index];
+        case Tag.AssemblyRef: return Bytes.TildeStream.AssemblyRefs[Index];
+        case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1541,10 +1471,10 @@ abstract class CodedIndex : ICanRead
       return (readData >> 1) - 1;
     }
 
-    protected override IHaveLiteralValueNode GetLink() {
+    protected override CodeNode GetLink() {
       switch (tag) {
-        case Tag.TypeDef: return Singletons.Instance.TildeStream.TypeDefs[Index];
-        case Tag.MethodDef: return Singletons.Instance.TildeStream.MethodDefs[Index];
+        case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
+        case Tag.MethodDef: return Bytes.TildeStream.MethodDefs[Index];
       }
       throw new InvalidOperationException(tag.ToString());
     }
@@ -1556,9 +1486,8 @@ abstract class CodedIndex : ICanRead
     }
   }
 
-  class ExtendsNothing : IHaveLiteralValueNode
+  class ExtendsNothing : CodeNode
   {
-    public object Value => "(Nothing)";
-    public CodeNode Node => null;
+    public override string NodeValue => "(Nothing)";
   }
 }

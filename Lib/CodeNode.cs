@@ -1,104 +1,202 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Reflection;
 
 [JsonConverter(typeof(CodeNodeConverter))]
-public class CodeNode : IEnumerable<string>
+public abstract class CodeNode
 {
-  public CodeNode() { }
-  public CodeNode(string name) { Name = name; }
+  public virtual string NodeName { get; set; } = "oops!"; // Unique name for addressing from parent
+  public virtual string Description { get; set; } = ""; // Notes about this node based on the language spec
+  public virtual string NodeValue { get; set; } = ""; // A ToString() view of the node.
 
-  public string Name = "oops!"; // Unique name for addressing from parent
-  public string Description = ""; // Notes about this node based on the language spec
-  public string Value = ""; // A ToString() view of the node. Can be multiple lines
+  const int START_END_NOT_SET = -1;
+  public int Start = START_END_NOT_SET;
+  public int End = START_END_NOT_SET; // exclusive range
 
-  // will be widened later
-  public int Start = int.MaxValue;
-  public int End = int.MinValue;
+  internal AssemblyBytes Bytes { get; set; }
 
   public List<CodeNode> Children = new List<CodeNode>();
-
   public List<string> Errors = new List<string>();
 
-  public string LinkPath;
-  CodeNode link;
-  string path;
-  public CodeNode Link { set { link = value; } }
+  public virtual CodeNode Link { get; set; } // MAYBE this should probably be protected, but need to figure out RVA
+  public string SelfPath { get; private set; }
 
-  //TODO(cleanup) have multiple stages of reading, where StringHeaps are parsed first, then metadata, then methods.
-  Func<IHaveLiteralValueNode> delayed;
-  internal Func<IHaveLiteralValueNode> DelayedValueNode { set { delayed = value; } } //TODO(cleanup) remove this hack
-  public void UseDelayedValueNode() {
-    if (delayed != null) {
-      try {
-        var d = delayed();
-        Value = (string)d.Value;
-        Link = d.Node;
-      } catch (Exception e) {
-        Errors.Add("Using DelayedValueNode blew up with " + e.ToString());
-      }
+  public void CallBack(Action<CodeNode> action) {
+    action(this);
+    foreach (var child in Children) {
+      child.CallBack(action);
     }
   }
 
   public void AssignPath() => AssignPath(null);
   void AssignPath(string parentPath) {
-    if (path != null)
-      throw new InvalidOperationException($"path was already {path}");
+    if (SelfPath != null)
+      throw new InvalidOperationException($"path was already {SelfPath}");
 
     if (parentPath != null)
       parentPath += "/";
 
-    path = parentPath + Name;
+    SelfPath = parentPath + NodeName;
 
     foreach (var c in Children) {
-      c.AssignPath(path);
+      c.AssignPath(SelfPath);
     }
   }
 
-  public static void AssignLink(CodeNode node) {
-    if (node.link == null)
+  public void Read() {
+    var reposition = BeforeReposition;
+    if (reposition != START_END_NOT_SET) {
+      Bytes.CLIHeaderSection.Reposition(reposition);
+    }
+
+    Start = (int)Bytes.Stream.Position;
+    InnerRead();
+    if (End == START_END_NOT_SET) {
+      End = (int)Bytes.Stream.Position;
+    }
+  }
+
+  protected virtual long BeforeReposition => START_END_NOT_SET; 
+
+  protected virtual void InnerRead() {
+    var orderedFields = this.GetType().GetFields()
+        .Where(field => field.DeclaringType != typeof(CodeNode))
+        .ToList();
+
+    if (orderedFields.Count > 1) {
+      orderedFields = orderedFields.OrderBy(field => {
+        if (TryGetAttribute(field, out OrderedFieldAttribute o)) return o.Order;
+        if (TryGetAttribute(field, out ExpectedAttribute e)) return e.Line;
+        if (TryGetAttribute(field, out DescriptionAttribute d)) return d.Line;
+        throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is missing [OrderedField]");
+      }).ToList();
+    }
+
+    foreach (var field in orderedFields) {
+      AddChild(field.Name);
+    }
+  }
+
+  protected void AddChild(string fieldName) {
+    var field = GetType().GetField(fieldName);
+    var type = field.FieldType;
+
+    if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(CodeNode))) {
+      var len = ((Array)field.GetValue(this))?.Length ?? GetCount(fieldName);
+      AddChildren(fieldName, len);
       return;
-
-    if (node.link.path == null)
-      throw new InvalidOperationException($"null link {node.link.Name}");
-
-    node.LinkPath = node.link.path;
-  }
-
-  public void Add(CodeNode node) => Children.Add(node);
-
-  public void Add(IEnumerable<CodeNode> node) => Children.AddRange(node);
-
-  public void CallBack(Action<CodeNode> callback) {
-    foreach (var c in Children) {
-      c.CallBack(callback);
     }
 
-    callback(this);
+    var child = ReadField(fieldName);
+    Children.Add(child);
+    child.NodeName = fieldName;
+    if (TryGetAttribute(field, out DescriptionAttribute desc)) {
+      switch (GetType().Name) { //TODO(diff-solonode) hack for simpler diff
+        case "StreamHeader":
+        case "MetadataRoot":
+          break;
+        default:
+          child.Description = desc.Description;
+          break;
+      }
+    }
+    CheckExpected(field);
   }
 
-  public override string ToString() => string.Join(Environment.NewLine, Yield());
+  protected void AddChildren(string fieldName, int length) {
+    var field = GetType().GetField(fieldName);
+    var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
+    field.SetValue(this, arr);
+    var elType = field.FieldType.GetElementType();
+    var ctorIndexed = elType.GetConstructor(new[] { typeof(int) }) != null;
+    for (var i = 0; i < arr.Length; i++) {
+      var param = ctorIndexed ? new object[] { i } : new object[] { };
+      var o = arr[i] ?? (CodeNode)Activator.CreateInstance(elType, param);
+      o.Bytes = Bytes;
+      o.Read();
+      arr[i] = o;
 
-  IEnumerable<string> Yield(int indent = 0) {
-    yield return new string(' ', indent) + string.Join(" ", new[]
-    {
-            Start.ToString("X").PadRight(4), End.ToString("X").PadRight(4), Name.PadRight(32),
-            (link != null ? "-> " + link.Start.ToString("X").PadRight(4) : new string(' ', 7)),
-            Value.PadRight(10), Description.Substring(0, Math.Min(Description.Length, 89))
-        });
+      Children.Add(o);
+      o.NodeName = $"{fieldName}[{i}]";
+    }
+    CheckExpected(field);
+  }
 
-    foreach (var c in Children) {
-      foreach (var s in c.Yield(indent + 2)) {
-        yield return s;
+  protected virtual CodeNode ReadField(string fieldName) {
+    var field = GetType().GetField(fieldName);
+    var fieldType = field.FieldType;
+
+    if (fieldType.IsArray) {
+      var elementType = fieldType.GetElementType();
+      if (elementType.IsValueType) {
+        int len;
+        if (TryGetAttribute<ExpectedAttribute>(field, out var e)) {
+          if (e.Value is string s) {
+            len = s.Length;
+          } else {
+            len = ((Array)e.Value).Length;
+          }
+        } else {
+          len = GetCount(fieldName);
+        }
+
+        var sn = typeof(StructArrayNode<>).MakeGenericType(elementType);
+        var o = (CodeNode)Activator.CreateInstance(sn, len);
+        o.Bytes = Bytes;
+        o.Read();
+
+        var value = sn.GetField("arr").GetValue(o);
+        field.SetValue(this, value);
+        o.NodeValue = value.GetString();
+        return o;
+      }
+
+      throw new InvalidOperationException($"{GetType().FullName}. {field.Name} is an array {elementType}[]");
+    }
+    if (fieldType.IsClass) {
+      var o = (CodeNode)(field.GetValue(this) ?? (CodeNode)Activator.CreateInstance(fieldType));
+      o.Bytes = Bytes;
+      o.Read();
+      field.SetValue(this, o);
+      return o;
+    }
+    if (fieldType.IsValueType) {
+      var sn = typeof(StructNode<>).MakeGenericType(fieldType);
+      var o = (CodeNode)Activator.CreateInstance(sn);
+      o.Bytes = Bytes;
+      o.Read();
+      var value = sn.GetField("t").GetValue(o);
+      field.SetValue(this, value);
+      o.NodeValue = value.GetString();
+      return o;
+    }
+    throw new InvalidOperationException(fieldType.Name);
+  }
+
+  protected virtual int GetCount(string field) =>
+    throw new InvalidOperationException($"{GetType().Name} .{field}");
+
+  void CheckExpected(FieldInfo field) {
+    if (TryGetAttribute(field, out ExpectedAttribute expected)) {
+      var actual = field.GetValue(this);
+      if (!TypeExtensions.SmartEquals(expected.Value, actual)) {
+        Errors.Add($"Expected {field.Name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{Start:X}");
       }
     }
   }
 
-  public IEnumerator<string> GetEnumerator() => Yield().GetEnumerator();
-
-  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+  static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
+    var attrs = member.GetCustomAttributes(typeof(T), false);
+    if (!attrs.Any()) {
+      attr = null;
+      return false;
+    }
+    attr = (T)attrs.Single();
+    return true;
+  }
 
   public string ToJson(JsonSerializerOptions options = null) {
     if (options is null) {
@@ -117,13 +215,12 @@ public class CodeNode : IEnumerable<string>
 
     public override void Write(Utf8JsonWriter writer, CodeNode node, JsonSerializerOptions options) {
       writer.WriteStartObject();
-      writer.WriteString(nameof(node.Name), node.Name);
-      writer.WriteString(nameof(node.Name), node.Name);
+      writer.WriteString("Name", node.NodeName);
       writer.WriteString(nameof(node.Description), node.Description);
-      writer.WriteString(nameof(node.Value), node.Value);
+      writer.WriteString("Value", node.NodeValue);
       writer.WriteNumber(nameof(node.Start), node.Start);
       writer.WriteNumber(nameof(node.End), node.End);
-      writer.WriteString(nameof(node.LinkPath), node.LinkPath);
+      writer.WriteString("LinkPath", node.Link?.SelfPath);
 
       writer.WritePropertyName(nameof(node.Errors));
       JsonSerializer.Serialize(writer, node.Errors);
@@ -133,5 +230,34 @@ public class CodeNode : IEnumerable<string>
 
       writer.WriteEndObject();
     }
+  }
+}
+
+public sealed class StructArrayNode<T> : CodeNode where T : struct
+{
+  public T[] arr;
+
+  public int Length { get; }
+
+  public StructArrayNode(int length) {
+    Length = length;
+  }
+
+  protected override void InnerRead() {
+    arr = Enumerable.Range(0, Length).Select(_ => {
+      var node = new StructNode<T> { Bytes = Bytes };
+      node.Read();
+      return node.t;
+    }).ToArray();
+  }
+}
+
+public sealed class StructNode<T> : CodeNode where T : struct
+{
+  public T t;
+
+  protected override void InnerRead() {
+    t = Bytes.Read<T>();
+    NodeValue = t.GetString();
   }
 }

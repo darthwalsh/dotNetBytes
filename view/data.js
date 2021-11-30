@@ -669,7 +669,7 @@ if (!window.location.href.includes("?Example=true")) {
   exampleButton.onclick = () => {
     let hash = window.location.href.split("#")[1] || "";
     if (hash) {
-      hash = "#" + hash;
+      hash = "#" + hash; //TODO this often causes an error -- go to top?
     }
     window.location.href = "?Example=true" + hash;
   };
@@ -684,7 +684,7 @@ if (!window.location.href.includes("?Example=true")) {
       minute: "2-digit",
       second: "2-digit",
     });
-    // TODO(API) pseudoelement on the file changing componenet?
+    //TODO(API) pseudoelement on the file changing componenet?
     $("fileTime").innerText = ev.bytes.name + " " + dateString;
     fileInput.style.display = "none";
 

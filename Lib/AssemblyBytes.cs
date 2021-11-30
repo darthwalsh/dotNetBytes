@@ -4,52 +4,35 @@ using System.IO;
 
 public class AssemblyBytes
 {
-  FileFormat fileFormat;
-
-  CodeNode node;
-
   public AssemblyBytes(Stream s) {
-    node = s.ReadClass(ref fileFormat);
+    this.Stream = s;
 
-    // Widen any nodes to the width of their children
-    node.CallBack(n => {
-      if (n.Children.Any()) {
-        n.Start = Math.Min(n.Start, n.Children.Min(c => c.Start));
-        n.End = Math.Max(n.End, n.Children.Max(c => c.End));
-      }
-    });
-
-    // Order child nodes by index, expected for Heaps and sections
-    node.CallBack(n => {
+    FileFormat = new FileFormat { Bytes = this };
+    FileFormat.Read();
+    FileFormat.NodeName = "FileFormat";
+    
+    FileFormat.CallBack(n => {
       n.Children = n.Children.OrderBy(c => c.Start).ToList();
     });
 
-    FindOverLength(s, node);
-
-    node.CallBack(n => n.UseDelayedValueNode());
-
-    LinkMethodDefRVA();
-
-    node.AssignPath();
-    node.CallBack(CodeNode.AssignLink);
-  }
-
-  static void LinkMethodDefRVA() {
-    var tildeStream = Singletons.Instance.TildeStream;
-    if (tildeStream.MethodDefs == null) return;
-
-    foreach (var def in tildeStream.MethodDefs.Where(def => def.RVA != 0)) {
-      def.RVANode.Link = tildeStream.Section.MethodsByRVA[def.RVA].Node;
-    }
-  }
-
-  static void FindOverLength(Stream s, CodeNode node) {
-    node.CallBack(n => {
-      if (n.End > s.Length) {
-        throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
-      }
+    FileFormat.CallBack(n => {
+      if (n.End > s.Length) throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
+      if (n.Start < 0) throw new InvalidOperationException($"Start was set to {n.Start}");
     });
-  }
 
-  public CodeNode Node => node;
+    FileFormat.AssignPath();
+  }
+  internal FileFormat FileFormat { get; private set; }
+  public CodeNode Node => FileFormat;
+
+  public Stream Stream { get; }
+  internal Section CLIHeaderSection { get; set; }
+
+  internal StringHeap StringHeap => CLIHeaderSection.StringHeap;
+  internal UserStringHeap UserStringHeap => CLIHeaderSection.UserStringHeap;
+  internal BlobHeap BlobHeap => CLIHeaderSection.BlobHeap;
+  internal GuidHeap GuidHeap => CLIHeaderSection.GuidHeap;
+  internal TildeStream TildeStream => CLIHeaderSection.TildeStream;
+
+  public T Read<T>() where T : struct => Stream.ReadStruct<T>();
 }

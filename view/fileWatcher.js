@@ -16,10 +16,10 @@ class FileWatcher extends HTMLInputElement {
     this.addEventListener("click", async event => {
       event.preventDefault();
 
-      const [fileHandle] = await window.showOpenFilePicker(); // TODO(API) cancel
+      const [fileHandle] = await window.showOpenFilePicker(); //TODO(API) cancel
 
       this.getFile = () => fileHandle.getFile();
-      // TODO(API) clear the old interval if set
+      //TODO(API) clear the old interval if set
       setInterval(() => this.poll(), 500);
     });
 
@@ -48,7 +48,7 @@ class FileWatcher extends HTMLInputElement {
     ) {
       this.lastModifiedDate = file.lastModifiedDate;
       const event = new Event("change");
-      event.bytes = file; // TODO(API) API should mirror an non-custom <input>
+      event.bytes = file; //TODO(API) API should mirror an non-custom <input>
       this.dispatchEvent(event);
     }
   }

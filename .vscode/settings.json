@@ -1,5 +1,10 @@
 {
   "liveServer.settings.NoBrowser": true,
   "liveServer.settings.port": 5500,
-  "liveServer.settings.root": "/view"
+  "liveServer.settings.root": "/view",
+  "cSpell.enabled": false,
+  "dotnet-test-explorer.showCodeLens": true,
+  "csharp.testsCodeLens.enabled": true,
+  "csharp.referencesCodeLens.enabled": true,
+  "coverage-gutters.coverageFileNames": ["coverage.info"]
 }
