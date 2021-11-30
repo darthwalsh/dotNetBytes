@@ -676,7 +676,10 @@ if (!window.location.href.includes("?Example=true")) {
   exampleButton.value = "Try Example";
 
   fileInput.addEventListener("change", async ev => {
+    /** @type {ArrayBuffer} */
     const buf = await ev.bytes.arrayBuffer();
+    if (!buf.byteLength) return;
+    
     cleanupDisplay();
 
     const dateString = ev.bytes.lastModifiedDate.toLocaleString([], {
