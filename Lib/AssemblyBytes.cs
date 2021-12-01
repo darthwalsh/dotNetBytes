@@ -8,16 +8,21 @@ public class AssemblyBytes
     this.Stream = s;
 
     FileFormat = new FileFormat { Bytes = this };
-    FileFormat.Read();
     FileFormat.NodeName = "FileFormat";
-    
+    try {
+      FileFormat.Read();
+    }
+    catch (EndOfStreamException e) {
+      FileFormat.Errors.Add(e.ToString());
+    }
+
     FileFormat.CallBack(n => {
       n.Children = n.Children.OrderBy(c => c.Start).ToList();
     });
 
     FileFormat.CallBack(n => {
-      if (n.End > s.Length) throw new InvalidOperationException($"End was set beyond byte end to {n.End}");
-      if (n.Start < 0) throw new InvalidOperationException($"Start was set to {n.Start}");
+      if (n.End > s.Length) n.Errors.Add($"End was set beyond byte end to {n.End}");
+      if (n.Start < 0) n.Errors.Add($"Start was set to {n.Start}");
     });
 
     FileFormat.AssignPath();

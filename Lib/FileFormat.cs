@@ -627,10 +627,16 @@ sealed class Relocations : CodeNode
   [OrderedField]
   public Fixup[] Fixups;
 
-  protected override int GetCount(string field) => field switch {
-    nameof(Fixups) => ((int)BaseRelocationTable.BlockSize - 8) / 2,
-    _ => base.GetCount(field),
-  };
+  protected override int GetCount(string field) {
+    switch (field) {
+      case nameof(Fixups):
+        var n = ((int)BaseRelocationTable.BlockSize - 8) / 2;
+        if (n >= 0) return n;
+        Errors.Add($"Calculated Fixups length {n} was negative!");
+        return 0;
+      default: return base.GetCount(field);
+    }
+  }
 }
 
 sealed class BaseRelocationTable : CodeNode
