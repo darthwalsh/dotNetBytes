@@ -13,9 +13,8 @@ public static class Program
 
   public static void Run(string path) {
     AssemblyBytes assm;
-    using (var fileStream = File.OpenRead(path)) {
-      assm = new AssemblyBytes(fileStream);
-    }
+    using var fileStream = File.OpenRead(path);
+    assm = new AssemblyBytes(fileStream);
 
     Console.WriteLine(assm.Node.ToJson());
   }

@@ -124,41 +124,44 @@ namespace Tests
 
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
-    //MAYBE Also test with mono
 
     //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
+
+    /* Testing, for compiling C# and IL:
+      - OSX use dotnet core
+      - MAYBE Linux use mono
+      - Windows use .NET Framework
+    */
 
     static string ilasm {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
           return Path.Join(AppContext.BaseDirectory, "runtimes", "osx-x64", "native", "ilasm");
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+          return @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\ilasm.exe";
+          // Doesn't work in dotnet core
+          // ToolLocationHelper.GetPathToDotNetFrameworkFile(ilasm.exe, VersionLatest);
         } else {
-          // windows
-          // Microsoft.Build.Utilities.ToolLocationHelper.GetPathToDotNetFrameworkFile(
-          //     "ilasm.exe", Microsoft.Build.Utilities.TargetDotNetFrameworkVersion.VersionLatest);
-
           throw new NotImplementedException();
         }
       }
     }
 
-    static string csc {
-      get {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-          var references = Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll").Select(dll => "/reference:" + dll);
-          return string.Join(' ', new [] { "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll" }.Concat(references));
-        } else {
-          // windows
-          // Path.Combine(
-          //     Microsoft.Build.Utilities.ToolLocationHelper.GetFoldersInVSInstalls().First(),
-          //     "MSBuild",
-          //     "Current",
-          //     "Bin",
-          //     "Roslyn",
-          //     "csc.exe");
-
-          throw new NotImplementedException();
-        }
+    static void RunCsc(string args) {
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
+        var csc = "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll";
+        var refs = string.Join(' ',
+          Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll")
+          .Select(dll => "/reference:" + dll));
+        RunProcess("dotnet", $"{csc} {refs} {args}");
+      } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+        var csc = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\Roslyn\csc.exe";
+        // Doesn't work in dotnet core
+        // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        RunProcess(csc, args);
+      } else {
+        throw new NotImplementedException();
       }
     }
 
@@ -187,7 +190,7 @@ namespace Tests
       if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
         Console.Error.WriteLine($"Compiling {outpath}");
 
-        RunProcess("dotnet", $@"{csc} ""{path}"" /out:""{outpath}"" {allArgs}");
+        RunCsc($@"""{path}"" /out:""{outpath}"" {allArgs}");
       } else {
         Console.Error.WriteLine($"Using existing {outpath}");
       }
@@ -200,7 +203,7 @@ namespace Tests
     }
 
     static void RunProcess(string filename, string processArgs) {
-      using (var p = Process.Start(new ProcessStartInfo {
+      using var p = Process.Start(new ProcessStartInfo {
         FileName = filename,
         Arguments = processArgs,
 
@@ -211,14 +214,13 @@ namespace Tests
         UseShellExecute = false,
 
         RedirectStandardOutput = true,
-      })) {
-        p.WaitForExit();
+      });
+      p.WaitForExit();
 
-        var stdout = p.StandardOutput.ReadToEnd();
-        Console.Error.WriteLine(stdout);
+      var stdout = p.StandardOutput.ReadToEnd();
+      Console.Error.WriteLine(stdout);
 
-        Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
-      }
+      Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
     }
 
     static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Concat(" :").Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
@@ -279,11 +281,10 @@ namespace Tests
         assm.Node.CallBack(AssertParentDifferentSizeThanChild);
 
         byte[] data;
-        using (var memory = new MemoryStream()) {
-          s.Position = 0;
-          s.CopyTo(memory);
-          data = memory.ToArray();
-        }
+        using var memory = new MemoryStream();
+        s.Position = 0;
+        s.CopyTo(memory);
+        data = memory.ToArray();
         assm.Node.CallBack(node => AssertInterestingBytesNotIgnored(node, data));
 
         return assm;
