@@ -148,9 +148,18 @@ namespace Tests
       }
     }
 
+    static string dotnetSDK;
     static void RunCsc(string args) {
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-        var csc = "/usr/local/share/dotnet/sdk/3.1.413/Roslyn/bincore/csc.dll";
+        if (dotnetSDK is null) {
+          var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
+          var v3line = lines.Single(l => l.StartsWith("3.")).Split(' ');
+          var version = v3line[0];
+          var path = v3line[1].Trim('[', ']');
+          dotnetSDK = Path.Join(path, version);
+          Console.Error.WriteLine($"Using SDK {dotnetSDK} for csc.dll");
+        }
+        var csc = Path.Join(dotnetSDK, "Roslyn", "bincore", "csc.dll");
         var refs = string.Join(' ',
           Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll")
           .Select(dll => "/reference:" + dll));
@@ -202,7 +211,7 @@ namespace Tests
       //*/
     }
 
-    static void RunProcess(string filename, string processArgs) {
+    static string RunProcess(string filename, string processArgs) {
       using var p = Process.Start(new ProcessStartInfo {
         FileName = filename,
         Arguments = processArgs,
@@ -221,6 +230,7 @@ namespace Tests
       Console.Error.WriteLine(stdout);
 
       Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
+      return stdout;
     }
 
     static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Concat(" :").Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
