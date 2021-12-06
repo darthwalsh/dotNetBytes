@@ -148,29 +148,51 @@ namespace Tests
       }
     }
 
-    static string dotnetSDK;
+    static string csc;
     static void RunCsc(string args) {
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
-        if (dotnetSDK is null) {
+        if (csc is null) {
           var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
           var v3line = lines.Single(l => l.StartsWith("3.")).Split(' ');
           var version = v3line[0];
           var path = v3line[1].Trim('[', ']');
-          dotnetSDK = Path.Join(path, version);
-          Console.Error.WriteLine($"Using SDK {dotnetSDK} for csc.dll");
+          csc = Path.Join(path, version, "Roslyn", "bincore", "csc.dll");
+          Console.Error.WriteLine($"Compiling with {csc}");
         }
-        var csc = Path.Join(dotnetSDK, "Roslyn", "bincore", "csc.dll");
         var refs = string.Join(' ',
           Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll")
           .Select(dll => "/reference:" + dll));
         RunProcess("dotnet", $"{csc} {refs} {args}");
       } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-        var csc = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\Roslyn\csc.exe";
-        // Doesn't work in dotnet core
-        // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        if (csc is null) {
+          csc = FindCsc();
+        }
         RunProcess(csc, args);
       } else {
         throw new NotImplementedException();
+      }
+
+      static string FindCsc() {
+        // Doesn't work in dotnet core
+        // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        var years = new[] { "2022", "2019", "2017" };
+        var editions = new[] { "Enterprise", "Professional", "Community" };
+        foreach (var year in years) {
+          foreach (var edition in editions) {
+            var path = Path.Combine(
+              Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+              "Microsoft Visual Studio",
+              year,
+              edition,
+              "MSBuild",
+              "Current",
+              "Bin",
+              "Roslyn",
+              "csc.exe");
+            if (File.Exists(path)) return path;
+          }
+        }
+        throw new FileNotFoundException("csc.exe");
       }
     }
 
