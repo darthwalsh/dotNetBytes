@@ -481,7 +481,7 @@
             },
             {
               "Name": "BaseOfData",
-              "Description": "",
+              "Description": "RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+",
               "Value": "0x4000",
               "Start": 176,
               "End": 180,
@@ -492,7 +492,7 @@
             {
               "Name": "PEHeaderWindowsNtSpecificFields",
               "Description": "",
-              "Value": "PEHeaderWindowsNtSpecificFields`1[System.UInt32]",
+              "Value": "",
               "Start": 180,
               "End": 248,
               "LinkPath": null,
@@ -732,7 +732,7 @@
                 {
                   "Name": "ImportTable",
                   "Description": "RVA and Size of Import Table, (§II.25.3.1).",
-                  "Value": "RVAandSize",
+                  "Value": "",
                   "Start": 256,
                   "End": 264,
                   "LinkPath": null,
@@ -793,7 +793,7 @@
                 {
                   "Name": "BaseRelocationTable",
                   "Description": "Relocation Table; set to 0 if unused (§).",
-                  "Value": "RVAandSize",
+                  "Value": "",
                   "Start": 288,
                   "End": 296,
                   "LinkPath": null,
@@ -884,7 +884,7 @@
                 {
                   "Name": "ImportAddressTable",
                   "Description": "RVA and Size of Import Address Table,(§II.25.3.1).",
-                  "Value": "RVAandSize",
+                  "Value": "",
                   "Start": 344,
                   "End": 352,
                   "LinkPath": null,
@@ -925,7 +925,7 @@
                 {
                   "Name": "CLIHeader",
                   "Description": "CLI Header with directories for runtime data,(§II.25.3.1).",
-                  "Value": "RVAandSize",
+                  "Value": "",
                   "Start": 360,
                   "End": 368,
                   "LinkPath": null,
@@ -1273,7 +1273,7 @@
             {
               "Name": "MetaData",
               "Description": "RVA and size of the physical metadata (§II.24).",
-              "Value": "RVAandSize",
+              "Value": "",
               "Start": 528,
               "End": 536,
               "LinkPath": null,
@@ -1324,7 +1324,7 @@
             {
               "Name": "Resources",
               "Description": "RVA and size of implementation-specific resources.",
-              "Value": "RVAandSize",
+              "Value": "",
               "Start": 544,
               "End": 552,
               "LinkPath": null,
@@ -1355,7 +1355,7 @@
             {
               "Name": "StrongNameSignature",
               "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning",
-              "Value": "RVAandSize",
+              "Value": "",
               "Start": 552,
               "End": 560,
               "LinkPath": null,
@@ -1396,7 +1396,7 @@
             {
               "Name": "VTableFixups",
               "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.",
-              "Value": "RVAandSize",
+              "Value": "",
               "Start": 568,
               "End": 576,
               "LinkPath": null,
@@ -1546,7 +1546,7 @@
                       "Children": [
                         {
                           "Name": "OpCode",
-                          "Description": "",
+                          "Description": "ldc.i4.s",
                           "Value": "0x1F",
                           "Start": 598,
                           "End": 599,
@@ -1739,7 +1739,7 @@
           "Children": [
             {
               "Name": "Signature",
-              "Description": "",
+              "Description": "Magic signature for physical metadata : 0x424A5342.",
               "Value": "0x424A5342",
               "Start": 616,
               "End": 620,
@@ -1749,7 +1749,7 @@
             },
             {
               "Name": "MajorVersion",
-              "Description": "",
+              "Description": "Major version, 1 (ignore on read)",
               "Value": "0x1",
               "Start": 620,
               "End": 622,
@@ -1759,7 +1759,7 @@
             },
             {
               "Name": "MinorVersion",
-              "Description": "",
+              "Description": "Minor version, 1 (ignore on read)",
               "Value": "0x1",
               "Start": 622,
               "End": 624,
@@ -1769,7 +1769,7 @@
             },
             {
               "Name": "Reserved",
-              "Description": "",
+              "Description": "Reserved, always 0 (§II.24.1).",
               "Value": "0x0",
               "Start": 624,
               "End": 628,
@@ -1779,7 +1779,7 @@
             },
             {
               "Name": "Length",
-              "Description": "",
+              "Description": "Number of bytes allocated to hold version string, rounded up to a multiple of four.",
               "Value": "0xC",
               "Start": 628,
               "End": 632,
@@ -1789,7 +1789,7 @@
             },
             {
               "Name": "Version",
-              "Description": "",
+              "Description": "UTF8-encoded null-terminated version string.",
               "Value": "\"v4.0.30319\"",
               "Start": 632,
               "End": 644,
@@ -1799,7 +1799,7 @@
             },
             {
               "Name": "Flags",
-              "Description": "",
+              "Description": "Reserved, always 0 (§II.24.1).",
               "Value": "0x0",
               "Start": 644,
               "End": 646,
@@ -1809,7 +1809,7 @@
             },
             {
               "Name": "Streams",
-              "Description": "",
+              "Description": "Number of streams.",
               "Value": "0x5",
               "Start": 646,
               "End": 648,
@@ -1828,7 +1828,7 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
                   "Value": "0x6C",
                   "Start": 648,
                   "End": 652,
@@ -1838,7 +1838,7 @@
                 },
                 {
                   "Name": "Size",
-                  "Description": "",
+                  "Description": "Size of this stream in bytes, shall be a multiple of 4.",
                   "Value": "0xBC",
                   "Start": 652,
                   "End": 656,
@@ -1848,7 +1848,7 @@
                 },
                 {
                   "Name": "Name",
-                  "Description": "",
+                  "Description": "Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.",
                   "Value": "\"#~\"",
                   "Start": 656,
                   "End": 660,
@@ -1869,7 +1869,7 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
                   "Value": "0x128",
                   "Start": 660,
                   "End": 664,
@@ -1879,7 +1879,7 @@
                 },
                 {
                   "Name": "Size",
-                  "Description": "",
+                  "Description": "Size of this stream in bytes, shall be a multiple of 4.",
                   "Value": "0x64",
                   "Start": 664,
                   "End": 668,
@@ -1889,7 +1889,7 @@
                 },
                 {
                   "Name": "Name",
-                  "Description": "",
+                  "Description": "Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.",
                   "Value": "\"#Strings\"",
                   "Start": 668,
                   "End": 680,
@@ -1910,7 +1910,7 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
                   "Value": "0x18C",
                   "Start": 680,
                   "End": 684,
@@ -1920,7 +1920,7 @@
                 },
                 {
                   "Name": "Size",
-                  "Description": "",
+                  "Description": "Size of this stream in bytes, shall be a multiple of 4.",
                   "Value": "0x20",
                   "Start": 684,
                   "End": 688,
@@ -1930,7 +1930,7 @@
                 },
                 {
                   "Name": "Name",
-                  "Description": "",
+                  "Description": "Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.",
                   "Value": "\"#US\"",
                   "Start": 688,
                   "End": 692,
@@ -1951,7 +1951,7 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
                   "Value": "0x1AC",
                   "Start": 692,
                   "End": 696,
@@ -1961,7 +1961,7 @@
                 },
                 {
                   "Name": "Size",
-                  "Description": "",
+                  "Description": "Size of this stream in bytes, shall be a multiple of 4.",
                   "Value": "0x10",
                   "Start": 696,
                   "End": 700,
@@ -1971,7 +1971,7 @@
                 },
                 {
                   "Name": "Name",
-                  "Description": "",
+                  "Description": "Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.",
                   "Value": "\"#GUID\"",
                   "Start": 700,
                   "End": 708,
@@ -1992,7 +1992,7 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
                   "Value": "0x1BC",
                   "Start": 708,
                   "End": 712,
@@ -2002,7 +2002,7 @@
                 },
                 {
                   "Name": "Size",
-                  "Description": "",
+                  "Description": "Size of this stream in bytes, shall be a multiple of 4.",
                   "Value": "0x14",
                   "Start": 712,
                   "End": 716,
@@ -2012,7 +2012,7 @@
                 },
                 {
                   "Name": "Name",
-                  "Description": "",
+                  "Description": "Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.",
                   "Value": "\"#Blob\"",
                   "Start": 716,
                   "End": 724,
@@ -2758,7 +2758,7 @@
                 {
                   "Name": "HashAlgId",
                   "Description": "",
-                  "Value": "",
+                  "Value": "0x00000000 None",
                   "Start": 870,
                   "End": 874,
                   "LinkPath": null,
@@ -2808,7 +2808,7 @@
                 {
                   "Name": "Flags",
                   "Description": "",
-                  "Value": "",
+                  "Value": "0x00000000 0",
                   "Start": 882,
                   "End": 886,
                   "LinkPath": null,
@@ -2899,7 +2899,7 @@
                 {
                   "Name": "Flags",
                   "Description": "",
-                  "Value": "",
+                  "Value": "0x00000000 0",
                   "Start": 900,
                   "End": 904,
                   "LinkPath": null,
@@ -3450,7 +3450,7 @@
               "Children": [
                 {
                   "Name": "Type",
-                  "Description": "",
+                  "Description": "Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).",
                   "Value": "0x9",
                   "Start": 1544,
                   "End": 1545,
@@ -3460,7 +3460,7 @@
                 },
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.",
                   "Value": "0x32",
                   "Start": 1545,
                   "End": 1546,
@@ -3481,7 +3481,7 @@
               "Children": [
                 {
                   "Name": "Type",
-                  "Description": "",
+                  "Description": "Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).",
                   "Value": "0x0",
                   "Start": 1546,
                   "End": 1547,
@@ -3491,7 +3491,7 @@
                 },
                 {
                   "Name": "Offset",
-                  "Description": "",
+                  "Description": "Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.",
                   "Value": "0x0",
                   "Start": 1547,
                   "End": 1548,

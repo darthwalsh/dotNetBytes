@@ -171,7 +171,7 @@ sealed class PEOptionalHeader : CodeNode
   //TODO(Descriptions)
 
   public PEHeaderStandardFields PEHeaderStandardFields;
-  //TODO(diff-solonode) uncomment [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
+  [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
   public int BaseOfData = -1;
   public PEHeaderWindowsNtSpecificFields<uint> PEHeaderWindowsNtSpecificFields32;
   public PEHeaderWindowsNtSpecificFields<ulong> PEHeaderWindowsNtSpecificFields64;
@@ -184,17 +184,14 @@ sealed class PEOptionalHeader : CodeNode
       case PE32Magic.PE32:
         AddChild(nameof(BaseOfData));
         AddChild(nameof(PEHeaderWindowsNtSpecificFields32));
-        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
-        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt32]";  //TODO(diff-solonode)
         break;
       case PE32Magic.PE32plus:
         AddChild(nameof(PEHeaderWindowsNtSpecificFields64));
-        Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
-        Children.Last().NodeValue = "PEHeaderWindowsNtSpecificFields`1[System.UInt64]";  //TODO(diff-solonode)
         break;
       default:
         throw new InvalidOperationException($"Magic not recognized: {PEHeaderStandardFields.Magic:X}");
     }
+    Children.Last().NodeName = "PEHeaderWindowsNtSpecificFields";
 
     AddChild(nameof(PEHeaderHeaderDataDirectories));
   }
@@ -366,10 +363,6 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
 
 sealed class RVAandSize : CodeNode
 {
-  public RVAandSize() {
-    NodeValue = "RVAandSize"; //TODO(diff-solonode)
-  }
-
   [OrderedField] public uint RVA;
   [OrderedField] public uint Size;
 }
@@ -437,7 +430,7 @@ sealed class Section : CodeNode
   public BlobHeap BlobHeap;
   public GuidHeap GuidHeap;
   public TildeStream TildeStream;
-  public ResourceEntry[] ResourceEntry; //TODO(diff-solonode) rename to ResourceEntries
+  public ResourceEntry[] ResourceEntries;
 
   public ImportTable ImportTable;
   public ImportLookupTable ImportLookupTable;
@@ -508,7 +501,7 @@ sealed class Section : CodeNode
                 AddChild(nameof(TildeStream));
 
                 if (TildeStream.ManifestResources != null) {
-                  AddChildren(nameof(ResourceEntry), TildeStream.ManifestResources.Length);
+                  AddChildren(nameof(ResourceEntries), TildeStream.ManifestResources.Length);
                 }
 
                 AddChild(nameof(Methods));
@@ -647,11 +640,10 @@ sealed class BaseRelocationTable : CodeNode
 
 sealed class Fixup : CodeNode
 {
-  //TODO(Descriptions)
 
-  [Description(/*"Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3)."*/ "")] //TODO(diff-solonode) 
+  [Description("Stored in high 4 bits of word, type IMAGE_REL_BASED_HIGHLOW (0x3).")]
   public byte Type;
-  [Description(/*"Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied."*/ "")] //TODO(diff-solonode) 
+  [Description("Stored in remaining 12 bits of word. Offset from starting address specified in the Page RVA field for the block. This offset specifies where the fixup is to be applied.")]
   public short Offset;
 
   protected override CodeNode ReadField(string fieldName) { // MAYBE just override Read() and no children
@@ -849,7 +841,6 @@ sealed class MethodDataSection : CodeNode
 
   protected override void InnerRead() {
     AddChild(nameof(MethodHeaderSection));
-    Children.Last().NodeValue = ""; //TODO(diff-solonode)
 
     if (!MethodHeaderSection.HasFlag(MethodHeaderSection.EHTable)) {
       throw new InvalidOperationException("Only kind of section data is exception header");
@@ -879,9 +870,9 @@ enum MethodHeaderSection : byte
 sealed class SmallMethodHeader : CodeNode
 {
 
-  [Description(/*"Size of the data for the block, including the header, say n * 12 + 4."*/ "")] //TODO(diff-solonode)
+  [Description("Size of the data for the block, including the header, say n * 12 + 4.")]
   public byte DataSize;
-  [Description(/*"Padding, always 0."*/ "")] //TODO(diff-solonode)
+  [Description("Padding, always 0.")]
   [Expected(0)]
   public ushort Reserved;
   [OrderedField]

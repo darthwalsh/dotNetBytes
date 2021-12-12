@@ -32,7 +32,7 @@ sealed class InstructionStream : CodeNode
       Children.Add(op);
     }
 
-    Description = string.Join("\n", Children.Select(n => n.Description));
+    Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
   }
 }
 
@@ -325,7 +325,7 @@ sealed class Op : CodeNode
   }
 
   string With<T>(string description) where T : struct {
-    // Children.Single().Description = description; //TODO(diff-solonode)
+    Children.Single().Description = description;
 
     var value = new StructNode<T> { Bytes = Bytes };
     value.Read();

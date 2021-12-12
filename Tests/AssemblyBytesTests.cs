@@ -274,10 +274,7 @@ namespace Tests
 
       var expected = FormatJson(assm.Node.ToJson());
 
-      using var baselineJSON = File.OpenRead(view("bytes.json"));
-      using var reader = new StreamReader(baselineJSON);
-
-      var actual = FormatJson(reader.ReadToEnd());
+      var actual = FormatJson(File.ReadAllText(view("bytes.json")));
       if (actual != expected) {
         File.WriteAllText(view("bytes.json"), expected);
         Assert.Fail("Baseline was out of date, but fixed now!");

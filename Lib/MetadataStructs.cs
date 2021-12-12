@@ -591,8 +591,6 @@ enum ElementType : byte
 // II.24.2.1
 sealed class MetadataRoot : CodeNode
 {
-  //TODO(Descriptions)
-
   [Description("Magic signature for physical metadata : 0x424A5342.")]
   public uint Signature;
   [Description("Major version, 1 (ignore on read)")]
@@ -624,8 +622,6 @@ sealed class MetadataRoot : CodeNode
 // II.24.2.2
 sealed class StreamHeader : CodeNode
 {
-  //TODO(Descriptions)
-
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
   public uint Offset;
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
@@ -903,17 +899,6 @@ sealed class TildeStream : CodeNode
         continue;
       ReadTables(flag, row);
       ++row;
-    }
-
-    foreach (var ch in Children.Skip(1)) {
-      foreach (var tableCh in ch.Children) {
-        foreach (var f in tableCh.GetType().GetFields()) {
-          if (f.FieldType.IsEnum) {
-            //TODO(diff-solonode) enum strings in tables weren't given proper GetString() 
-            tableCh.NodeValue = "";
-          }
-        }
-      }
     }
 
     if (TildeData.HeapSizes != 0)

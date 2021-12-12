@@ -94,14 +94,7 @@ public abstract class CodeNode
     Children.Add(child);
     child.NodeName = fieldName;
     if (TryGetAttribute(field, out DescriptionAttribute desc)) {
-      switch (GetType().Name) { //TODO(diff-solonode) hack for simpler diff
-        case "StreamHeader":
-        case "MetadataRoot":
-          break;
-        default:
-          child.Description = desc.Description;
-          break;
-      }
+      child.Description = desc.Description;
     }
     CheckExpected(field);
   }
