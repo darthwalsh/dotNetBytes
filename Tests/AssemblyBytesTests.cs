@@ -122,6 +122,9 @@ namespace Tests
     [TestMethod]
     public void FileTable() => RunIL(@"FileTable.il");
 
+    [TestMethod]
+    public void Opcodes() => RunIL(@"Opcodes.il");
+
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
 
@@ -196,10 +199,12 @@ namespace Tests
       }
     }
 
+    static bool ShouldCompile(string path, string outpath) => !File.Exists(outpath) || File.GetLastWriteTime(Path.Join("Samples", path)) > File.GetLastWriteTime(outpath);
+
     static void RunIL(string path, string args = "") {
       var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
-      if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
+      if (ShouldCompile(path, outpath)) {
         Console.Error.WriteLine($"Assembling {outpath}");
 
         var switchchar = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "-";
@@ -218,7 +223,7 @@ namespace Tests
 
       var outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
 
-      if (!File.Exists(outpath) || File.GetLastWriteTime(path) > File.GetLastWriteTime(outpath)) {
+      if (ShouldCompile(path, outpath)) {
         Console.Error.WriteLine($"Compiling {outpath}");
 
         RunCsc($@"""{path}"" /out:""{outpath}"" {allArgs}");

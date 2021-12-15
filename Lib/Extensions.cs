@@ -146,44 +146,18 @@ static class TypeExtensions
   }
 
   public static string GetString(this object o) {
-    if (o == null) {
-      throw new ArgumentNullException();
-    }
+    if (o == null) throw new ArgumentNullException();
 
-    var s = o as string;
-    if (s != null) {
-      return '"' + s.EscapeControl() + '"';
-    }
-
-    var cs = o as char[];
-    if (cs != null) {
-      return new string(cs).GetString();
-    }
-
-    var os = o as IEnumerable;
-    if (os != null) {
+    if (o is string s) return '"' + s.EscapeControl() + '"';
+    if (o is char[] cs) return new string(cs).GetString();
+    if (o is IEnumerable os) {
       return "{" + string.Join(", ", os.Cast<object>().Select(GetString)) + "}";
     }
 
-    if (o is Enum) {
-      var en = (Enum)o;
-      return "0x" + en.ToString("X") + " " + en.ToString();
-    }
-
-    var guid = o as Guid?;
-    if (guid != null) {
-      return guid.ToString();
-    }
-
-    // var hasValue = o as IHaveValue;
-    // if (hasValue != null) {
-    //   var value = hasValue.Value;
-    //   var literalValue = o as IHaveLiteralValue;
-    //   if (literalValue != null) {
-    //     return (string)value;
-    //   }
-    //   return value.GetString();
-    // }
+    if (o is Enum en) return "0x" + en.ToString("X") + " " + en.ToString();
+    if (o is Guid guid) return guid.ToString();
+    if (o is float f) return f.ToString();
+    if (o is double d) return d.ToString();
 
     var method = o.GetType().GetMethod("ToString", new[] { typeof(string) });
     if (method != null) {
