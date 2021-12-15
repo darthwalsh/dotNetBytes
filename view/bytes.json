@@ -1493,7 +1493,7 @@
                       "Errors": [],
                       "Children": [
                         {
-                          "Name": "OpCode",
+                          "Name": "Opcode",
                           "Description": "ldstr",
                           "Value": "0x72",
                           "Start": 593,
@@ -1545,7 +1545,7 @@
                       "Errors": [],
                       "Children": [
                         {
-                          "Name": "OpCode",
+                          "Name": "Opcode",
                           "Description": "ldc.i4.s",
                           "Value": "0x1F",
                           "Start": 598,
@@ -1576,7 +1576,7 @@
                       "Errors": [],
                       "Children": [
                         {
-                          "Name": "OpCode",
+                          "Name": "Opcode",
                           "Description": "box",
                           "Value": "0x8C",
                           "Start": 600,
@@ -1628,7 +1628,7 @@
                       "Errors": [],
                       "Children": [
                         {
-                          "Name": "OpCode",
+                          "Name": "Opcode",
                           "Description": "call",
                           "Value": "0x28",
                           "Start": 605,
@@ -1680,7 +1680,7 @@
                       "Errors": [],
                       "Children": [
                         {
-                          "Name": "OpCode",
+                          "Name": "Opcode",
                           "Description": "call",
                           "Value": "0x28",
                           "Start": 610,
