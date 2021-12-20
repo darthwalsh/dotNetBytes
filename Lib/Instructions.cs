@@ -2,6 +2,7 @@
 // Copyright Carl Walsh, 2021
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 // CodeNode is written though reflection
@@ -20,21 +21,91 @@ using System.Linq;
 // III
 sealed class InstructionStream : CodeNode
 {
-  int length;
+  Dictionary<int, Op> ops = new Dictionary<int, Op>();
 
-  public InstructionStream(int length) {
-    this.length = length;
+  Method method;
+
+  public InstructionStream(Method method) {
+    this.method = method;
   }
 
   protected override void InnerRead() {
-    while (Bytes.Stream.Position - Start < length) {
+    while (Bytes.Stream.Position - Start < method.CodeSize) {
       var op = new Op { Bytes = Bytes };
       op.Read();
       op.NodeName = $"Op[{Children.Count}]";
       Children.Add(op);
+      ops.Add(op.Start, op);
     }
 
+    ValidateStack();
+
     Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
+  }
+
+  void ValidateStack() {
+    int? stack = null;
+    foreach (Op op in Children) {
+      if (op.Def.controlFlow == "RETURN") {
+        // stack should be 1 if return type != void
+        if (stack > 1) {
+          op.Errors.Add($"Stack depth is {stack} on RETURN");
+        }
+        stack = null;
+        continue;
+      }
+
+      if (!stack.HasValue) stack = 0;
+
+      ValidateOp(op, stack.Value);
+
+      stack = Op.DataPopPush(op.Def, stack.Value);
+
+      switch (op.Def.controlFlow) {
+        case "NEXT":
+        case "CALL":
+        case "META":
+        case "BREAK": // Debugger breakpoint
+          break;
+        case "BRANCH":
+          ValidateBranch(op, stack.Value);
+          stack = null;
+          break;
+        case "COND_BRANCH":
+          ValidateBranch(op, stack.Value);
+          break;
+        case "THROW":
+          throw new NotImplementedException();
+        case "RETURN":
+          stack = null;
+          break;
+        default:
+          throw new InvalidOperationException(op.Def.controlFlow);
+      }
+
+      if (op.Def.controlFlow != "NEXT") throw new NotImplementedException(op.Def.controlFlow);
+    }
+  }
+
+  static void ValidateOp(Op op, int stack) {
+    if (op.StackCalculated) {
+      if (op.StartStack != stack) {
+        op.Errors.Add($"Stack depth {stack} != {op.StartStack}");
+      }
+    } else {
+      op.StartStack = stack;
+    }
+  }
+
+  void ValidateBranch(Op op, int stack) {
+    var target = op.Children.Single().GetInt32();
+    if (!ops.TryGetValue(target, out var targetOp)) {
+      op.Errors.Add($"Branch target {target} not found");
+      return;
+    }
+
+    op.Link = targetOp;
+    ValidateOp(targetOp, stack);
   }
 }
 
@@ -80,6 +151,8 @@ sealed class Op : CodeNode
   public byte Opcode;
 
   public OpCode Def { get; set; }
+  public int StartStack { get; set; } = -1; // would be better to use types
+  public bool StackCalculated => StartStack != -1;
 
   protected override void InnerRead() {
     AddChild(nameof(Opcode));
@@ -107,6 +180,32 @@ sealed class Op : CodeNode
   }
 
   // §VI.C.2
+  public static int DataPopPush(OpCode def, int stack) {
+    if (def.stackPop == "VarPop") throw new NotImplementedException();
+    foreach (var s in def.stackPop.Split("Pop").Where(s => s != "")) {
+      stack -= GetStackElem(s);
+    }
+
+    if (def.stackPush == "VarPush") throw new NotImplementedException();
+    foreach (var s in def.stackPush.Split("Push").Where(s => s != "")) {
+      stack += GetStackElem(s);
+    }
+
+    static int GetStackElem(string s) {
+      return s switch {
+        "0" => 0,
+        "1" => 1,
+        "I" => 1,
+        "I8" => 1,
+        "R4" => 1,
+        "R8" => 1,
+        "Ref" => 1,
+        _ => throw new InvalidOperationException(s),
+      };
+    }
+    return stack;
+  }
+
   string ReadInLineArguments() => Def.opParams switch {
     "InlineBrTarget" => With<sbyte>(),
     "InlineField" => WithToken(),

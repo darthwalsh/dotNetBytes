@@ -749,6 +749,8 @@ sealed class Method : CodeNode
   }
 
   public uint RVA { get; private set; }
+  public int CodeSize { get; private set; }
+  public int MaxStack { get; private set; }
 
   protected override long BeforeReposition => RVA;
 
@@ -756,13 +758,13 @@ sealed class Method : CodeNode
     AddChild(nameof(Header));
     var header = Children.Single();
 
-    int length;
     var moreSects = false;
     var type = (MethodHeaderType)(Header & 0x03);
     switch (type) {
       case MethodHeaderType.Tiny:
-        length = Header >> 2;
-        header.Description = $"Tiny Header, 0x{length:X} bytes long";
+        CodeSize = Header >> 2;
+        MaxStack = 8;
+        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long";
         break;
       case MethodHeaderType.Fat:
         AddChild(nameof(FatFormat));
@@ -771,15 +773,16 @@ sealed class Method : CodeNode
           Errors.Add("Expected upper bits of FlagsAndSize to be 3");
         }
 
-        length = (int)FatFormat.CodeSize;
-        header.Description = $"Fat Header, 0x{length:X} bytes long";
+        CodeSize = (int)FatFormat.CodeSize;
+        MaxStack = FatFormat.MaxStack;
+        header.Description = $"Fat Header, 0x{CodeSize:X} bytes long";
         moreSects = ((MethodHeaderType)Header).HasFlag(MethodHeaderType.MoreSects);
         break;
       default:
         throw new InvalidOperationException("Invalid MethodHeaderType " + type);
     }
 
-    CilOps = new InstructionStream(length) { Bytes = Bytes };
+    CilOps = new InstructionStream(this) { Bytes = Bytes };
     AddChild(nameof(CilOps));
 
     if (moreSects) {

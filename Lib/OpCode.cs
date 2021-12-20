@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation and Contributors; Licensed MIT
 // Copied from https://github.com/dotnet/runtime/blob/v6.0.0/src/coreclr/inc/opcode.def
 
+// Would be simpler to loop through System.Reflection.Emit.OpCodes static fields,
+// but prefer to instead use the definitions here.
+
 using System;
 using System.Collections.Generic;
 
