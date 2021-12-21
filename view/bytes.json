@@ -3112,13 +3112,34 @@
           "Children": [
             {
               "Name": "UserStringHeap[1]",
-              "Description": "\"Hello, World!\", 1 leading bits",
+              "Description": "",
               "Value": "\"Hello, World!\"",
               "Start": 1013,
               "End": 1040,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "27",
+                  "Start": 1013,
+                  "End": 1014,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "String",
+                  "Description": "",
+                  "Value": "\"Hello, World!\"",
+                  "Start": 1014,
+                  "End": 1040,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             }
           ]
         },
@@ -3154,53 +3175,158 @@
           "Children": [
             {
               "Name": "BlobHeap[0]",
-              "Description": "1 leading bits",
+              "Description": "",
               "Value": "{}",
               "Start": 1060,
               "End": 1061,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "0",
+                  "Start": 1060,
+                  "End": 1061,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Blob",
+                  "Description": "",
+                  "Value": "{}",
+                  "Start": 1061,
+                  "End": 1061,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             },
             {
               "Name": "BlobHeap[1]",
-              "Description": "1 leading bits",
+              "Description": "",
               "Value": "{0x8}",
               "Start": 1061,
               "End": 1063,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "1",
+                  "Start": 1061,
+                  "End": 1062,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Blob",
+                  "Description": "",
+                  "Value": "{0x8}",
+                  "Start": 1062,
+                  "End": 1063,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             },
             {
               "Name": "BlobHeap[3]",
-              "Description": "1 leading bits",
+              "Description": "",
               "Value": "{0x0, 0x0, 0x1}",
               "Start": 1063,
               "End": 1067,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "3",
+                  "Start": 1063,
+                  "End": 1064,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Blob",
+                  "Description": "",
+                  "Value": "{0x0, 0x0, 0x1}",
+                  "Start": 1064,
+                  "End": 1067,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             },
             {
               "Name": "BlobHeap[7]",
-              "Description": "1 leading bits",
+              "Description": "",
               "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
               "Start": 1067,
               "End": 1073,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "5",
+                  "Start": 1067,
+                  "End": 1068,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Blob",
+                  "Description": "",
+                  "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+                  "Start": 1068,
+                  "End": 1073,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             },
             {
               "Name": "BlobHeap[13]",
-              "Description": "1 leading bits",
+              "Description": "",
               "Value": "{0x0, 0x1, 0x1, 0xE}",
               "Start": 1073,
               "End": 1078,
               "LinkPath": null,
               "Errors": [],
-              "Children": []
+              "Children": [
+                {
+                  "Name": "Length",
+                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
+                  "Value": "4",
+                  "Start": 1073,
+                  "End": 1074,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                },
+                {
+                  "Name": "Blob",
+                  "Description": "",
+                  "Value": "{0x0, 0x1, 0x1, 0xE}",
+                  "Start": 1074,
+                  "End": 1078,
+                  "LinkPath": null,
+                  "Errors": [],
+                  "Children": []
+                }
+              ]
             }
           ]
         },

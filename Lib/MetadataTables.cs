@@ -416,4 +416,6 @@ sealed class TypeRef : CodeNode
 sealed class TypeSpec : CodeNode
 {
   [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) TypeSpec Sig TypeSpecSignature
+  // [OrderedField] public TypeSpecSignature Signature;
+  // [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) TypeSpec Sig TypeSpecSignature
 }

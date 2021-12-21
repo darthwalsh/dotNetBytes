@@ -703,6 +703,7 @@ if (!window.location.href.includes("?Example=true")) {
   setupExampleBytes();
 }
 
+//TODO rightPanel width isn't always wide enough for link text i.e. Methods/Method[0]/CilOps/Op[2]/Token/Offset
 //TODO(LINK) link targets, using dim? What if both?
 //TODO(LINK) visualize link sizes (using onhover to highlight size of target)
 //TODO link-references should include name of linking object instead of path

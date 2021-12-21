@@ -589,6 +589,7 @@ enum ElementType : byte
 }
 
 // II.24.2.1
+// MAYBE split to a new file https://devblogs.microsoft.com/oldnewthing/20190916-00/?p=102892
 sealed class MetadataRoot : CodeNode
 {
   [Description("Magic signature for physical metadata : 0x424A5342.")]
@@ -691,28 +692,35 @@ abstract class Heap<T> : CodeNode
     }
   }
 
-  protected void GetEncodedLength(out int length, out int offset) {
-    var first = Bytes.Read<byte>();
-    if ((first & 0x80) == 0) {
-      length = first & 0x7F;
-      offset = 1;
-    } else if ((first & 0xC0) == 0x80) {
-      var second = Bytes.Read<byte>();
-      length = ((first & 0x3F) << 8) + second;
-      offset = 2;
-    } else if ((first & 0xE0) == 0xC0) {
-      var second = Bytes.Read<byte>();
-      var third = Bytes.Read<byte>();
-      var fourth = Bytes.Read<byte>();
-      length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
-      offset = 4;
-    } else {
-      throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position} can't start with 1111...");
-    }
-  }
-
   public T Get(int i) => AddChild(i).t;
   public CodeNode GetNode(int i) => AddChild(i).node;
+
+  public sealed class EncodedLength : CodeNode
+  {
+    public int length;
+
+    public override string NodeValue => length.ToString();
+
+    protected override void InnerRead() {
+      var first = Bytes.Read<byte>();
+      if ((first & 0b1000_0000) == 0) {
+        length = first & 0x7F;
+        Description = "Starts with bit pattern 0 so Length is 1 byte";
+      } else if ((first & 0b1100_0000) == 0b1000_0000) {
+        var second = Bytes.Read<byte>();
+        length = ((first & 0x3F) << 8) + second;
+        Description = "Starts with bit pattern 10 so Length is 2 bytes";
+      } else if ((first & 0b1110_0000) == 0b1100_0000) {
+        var second = Bytes.Read<byte>();
+        var third = Bytes.Read<byte>();
+        var fourth = Bytes.Read<byte>();
+        length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
+        Description = "Starts with bit pattern 110 so Length is 4 bytes";
+      } else {
+        throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position} can't start with bits 1111...");
+      }
+    }
+  }
 }
 
 // II.24.2.3
@@ -738,15 +746,24 @@ sealed class UserStringHeap : Heap<string>
   }
 
   protected override (string, CodeNode) ReadChild(int index) {
-    GetEncodedLength(out var length, out var offset);
+    var entry = new Entry { Bytes = Bytes };
+    entry.Read(); // MAYBE Bytes.Read<Entry>() with magic https://stackoverflow.com/a/36775837/771768 
 
-    var s = new FixedLengthString(length) { Bytes = Bytes };
-    s.Read();
+    return (entry.String.Str, entry);
+  }
 
-    s.Description = $@"""{s.Str}"", {offset} leading bits"; //TODO(pedant) bits or bytes?
-    s.Start -= offset;
+  sealed class Entry : CodeNode
+  {
+    public EncodedLength Length;
+    public FixedLengthString String;
 
-    return (s.Str, s);
+    public override string NodeValue => String.NodeValue;
+
+    protected override void InnerRead() {
+      AddChild(nameof(Length));
+      String = new FixedLengthString(Length.length);
+      AddChild(nameof(String));
+    }
   }
 
   sealed class FixedLengthString : CodeNode // MAYBE refactor all to record types
@@ -777,15 +794,24 @@ sealed class BlobHeap : Heap<byte[]>
   }
 
   protected override (byte[], CodeNode) ReadChild(int index) {
-    GetEncodedLength(out var length, out var offset);
+    var entry = new Entry { Bytes = Bytes };
+    entry.Read(); // MAYBE Bytes.Read<Entry>() with magic https://stackoverflow.com/a/36775837/771768 
 
-    var b = new ByteArrayNode(length) { Bytes = Bytes };
-    b.Read();
+    return (entry.Blob.arr, entry);
+  }
 
-    b.Description = $"{offset} leading bits";
-    b.Start -= offset;
+  sealed class Entry : CodeNode
+  {
+    public EncodedLength Length;
+    public ByteArrayNode Blob;
 
-    return (b.arr, b);
+    public override string NodeValue => Blob.NodeValue;
+
+    protected override void InnerRead() {
+      AddChild(nameof(Length));
+      Blob = new ByteArrayNode(Length.length);
+      AddChild(nameof(Blob));
+    }
   }
 
   sealed class ByteArrayNode : CodeNode
@@ -799,6 +825,7 @@ sealed class BlobHeap : Heap<byte[]>
       NodeValue = arr.GetString();
     }
   }
+
 }
 
 // II.24.2.5
