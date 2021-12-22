@@ -415,5 +415,6 @@ sealed class TypeRef : CodeNode
 // II.22.39
 sealed class TypeSpec : CodeNode
 {
+  public override string NodeValue => Signature.NodeValue;
   [OrderedField] public Signature<TypeSpecSig> Signature;
 }

@@ -717,7 +717,7 @@ abstract class Heap<T> : CodeNode
         length = ((first & 0x1F) << 24) + (second << 16) + (third << 8) + fourth;
         Description = "Starts with bit pattern 110 so Length is 4 bytes";
       } else {
-        throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position} can't start with bits 1111...");
+        throw new InvalidOperationException($"Heap byte {Bytes.Stream.Position - 1:X} can't start with bits 1111...");
       }
     }
   }

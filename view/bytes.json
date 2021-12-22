@@ -1476,7 +1476,7 @@
                 },
                 {
                   "Name": "CilOps",
-                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox \ncall Concat\ncall WriteLine",
+                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox Int4\ncall Concat\ncall WriteLine",
                   "Value": "",
                   "Start": 593,
                   "End": 615,
@@ -1568,7 +1568,7 @@
                     },
                     {
                       "Name": "Op[2]",
-                      "Description": "box ",
+                      "Description": "box Int4",
                       "Value": "",
                       "Start": 600,
                       "End": 605,
@@ -1588,7 +1588,7 @@
                         {
                           "Name": "Token",
                           "Description": "",
-                          "Value": "",
+                          "Value": "Int4",
                           "Start": 601,
                           "End": 605,
                           "LinkPath": null,
@@ -2728,7 +2728,7 @@
             {
               "Name": "TypeSpecs[0]",
               "Description": "",
-              "Value": "",
+              "Value": "Int4",
               "Start": 868,
               "End": 870,
               "LinkPath": null,

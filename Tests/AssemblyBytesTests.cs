@@ -305,6 +305,10 @@ namespace Tests
 
       AssemblyBytes assm = new AssemblyBytes(s);
 
+      var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
+      File.WriteAllText(jsonPath, FormatJson(assm.Node.ToJson()));
+      Console.Error.WriteLine($"jsonPath: {jsonPath}");
+
       try {
         assm.Node.CallBack(AssertSized);
 
@@ -367,19 +371,20 @@ namespace Tests
     static void AssertParentDifferentSizeThanChild(CodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
         var exceptions = new[] {
-          "TypeSpecs",
-          "Methods",
-          "GuidHeap",
-          "StandAloneSigs",
-          "ModuleRefs",
-          "CilOps",
-          "GenArgTypes",
-          "TypeSpecSig", // TODO(FIXME) see Sigatures.cs
+          nameof(Section.Methods),
+          nameof(Section.GuidHeap),
+          nameof(TildeStream.TypeSpecs),
+          nameof(TildeStream.StandAloneSigs),
+          nameof(TildeStream.ModuleRefs),
+          nameof(Method.CilOps),
+          nameof(TypeSpecSig),
+          nameof(TypeSpecSig.GenArgTypes),
+          nameof(TypeSpecSig.CustomMods),
         };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
-        Assert.Fail($"{node.NodeName} at {node.Start}");
+        Assert.Fail($"{node.NodeName} at {node.Start} is same size as child {node.Children.Single().NodeName}");
       }
     }
 

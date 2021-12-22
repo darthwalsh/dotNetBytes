@@ -119,8 +119,43 @@ sealed class Signature<T> : CodeNode where T : CodeNode, new()
 // sealed class PropertySig : CodeNode { }
 // II.23.2.6
 // sealed class LocalVarSig : CodeNode { }
+
 // II.23.2.7
-// sealed class CustomMod : CodeNode { }
+sealed class CustomMod : CodeNode {
+  public ElementType OptOrReq;
+  public TypeDefOrRefOrSpecEncoded Token;
+
+  protected override void InnerRead() {
+    AddChild(nameof(OptOrReq));
+    if (OptOrReq != ElementType.CModOpt && OptOrReq != ElementType.CModReqd) {
+      Errors.Add("OptOrReq must be CModOpt or CModReqd");
+    }
+    AddChild(nameof(Token));
+
+    var name = OptOrReq switch { 
+      ElementType.CModOpt => "modopt",
+      ElementType.CModReqd => "modreq",
+      _ => throw new InvalidOperationException()
+    };
+    NodeValue = $"{name} ({Token.NodeValue})";
+  }
+}
+
+sealed class CustomMods : CodeNode {
+  protected override void InnerRead() {
+    while (true) {
+      var b = Bytes.Read<ElementType>();
+      --Bytes.Stream.Position;
+      if (b != ElementType.CModOpt && b != ElementType.CModReqd) break;
+      var mod = new CustomMod { Bytes = Bytes };
+      mod.Read();
+      mod.NodeName = $"{nameof(CustomMods)}[{Children.Count}]";
+      Children.Add(mod);
+    }
+
+    NodeValue = string.Join(" ", Enumerable.Reverse(Children).Select(c => c.NodeValue));
+  }
+}
 
 // II.23.2.8
 sealed class TypeDefOrRefOrSpecEncoded : CodeNode
@@ -210,11 +245,6 @@ sealed class TypeSpecSig : CodeNode
 {
   public ElementType Type;
 
-  public ElementType GenKind;
-  public TypeDefOrRefOrSpecEncoded GenType;
-  public UnsignedCompressed GenArgCount;
-  public TypeSig[] GenArgTypes;
-
   protected override void InnerRead() {
     AddChild(nameof(Type));
 
@@ -226,25 +256,59 @@ sealed class TypeSpecSig : CodeNode
       case ElementType.Array:
         throw new NotImplementedException("Array");
       case ElementType.SzArray:
-        throw new NotImplementedException("Szarray");
+        ReadSzArray();
+        return;
       case ElementType.GenericInst:
-        AddChild(nameof(GenKind));
-        if (GenKind != ElementType.ValueType && GenKind != ElementType.Class) {
-          Errors.Add("GenKind must be ValueType or Class");
-        }
-        AddChild(nameof(GenType));
-        AddChild(nameof(GenArgCount));
-        AddChildren(nameof(GenArgTypes), (int)GenArgCount.Value);
-
-        NodeValue = $"Generic {GenKind} {GenType.NodeValue}<{string.Join(", ", GenArgTypes.Select(t => t.NodeValue))}>";
+        ReadGeneric();
         break;
+      case ElementType.Boolean:
+      case ElementType.Char:
+      case ElementType.Int1:
+      case ElementType.UInt1:
+      case ElementType.Int2:
+      case ElementType.UInt2:
       case ElementType.Int4:
-        // TODO(FIXME) not allowed??? present in AddR.exe :( also TODO in tests
+      case ElementType.UInt4:
+      case ElementType.Int8:
+      case ElementType.UInt8:
+      case ElementType.Real4:
+      case ElementType.Real8:
+      case ElementType.IntPtr:
+      case ElementType.UIntPtr:
+      case ElementType.Object:
+      case ElementType.String:
+        // According to the spec these values aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
         NodeValue = Type.ToString();
         return; 
       default:
         throw new InvalidOperationException(Type.ToString());
     }
+  }
+
+  public CustomMods CustomMods;
+  public ElementType ElementType;
+  void ReadSzArray() {
+    AddChild(nameof(CustomMods));
+    if (!CustomMods.Children.Any()) { Children.Remove(CustomMods); } // TODO pattern for this?
+    AddChild(nameof(ElementType));
+
+    NodeValue =  $"{CustomMods.NodeValue} {ElementType}[]".Trim();
+  }
+
+  public ElementType GenKind;
+  public TypeDefOrRefOrSpecEncoded GenType;
+  public UnsignedCompressed GenArgCount;
+  public TypeSig[] GenArgTypes;
+  void ReadGeneric() {
+    AddChild(nameof(GenKind));
+    if (GenKind != ElementType.ValueType && GenKind != ElementType.Class) {
+      Errors.Add("GenKind must be ValueType or Class");
+    }
+    AddChild(nameof(GenType));
+    AddChild(nameof(GenArgCount));
+    AddChildren(nameof(GenArgTypes), (int)GenArgCount.Value);
+
+    NodeValue = $"Generic {GenKind} {GenType.NodeValue}<{string.Join(", ", GenArgTypes.Select(t => t.NodeValue))}>";
   }
 }
 

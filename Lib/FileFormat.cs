@@ -800,7 +800,6 @@ sealed class Method : CodeNode
 
 sealed class MethodDataSections : CodeNode
 {
-  public List<MethodDataSection> dataSections { get; }= new List<MethodDataSection>();
   protected override void InnerRead() {
     MethodDataSection dataSection = null;
     do {
