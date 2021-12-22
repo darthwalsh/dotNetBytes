@@ -8,7 +8,8 @@ using System.Reflection;
 [JsonConverter(typeof(CodeNodeConverter))]
 public abstract class CodeNode
 {
-  public virtual string NodeName { get; set; } = "oops!"; // Unique name for addressing from parent
+  internal const string OOPS_NAME = "oops!";
+  public virtual string NodeName { get; set; } = OOPS_NAME; // Unique name for addressing from parent
   public virtual string Description { get; set; } = ""; // Notes about this node based on the language spec
   public virtual string NodeValue { get; set; } = ""; // A ToString() view of the node.
 

@@ -2736,11 +2736,11 @@
               "Children": [
                 {
                   "Name": "Signature",
-                  "Description": "Blob Heap index 1",
-                  "Value": "{0x8}",
+                  "Description": "",
+                  "Value": "Int4",
                   "Start": 868,
                   "End": 870,
-                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[1]",
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[1]/TypeSpecSig",
                   "Errors": [],
                   "Children": []
                 }
@@ -3175,39 +3175,18 @@
           "Children": [
             {
               "Name": "BlobHeap[0]",
-              "Description": "",
+              "Description": "Empty blob",
               "Value": "{}",
               "Start": 1060,
               "End": 1061,
               "LinkPath": null,
               "Errors": [],
-              "Children": [
-                {
-                  "Name": "Length",
-                  "Description": "Starts with bit pattern 0 so Length is 1 byte",
-                  "Value": "0",
-                  "Start": 1060,
-                  "End": 1061,
-                  "LinkPath": null,
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "Blob",
-                  "Description": "",
-                  "Value": "{}",
-                  "Start": 1061,
-                  "End": 1061,
-                  "LinkPath": null,
-                  "Errors": [],
-                  "Children": []
-                }
-              ]
+              "Children": []
             },
             {
               "Name": "BlobHeap[1]",
               "Description": "",
-              "Value": "{0x8}",
+              "Value": "",
               "Start": 1061,
               "End": 1063,
               "LinkPath": null,
@@ -3224,14 +3203,25 @@
                   "Children": []
                 },
                 {
-                  "Name": "Blob",
+                  "Name": "TypeSpecSig",
                   "Description": "",
-                  "Value": "{0x8}",
+                  "Value": "Int4",
                   "Start": 1062,
                   "End": 1063,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": []
+                  "Children": [
+                    {
+                      "Name": "Type",
+                      "Description": "",
+                      "Value": "0x08 Int4",
+                      "Start": 1062,
+                      "End": 1063,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    }
+                  ]
                 }
               ]
             },

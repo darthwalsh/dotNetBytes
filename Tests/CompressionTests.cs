@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 
 namespace Tests
 {
@@ -17,7 +18,11 @@ namespace Tests
       AssertDecompressUnsigned(0x1FFFFFFF, "DFFFFFFF");
     }
 
-    static void AssertDecompressUnsigned(uint expected, string hex) => Assert.AreEqual(expected, GetData(hex).DecompressUnsigned(0));
+    static void AssertDecompressUnsigned(uint expected, string hex) {
+      var val = new UnsignedCompressed { Bytes = GetData(hex) };
+      val.Read();
+      Assert.AreEqual(expected, val.Value);
+    }
 
     [TestMethod]
     public void DecompressSignedTest() {
@@ -31,9 +36,13 @@ namespace Tests
       AssertDecompressSigned(-268435456, "C0000001");
     }
 
-    static void AssertDecompressSigned(int expected, string hex) => Assert.AreEqual(expected, GetData(hex).DecompressSigned(0));
+    static void AssertDecompressSigned(int expected, string hex) {
+      var val = new SignedCompressed { Bytes = GetData(hex) };
+      val.Read();
+      Assert.AreEqual(expected, val.Value);
+    }
 
-    static byte[] GetData(string hex) {
+    static AssemblyBytes GetData(string hex) {
       Assert.AreEqual(0, hex.Length % 2);
 
       var data = new byte[hex.Length / 2];
@@ -41,7 +50,8 @@ namespace Tests
         data[i] = (byte)(GetNibble(hex[2 * i]) << 4);
         data[i] += (byte)(GetNibble(hex[2 * i + 1]));
       }
-      return data;
+
+      return new AssemblyBytes(new MemoryStream(data), forMocking: null);
     }
 
     static int GetNibble(char c) {

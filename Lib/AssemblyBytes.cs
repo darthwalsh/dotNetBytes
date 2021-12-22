@@ -27,6 +27,11 @@ public class AssemblyBytes
 
     FileFormat.AssignPath();
   }
+
+  internal AssemblyBytes(Stream s, AssemblyBytes forMocking) {
+    this.Stream = s;
+  }
+
   internal FileFormat FileFormat { get; private set; }
   public CodeNode Node => FileFormat;
 

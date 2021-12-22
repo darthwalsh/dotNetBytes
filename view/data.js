@@ -331,6 +331,15 @@ function drawDetails(node) {
       let prefix = 0;
       for (; prefix < revLink.length && prefix < node.SelfPath.length; ++prefix) {
         if (node.SelfPath[prefix] !== revLink[prefix]) break;
+        // TODO this is buggy:
+        /*
+          if
+            Method[1]/Header/CilOps/Op[0].Value 
+          is a branch that links to
+            Method[1]/Header/CilOps/Op[1]
+          then the backref prefix will be
+            0].Value
+        */
       }
       li.appendChild(
         create("a", {
@@ -366,6 +375,7 @@ function lookupNode(path) {
 
   let o = FileFormat;
   if (names[0] != "FileFormat") {
+    // MAYBE when reloading with a new binary, select the first parent node?
     assertThrow(`Couldn't find ${names[0]} under ${o.Name}`);
   }
   names.slice(1).forEach(name => {
@@ -704,6 +714,7 @@ if (!window.location.href.includes("?Example=true")) {
 }
 
 //TODO rightPanel width isn't always wide enough for link text i.e. Methods/Method[0]/CilOps/Op[2]/Token/Offset
+//TODO(LINK) Make the ToC blue like a link, clickable
 //TODO(LINK) link targets, using dim? What if both?
 //TODO(LINK) visualize link sizes (using onhover to highlight size of target)
 //TODO link-references should include name of linking object instead of path

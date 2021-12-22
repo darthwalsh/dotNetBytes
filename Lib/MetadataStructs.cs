@@ -541,9 +541,9 @@ enum ElementType : byte
   [Description("Followed by type")]
   Ptr = 0x0f,
   [Description("Followed by type")]
-  Byref = 0x10,
+  ByRef = 0x10,
   [Description("Followed by TypeDef or TypeRef token")]
-  Valuetype = 0x11,
+  ValueType = 0x11,
   [Description("Followed by TypeDef or TypeRef token")]
   Class = 0x12,
   [Description("Generic parameter in a generic type definition, represented as number (compressed unsigned integer)")]
@@ -551,9 +551,9 @@ enum ElementType : byte
   [Description("type rank boundsCount bound1 ... loCount lo1 ...")]
   Array = 0x14,
   [Description("Generic type instantiation. Followed by type type-arg-count type-1 ... type-n")]
-  Genericinst = 0x15,
+  GenericInst = 0x15,
   [Description("")]
-  Typedbyref = 0x16,
+  TypedByRef = 0x16,
   [Description("System.IntPtr")]
   IntPtr = 0x18,
   [Description("System.UIntPtr")]
@@ -563,13 +563,13 @@ enum ElementType : byte
   [Description("System.Object")]
   Object = 0x1c,
   [Description("Single-dim array with 0 lower bound")]
-  Szarray = 0x1d,
+  SzArray = 0x1d,
   [Description("Generic parameter in a generic method definition, represented as number (compressed unsigned integer)")]
-  Mvar = 0x1e,
+  MVar = 0x1e,
   [Description("Required modifier : followed by a TypeDef or TypeRef token")]
-  Cmod_reqd = 0x1f,
+  CModReqd = 0x1f,
   [Description("Optional modifier : followed by a TypeDef or TypeRef token")]
-  Cmod_opt = 0x20,
+  CModOpt = 0x20,
   [Description("Implemented within the CLI")]
   Internal = 0x21,
   [Description("Or'd with following element types")]
@@ -787,20 +787,41 @@ sealed class UserStringHeap : Heap<string>
   }
 }
 
-sealed class BlobHeap : Heap<byte[]>
+sealed class BlobHeap : Heap<object>
 {
   public BlobHeap(int size)
       : base(size) {
   }
 
-  protected override (byte[], CodeNode) ReadChild(int index) {
-    var entry = new Entry { Bytes = Bytes };
-    entry.Read(); // MAYBE Bytes.Read<Entry>() with magic https://stackoverflow.com/a/36775837/771768 
+  CodeNode customEntry; // this is gross
+  protected override (object, CodeNode) ReadChild(int index) {
+    if (customEntry != null) {
+      customEntry.Read();
+      var ret = (((IEntry)customEntry).IValue, customEntry);
+      customEntry = null;
+      return ret;
+    }
+    var entry = new BytesEntry { Bytes = Bytes };
+    entry.Read();
 
+    if (entry.Blob.arr.Length == 0) {
+      entry.Description = "Empty blob";
+      entry.Children.Clear();
+    }
     return (entry.Blob.arr, entry);
   }
 
-  sealed class Entry : CodeNode
+  public T GetCustom<T>(int i) where T : CodeNode, new() {
+    if (customEntry != null) throw new InvalidOperationException();
+    customEntry = new CustomEntry<T> { Bytes = Bytes };
+    var o = AddChild(i);
+    if (customEntry != null) {
+      throw new NotImplementedException("Custom read of data overlaps with another view");
+    }
+    return (T)o.t;
+  }
+
+  sealed class BytesEntry : CodeNode
   {
     public EncodedLength Length;
     public ByteArrayNode Blob;
@@ -814,7 +835,24 @@ sealed class BlobHeap : Heap<byte[]>
     }
   }
 
-  sealed class ByteArrayNode : CodeNode
+  sealed class CustomEntry<T> : CodeNode, IEntry where T: CodeNode, new()
+  {
+    public EncodedLength Length;
+    public T Value;
+    public object IValue => Value;
+
+    protected override void InnerRead() {
+      AddChild(nameof(Length));
+      AddChild(nameof(Value));
+      Children.Last().NodeName = typeof(T).Name;
+    }
+  }
+
+  interface IEntry {
+    object IValue { get; }
+  }
+
+  public sealed class ByteArrayNode : CodeNode
   {
     public byte[] arr;
     public ByteArrayNode(int length) {
@@ -931,7 +969,7 @@ sealed class TildeStream : CodeNode
     if (TildeData.HeapSizes != 0)
       throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
-      throw new NotImplementedException("CodeIndex aren't 4-byte-aware");
+      throw new NotImplementedException("CodedIndex aren't 4-byte-aware");
   }
 
   void ReadTables(MetadataTableFlags flag, int row) {

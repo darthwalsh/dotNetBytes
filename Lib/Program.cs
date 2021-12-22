@@ -1,7 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleToAttribute("Tests")]
 
 public static class Program
 {

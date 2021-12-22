@@ -111,19 +111,22 @@ namespace Tests
     public void Unsafe() => RunCompile("Unsafe.cs", "/unsafe");
 
     [TestMethod]
-    public void SimpleIL() => RunIL(@"Simple.il");
+    public void SimpleIL() => RunIL("Simple.il");
 
     [TestMethod]
-    public void Blank() => RunIL(@"Blank.il", "/dll");
+    public void Blank() => RunIL("Blank.il", "/dll");
 
     [TestMethod]
-    public void Data() => RunIL(@"Data.il");
+    public void Data() => RunIL("Data.il");
 
     [TestMethod]
-    public void FileTable() => RunIL(@"FileTable.il");
+    public void FileTable() => RunIL("FileTable.il");
 
     [TestMethod]
-    public void Opcodes() => RunIL(@"Opcodes.il");
+    public void Opcodes() => RunIL("Opcodes.il");
+
+    [TestMethod]
+    public void Signatures() => RunIL("Signatures.il");
 
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
@@ -140,8 +143,7 @@ namespace Tests
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
           return Path.Join(AppContext.BaseDirectory, "runtimes", "osx-x64", "native", "ilasm");
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
           return @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\ilasm.exe";
           // Doesn't work in dotnet core
           // ToolLocationHelper.GetPathToDotNetFrameworkFile(ilasm.exe, VersionLatest);
@@ -201,7 +203,7 @@ namespace Tests
 
     static bool ShouldCompile(string path, string outpath) => !File.Exists(outpath) || File.GetLastWriteTime(Path.Join("Samples", path)) > File.GetLastWriteTime(outpath);
 
-    static void RunIL(string path, string args = "") {
+    public static string Assemble(string path, string args = "") {
       var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
 
       if (ShouldCompile(path, outpath)) {
@@ -214,8 +216,10 @@ namespace Tests
         Console.Error.WriteLine($"Using existing {outpath}");
       }
 
-      Run(outpath);
+      return outpath;
     }
+
+    static void RunIL(string path, string args = "") => Run(Assemble(path, args));
 
     //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
     static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
@@ -312,6 +316,8 @@ namespace Tests
 
         assm.Node.CallBack(AssertLinkOrChildren);
 
+        assm.Node.CallBack(AssertNamed);
+
         assm.Node.CallBack(AssertParentDifferentSizeThanChild);
 
         byte[] data;
@@ -354,9 +360,22 @@ namespace Tests
       }
     }
 
+    static void AssertNamed(CodeNode node) {
+      Assert.AreNotEqual(CodeNode.OOPS_NAME, node.NodeName);
+    }
+
     static void AssertParentDifferentSizeThanChild(CodeNode node) {
       if (node.Children.Count == 1 && node.Start == node.Children.Single().Start && node.End == node.Children.Single().End) {
-        var exceptions = new[] { "TypeSpecs", "Methods", "GuidHeap", "StandAloneSigs", "ModuleRefs", "CilOps" };
+        var exceptions = new[] {
+          "TypeSpecs",
+          "Methods",
+          "GuidHeap",
+          "StandAloneSigs",
+          "ModuleRefs",
+          "CilOps",
+          "GenArgTypes",
+          "TypeSpecSig", // TODO(FIXME) see Sigatures.cs
+        };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }

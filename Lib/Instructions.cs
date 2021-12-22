@@ -105,14 +105,17 @@ sealed class InstructionStream : CodeNode
   }
 
   void ValidateBranch(Op op, int stack) {
-    var target = op.Children.Single().GetInt32();
-    if (!ops.TryGetValue(target, out var targetOp)) {
-      op.Errors.Add($"Branch target {target} not found");
-      return;
-    }
+    foreach (var targetArg in op.Children.Skip(1)) {
+      var target = targetArg.GetInt32() + op.End;
 
-    op.Link = targetOp;
-    ValidateOp(targetOp, stack);
+      if (!ops.TryGetValue(target, out var targetOp)) {
+        op.Errors.Add($"Branch target {target:X2} not found");
+        return;
+      }
+
+      targetArg.Link = targetOp;
+      ValidateOp(targetOp, stack);
+    }
   }
 }
 
@@ -214,7 +217,7 @@ sealed class Op : CodeNode
   }
 
   string ReadInLineArguments() => Def.opParams switch {
-    "InlineBrTarget" => With<sbyte>(),
+    "InlineBrTarget" => With<uint>(),
     "InlineField" => WithToken(),
     "InlineI" => With<int>(),
     "InlineI8" => With<long>(),
