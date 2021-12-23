@@ -217,16 +217,20 @@ sealed class TypeSig : CodeNode
         return;
       // case ElementType.ARRAY: Type ArrayShape(general array, see §II.23.2.13)
       // case ElementType.CLASS: TypeDefOrRefOrSpecEncoded
-      // case ElementType.FNPTR: MethodDefSig
-      // case ElementType.FNPTR: MethodRefSig
-      // case ElementType.GENERICINST: (CLASS | VALUETYPE:) TypeDefOrRefOrSpecEncoded GenArgCount Type*
+      case ElementType.Fnptr:
+        throw new NotImplementedException("Fnptr"); // MethodDefSig | MethodRefSig
+      case ElementType.GenericInst:
+        ReadGeneric();
+        break;
       case ElementType.MVar:
         AddChild(nameof(VarNumber));
         NodeValue = $"!{VarNumber.Value}";
         return;
-      // case ElementType.PTR: CustomMod* Type
-      // case ElementType.PTR: CustomMod* VOID
-      // case ElementType.SZARRAY: CustomMod* Type(single dimensional, zero-based array i.e., vector)
+      case ElementType.Ptr:
+        throw new NotImplementedException("Ptr"); // Type | VOID
+      case ElementType.SzArray:
+        ReadSzArray();
+        return;
       // case ElementType.VALUETYPE: TypeDefOrRefOrSpecEncoded
       case ElementType.Var:
         AddChild(nameof(VarNumber));
@@ -234,55 +238,6 @@ sealed class TypeSig : CodeNode
         return;
       default:
         throw new NotImplementedException(Type.GetString());
-    }
-  }
-}
-
-// II.23.2.13
-// sealed class ArrayShape : CodeNode { }
-
-// II.23.2.14
-sealed class TypeSpecSig : CodeNode
-{
-  public ElementType Type;
-
-  protected override void InnerRead() {
-    AddChild(nameof(Type));
-
-    switch (Type) {
-      case ElementType.Ptr:
-        throw new NotImplementedException("Ptr");
-      case ElementType.Fnptr:
-        throw new NotImplementedException("Fnptr");
-      case ElementType.Array:
-        throw new NotImplementedException("Array");
-      case ElementType.SzArray:
-        ReadSzArray();
-        return;
-      case ElementType.GenericInst:
-        ReadGeneric();
-        break;
-      case ElementType.Boolean:
-      case ElementType.Char:
-      case ElementType.Int1:
-      case ElementType.UInt1:
-      case ElementType.Int2:
-      case ElementType.UInt2:
-      case ElementType.Int4:
-      case ElementType.UInt4:
-      case ElementType.Int8:
-      case ElementType.UInt8:
-      case ElementType.Real4:
-      case ElementType.Real8:
-      case ElementType.IntPtr:
-      case ElementType.UIntPtr:
-      case ElementType.Object:
-      case ElementType.String:
-        // According to the spec these values aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
-        NodeValue = Type.S();
-        return; 
-      default:
-        throw new InvalidOperationException(Type.ToString());
     }
   }
 
@@ -293,7 +248,7 @@ sealed class TypeSpecSig : CodeNode
     if (!CustomMods.Children.Any()) { Children.Remove(CustomMods); } // TODO pattern for this?
     AddChild(nameof(ElementType));
 
-    NodeValue =  $"{CustomMods.NodeValue} {ElementType.S()}[]".Trim();
+    NodeValue = $"{CustomMods.NodeValue} {ElementType.S()}[]".Trim();
   }
 
   public ElementType GenKind;
@@ -310,6 +265,38 @@ sealed class TypeSpecSig : CodeNode
     AddChildren(nameof(GenArgTypes), (int)GenArgCount.Value);
 
     NodeValue = $"Generic {GenKind} {GenType.NodeValue}<{string.Join(", ", GenArgTypes.Select(t => t.NodeValue))}>";
+  }
+}
+
+// II.23.2.13
+// sealed class ArrayShape : CodeNode { }
+
+// II.23.2.14
+sealed class TypeSpecSig : CodeNode
+{
+  public TypeSig TypeSig;
+
+  protected override void InnerRead() {
+    // Since TypeSpec is a subset of Type, don't reimplement it!
+    AddChild(nameof(TypeSig));
+    Children.Clear();
+    Children.AddRange(TypeSig.Children);
+
+    NodeValue = TypeSig.NodeValue;
+    Description = TypeSig.Description;
+
+    switch (TypeSig.Type) {
+      case ElementType.GenericInst:
+        if (TypeSig.GenArgCount.Value == 0) {
+          Errors.Add("TypeSpec GenArgCount should be non-zero");
+        }
+        break;
+      case ElementType.Class:
+      case ElementType.ValueType:
+      case ElementType.MVar:
+      case ElementType.Var:
+        throw new InvalidOperationException(TypeSig.Type.ToString());
+    }
   }
 }
 

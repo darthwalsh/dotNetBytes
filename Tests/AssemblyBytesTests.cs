@@ -378,8 +378,8 @@ namespace Tests
           nameof(TildeStream.ModuleRefs),
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
-          nameof(TypeSpecSig.GenArgTypes),
-          nameof(TypeSpecSig.CustomMods),
+          nameof(TypeSig.GenArgTypes),
+          nameof(TypeSig.CustomMods),
         };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
