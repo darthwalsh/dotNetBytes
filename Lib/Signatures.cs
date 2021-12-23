@@ -70,9 +70,7 @@ sealed class SignedCompressed : CodeNode
   //  10xxxxxx xxxxxxxx
   //  110xxxxx xxxxxxxx xxxxxxxx xxxxxxxx
   protected override void InnerRead() {
-    var unsigned = new UnsignedCompressed { Bytes = Bytes };
-    unsigned.Read();
-
+    var unsigned = Bytes.ReadClass<UnsignedCompressed>();
     var sum = (int)unsigned.Value;
 
     if (sum % 2 == 0) {
@@ -152,8 +150,7 @@ sealed class CustomMods : CodeNode {
       var b = Bytes.Read<ElementType>();
       --Bytes.Stream.Position;
       if (b != ElementType.CModOpt && b != ElementType.CModReqd) break;
-      var mod = new CustomMod { Bytes = Bytes };
-      mod.Read();
+      var mod = Bytes.ReadClass<CustomMod>();
       mod.NodeName = $"{nameof(CustomMods)}[{Children.Count}]";
       Children.Add(mod);
     }
@@ -166,8 +163,7 @@ sealed class CustomMods : CodeNode {
 sealed class TypeDefOrRefOrSpecEncoded : CodeNode
 {
   protected override void InnerRead() {
-    var encoded = new UnsignedCompressed { Bytes = Bytes };
-    encoded.Read();
+    var encoded = Bytes.ReadClass<UnsignedCompressed>();
 
     var tag = encoded.Value & 0b11;
     var index = (encoded.Value >> 2) - 1;

@@ -45,4 +45,9 @@ public class AssemblyBytes
   internal TildeStream TildeStream => CLIHeaderSection.TildeStream;
 
   public T Read<T>() where T : struct => Stream.ReadStruct<T>();
+  public T ReadClass<T>() where T : CodeNode, new() {
+    var t = new T { Bytes = this };
+    t.Read();
+    return t;
+  }
 }

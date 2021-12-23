@@ -31,8 +31,7 @@ sealed class InstructionStream : CodeNode
 
   protected override void InnerRead() {
     while (Bytes.Stream.Position - Start < method.CodeSize) {
-      var op = new Op { Bytes = Bytes };
-      op.Read();
+      var op = Bytes.ReadClass<Op>();
       op.NodeName = $"Op[{Children.Count}]";
       Children.Add(op);
       ops.Add(op.Start, op);
@@ -238,8 +237,7 @@ sealed class Op : CodeNode
   };
 
   string With<T>() where T : struct {
-    var value = new StructNode<T> { Bytes = Bytes };
-    value.Read();
+    var value = Bytes.ReadClass<StructNode<T>>();
     value.NodeName = "Value";
     Children.Add(value);
 

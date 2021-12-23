@@ -790,9 +790,8 @@ sealed class Method : CodeNode
         _ = Bytes.Read<byte>();
       }
 
-      var dataSections = new MethodDataSections { Bytes = Bytes };
-      dataSections.Read();
-
+      var dataSections = Bytes.ReadClass<MethodDataSections>();
+      dataSections.NodeName = "MethodDataSections";
       Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
     }
   }
@@ -803,8 +802,7 @@ sealed class MethodDataSections : CodeNode
   protected override void InnerRead() {
     MethodDataSection dataSection = null;
     do {
-      dataSection = new MethodDataSection() { Bytes = Bytes };
-      dataSection.Read();
+      dataSection = Bytes.ReadClass<MethodDataSection>();
       dataSection.NodeName = $"{nameof(MethodDataSections)}[{Children.Count}]";
       Children.Add(dataSection);
     }

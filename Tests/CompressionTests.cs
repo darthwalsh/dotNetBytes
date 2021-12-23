@@ -19,8 +19,7 @@ namespace Tests
     }
 
     static void AssertDecompressUnsigned(uint expected, string hex) {
-      var val = new UnsignedCompressed { Bytes = GetData(hex) };
-      val.Read();
+      var val = GetData(hex).ReadClass<UnsignedCompressed>();
       Assert.AreEqual(expected, val.Value);
     }
 
@@ -37,8 +36,7 @@ namespace Tests
     }
 
     static void AssertDecompressSigned(int expected, string hex) {
-      var val = new SignedCompressed { Bytes = GetData(hex) };
-      val.Read();
+      var val = GetData(hex).ReadClass<SignedCompressed>();
       Assert.AreEqual(expected, val.Value);
     }
 

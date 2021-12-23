@@ -780,9 +780,7 @@ sealed class UserStringHeap : Heap<string>
   }
 
   protected override (string, CodeNode) ReadChild(int index) {
-    var entry = new Entry { Bytes = Bytes };
-    entry.Read(); // MAYBE Bytes.Read<Entry>() with magic https://stackoverflow.com/a/36775837/771768 
-
+    var entry = Bytes.ReadClass<Entry>(); 
     return (entry.String.Str, entry);
   }
 
@@ -835,8 +833,7 @@ sealed class BlobHeap : Heap<object>
       customEntry = null;
       return ret;
     }
-    var entry = new BytesEntry { Bytes = Bytes };
-    entry.Read();
+    var entry = Bytes.ReadClass<BytesEntry>();
 
     if (entry.Blob.arr.Length == 0) {
       entry.Description = "Empty blob";
@@ -915,9 +912,7 @@ sealed class GuidHeap : Heap<Guid>
     const int size = 16;
     Bytes.Stream.Position += (index - 1) * size; // GuidHeap is indexed from 1
 
-    var g = new StructNode<Guid> { Bytes = Bytes };
-    g.Read();
-
+    var g = Bytes.ReadClass<StructNode<Guid>>();
     return (g.t, g);
   }
 }
