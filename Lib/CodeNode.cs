@@ -100,6 +100,17 @@ public abstract class CodeNode
     CheckExpected(field);
   }
 
+  protected void ResizeLastChild() {
+    var child = Children.Last();
+    if (child.End == child.Start) {
+      Children.Remove(child);
+    }
+    if (child.Children.Count == 1) {
+      Children.Remove(child);
+      Children.Add(child.Children.Single());
+    }
+  }
+
   protected void AddChildren(string fieldName, int length) {
     var field = GetType().GetField(fieldName);
     var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));

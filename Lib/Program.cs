@@ -31,4 +31,5 @@ TODO(link)          - .Link should be implemented.
 TODO(method)        - Error validation for method op codes
 TODO(pedant)        - Small pedantic wrong behavior
 TODO(Sig)           - Using BlobHeapIndex as byte[] but should parse the semantics
+TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve.
 */

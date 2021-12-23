@@ -119,7 +119,8 @@ sealed class Signature<T> : CodeNode where T : CodeNode, new()
 // sealed class LocalVarSig : CodeNode { }
 
 // II.23.2.7
-sealed class CustomMod : CodeNode {
+sealed class CustomMod : CodeNode
+{
   public ElementType OptOrReq;
   public TypeDefOrRefOrSpecEncoded Token;
 
@@ -128,7 +129,7 @@ sealed class CustomMod : CodeNode {
     AddChild(nameof(Token));
 
     string name;
-    switch (OptOrReq) { 
+    switch (OptOrReq) {
       case ElementType.CModOpt:
         name = "modopt";
         break;
@@ -144,7 +145,8 @@ sealed class CustomMod : CodeNode {
   }
 }
 
-sealed class CustomMods : CodeNode {
+sealed class CustomMods : CodeNode
+{
   protected override void InnerRead() {
     while (true) {
       var b = Bytes.Read<ElementType>();
@@ -189,11 +191,15 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
 // II.23.2.12
 sealed class TypeSig : CodeNode
 {
+  public CustomMods PrefixCustomMods;
+  // TODO(SpecViolation) CModOpt shouldn't be allowed at start of TypeSpec, but found from i.e. `object modopt ([mscorlib]System.Text.StringBuilder)`
   public ElementType Type;
 
   public UnsignedCompressed VarNumber;
 
   protected override void InnerRead() {
+    AddChild(nameof(PrefixCustomMods));
+    ResizeLastChild();
     AddChild(nameof(Type));
 
     switch (Type) {
@@ -213,7 +219,7 @@ sealed class TypeSig : CodeNode
       case ElementType.UIntPtr:
       case ElementType.Object:
       case ElementType.String:
-        NodeValue = Type.S();
+        SetNodeValue(Type.S());
         return;
       // case ElementType.ARRAY: Type ArrayShape(general array, see §II.23.2.13)
       // case ElementType.CLASS: TypeDefOrRefOrSpecEncoded
@@ -221,10 +227,10 @@ sealed class TypeSig : CodeNode
         throw new NotImplementedException("Fnptr"); // MethodDefSig | MethodRefSig
       case ElementType.GenericInst:
         ReadGeneric();
-        break;
+        return;
       case ElementType.MVar:
         AddChild(nameof(VarNumber));
-        NodeValue = $"!{VarNumber.Value}";
+        SetNodeValue($"!{VarNumber.Value}");
         return;
       case ElementType.Ptr:
         throw new NotImplementedException("Ptr"); // Type | VOID
@@ -234,21 +240,30 @@ sealed class TypeSig : CodeNode
       // case ElementType.VALUETYPE: TypeDefOrRefOrSpecEncoded
       case ElementType.Var:
         AddChild(nameof(VarNumber));
-        NodeValue = $"!!{VarNumber.Value}";
+        SetNodeValue($"!!{VarNumber.Value}");
         return;
       default:
         throw new NotImplementedException(Type.GetString());
     }
   }
 
-  public CustomMods CustomMods;
+  void SetNodeValue(params string[] parts) {
+    parts = parts.Concat(new[] { PrefixCustomMods.NodeValue }).ToArray();
+    NodeValue = string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+  }
+
+  public CustomMods SzArrayCustomMods;
   public ElementType ElementType;
   void ReadSzArray() {
-    AddChild(nameof(CustomMods));
-    if (!CustomMods.Children.Any()) { Children.Remove(CustomMods); } // TODO pattern for this?
+    AddChild(nameof(SzArrayCustomMods));
+    ResizeLastChild();
     AddChild(nameof(ElementType));
 
-    NodeValue = $"{CustomMods.NodeValue} {ElementType.S()}[]".Trim();
+    if (!string.IsNullOrEmpty(SzArrayCustomMods.NodeValue)) {
+      SetNodeValue(ElementType.S(), SzArrayCustomMods.NodeValue + "[]");
+    } else {
+      SetNodeValue(ElementType.S() + "[]");
+    }
   }
 
   public ElementType GenKind;
@@ -264,7 +279,7 @@ sealed class TypeSig : CodeNode
     AddChild(nameof(GenArgCount));
     AddChildren(nameof(GenArgTypes), (int)GenArgCount.Value);
 
-    NodeValue = $"Generic {GenKind} {GenType.NodeValue}<{string.Join(", ", GenArgTypes.Select(t => t.NodeValue))}>";
+    SetNodeValue("Generic", GenKind.S(), $"{GenType.NodeValue}<{string.Join(", ", GenArgTypes.Select(t => t.NodeValue))}>");
   }
 }
 
@@ -296,6 +311,7 @@ sealed class TypeSpecSig : CodeNode
       case ElementType.MVar:
       case ElementType.Var:
         throw new InvalidOperationException(TypeSig.Type.ToString());
+        //TODO(SpecViolation) i.e. Object, Int8 aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
     }
   }
 }

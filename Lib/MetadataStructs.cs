@@ -875,6 +875,9 @@ sealed class BlobHeap : Heap<object>
     protected override void InnerRead() {
       AddChild(nameof(Length));
       AddChild(nameof(Value));
+      if (Value.End != Value.Start + Length.length) {
+        Errors.Add($"Custom data {typeof(T).Name} isn't size of entire blob");
+      }
       Children.Last().NodeName = typeof(T).Name;
     }
   }

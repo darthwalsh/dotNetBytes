@@ -96,7 +96,8 @@ sealed class DosHeader : CodeNode
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]
   public byte[] Reserved3;
 
-  public sealed class LfaNewNode : CodeNode {
+  public sealed class LfaNewNode : CodeNode
+  {
     public uint val;
     protected override void InnerRead() {
       base.InnerRead();
@@ -506,7 +507,7 @@ sealed class Section : CodeNode
 
                 AddChild(nameof(Methods));
                 if (!Methods.Children.Any()) {
-                  Children.RemoveAt(Children.Count - 1);
+                  Children.RemoveAt(Children.Count - 1); // Don't ResizeLastChild
                 }
                 break;
               default:
@@ -717,7 +718,7 @@ sealed class Methods : CodeNode
     if (Bytes.TildeStream.MethodDefs == null) return;
 
     var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA);
-    
+
     var methods = new List<Method>();
     foreach (var methodDefGroup in methodDefs) {
       var rva = methodDefGroup.Key;

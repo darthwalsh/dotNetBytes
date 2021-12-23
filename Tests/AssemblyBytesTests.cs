@@ -339,23 +339,23 @@ namespace Tests
     }
 
     static void AssertSized(CodeNode node) {
-      Asserts.IsLessThan(node.Start, node.End);
+      Asserts.IsLessThan(node.Start, node.End, node.SelfPath);
     }
 
     static void AssertChildrenDontOverlap(CodeNode node) {
       foreach (var o in node.Children.Zip(node.Children.Skip(1), (last, next) => new { last, next })) {
-        Asserts.IsLessThanOrEqual(o.last.End, o.next.Start);
+        Asserts.IsLessThanOrEqual(o.last.End, o.next.Start, node.SelfPath);
       }
     }
 
     static void AssertNoErrors(CodeNode node) {
       var error = node.Errors.FirstOrDefault();
-      Assert.IsNull(error, error);
+      Assert.IsNull(error, $"{node.SelfPath}: {error}");
     }
 
     static void AssertUniqueNames(CodeNode node) {
       var name = node.Children.GroupBy(c => c.NodeName).Where(g => g.Count() > 1).FirstOrDefault()?.Key;
-      Assert.IsNull(name, $"duplicate {name} under {node.NodeName}");
+      Assert.IsNull(name, $"{node.SelfPath}: duplicate /{name}");
     }
 
     static void AssertLinkOrChildren(CodeNode node) {
@@ -365,7 +365,7 @@ namespace Tests
     }
 
     static void AssertNamed(CodeNode node) {
-      Assert.AreNotEqual(CodeNode.OOPS_NAME, node.NodeName);
+      Assert.AreNotEqual(CodeNode.OOPS_NAME, node.NodeName, node.SelfPath);
     }
 
     static void AssertParentDifferentSizeThanChild(CodeNode node) {
@@ -379,12 +379,11 @@ namespace Tests
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
           nameof(TypeSig.GenArgTypes),
-          nameof(TypeSig.CustomMods),
         };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
           return;
         }
-        Assert.Fail($"{node.NodeName} at {node.Start} is same size as child {node.Children.Single().NodeName}");
+        Assert.Fail($"{node.SelfPath} at {node.Start} is same size as child {node.Children.Single().NodeName}");
       }
     }
 
