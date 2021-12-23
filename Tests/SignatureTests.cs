@@ -23,11 +23,24 @@ namespace Tests
       Assert.AreEqual("Generic class System.Collections.Generic.Dictionary`2<int, string>", actual);
     }
 
-    // [TestMethod]
-    // public void ArrayTypeSpec() {
-    //   var actual = GetTypeSpec("Array");
-    //   Assert.AreEqual("Generic Class System.Collections.Generic.Dictionary`2<int, string>", actual);
-    // }
+    [TestMethod]
+    public void ArrayTypeSpec() {
+      Assert.AreEqual("int[3]", GetTypeSpec("Array1"));
+      Assert.AreEqual("int[,,,,,,]", GetTypeSpec("Array2"));
+      Assert.AreEqual("int[4,3,,,,]", GetTypeSpec("Array3"));
+      Assert.AreEqual("int[1...2,6...8]", GetTypeSpec("Array4"));
+      Assert.AreEqual("int[5,3...5,,]", GetTypeSpec("Array5"));
+    }
+
+    [TestMethod]
+    public void ArrayNestedTypeSpec() {
+      Assert.AreEqual("int[5...8][,]", GetTypeSpec("ArrayNested"));
+    }
+
+    [TestMethod]
+    public void ArrayNegativeTypeSpec() {
+      Assert.AreEqual("int[,-5...-2,-5...,-5...0]", GetTypeSpec("ArrayNegative"));
+    }
 
     [TestMethod]
     public void ModObjectSpec() {

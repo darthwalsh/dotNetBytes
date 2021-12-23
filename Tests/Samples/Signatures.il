@@ -13,26 +13,51 @@ ret
   ret 
 }
 
-// .method static void Array1() {
-//   ldnull 
-//   castclass int32[0...2]
-//   pop 
-//   ret 
-// }
+// Examples from II.23.2.13
+.method static void Array1() {
+  ldnull 
+  castclass int32[0...2]
+  pop 
+  ret 
+}
+.method static void Array2() {
+  ldnull 
+  castclass int32[,,,,,,]
+  pop 
+  ret 
+}
+.method static void Array3() {
+  ldnull 
+  castclass int32[0...3, 0...2,,,,]
+  pop 
+  ret 
+}
+.method static void Array4() {
+  ldnull 
+  castclass int32[1...2, 6...8]
+  pop 
+  ret 
+}
+.method static void Array5() {
+  ldnull 
+  castclass int32[5, 3...5, , ]
+  pop 
+  ret 
+}
 
-// .method static void Array2() {
-//   ldnull 
-//   castclass int32[,,,,,,]
-//   pop 
-//   ret 
-// }
+.method static void ArrayNested() {
+  ldnull 
+  castclass int32[5...8][,]
+  pop 
+  ret 
+}
 
-// .method static void ArrayNested() {
-//   ldnull 
-//   castclass int32[0...2][,]
-//   pop 
-//   ret 
-// }
+.method static void ArrayNegative() {
+  ldnull 
+  castclass int32[,-5...-2,-5...,-5...0]
+  pop 
+  ret 
+}
 
 .method static void ModObject() {
   ldnull 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -221,7 +222,9 @@ sealed class TypeSig : CodeNode
       case ElementType.String:
         SetNodeValue(Type.S());
         return;
-      // case ElementType.ARRAY: Type ArrayShape(general array, see §II.23.2.13)
+      case ElementType.Array:
+        ReadArray();
+        return;
       // case ElementType.CLASS: TypeDefOrRefOrSpecEncoded
       case ElementType.Fnptr:
         throw new NotImplementedException("Fnptr"); // MethodDefSig | MethodRefSig
@@ -252,17 +255,26 @@ sealed class TypeSig : CodeNode
     NodeValue = string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
   }
 
+  public TypeSig ArrayElementType;
+  public ArrayShape ArrayShape;
+  void ReadArray() {
+    AddChild(nameof(ArrayElementType));
+    AddChild(nameof(ArrayShape));
+
+    SetNodeValue($"{ArrayElementType.NodeValue}[{ArrayShape.NodeValue}]");
+  }
+
   public CustomMods SzArrayCustomMods;
-  public ElementType ElementType;
+  public ElementType SzArrayElementType;
   void ReadSzArray() {
     AddChild(nameof(SzArrayCustomMods));
     ResizeLastChild();
-    AddChild(nameof(ElementType));
+    AddChild(nameof(SzArrayElementType));
 
     if (!string.IsNullOrEmpty(SzArrayCustomMods.NodeValue)) {
-      SetNodeValue(ElementType.S(), SzArrayCustomMods.NodeValue + "[]");
+      SetNodeValue(SzArrayElementType.S(), SzArrayCustomMods.NodeValue + "[]");
     } else {
-      SetNodeValue(ElementType.S() + "[]");
+      SetNodeValue(SzArrayElementType.S() + "[]");
     }
   }
 
@@ -284,7 +296,44 @@ sealed class TypeSig : CodeNode
 }
 
 // II.23.2.13
-// sealed class ArrayShape : CodeNode { }
+sealed class ArrayShape : CodeNode
+{
+  public UnsignedCompressed Rank;
+  public UnsignedCompressed NumSizes;
+  public UnsignedCompressed[] Size;
+  public UnsignedCompressed NumLoBounds;
+  public SignedCompressed[] LoBound;
+
+  protected override void InnerRead() {
+    AddChild(nameof(Rank));
+    AddChild(nameof(NumSizes));
+    AddChildren(nameof(Size), (int)NumSizes.Value);
+    AddChild(nameof(NumLoBounds));
+    AddChildren(nameof(LoBound), (int)NumLoBounds.Value);
+
+    var text = new List<string>();
+    for (int i = 0; i < Rank.Value; ++i) {
+      int lower = i < NumLoBounds.Value ? LoBound[i].Value : 0;
+      uint size = i < NumSizes.Value ? Size[i].Value : 0;
+
+      if (lower == 0) {
+        if (size == 0) {
+          text.Add("");
+        } else {
+          text.Add($"{size}");
+        }
+      } else {
+        if (size == 0) {
+          text.Add($"{lower}...");
+        } else {
+          text.Add($"{lower}...{lower + size - 1}");
+        }
+      }
+    }
+
+    NodeValue = string.Join(",", text);
+  }
+}
 
 // II.23.2.14
 sealed class TypeSpecSig : CodeNode
