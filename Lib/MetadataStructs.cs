@@ -510,33 +510,19 @@ enum ElementType : byte
 {
   [Description("Marks end of a list")]
   End = 0x00,
-  [Description("")]
   Void = 0x01,
-  [Description("")]
   Boolean = 0x02,
-  [Description("")]
   Char = 0x03,
-  [Description("")]
   Int1 = 0x04,
-  [Description("")]
   UInt1 = 0x05,
-  [Description("")]
   Int2 = 0x06,
-  [Description("")]
   UInt2 = 0x07,
-  [Description("")]
   Int4 = 0x08,
-  [Description("")]
   UInt4 = 0x09,
-  [Description("")]
   Int8 = 0x0a,
-  [Description("")]
   UInt8 = 0x0b,
-  [Description("")]
   Real4 = 0x0c,
-  [Description("")]
   Real8 = 0x0d,
-  [Description("")]
   String = 0x0e,
   [Description("Followed by type")]
   Ptr = 0x0f,
@@ -552,7 +538,7 @@ enum ElementType : byte
   Array = 0x14,
   [Description("Generic type instantiation. Followed by type type-arg-count type-1 ... type-n")]
   GenericInst = 0x15,
-  [Description("")]
+  [Description("System.TypedReference")]
   TypedByRef = 0x16,
   [Description("System.IntPtr")]
   IntPtr = 0x18,
@@ -586,6 +572,54 @@ enum ElementType : byte
   Unknown3 = 0x52,
   [Description("Used in custom attributes to indicate a FIELD (§II.22.10, II.23.3).")]
   Unknown4 = 0x53,
+}
+static class ElementTypeExtensions
+{
+  // Print enum values the way you'd expect in C#
+  public static string S(this ElementType type) => type switch {
+    // ElementType.End => "",
+    ElementType.Void => "void",
+    ElementType.Boolean => "bool",
+    ElementType.Char => "char",
+    ElementType.Int1 => "sbyte",
+    ElementType.UInt1 => "byte",
+    ElementType.Int2 => "short",
+    ElementType.UInt2 => "ushort",
+    ElementType.Int4 => "int",
+    ElementType.UInt4 => "uint",
+    ElementType.Int8 => "long",
+    ElementType.UInt8 => "ulong",
+    ElementType.Real4 => "float",
+    ElementType.Real8 => "double",
+
+    ElementType.String => "string",
+    // ElementType.Ptr => "",
+    // ElementType.ByRef => "",
+    ElementType.ValueType => "valuetype",
+    ElementType.Class => "class",
+    // ElementType.Var => "",
+    // ElementType.Array => "",
+    // ElementType.GenericInst => "",
+    ElementType.TypedByRef => "typedref",
+    ElementType.IntPtr => "IntPtr",
+    ElementType.UIntPtr => "UIntPtr",
+    // ElementType.Fnptr => "",
+    ElementType.Object => "object",
+    // ElementType.SzArray => "",
+    // ElementType.MVar => "",
+    // ElementType.CModReqd => "",
+    // ElementType.CModOpt => "",
+    // ElementType.Internal => "",
+    // ElementType.Modifier => "",
+    // ElementType.Sentinel => "",
+    // ElementType.Pinned => "",
+    // ElementType.Unknown1 => "",
+    // ElementType.Unknown2 => "",
+    // ElementType.Unknown3 => "",
+    // ElementType.Unknown4 => "",
+
+    _ => type.ToString(),
+  };
 }
 
 // II.24.2.1

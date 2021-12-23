@@ -13,9 +13,23 @@ ret
   ret 
 }
 
-// .method static void Array() {
+// .method static void Array1() {
 //   ldnull 
-//   castclass int32[0...,0...,0...]
+//   castclass int32[0...2]
+//   pop 
+//   ret 
+// }
+
+// .method static void Array2() {
+//   ldnull 
+//   castclass int32[,,,,,,]
+//   pop 
+//   ret 
+// }
+
+// .method static void ArrayNested() {
+//   ldnull 
+//   castclass int32[0...2][,]
 //   pop 
 //   ret 
 // }

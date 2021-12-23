@@ -127,15 +127,20 @@ sealed class CustomMod : CodeNode {
 
   protected override void InnerRead() {
     AddChild(nameof(OptOrReq));
-    if (OptOrReq != ElementType.CModOpt && OptOrReq != ElementType.CModReqd) {
-      Errors.Add("OptOrReq must be CModOpt or CModReqd");
-    }
     AddChild(nameof(Token));
 
-    var name = OptOrReq switch { 
-      ElementType.CModOpt => "modopt",
-      ElementType.CModReqd => "modreq",
-      _ => throw new InvalidOperationException()
+    string name;
+    switch (OptOrReq) { 
+      case ElementType.CModOpt:
+        name = "modopt";
+        break;
+      case ElementType.CModReqd:
+        name = "modreq";
+        break;
+      default:
+        name = "!!missing";
+        Errors.Add("OptOrReq must be CModOpt or CModReqd");
+        break;
     };
     NodeValue = $"{name} ({Token.NodeValue})";
   }
@@ -212,7 +217,7 @@ sealed class TypeSig : CodeNode
       case ElementType.UIntPtr:
       case ElementType.Object:
       case ElementType.String:
-        NodeValue = Type.ToString();
+        NodeValue = Type.S();
         return;
       // case ElementType.ARRAY: Type ArrayShape(general array, see §II.23.2.13)
       // case ElementType.CLASS: TypeDefOrRefOrSpecEncoded
@@ -278,7 +283,7 @@ sealed class TypeSpecSig : CodeNode
       case ElementType.Object:
       case ElementType.String:
         // According to the spec these values aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
-        NodeValue = Type.ToString();
+        NodeValue = Type.S();
         return; 
       default:
         throw new InvalidOperationException(Type.ToString());
@@ -292,7 +297,7 @@ sealed class TypeSpecSig : CodeNode
     if (!CustomMods.Children.Any()) { Children.Remove(CustomMods); } // TODO pattern for this?
     AddChild(nameof(ElementType));
 
-    NodeValue =  $"{CustomMods.NodeValue} {ElementType}[]".Trim();
+    NodeValue =  $"{CustomMods.NodeValue} {ElementType.S()}[]".Trim();
   }
 
   public ElementType GenKind;

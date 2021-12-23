@@ -20,31 +20,31 @@ namespace Tests
     [TestMethod]
     public void GenericTypeSpec() {
       var actual = GetTypeSpec("Dict");
-      Assert.AreEqual("Generic Class System.Collections.Generic.Dictionary`2<Int4, String>", actual);
+      Assert.AreEqual("Generic Class System.Collections.Generic.Dictionary`2<int, string>", actual);
     }
 
     // [TestMethod]
     // public void ArrayTypeSpec() {
     //   var actual = GetTypeSpec("Array");
-    //   Assert.AreEqual("Generic Class System.Collections.Generic.Dictionary`2<Int4, String>", actual);
+    //   Assert.AreEqual("Generic Class System.Collections.Generic.Dictionary`2<int, string>", actual);
     // }
 
     [TestMethod]
     public void SzArrayTypeSpec() {
       var actual = GetTypeSpec("SzArray");
-      Assert.AreEqual("Int4[]", actual);
+      Assert.AreEqual("int[]", actual);
     }
 
     [TestMethod]
     public void ModTypeSpec() {
       var actual = GetTypeSpec("Mod");
-      Assert.AreEqual("modopt (Char) Int4[]", actual);
+      Assert.AreEqual("modopt (char) int[]", actual);
     }
 
     [TestMethod]
     public void ModsTypeSpec() {
       var actual = GetTypeSpec("Mods");
-      Assert.AreEqual("modopt (Char) modreq (Int4) modreq (Int2) modopt (Int2) Int4[]", actual);
+      Assert.AreEqual("modopt (char) modreq (int) modreq (short) modopt (short) int[]", actual);
     }
 
     static string GetTypeSpec(string methodName) {

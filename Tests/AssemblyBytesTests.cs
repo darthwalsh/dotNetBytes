@@ -221,7 +221,7 @@ namespace Tests
 
     static void RunIL(string path, string args = "") => Run(Assemble(path, args));
 
-    //TODO either invoke in-memory compiler and assembler, or run compiler as part of build time
+    //MAYBE either invoke in-memory compiler and assembler, or run compiler as part of build time
     static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
       var allArgs = $"{optimize} {noconfig} {args}";
 

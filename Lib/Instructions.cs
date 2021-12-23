@@ -44,7 +44,7 @@ sealed class InstructionStream : CodeNode
     }
     catch (NotImplementedException)
     {
-        // TODO 
+        // TODO remove all the NotImplementedException
     }
 
     Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
