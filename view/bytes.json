@@ -3210,18 +3210,7 @@
                   "End": 1063,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": [
-                    {
-                      "Name": "Type",
-                      "Description": "",
-                      "Value": "0x08 Int4",
-                      "Start": 1062,
-                      "End": 1063,
-                      "LinkPath": null,
-                      "Errors": [],
-                      "Children": []
-                    }
-                  ]
+                  "Children": []
                 }
               ]
             },

@@ -50,4 +50,14 @@ public class AssemblyBytes
     t.Read();
     return t;
   }
+
+  public T Peek<T>() where T : struct {
+    var origPos = Stream.Position;
+    try {
+      return Read<T>();
+    }
+    finally {
+      Stream.Position = origPos;
+    }
+  }
 }

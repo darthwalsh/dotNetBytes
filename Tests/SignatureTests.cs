@@ -77,6 +77,12 @@ namespace Tests
     }
 
     [TestMethod]
+    public void PtrTypeSpec() {
+      Assert.AreEqual("int*", GetTypeSpec("Ptr"));
+      Assert.AreEqual("void*", GetTypeSpec("VoidPtr"));
+    }
+
+    [TestMethod]
     public void ModTypeSpec() {
       Assert.AreEqual("int modopt (char)[]", GetTypeSpec("Mod"));
     }

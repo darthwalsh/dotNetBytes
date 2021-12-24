@@ -150,8 +150,7 @@ sealed class CustomMods : CodeNode
 {
   protected override void InnerRead() {
     while (true) {
-      var b = Bytes.Read<ElementType>();
-      --Bytes.Stream.Position;
+      var b = Bytes.Peek<ElementType>();
       if (b != ElementType.CModOpt && b != ElementType.CModReqd) break;
       var mod = Bytes.ReadClass<CustomMod>();
       mod.NodeName = $"{nameof(CustomMods)}[{Children.Count}]";
@@ -198,6 +197,8 @@ sealed class TypeSig : CodeNode
 
   public TypeDefOrRefOrSpecEncoded TypeEncoded;
   public UnsignedCompressed VarNumber;
+  public TypeSig PtrType;
+  public ElementType PtrVoid;
 
   protected override void InnerRead() {
     AddChild(nameof(PrefixCustomMods));
@@ -221,6 +222,7 @@ sealed class TypeSig : CodeNode
       case ElementType.UIntPtr:
       case ElementType.Object:
       case ElementType.String:
+        if (Children.Count == 1) Children.Clear();
         SetNodeValue(Type.S());
         return;
       case ElementType.Array:
@@ -241,7 +243,15 @@ sealed class TypeSig : CodeNode
         SetNodeValue($"!{VarNumber.Value}");
         return;
       case ElementType.Ptr:
-        throw new NotImplementedException("Ptr"); // Type | VOID
+        var ptrVoidPeek = Bytes.Peek<ElementType>();
+        if (ptrVoidPeek == ElementType.Void) {
+          AddChild(nameof(PtrVoid));
+          SetNodeValue("void*");
+        } else {
+          AddChild(nameof(PtrType));
+          SetNodeValue($"{PtrType.NodeValue}*");
+        }
+        return;
       case ElementType.SzArray:
         ReadSzArray();
         return;

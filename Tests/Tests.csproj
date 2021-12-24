@@ -22,9 +22,10 @@
     <ProjectReference Include="..\Lib\Lib.csproj" />
   </ItemGroup>
 
-<ItemGroup>
-  <Compile Remove="Samples\**" />
-  <Copy Include="Samples\**" />
-</ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Samples\**" />
+    <Copy Include="Samples\**" />
+    <Watch Include="Samples\**" />
+  </ItemGroup>
 
 </Project>

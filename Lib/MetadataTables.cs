@@ -373,7 +373,7 @@ sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) PropertySig
+  [OrderedField] public BlobHeapIndex Type; //TODO(Sig) PropertySig
 
   public override string NodeValue => Name.NodeValue;
 }

@@ -101,6 +101,20 @@ ret
   ret 
 }
 
+.method static void Ptr() {
+  ldc.i4.3
+  newarr int32*
+  pop 
+  ret 
+}
+
+.method static void VoidPtr() {
+  ldc.i4.3
+  newarr void*
+  pop 
+  ret 
+}
+
 .method static void Mod() {
   ldnull 
   castclass int32 modopt (char)[]

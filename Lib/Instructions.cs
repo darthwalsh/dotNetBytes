@@ -127,13 +127,14 @@ sealed class MetadataToken : CodeNode
   public UserStringHeapIndex Index;
 
   protected override void InnerRead() {
+    var origPos = Bytes.Stream.Position;
     AddChild(nameof(Offset));
     AddChild(nameof(Table));
 
     if (Table == 0x70) {
       Children.Clear();
       // Reposition stream, and read "XX XX 00 70"
-      Bytes.Stream.Position -= 4;
+      Bytes.Stream.Position = origPos;
 
       AddChild(nameof(Index));
 
