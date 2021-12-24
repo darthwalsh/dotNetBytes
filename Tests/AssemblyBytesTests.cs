@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -271,6 +269,12 @@ namespace Tests
       return JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
     }
 
+    public static void DumpJson(string path, AssemblyBytes assm) {
+      var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
+      File.WriteAllText(jsonPath, FormatJson(assm.Node.ToJson()));
+      Console.Error.WriteLine($"jsonPath: {jsonPath}");
+    }
+
     [TestMethod]
     public void ValidateExample() {
       Run(view("Program.dat"));
@@ -305,9 +309,7 @@ namespace Tests
 
       AssemblyBytes assm = new AssemblyBytes(s);
 
-      var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
-      File.WriteAllText(jsonPath, FormatJson(assm.Node.ToJson()));
-      Console.Error.WriteLine($"jsonPath: {jsonPath}");
+      DumpJson(path, assm);
 
       try {
         assm.Node.CallBack(AssertSized);

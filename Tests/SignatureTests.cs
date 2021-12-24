@@ -15,6 +15,7 @@ namespace Tests
       var assembled = AssemblyBytesTests.Assemble("Signatures.il");
       var openFile = File.OpenRead(assembled);
       assm = new AssemblyBytes(openFile);
+      AssemblyBytesTests.DumpJson(assembled, assm);
     }
 
     [TestMethod]
@@ -43,6 +44,16 @@ namespace Tests
     }
 
     [TestMethod]
+    public void ClassTypeSpec() {
+      Assert.AreEqual("class SignatureTests", GetTypeSpec("Class"));
+    }
+
+    [TestMethod]
+    public void ValueTypeTypeSpec() {
+      Assert.AreEqual("valuetype System.ValueTuple", GetTypeSpec("ValueType"));
+    }
+
+    [TestMethod]
     public void ModObjectSpec() {
       var actual = GetTypeSpec("ModObject");
       Assert.AreEqual("object modopt (System.Text.StringBuilder)", actual);
@@ -62,14 +73,12 @@ namespace Tests
 
     [TestMethod]
     public void SzArrayTypeSpec() {
-      var actual = GetTypeSpec("SzArray");
-      Assert.AreEqual("int[]", actual);
+      Assert.AreEqual("int[]", GetTypeSpec("SzArray"));
     }
 
     [TestMethod]
     public void ModTypeSpec() {
-      var actual = GetTypeSpec("Mod");
-      Assert.AreEqual("int modopt (char)[]", actual);
+      Assert.AreEqual("int modopt (char)[]", GetTypeSpec("Mod"));
     }
 
     [TestMethod]

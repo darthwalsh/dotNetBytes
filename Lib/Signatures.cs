@@ -196,6 +196,7 @@ sealed class TypeSig : CodeNode
   // TODO(SpecViolation) CModOpt shouldn't be allowed at start of TypeSpec, but found from i.e. `object modopt ([mscorlib]System.Text.StringBuilder)`
   public ElementType Type;
 
+  public TypeDefOrRefOrSpecEncoded TypeEncoded;
   public UnsignedCompressed VarNumber;
 
   protected override void InnerRead() {
@@ -225,7 +226,11 @@ sealed class TypeSig : CodeNode
       case ElementType.Array:
         ReadArray();
         return;
-      // case ElementType.CLASS: TypeDefOrRefOrSpecEncoded
+      case ElementType.Class:
+      case ElementType.ValueType:
+        AddChild(nameof(TypeEncoded));
+        SetNodeValue(Type.S(), TypeEncoded.NodeValue);
+        return;
       case ElementType.Fnptr:
         throw new NotImplementedException("Fnptr"); // MethodDefSig | MethodRefSig
       case ElementType.GenericInst:
@@ -240,13 +245,12 @@ sealed class TypeSig : CodeNode
       case ElementType.SzArray:
         ReadSzArray();
         return;
-      // case ElementType.VALUETYPE: TypeDefOrRefOrSpecEncoded
       case ElementType.Var:
         AddChild(nameof(VarNumber));
         SetNodeValue($"!!{VarNumber.Value}");
         return;
       default:
-        throw new NotImplementedException(Type.GetString());
+        throw new InvalidOperationException(Type.GetString());
     }
   }
 
@@ -355,12 +359,10 @@ sealed class TypeSpecSig : CodeNode
           Errors.Add("TypeSpec GenArgCount should be non-zero");
         }
         break;
-      case ElementType.Class:
-      case ElementType.ValueType:
       case ElementType.MVar:
       case ElementType.Var:
         throw new InvalidOperationException(TypeSig.Type.ToString());
-        //TODO(SpecViolation) i.e. Object, Int8 aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
+        //TODO(SpecViolation) i.e. Object, Int8, Class, ValueType aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
     }
   }
 }

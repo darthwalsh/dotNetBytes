@@ -1,6 +1,6 @@
 ﻿.assembly extern mscorlib {}
 
-.class Hello {
+.class SignatureTests {
 .method static void Main() {
 .entrypoint
 ret
@@ -55,6 +55,20 @@ ret
 .method static void ArrayNegative() {
   ldnull 
   castclass int32[,-5...-2,-5...,-5...0]
+  pop 
+  ret 
+}
+
+.method static void Class() {
+  ldnull 
+  castclass class SignatureTests
+  pop 
+  ret 
+}
+
+.method static void ValueType() {
+  ldc.i4.3
+  newarr valuetype [mscorlib]System.ValueTuple
   pop 
   ret 
 }

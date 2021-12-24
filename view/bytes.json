@@ -2433,7 +2433,7 @@
             {
               "Name": "TypeDefs[0]",
               "Description": "",
-              "Value": ".<Module>",
+              "Value": "<Module>",
               "Start": 814,
               "End": 828,
               "LinkPath": null,
@@ -2504,7 +2504,7 @@
             {
               "Name": "TypeDefs[1]",
               "Description": "",
-              "Value": ".Hello",
+              "Value": "Hello",
               "Start": 828,
               "End": 842,
               "LinkPath": null,

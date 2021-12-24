@@ -170,7 +170,9 @@ sealed class ExportedType : CodeNode
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.Implementation Implementation;
 
-  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
+  public override string NodeValue => TypeNamespace.NodeValue != "" ?
+    TypeNamespace.NodeValue + "." + TypeName.NodeValue :
+    TypeName.NodeValue;
 }
 
 // II.22.15
@@ -353,7 +355,7 @@ sealed class ModuleRef : CodeNode
 sealed class Nestedclass : CodeNode
 {
   [OrderedField] public UnknownCodedIndex NestedClass;
-  [OrderedField] public UnknownCodedIndex EnclosingClass;
+  [OrderedField] public UnknownCodedIndex EnclosingClass; //TODO(link) printing typename of nestedclass should be like Outer/Inner
 }
 
 // II.22.33
@@ -399,7 +401,9 @@ sealed class TypeDef : CodeNode
   [OrderedField] public UnknownCodedIndex FieldList;
   [OrderedField] public UnknownCodedIndex MethodList;
 
-  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
+  public override string NodeValue => TypeNamespace.NodeValue != "" ? 
+    TypeNamespace.NodeValue + "." + TypeName.NodeValue :
+    TypeName.NodeValue;
 }
 
 // II.22.38
@@ -409,7 +413,9 @@ sealed class TypeRef : CodeNode
   [OrderedField] public StringHeapIndex TypeName;
   [OrderedField] public StringHeapIndex TypeNamespace;
 
-  public override string NodeValue => TypeNamespace.NodeValue + "." + TypeName.NodeValue;
+  public override string NodeValue => TypeNamespace.NodeValue != "" ?
+    TypeNamespace.NodeValue + "." + TypeName.NodeValue :
+    TypeName.NodeValue;
 }
 
 // II.22.39
