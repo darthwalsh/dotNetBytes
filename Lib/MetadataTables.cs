@@ -148,7 +148,7 @@ sealed class DeclSecurity : CodeNode
 sealed class EventMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
-  [OrderedField] public UnknownCodedIndex EventList;
+  [OrderedField] public UnknownCodedIndex EventList; // contiguous run of Events; continues to last row or the next EventList
 }
 
 // II.22.13
@@ -299,7 +299,7 @@ sealed class MethodDef : CodeNode
   [OrderedField] public MethodAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodDefSig
-  [OrderedField] public UnknownCodedIndex ParamList;
+  [OrderedField] public UnknownCodedIndex ParamList; // contiguous run of Params; continues to last row or the next ParamList
 
   public override string NodeValue => Name.NodeValue;
 
@@ -382,7 +382,7 @@ sealed class Property : CodeNode
 sealed class PropertyMap : CodeNode
 {
   [OrderedField] public UnknownCodedIndex Parent;
-  [OrderedField] public UnknownCodedIndex PropertyList;
+  [OrderedField] public UnknownCodedIndex PropertyList; // contiguous run of Properties; continues to last row or the next PropertyList
 }
 
 // II.22.36
@@ -398,10 +398,9 @@ sealed class TypeDef : CodeNode
   [OrderedField] public StringHeapIndex TypeName;
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.TypeDefOrRef Extends;
-  [OrderedField] public UnknownCodedIndex FieldList;
-  [OrderedField] public UnknownCodedIndex MethodList;
-
-  public override string NodeValue => TypeNamespace.NodeValue != "" ? 
+  [OrderedField] public UnknownCodedIndex FieldList; // contiguous run of Fields; continues to last row or the next FieldList
+  [OrderedField] public UnknownCodedIndex MethodList; // contiguous run of Methods; continues to last row or the next MethodList
+  public override string NodeValue => TypeNamespace.NodeValue != "" ?
     TypeNamespace.NodeValue + "." + TypeName.NodeValue :
     TypeName.NodeValue;
 }

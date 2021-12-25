@@ -1163,13 +1163,20 @@ abstract class CodedIndex : CodeNode
 {
   CodedIndex() { } // Don't allow subclassing from other types
 
+  NullRow nullRow;
+
   public int Index { get; private set; }
 
-  public override string NodeValue => GetLink().NodeValue;
-  public override CodeNode Link => GetLink();
+  public override string NodeValue => (nullRow ?? GetLink()).NodeValue;
+  public override CodeNode Link => nullRow ?? GetLink();
 
   protected override void InnerRead() {
-    Index = GetIndex(Bytes.Read<ushort>());
+    var readData = Bytes.Read<ushort>();
+    if (readData == 0) {
+      nullRow = new NullRow();
+    } else {
+      Index = GetIndex(readData);
+    }
   }
 
   protected abstract int GetIndex(int readData);
@@ -1178,25 +1185,15 @@ abstract class CodedIndex : CodeNode
 
   public class TypeDefOrRef : CodedIndex
   {
-    ExtendsNothing extendsNothing;
 
     Tag tag;
 
     protected override int GetIndex(int readData) {
-      if (readData == 0) {
-        extendsNothing = new ExtendsNothing();
-        return -1;
-      }
-
       tag = (Tag)(readData & 0x3);
       return (readData >> 2) - 1;
     }
 
     protected override CodeNode GetLink() {
-      if (extendsNothing != null) {
-        return extendsNothing;
-      }
-
       switch (tag) {
         case Tag.TypeDef: return Bytes.TildeStream.TypeDefs[Index];
         case Tag.TypeRef: return Bytes.TildeStream.TypeRefs[Index];
@@ -1457,25 +1454,14 @@ abstract class CodedIndex : CodeNode
 
   public class Implementation : CodedIndex
   {
-    ExtendsNothing extendsNothing;
-
     Tag tag;
 
     protected override int GetIndex(int readData) {
-      if (readData == 0) {
-        extendsNothing = new ExtendsNothing();
-        return -1;
-      }
-
       tag = (Tag)(readData & 0x3);
       return (readData >> 2) - 1;
     }
 
     protected override CodeNode GetLink() {
-      if (extendsNothing != null) {
-        return extendsNothing;
-      }
-
       switch (tag) {
         case Tag.File: return Bytes.TildeStream.Files[Index];
         case Tag.AssemblyRef: return Bytes.TildeStream.AssemblyRefs[Index];
@@ -1568,8 +1554,8 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  class ExtendsNothing : CodeNode
+  class NullRow : CodeNode
   {
-    public override string NodeValue => "(Nothing)";
+    public override string NodeValue => "(null)";
   }
 }
