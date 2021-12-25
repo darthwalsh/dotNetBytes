@@ -123,7 +123,8 @@ sealed class ClassLayout : CodeNode
 // II.22.9
 sealed class Constant : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Type;
+  [OrderedField] public ElementType Type;
+  [OrderedField] public byte unused;
   [OrderedField] public CodedIndex.HasConstant Parent;
   [OrderedField] public BlobHeapIndex Value;
 }
