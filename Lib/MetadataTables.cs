@@ -102,14 +102,14 @@ sealed class AssemblyRefOS : CodeNode
   [OrderedField] public uint OSPlatformID;
   [OrderedField] public uint OSMajorVersion;
   [OrderedField] public uint OSMinorVersion;
-  [OrderedField] public UnknownCodedIndex AssemblyRef;
+  [OrderedField] public TableIndex<AssemblyRef> AssemblyRef;
 }
 
 // II.22.7
 sealed class AssemblyRefProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
-  [OrderedField] public UnknownCodedIndex AssemblyRef;
+  [OrderedField] public TableIndex<AssemblyRef> AssemblyRef;
 }
 
 // II.22.8
@@ -117,7 +117,7 @@ sealed class ClassLayout : CodeNode
 {
   [OrderedField] public ushort PackingSize;
   [OrderedField] public uint ClassSize;
-  [OrderedField] public UnknownCodedIndex Parent;
+  [OrderedField] public TableIndex<TypeDef> Parent;
 }
 
 // II.22.9
@@ -148,7 +148,7 @@ sealed class DeclSecurity : CodeNode
 // II.22.12
 sealed class EventMap : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Parent;
+  [OrderedField] public TableIndex<TypeDef> Parent;
   [OrderedField] public UnknownCodedIndex EventList; // contiguous run of Events; continues to last row or the next EventList
 }
 
@@ -190,7 +190,7 @@ sealed class Field : CodeNode
 sealed class FieldLayout : CodeNode
 {
   [OrderedField] public uint Offset;
-  [OrderedField] public UnknownCodedIndex Field;
+  [OrderedField] public TableIndex<Field> Field;
 }
 
 // II.22.17
@@ -204,7 +204,7 @@ sealed class FieldMarshal : CodeNode
 sealed class FieldRVA : CodeNode
 {
   [OrderedField] public uint RVA;
-  [OrderedField] public UnknownCodedIndex Field;
+  [OrderedField] public TableIndex<Field> Field;
 }
 
 // II.22.19
@@ -231,7 +231,7 @@ sealed class GenericParam : CodeNode
 // II.22.21
 sealed class GenericParamConstraint : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Owner;
+  [OrderedField] public TableIndex<GenericParam> Owner;
   [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
 }
 
@@ -241,13 +241,13 @@ sealed class ImplMap : CodeNode
   [OrderedField] public PInvokeAttributes MappingFlags;
   [OrderedField] public CodedIndex.MemberForwarded MemberForwarded;
   [OrderedField] public StringHeapIndex ImportName;
-  [OrderedField] public UnknownCodedIndex ImportScope;
+  [OrderedField] public TableIndex<ModuleRef> ImportScope;
 }
 
 // II.22.23
 sealed class InterfaceImpl : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Class;
+  [OrderedField] public TableIndex<TypeDef> Class;
   [OrderedField] public CodedIndex.TypeDefOrRef Interface;
 }
 
@@ -312,7 +312,7 @@ sealed class MethodDef : CodeNode
 // II.22.27
 sealed class MethodImpl : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Class;
+  [OrderedField] public TableIndex<TypeDef> Class;
   [OrderedField] public CodedIndex.MethodDefOrRef MethodBody;
   [OrderedField] public CodedIndex.MethodDefOrRef MethodDeclaration;
 }
@@ -321,7 +321,7 @@ sealed class MethodImpl : CodeNode
 sealed class MethodSemantics : CodeNode
 {
   [OrderedField] public MethodSemanticsAttributes Semantics;
-  [OrderedField] public UnknownCodedIndex Method;
+  [OrderedField] public TableIndex<MethodDef> Method;
   [OrderedField] public CodedIndex.HasSemantics Association;
 }
 
@@ -355,8 +355,8 @@ sealed class ModuleRef : CodeNode
 // II.22.32 (Should be NestedClass but renaming type so field is allowed to be NestedClass)
 sealed class Nestedclass : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex NestedClass;
-  [OrderedField] public UnknownCodedIndex EnclosingClass; //TODO(link) printing typename of nestedclass should be like Outer/Inner
+  [OrderedField] public TableIndex<TypeDef> NestedClass;
+  [OrderedField] public TableIndex<TypeDef> EnclosingClass; //MAYBE printing typename of nestedclass should be like Outer/Inner
 }
 
 // II.22.33
@@ -382,7 +382,7 @@ sealed class Property : CodeNode
 // II.22.35
 sealed class PropertyMap : CodeNode
 {
-  [OrderedField] public UnknownCodedIndex Parent;
+  [OrderedField] public TableIndex<TypeDef> Parent;
   [OrderedField] public UnknownCodedIndex PropertyList; // contiguous run of Properties; continues to last row or the next PropertyList
 }
 

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Text;
 
 // II.23 Metadata logical format: other structures 
@@ -780,7 +779,7 @@ sealed class UserStringHeap : Heap<string>
   }
 
   protected override (string, CodeNode) ReadChild(int index) {
-    var entry = Bytes.ReadClass<Entry>(); 
+    var entry = Bytes.ReadClass<Entry>();
     return (entry.String.Str, entry);
   }
 
@@ -866,7 +865,7 @@ sealed class BlobHeap : Heap<object>
     }
   }
 
-  sealed class CustomEntry<T> : CodeNode, IEntry where T: CodeNode, new()
+  sealed class CustomEntry<T> : CodeNode, IEntry where T : CodeNode, new()
   {
     public EncodedLength Length;
     public T Value;
@@ -882,7 +881,8 @@ sealed class BlobHeap : Heap<object>
     }
   }
 
-  interface IEntry {
+  interface IEntry
+  {
     object IValue { get; }
   }
 
@@ -1159,6 +1159,41 @@ sealed class UnknownCodedIndex : CodeNode
   }
 }
 
+sealed class TableIndex<T> : CodeNode where T : CodeNode
+{
+  static Dictionary<Type, FieldInfo> fields = new Dictionary<Type, FieldInfo>();
+  static TableIndex() {
+    // A little ugliness here makes each use of TableIndex very readable.
+    foreach (var field in typeof(TildeStream).GetFields()) {
+      if (field.FieldType.IsArray) {
+        fields.Add(field.FieldType.GetElementType(), field);
+      }
+    }
+  }
+
+  public ushort Index;
+
+  // Can be null
+  public T Value {
+    get {
+      if (Index == 0) {
+        return null;
+      }
+
+      var fieldInfo = fields[typeof(T)];
+      var table = (T[])fieldInfo.GetValue(Bytes.TildeStream);
+      return table[Index - 1];
+    }
+  }
+
+  public override CodeNode Link => Value;
+  public override string NodeValue => Value?.NodeValue ?? "(null)";
+
+  protected override void InnerRead() {
+    Index = Bytes.Read<ushort>();
+  }
+}
+
 abstract class CodedIndex : CodeNode
 {
   CodedIndex() { } // Don't allow subclassing from other types
@@ -1167,6 +1202,7 @@ abstract class CodedIndex : CodeNode
 
   public int Index { get; private set; }
 
+  // Don't invoke GetLink() until after *all* TildeStream rows have been read.
   public override string NodeValue => (nullRow ?? GetLink()).NodeValue;
   public override CodeNode Link => nullRow ?? GetLink();
 
@@ -1183,7 +1219,7 @@ abstract class CodedIndex : CodeNode
 
   protected abstract CodeNode GetLink();
 
-  public class TypeDefOrRef : CodedIndex
+  public sealed class TypeDefOrRef : CodedIndex
   {
 
     Tag tag;
@@ -1210,7 +1246,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class HasConstant : CodedIndex
+  public sealed class HasConstant : CodedIndex
   {
     Tag tag;
 
@@ -1236,7 +1272,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class HasCustomAttribute : CodedIndex
+  public sealed class HasCustomAttribute : CodedIndex
   {
     Tag tag;
 
@@ -1300,7 +1336,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class HasFieldMarshall : CodedIndex
+  public sealed class HasFieldMarshall : CodedIndex
   {
     Tag tag;
 
@@ -1324,7 +1360,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class HasDeclSecurity : CodedIndex
+  public sealed class HasDeclSecurity : CodedIndex
   {
     Tag tag;
 
@@ -1350,7 +1386,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class MemberRefParent : CodedIndex
+  public sealed class MemberRefParent : CodedIndex
   {
     Tag tag;
 
@@ -1380,7 +1416,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class HasSemantics : CodedIndex
+  public sealed class HasSemantics : CodedIndex
   {
     Tag tag;
 
@@ -1404,7 +1440,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class MethodDefOrRef : CodedIndex
+  public sealed class MethodDefOrRef : CodedIndex
   {
     Tag tag;
 
@@ -1428,7 +1464,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class MemberForwarded : CodedIndex
+  public sealed class MemberForwarded : CodedIndex
   {
     Tag tag;
 
@@ -1452,7 +1488,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class Implementation : CodedIndex
+  public sealed class Implementation : CodedIndex
   {
     Tag tag;
 
@@ -1478,7 +1514,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class CustomAttributeType : CodedIndex
+  public sealed class CustomAttributeType : CodedIndex
   {
     Tag tag;
 
@@ -1502,7 +1538,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class ResolutionScope : CodedIndex
+  public sealed class ResolutionScope : CodedIndex
   {
     Tag tag;
 
@@ -1530,7 +1566,7 @@ abstract class CodedIndex : CodeNode
     }
   }
 
-  public class TypeOrMethodDef : CodedIndex
+  public sealed class TypeOrMethodDef : CodedIndex
   {
     Tag tag;
 
