@@ -240,7 +240,7 @@ sealed class TypeSig : CodeNode
         return;
       case ElementType.MVar:
         AddChild(nameof(VarNumber));
-        SetNodeValue($"!{VarNumber.Value}");
+        SetNodeValue($"!!{VarNumber.Value}");
         return;
       case ElementType.Ptr:
         var ptrVoidPeek = Bytes.Peek<ElementType>();
@@ -257,7 +257,7 @@ sealed class TypeSig : CodeNode
         return;
       case ElementType.Var:
         AddChild(nameof(VarNumber));
-        SetNodeValue($"!!{VarNumber.Value}");
+        SetNodeValue($"!{VarNumber.Value}");
         return;
       default:
         throw new InvalidOperationException(Type.GetString());
@@ -369,16 +369,32 @@ sealed class TypeSpecSig : CodeNode
           Errors.Add("TypeSpec GenArgCount should be non-zero");
         }
         break;
-      case ElementType.MVar:
-      case ElementType.Var:
-        throw new InvalidOperationException(TypeSig.Type.ToString());
-        //TODO(SpecViolation) i.e. Object, Int8, Class, ValueType aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
+      // case ElementType.Object:
+      // case ElementType.Int8:
+      // case ElementType.Class:
+      // case ElementType.MVar:
+      //TODO(SpecViolation) i.e. Object, Int8, Class, MVar, etc. aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
+      //   throw new InvalidOperationException(TypeSig.Type.ToString());
     }
   }
 }
 
 // II.23.2.15
-// sealed class MethodSpecSig : CodeNode { }
+sealed class MethodSpecSig : CodeNode {
+  [Expected(0x0A)]
+  public byte GenericInst;
+  [OrderedField]
+  public UnsignedCompressed GenArgCount;
+  [OrderedField]
+  public TypeSig[] Types;
+
+  public override string NodeValue => $"<{string.Join(", ", Types.Select(t => t.NodeValue))}>";
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Types) => (int)GenArgCount.Value,
+    _ => base.GetCount(field),
+  };
+}
 
 // II.23.2.16
 // MAYBE forced Short form signatures:

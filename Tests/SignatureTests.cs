@@ -93,13 +93,30 @@ namespace Tests
       Assert.AreEqual("int modopt (char) modreq (int) modreq (short) modopt (short)[]", actual);
     }
 
+    [TestMethod]
+    public void GenTypeSpec() {
+      Assert.AreEqual("!!0", GetTypeSpec("GenCast"));
+    }
+
+    [TestMethod]
+    public void MethodSpecs() {
+      var links = MethodLinks("MethodSpecs");
+      var actual = string.Join("|", links.Cast<MethodSpec>().Select(x => x.NodeValue));
+      Assert.AreEqual("Gen<int, string>()|Gen<string, class MethodSpecsTests>()", actual);
+    }
+
     static string GetTypeSpec(string methodName) {
+      var links = MethodLinks(methodName);
+      var spec = (TypeSpec)links.Single();
+      return spec.Signature.NodeValue;
+    }
+
+    static List<CodeNode> MethodLinks(string methodName) {
       var def = assm.TildeStream.MethodDefs.Where(m => m.Name.NodeValue == methodName).Single();
       var method = (Method)def.Children.Where(n => n.NodeName == "RVA").Single().Link;
       var links = new List<CodeNode>();
       method.CallBack(node => { if (node.Link != null) links.Add(node.Link); });
-      var spec = (TypeSpec)links.Single();
-      return spec.Signature.NodeValue;
+      return links;
     }
   }
 }

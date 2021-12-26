@@ -129,5 +129,23 @@ ret
   ret 
 }
 
+.method static void GenCast<T1>() {
+  ldnull 
+  castclass !!T1
+  pop
+  ret 
 }
 
+}
+
+.class MethodSpecsTests {
+.method static void MethodSpecs() {
+  call void class MethodSpecsTests::Gen<int32, string> ()
+  call void class MethodSpecsTests::Gen<string, class MethodSpecsTests> ()
+  ret
+}
+
+.method static void Gen<T1, T2>() {
+  ret 
+}
+}

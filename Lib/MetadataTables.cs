@@ -328,8 +328,9 @@ sealed class MethodSemantics : CodeNode
 // II.22.29
 sealed class MethodSpec : CodeNode
 {
+  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // MAYBE include the signature?
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
-  [OrderedField] public BlobHeapIndex Instantiation; //TODO(Sig) MethodSpec Sig
+  [OrderedField] public Signature<MethodSpecSig> Instantiation;
 }
 
 // II.22.30
