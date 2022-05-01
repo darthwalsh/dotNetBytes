@@ -830,7 +830,7 @@ sealed class FatFormat : CodeNode
   [Description("Size in bytes of the actual method body")]
   public uint CodeSize;
   [Description("Meta Data token for a signature describing the layout of the local variables for the method")]
-  public uint LocalVarSigTok;
+  public MetadataToken LocalVarSigTok; // MAYBE is "Meta Data token? defined somewhere
 }
 
 // II.25.4.5

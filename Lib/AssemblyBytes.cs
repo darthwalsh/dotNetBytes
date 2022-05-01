@@ -46,6 +46,7 @@ public class AssemblyBytes
 
   public T Read<T>() where T : struct => Stream.ReadStruct<T>();
   public T ReadClass<T>() where T : CodeNode, new() {
+    // MAYBE https://stackoverflow.com/questions/2974519/generic-constraints-where-t-struct-and-where-t-class
     var t = new T { Bytes = this };
     t.Read();
     return t;

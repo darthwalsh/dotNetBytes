@@ -90,18 +90,23 @@ sealed class SignedCompressed : CodeNode
   }
 }
 
-sealed class Signature<T> : CodeNode where T : CodeNode, new()
+sealed class Signature<T> : SizedSignature<short, T> where T : CodeNode, new()
 {
-  // Same shape as BlobHeapIndex but allws for custom types in the blob heap
-  public short Index;
+}
+
+abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : CodeNode, new()
+{
+  // Same shape as BlobHeapIndex but allow for custom types in the blob heap
+  public Ti Index;
 
   // TODO calling-convention byte for most signatures?
 
   protected override void InnerRead() {
-    Index = Bytes.Read<short>();
+    Index = Bytes.Read<Ti>();
+    var i = Index.GetInt32();
 
-    Bytes.BlobHeap.GetCustom<T>(Index);
-    Link = Bytes.BlobHeap.GetNode(Index).Children.Last();
+    Bytes.BlobHeap.GetCustom<Ts>(i);
+    Link = Bytes.BlobHeap.GetNode(i).Children.Last();
     NodeValue = Link.NodeValue;
   }
 }
@@ -116,8 +121,67 @@ sealed class Signature<T> : CodeNode where T : CodeNode, new()
 // sealed class FieldSig : CodeNode { }
 // II.23.2.5
 // sealed class PropertySig : CodeNode { }
+
 // II.23.2.6
-// sealed class LocalVarSig : CodeNode { }
+sealed class LocalVarSig : CodeNode
+{
+  [Expected(0x7)]
+  public byte LocalSig;
+  [OrderedField]
+  public UnsignedCompressed Count;
+  [OrderedField]
+  public LocalVar[] Types; // TODO  LocalVar seems right???
+
+  public override string NodeValue => string.Join(", ", Types.Select(t => t.NodeValue));
+
+  protected override int GetCount(string field) => field switch {
+    nameof(Types) => (int)Count.Value,
+    _ => base.GetCount(field),
+  };
+
+  public sealed class LocalVar : CodeNode
+  {
+    public CustomMods CustomMods;
+    public ElementType Constraint; // II.23.2.9
+    public ElementType ByRef;
+    public TypeSig Type;
+
+    string value;
+
+    public override string NodeValue {
+      get {
+        if (value != null) return value;
+        var parts = new[] {
+          CustomMods.NodeValue,
+          Constraint != default ? Constraint.S() : "",
+          ByRef != default ? ByRef.S() : "",
+          Type.NodeValue,
+        };
+        return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+      }
+    }
+
+    protected override void InnerRead() {
+      if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
+        var typedByRef = Bytes.Read<ElementType>();
+        value = typedByRef.S();
+      }
+
+      AddChild(nameof(CustomMods));
+      ResizeLastChild();
+
+      if (Bytes.Peek<ElementType>() == ElementType.Pinned) {
+        AddChild(nameof(Constraint));
+      }
+
+      if (Bytes.Peek<ElementType>() == ElementType.ByRef) {
+        AddChild(nameof(ByRef));
+      }
+      AddChild(nameof(Type));
+    }
+
+  }
+}
 
 // II.23.2.7
 sealed class CustomMod : CodeNode
@@ -172,7 +236,7 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
     Link = tag switch {
       0b00 => Bytes.TildeStream.TypeDefs[index],
       0b01 => Bytes.TildeStream.TypeRefs[index],
-      0b10 => Bytes.TildeStream.TypeSpecs[index],
+      0b10 => Bytes.TildeStream.TypeSpecs[index], // TODO crashes here while reading StandAloneSig table, because TypeSpec is not yet loaded. Maybe fix is to make reading all the StandAloneSig entries async? Given CustomMods reads CustomMod reads this and wants the Description, can't be async here!
       _ => throw new InvalidOperationException(),
     };
 
@@ -181,8 +245,6 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
   }
 }
 
-// II.23.2.9
-// sealed class Constraint : CodeNode { }
 // II.23.2.10
 // sealed class ParamSig : CodeNode { }
 // II.23.2.11
@@ -380,7 +442,8 @@ sealed class TypeSpecSig : CodeNode
 }
 
 // II.23.2.15
-sealed class MethodSpecSig : CodeNode {
+sealed class MethodSpecSig : CodeNode
+{
   [Expected(0x0A)]
   public byte GenericInst;
   [OrderedField]

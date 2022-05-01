@@ -390,7 +390,8 @@ sealed class PropertyMap : CodeNode
 // II.22.36
 sealed class StandAloneSig : CodeNode
 {
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) StandAloneSig
+  public override string NodeValue => Signature.NodeValue;
+  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) could be StandAloneMethodSig
 }
 
 // II.22.37

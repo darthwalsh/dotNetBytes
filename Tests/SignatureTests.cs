@@ -105,6 +105,15 @@ namespace Tests
       Assert.AreEqual("Gen<int, string>()|Gen<string, class MethodSpecsTests>()", actual);
     }
 
+    [TestMethod]
+    public void LocalVarSig() {
+      Assert.AreEqual("char, long", GetMethod("SimpleVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("string, object", GetMethod("ClassVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("Pinned char", GetMethod("PinnedVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("ByRef long", GetMethod("ByRefVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("long modopt (string)", GetMethod("ModOptVar").FatFormat.LocalVarSigTok.NodeValue);
+    }
+
     static string GetTypeSpec(string methodName) {
       var links = MethodLinks(methodName);
       var spec = (TypeSpec)links.Single();
@@ -112,11 +121,15 @@ namespace Tests
     }
 
     static List<CodeNode> MethodLinks(string methodName) {
-      var def = assm.TildeStream.MethodDefs.Where(m => m.Name.NodeValue == methodName).Single();
-      var method = (Method)def.Children.Where(n => n.NodeName == "RVA").Single().Link;
+      var method = GetMethod(methodName);
       var links = new List<CodeNode>();
       method.CallBack(node => { if (node.Link != null) links.Add(node.Link); });
       return links;
+    }
+
+    static Method GetMethod(string methodName) {
+      var def = assm.TildeStream.MethodDefs.Where(m => m.Name.NodeValue == methodName).Single();
+      return (Method)def.Children.Where(n => n.NodeName == "RVA").Single().Link;
     }
   }
 }

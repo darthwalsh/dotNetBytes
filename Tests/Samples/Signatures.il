@@ -149,3 +149,26 @@ ret
   ret 
 }
 }
+
+.class LocalVarSigTests {
+.method static void SimpleVar() {
+  .locals init (char c, int64 pos)
+  ret
+}
+.method static void ClassVar() {
+  .locals init (string s, object o)
+  ret
+}
+.method static void PinnedVar() {
+  .locals init (char pinned c)
+  ret
+}
+.method static void ByRefVar() {
+  .locals init (int64& p)
+  ret
+}
+.method static void ModOptVar() {
+  .locals init (int64 modopt (string) p)
+  ret
+}
+}

@@ -1159,29 +1159,36 @@ sealed class UnknownCodedIndex : CodeNode
   }
 }
 
-sealed class TableIndex<T> : CodeNode where T : CodeNode
+sealed class TableIndex<T> : SizedTableIndex<short, T> where T : CodeNode
 {
-  static Dictionary<Type, FieldInfo> fields = new Dictionary<Type, FieldInfo>();
-  static TableIndex() {
+
+}
+
+sealed class FatTableIndex<T> : SizedTableIndex<int, T> where T : CodeNode
+{
+
+}
+
+abstract class SizedTableIndex<Ti, Ts> : CodeNode where Ti : struct where Ts : CodeNode
+{
+  static FieldInfo fieldInfo; // unique to each generic class
+  static SizedTableIndex() {
     // A little ugliness here makes each use of TableIndex very readable.
-    foreach (var field in typeof(TildeStream).GetFields()) {
-      if (field.FieldType.IsArray) {
-        fields.Add(field.FieldType.GetElementType(), field);
-      }
-    }
+    fieldInfo = typeof(TildeStream).GetFields()
+      .Where(field => field.FieldType.IsArray && field.FieldType.GetElementType() == typeof(Ts))
+      .Single();      
   }
 
-  public ushort Index;
+  public int Index;
 
   // Can be null
-  public T Value {
+  public Ts Value {
     get {
       if (Index == 0) {
         return null;
       }
 
-      var fieldInfo = fields[typeof(T)];
-      var table = (T[])fieldInfo.GetValue(Bytes.TildeStream);
+      var table = (Ts[])fieldInfo.GetValue(Bytes.TildeStream);
       return table[Index - 1];
     }
   }
@@ -1190,7 +1197,7 @@ sealed class TableIndex<T> : CodeNode where T : CodeNode
   public override string NodeValue => Value?.NodeValue ?? "(null)";
 
   protected override void InnerRead() {
-    Index = Bytes.Read<ushort>();
+    Index = Bytes.Read<Ti>().GetInt32();
   }
 }
 
