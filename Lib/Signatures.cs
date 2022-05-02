@@ -99,15 +99,23 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
   // Same shape as BlobHeapIndex but allow for custom types in the blob heap
   public Ti Index;
 
+  Lazy<CodeNode> link;
+  public SizedSignature() {
+    link = new Lazy<CodeNode>(() => {
+      var i = Index.GetInt32();
+      Bytes.BlobHeap.GetCustom<Ts>(i);
+      return Bytes.BlobHeap.GetNode(i).Children.Last();
+    });
+  }
+
+  public override CodeNode Link => link.Value;
+  public override string NodeValue => Link.NodeValue;
+
   // TODO calling-convention byte for most signatures?
 
   protected override void InnerRead() {
     Index = Bytes.Read<Ti>();
-    var i = Index.GetInt32();
-
-    Bytes.BlobHeap.GetCustom<Ts>(i);
-    Link = Bytes.BlobHeap.GetNode(i).Children.Last();
-    NodeValue = Link.NodeValue;
+    // Actually read the sig from the blob heap later, AFTER all tilde metadata tables are read
   }
 }
 
@@ -130,7 +138,7 @@ sealed class LocalVarSig : CodeNode
   [OrderedField]
   public UnsignedCompressed Count;
   [OrderedField]
-  public LocalVar[] Types; // TODO  LocalVar seems right???
+  public LocalVar[] Types;
 
   public override string NodeValue => string.Join(", ", Types.Select(t => t.NodeValue));
 
@@ -165,6 +173,7 @@ sealed class LocalVarSig : CodeNode
       if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
         var typedByRef = Bytes.Read<ElementType>();
         value = typedByRef.S();
+        // TODO test -- should avoid reading anymore i think
       }
 
       AddChild(nameof(CustomMods));
@@ -178,8 +187,11 @@ sealed class LocalVarSig : CodeNode
         AddChild(nameof(ByRef));
       }
       AddChild(nameof(Type));
-    }
 
+      if (Children.Count == 1) {
+        Children = Type.Children;
+      }
+    }
   }
 }
 

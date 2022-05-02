@@ -346,7 +346,7 @@ namespace Tests
 
     static void AssertChildrenDontOverlap(CodeNode node) {
       foreach (var o in node.Children.Zip(node.Children.Skip(1), (last, next) => new { last, next })) {
-        Asserts.IsLessThanOrEqual(o.last.End, o.next.Start, node.SelfPath);
+        Asserts.IsLessThanOrEqual(o.last.End, o.next.Start, $"{o.last.SelfPath} overlaps {o.next.SelfPath}");
       }
     }
 

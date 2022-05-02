@@ -111,7 +111,7 @@ namespace Tests
       Assert.AreEqual("string, object", GetMethod("ClassVar").FatFormat.LocalVarSigTok.NodeValue);
       Assert.AreEqual("Pinned char", GetMethod("PinnedVar").FatFormat.LocalVarSigTok.NodeValue);
       Assert.AreEqual("ByRef long", GetMethod("ByRefVar").FatFormat.LocalVarSigTok.NodeValue);
-      Assert.AreEqual("long modopt (string)", GetMethod("ModOptVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("modopt (string) long", GetMethod("ModOptVar").FatFormat.LocalVarSigTok.NodeValue);
     }
 
     static string GetTypeSpec(string methodName) {

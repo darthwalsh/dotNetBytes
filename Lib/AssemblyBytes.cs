@@ -4,6 +4,9 @@ using System.IO;
 
 public class AssemblyBytes
 {
+  static void DoNothing(object o) {
+  }
+
   public AssemblyBytes(Stream s) {
     this.Stream = s;
 
@@ -15,6 +18,13 @@ public class AssemblyBytes
     catch (EndOfStreamException e) {
       FileFormat.Errors.Add(e.ToString());
     }
+
+    // Reading custom values from the blob heap is lazy, mutating the heap children.
+    // Touch all entries now so sorting sees them before JSON serialization.
+    FileFormat.CallBack(n => {
+      DoNothing(n.Description);
+      DoNothing(n.NodeValue);
+    });
 
     FileFormat.CallBack(n => {
       n.Children = n.Children.OrderBy(c => c.Start).ToList();

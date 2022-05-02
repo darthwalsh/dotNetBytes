@@ -824,12 +824,13 @@ sealed class BlobHeap : Heap<object>
       : base(size) {
   }
 
-  CodeNode customEntry; // this is gross
+  CodeNode customEntry; // hack so GetCustom() can pass type info into ReadChild()
   protected override (object, CodeNode) ReadChild(int index) {
     if (customEntry != null) {
-      customEntry.Read();
-      var ret = (((IEntry)customEntry).IValue, customEntry);
-      customEntry = null;
+      var custom = customEntry;
+      customEntry = null; // set null immediately so renentrant GetCustom calls don't see customEntry
+      custom.Read();
+      var ret = (((IEntry)custom).IValue, custom);
       return ret;
     }
     var entry = Bytes.ReadClass<BytesEntry>();
