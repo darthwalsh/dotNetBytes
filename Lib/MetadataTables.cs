@@ -287,7 +287,7 @@ sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodRefSig
+  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig OR MethodRefSig
 
   public override string NodeValue => Name.NodeValue;
 }
@@ -391,7 +391,7 @@ sealed class PropertyMap : CodeNode
 sealed class StandAloneSig : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;
-  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) could be StandAloneMethodSig
+  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) BUG could instead be StandAloneMethodSig
 }
 
 // II.22.37

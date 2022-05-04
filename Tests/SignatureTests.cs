@@ -109,9 +109,10 @@ namespace Tests
     public void LocalVarSig() {
       Assert.AreEqual("char, long", GetMethod("SimpleVar").FatFormat.LocalVarSigTok.NodeValue);
       Assert.AreEqual("string, object", GetMethod("ClassVar").FatFormat.LocalVarSigTok.NodeValue);
-      Assert.AreEqual("Pinned char", GetMethod("PinnedVar").FatFormat.LocalVarSigTok.NodeValue);
-      Assert.AreEqual("ByRef long", GetMethod("ByRefVar").FatFormat.LocalVarSigTok.NodeValue);
-      Assert.AreEqual("modopt (string) long", GetMethod("ModOptVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("char& pinned, string pinned", GetMethod("PinnedVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("long&", GetMethod("ByRefVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("long modopt (string)", GetMethod("ModOptVar").FatFormat.LocalVarSigTok.NodeValue);
+      Assert.AreEqual("typedref, IntPtr", GetMethod("TypeRefVar").FatFormat.LocalVarSigTok.NodeValue);
     }
 
     static string GetTypeSpec(string methodName) {

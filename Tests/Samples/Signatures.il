@@ -160,7 +160,7 @@ ret
   ret
 }
 .method static void PinnedVar() {
-  .locals init (char pinned c)
+  .locals init (char& pinned c, string pinned s)
   ret
 }
 .method static void ByRefVar() {
@@ -169,6 +169,10 @@ ret
 }
 .method static void ModOptVar() {
   .locals init (int64 modopt (string) p)
+  ret
+}
+.method static void TypeRefVar() {
+  .locals init (typedref tr, native int x)
   ret
 }
 }

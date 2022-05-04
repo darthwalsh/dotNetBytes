@@ -611,7 +611,7 @@ static class ElementTypeExtensions
     // ElementType.Internal => "",
     // ElementType.Modifier => "",
     // ElementType.Sentinel => "",
-    // ElementType.Pinned => "",
+    ElementType.Pinned => "pinned",
     // ElementType.Unknown1 => "",
     // ElementType.Unknown2 => "",
     // ElementType.Unknown3 => "",

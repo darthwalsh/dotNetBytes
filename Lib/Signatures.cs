@@ -160,12 +160,12 @@ sealed class LocalVarSig : CodeNode
       get {
         if (value != null) return value;
         var parts = new[] {
-          CustomMods.NodeValue,
-          Constraint != default ? Constraint.S() : "",
-          ByRef != default ? ByRef.S() : "",
           Type.NodeValue,
+          ByRef != default ? "&" : "",
+          Constraint != default ? Constraint.S() : "",
+          CustomMods.NodeValue,
         };
-        return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+        return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s))).Replace(" &", "&");
       }
     }
 
@@ -173,7 +173,7 @@ sealed class LocalVarSig : CodeNode
       if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
         var typedByRef = Bytes.Read<ElementType>();
         value = typedByRef.S();
-        // TODO test -- should avoid reading anymore i think
+        return;
       }
 
       AddChild(nameof(CustomMods));
@@ -248,7 +248,7 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
     Link = tag switch {
       0b00 => Bytes.TildeStream.TypeDefs[index],
       0b01 => Bytes.TildeStream.TypeRefs[index],
-      0b10 => Bytes.TildeStream.TypeSpecs[index], // TODO crashes here while reading StandAloneSig table, because TypeSpec is not yet loaded. Maybe fix is to make reading all the StandAloneSig entries async? Given CustomMods reads CustomMod reads this and wants the Description, can't be async here!
+      0b10 => Bytes.TildeStream.TypeSpecs[index],
       _ => throw new InvalidOperationException(),
     };
 
