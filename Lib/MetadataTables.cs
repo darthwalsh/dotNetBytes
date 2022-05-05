@@ -126,7 +126,7 @@ sealed class Constant : CodeNode
   [OrderedField] public ElementType Type;
   [OrderedField] public byte unused;
   [OrderedField] public CodedIndex.HasConstant Parent;
-  [OrderedField] public BlobHeapIndex Value;
+  [OrderedField] public BlobHeapIndex Value; // MAYBE parse value based on II.16.2
 }
 
 // II.22.10
@@ -181,7 +181,7 @@ sealed class Field : CodeNode
 {
   [OrderedField] public FieldAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig 
+  [OrderedField] public Signature<FieldSig> Signature;
 
   public override string NodeValue => Name.NodeValue;
 }

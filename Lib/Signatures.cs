@@ -99,17 +99,14 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
   // Same shape as BlobHeapIndex but allow for custom types in the blob heap
   public Ti Index;
 
-  Lazy<CodeNode> link;
+  Lazy<Ts> link;
   public SizedSignature() {
-    link = new Lazy<CodeNode>(() => {
-      var i = Index.GetInt32();
-      Bytes.BlobHeap.GetCustom<Ts>(i);
-      return Bytes.BlobHeap.GetNode(i).Children.Last();
-    });
+    link = new Lazy<Ts>(() => Bytes.BlobHeap.GetCustom<Ts>(Index.GetInt32()));
   }
 
-  public override CodeNode Link => link.Value;
-  public override string NodeValue => Link.NodeValue;
+  public Ts Value => link.Value;
+  public override CodeNode Link => Value;
+  public override string NodeValue => Value.NodeValue;
 
   // TODO calling-convention byte for most signatures?
 
@@ -125,8 +122,27 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
 // sealed class MethodRefSig : CodeNode { }
 // II.23.2.3
 // sealed class StandAloneMethodSig : CodeNode { }
+
 // II.23.2.4
-// sealed class FieldSig : CodeNode { }
+sealed class FieldSig : CodeNode
+{
+  [Expected(0x6)]
+  public byte FIELD;
+  public CustomMods CustomMods;
+  public TypeSig Type;
+
+  public override string NodeValue => $"{Type.NodeValue} {CustomMods.NodeValue}".Trim();
+
+  protected override void InnerRead() {
+    AddChild(nameof(FIELD));
+
+    AddChild(nameof(CustomMods));
+    ResizeLastChild();
+
+    AddChild(nameof(Type));
+  }
+}
+
 // II.23.2.5
 // sealed class PropertySig : CodeNode { }
 
@@ -443,12 +459,12 @@ sealed class TypeSpecSig : CodeNode
           Errors.Add("TypeSpec GenArgCount should be non-zero");
         }
         break;
-      // case ElementType.Object:
-      // case ElementType.Int8:
-      // case ElementType.Class:
-      // case ElementType.MVar:
-      //TODO(SpecViolation) i.e. Object, Int8, Class, MVar, etc. aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
-      //   throw new InvalidOperationException(TypeSig.Type.ToString());
+        // case ElementType.Object:
+        // case ElementType.Int8:
+        // case ElementType.Class:
+        // case ElementType.MVar:
+        //TODO(SpecViolation) i.e. Object, Int8, Class, MVar, etc. aren't allowed in TypeSpec, but assembling i.e. `modreq (object)` creates a TypeSpec for Object
+        //   throw new InvalidOperationException(TypeSig.Type.ToString());
     }
   }
 }

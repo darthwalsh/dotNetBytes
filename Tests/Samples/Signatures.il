@@ -138,6 +138,18 @@ ret
 
 }
 
+.class FieldSigTests {
+.field public static initonly int32 pointCount
+
+.field private int32 fld = int32(42)
+.field private int32 modopt (char) modreq (int32) customized
+
+.data classInt = int32(123) // MAYBE figure out where data 123 is stored in the DLL
+.field public static int32 classCount at classInt
+}
+.data globalInt = int32(123)
+.field public static int32 globalCount at globalInt
+
 .class MethodSpecsTests {
 .method static void MethodSpecs() {
   call void class MethodSpecsTests::Gen<int32, string> ()

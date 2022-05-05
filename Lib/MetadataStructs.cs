@@ -44,8 +44,9 @@ enum EventAttributes : ushort
 // II.23.1.5
 sealed class FieldAttributes : CodeNode
 {
-  AccessAttributes Access;
-  AdditionalFlags Flags;
+  // MAYBE add props for all the attrs below
+  public AccessAttributes Access { get; private set; }
+  public AdditionalFlags Flags { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<ushort>();
@@ -115,8 +116,8 @@ enum FileAttributes : uint
 // II.23.1.7
 sealed class GenericParamAttributes : CodeNode
 {
-  VarianceAttributes Variance;
-  SpecialConstraintAttributes SpecialConstraint;
+  public VarianceAttributes Variance { get; private set; }
+  public SpecialConstraintAttributes SpecialConstraint { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<ushort>();
@@ -154,9 +155,9 @@ sealed class GenericParamAttributes : CodeNode
 // II.23.1.8
 sealed class PInvokeAttributes : CodeNode
 {
-  CharacterSetAttributes CharacterSet;
-  CallingConventionAttributes CallingConvention;
-  AdditionalFlags Flags;
+  public CharacterSetAttributes CharacterSet { get; private set; }
+  public CallingConventionAttributes CallingConvention { get; private set; }
+  public AdditionalFlags Flags { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<ushort>();
@@ -220,9 +221,9 @@ enum ManifestResourceAttributes : uint
 // II.23.1.10
 sealed class MethodAttributes : CodeNode
 {
-  MemberAccessAttributes MemberAccess;
-  VtableLayoutAttributes VtableLayout;
-  AdditionalFlags Flags;
+  public MemberAccessAttributes MemberAccess { get; private set; }
+  public VtableLayoutAttributes VtableLayout { get; private set; }
+  public AdditionalFlags Flags { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<ushort>();
@@ -297,9 +298,9 @@ sealed class MethodAttributes : CodeNode
 // II.23.1.11
 sealed class MethodImplAttributes : CodeNode
 {
-  CodeTypeAttributes CodeType;
-  ManagedAttributes Managed;
-  AdditionalFlags Flags;
+  public CodeTypeAttributes CodeType { get; private set; }
+  public ManagedAttributes Managed { get; private set; }
+  public AdditionalFlags Flags { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<ushort>();
@@ -404,11 +405,11 @@ enum PropertyAttributes : ushort
 sealed class TypeAttributes : CodeNode
 {
   public uint Data;
-  VisibilityAttributes Visibility;
-  LayoutAttributes Layout;
-  ClassSemanticsAttributes ClassSemantics;
-  StringInteropFormatAttributes StringInteropFormat;
-  AdditionalFlags Flags;
+  public VisibilityAttributes Visibility { get; private set; }
+  public LayoutAttributes Layout { get; private set; }
+  public ClassSemanticsAttributes ClassSemantics { get; private set; }
+  public StringInteropFormatAttributes StringInteropFormat { get; private set; }
+  public AdditionalFlags Flags { get; private set; }
 
   protected override void InnerRead() {
     var data = Bytes.Read<uint>();
@@ -846,8 +847,13 @@ sealed class BlobHeap : Heap<object>
     if (customEntry != null) throw new InvalidOperationException();
     customEntry = new CustomEntry<T> { Bytes = Bytes };
     var o = AddChild(i);
+
     if (customEntry != null) {
-      throw new NotImplementedException("Custom read of data overlaps with another view");
+      if (o.t is T) {
+        customEntry = null; // Reading the same bytes as the same type again should be idempotent
+      } else {
+        throw new NotImplementedException("Custom read of data overlaps with another type");
+      }
     }
     return (T)o.t;
   }

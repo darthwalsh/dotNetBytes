@@ -99,6 +99,26 @@ namespace Tests
     }
 
     [TestMethod]
+    public void FieldSig() {
+      var fields = assm.TildeStream.Fields.ToDictionary(f => f.Name.NodeValue);
+      var fieldSigs = fields.ToDictionary(f => f.Key, f => f.Value.Signature.Value.NodeValue);
+
+      Assert.AreEqual("int", fieldSigs["pointCount"]);
+      Assert.AreEqual("int", fieldSigs["fld"]);
+      Assert.AreEqual("int modopt (char) modreq (int)", fieldSigs["customized"]);
+
+      var fldConst = assm.TildeStream.Constants.Where(c => c.Parent.NodeValue == "fld").Single();
+      Assert.AreEqual("{0x2A, 0x0, 0x0, 0x0}", fldConst.Value.NodeValue);
+
+      var rvas = assm.TildeStream.FieldRVAs.Select(r => r.Field.NodeValue).ToHashSet();
+      foreach (var name in "classCount globalCount".Split(' ')) {
+        var field = fields[name];
+        Assert.IsTrue(field.Flags.Flags.HasFlag(FieldAttributes.AdditionalFlags.HasFieldRVA));
+        Assert.IsTrue(rvas.Contains(name));
+      }
+    }
+
+    [TestMethod]
     public void MethodSpecs() {
       var links = MethodLinks("MethodSpecs");
       var actual = string.Join("|", links.Cast<MethodSpec>().Select(x => x.NodeValue));
