@@ -107,10 +107,10 @@ namespace Tests
       Assert.AreEqual("int", fieldSigs["fld"]);
       Assert.AreEqual("int modopt (char) modreq (int)", fieldSigs["customized"]);
 
-      var fldConst = assm.TildeStream.Constants.Where(c => c.Parent.NodeValue == "fld").Single();
+      var fldConst = assm.TildeStream.Constants.Where(c => c.Parent.NodeValue == "int fld").Single();
       Assert.AreEqual("{0x2A, 0x0, 0x0, 0x0}", fldConst.Value.NodeValue);
 
-      var rvas = assm.TildeStream.FieldRVAs.Select(r => r.Field.NodeValue).ToHashSet();
+      var rvas = assm.TildeStream.FieldRVAs.Select(r => r.Field.Value.Name.NodeValue).ToHashSet();
       foreach (var name in "classCount globalCount".Split(' ')) {
         var field = fields[name];
         Assert.IsTrue(field.Flags.Flags.HasFlag(FieldAttributes.AdditionalFlags.HasFieldRVA));

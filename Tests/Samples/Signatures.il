@@ -152,13 +152,55 @@ ret
 
 .class MethodSpecsTests {
 .method static void MethodSpecs() {
-  call void class MethodSpecsTests::Gen<int32, string> ()
-  call void class MethodSpecsTests::Gen<string, class MethodSpecsTests> ()
+  call void class MethodSpecsTests::Gen<int32, string> (char)
+  call void class MethodSpecsTests::Gen<string, class MethodSpecsTests> (char)
   ret
 }
 
-.method static void Gen<T1, T2>() {
+.method static void Gen<T1, T2>(char c) {
   ret 
+}
+}
+
+.class PropertySigTests {
+.method virtual hidebysig public specialname instance int32 get_Count() {
+  ldc.i4.0
+  ret
+}
+.method virtual hidebysig public specialname instance void set_Count(
+    int32 newCount) {
+  ret
+} 
+.method virtual hidebysig public instance void reset_Count() {
+  ret
+} 
+.property int32 Count() {
+  .get instance int32 PropertySigTests::get_Count()
+  .set instance void PropertySigTests::set_Count(int32)
+  .other instance void PropertySigTests::reset_Count()
+}
+
+.method private hidebysig specialname 
+        instance default int32 get_Item (int32 i, char b)  cil managed {
+  ldarg.1 
+  ret 
+}
+.property instance int32 Item (int32, char) {
+  .get instance default int32 PropertySigTests::get_Item (int32 i, char b) 
+}
+
+.method private hidebysig specialname 
+        instance default int32 get_Item (char& i)  cil managed {
+  ldc.i4.0 
+  ret 
+}
+.method private hidebysig specialname 
+        instance default void set_Item (char& i, int32 'value')  cil managed {
+  ret 
+}
+.property instance int32 Item (char&) {
+  .get instance default int32 PropertySigTests::get_Item (char& i) 
+  .set instance default void PropertySigTests::set_Item (char& i, int32 'value') 
 }
 }
 

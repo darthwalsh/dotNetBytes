@@ -183,7 +183,7 @@ sealed class Field : CodeNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public Signature<FieldSig> Signature;
 
-  public override string NodeValue => Name.NodeValue;
+  public override string NodeValue => $"{Signature.NodeValue} {Name.NodeValue}";
 }
 
 // II.22.16
@@ -328,7 +328,7 @@ sealed class MethodSemantics : CodeNode
 // II.22.29
 sealed class MethodSpec : CodeNode
 {
-  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // MAYBE include the signature?
+  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // TODO(sig) include the signature with i.e. MethodDefSig? Replace generic types with actual instantiated? nested?
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
   [OrderedField] public Signature<MethodSpecSig> Instantiation;
 }
@@ -375,9 +375,9 @@ sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Type; //TODO(Sig) PropertySig
+  [OrderedField] public Signature<PropertySig> Type;
 
-  public override string NodeValue => Name.NodeValue;
+  public override string NodeValue => $"{Type.NodeValue} {Name.NodeValue}";
 }
 
 // II.22.35

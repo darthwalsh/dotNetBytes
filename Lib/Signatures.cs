@@ -108,8 +108,6 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
   public override CodeNode Link => Value;
   public override string NodeValue => Value.NodeValue;
 
-  // TODO calling-convention byte for most signatures?
-
   protected override void InnerRead() {
     Index = Bytes.Read<Ti>();
     // Actually read the sig from the blob heap later, AFTER all tilde metadata tables are read
@@ -144,7 +142,42 @@ sealed class FieldSig : CodeNode
 }
 
 // II.23.2.5
-// sealed class PropertySig : CodeNode { }
+sealed class PropertySig : CodeNode
+{
+  const byte HASTHIS = 0x20;
+
+  [Description("0x28 if HASTHIS, 0x08 if static")]
+  public byte PropAndThis;
+  public UnsignedCompressed ParamCount;
+  public CustomMods CustomMods;
+  public TypeSig Type;
+  public ParamSig[] Param;
+
+  public override string NodeValue {
+    get {
+      var parts = new[] {
+          HasThis ? "" : "static",
+          Type.NodeValue,
+          Param.Any() ? $"({string.Join(", ", Param.Select(p => p.NodeValue))})" : "",
+          CustomMods.NodeValue,
+        };
+      return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+    }
+  }
+
+  public bool HasThis => (PropAndThis & HASTHIS) == HASTHIS;
+
+  protected override void InnerRead() {
+    AddChild(nameof(PropAndThis));
+    AddChild(nameof(ParamCount));
+
+    AddChild(nameof(CustomMods));
+    ResizeLastChild();
+
+    AddChild(nameof(Type));
+    AddChildren(nameof(Param), (int)ParamCount.Value);
+  }
+}
 
 // II.23.2.6
 sealed class LocalVarSig : CodeNode
@@ -274,7 +307,35 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
 }
 
 // II.23.2.10
-// sealed class ParamSig : CodeNode { }
+sealed class ParamSig : CodeNode
+{
+  public CustomMods CustomMods;
+  public ElementType ByRef;
+  public TypeSig Type;
+
+  protected override void InnerRead() {
+    AddChild(nameof(CustomMods));
+    ResizeLastChild();
+
+    if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
+      var typedByRef = Bytes.Read<ElementType>(); // MAYBE API like TryRead(TypedByRef, nameof(TypedByRef)) can replace Peek() and read a named child?
+      NodeValue = typedByRef.S();
+      return;
+    }
+
+    if (Bytes.Peek<ElementType>() == ElementType.ByRef) {
+      AddChild(nameof(ByRef));
+    }
+
+    AddChild(nameof(Type));
+    NodeValue = string.Join(" ", new[] {
+          Type.NodeValue,
+          ByRef != default ? "&" : "",
+          CustomMods.NodeValue,
+        }.Where(s => !string.IsNullOrEmpty(s))).Replace(" &", "&");
+  }
+}
+
 // II.23.2.11
 // sealed class RetType : CodeNode { }
 
