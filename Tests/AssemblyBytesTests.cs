@@ -265,13 +265,34 @@ namespace Tests
     static string CleanFileName(string fileName) => Path.GetInvalidFileNameChars().Concat(" :").Aggregate(fileName, (current, bad) => current.Replace(bad.ToString(), "_"));
 
     static string FormatJson(string json) {
-      dynamic parsedJson = JsonConvert.DeserializeObject(json);
+      var parsedJson = JsonConvert.DeserializeObject(json);
       return JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
     }
 
+    static Dictionary<string, object> Rewrite(CodeNode node) {
+      var dict = new Dictionary<string, object>();
+      // Skip name
+      if (node.Description != "") dict[nameof(node.Description)] = node.Description;
+      dict[nameof(node.NodeValue)] = node.NodeValue;
+      dict[nameof(node.Start)] = "0x" + node.Start.ToString("X");
+      dict[nameof(node.End)] = "0x" + node.End.ToString("X");
+      if (node.Link != null) dict["LinkPath"] = node.Link?.SelfPath;
+      if (node.Errors.Any()) dict[nameof(node.Errors)] = node.Errors;
+
+      foreach (var ch in node.Children) {
+        var name = ch.NodeName;
+        while (dict.ContainsKey(name)) {
+          name = "_" + name;
+        }
+        dict[name] = Rewrite(ch);
+      }
+      return dict;
+    }
+  
     public static void DumpJson(string path, AssemblyBytes assm) {
+      var json = JsonConvert.SerializeObject(Rewrite(assm.Node), Formatting.Indented);
       var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
-      File.WriteAllText(jsonPath, FormatJson(assm.Node.ToJson()));
+      File.WriteAllText(jsonPath, json);
       Console.Error.WriteLine($"jsonPath: {jsonPath}");
     }
 
