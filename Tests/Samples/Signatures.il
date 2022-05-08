@@ -144,7 +144,7 @@ ret
 .field private int32 fld = int32(42)
 .field private int32 modopt (char) modreq (int32) customized
 
-.data classInt = int32(123) // MAYBE figure out where data 123 is stored in the DLL
+.data classInt = int32(123) // MAYBE parse the .sdata section in DLL where 123 is hardcoded
 .field public static int32 classCount at classInt
 }
 .data globalInt = int32(123)

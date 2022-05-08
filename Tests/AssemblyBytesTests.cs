@@ -288,7 +288,7 @@ namespace Tests
       }
       return dict;
     }
-  
+
     public static void DumpJson(string path, AssemblyBytes assm) {
       var json = JsonConvert.SerializeObject(Rewrite(assm.Node), Formatting.Indented);
       var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
@@ -414,13 +414,19 @@ namespace Tests
 
     static void AssertInterestingBytesNotIgnored(CodeNode node, byte[] data) {
       if (!node.Children.Any()) {
-        //TODO(pedant) assert that every interesting byte has a documented Value
-        // foreach (var i in Enumerable.Range(node.Start, node.End - node.Start)) {
-        //   if (data[i] == 0 || node.NodeValue != "")
-        //     continue;
+        if (node.NodeValue != "") return;
 
-        //   Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was labeled \"\" in node {node.NodeName}");
-        // }
+        if (node.NodeName == nameof(Section.UserStringHeap))
+          return; //TODO(fixme) user strings are not parsed
+
+        if (node.NodeName.Contains("Sections["))
+          return; //TODO(link) parse .sdata and all other PE sections
+
+        foreach (var i in Enumerable.Range(node.Start, node.End - node.Start)) {
+          if (data[i] != 0) {
+            Assert.Fail($"Interesting byte 0x{data[i]:X} at 0x{i:X} was labeled \"\" in node {node.SelfPath}");
+          }
+        }
         return;
       }
 

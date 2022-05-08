@@ -367,7 +367,7 @@ sealed class Param : CodeNode
   [OrderedField] public ushort Sequence;
   [OrderedField] public StringHeapIndex Name;
 
-  public override string NodeValue => Name.NodeValue;
+  public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; //TODO(SpecViolation) mono violates 10)[] WARNING] by indexing to an empty string instead of null for COM return type
 }
 
 // II.22.34
