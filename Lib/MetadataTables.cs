@@ -197,7 +197,16 @@ sealed class FieldLayout : CodeNode
 sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-  [OrderedField] public BlobHeapIndex NativeType; //TODO(Sig) II.23.4 Marshalling descriptors
+  [OrderedField] public BlobHeapIndex NativeType; //MAYBE(Sig) worth implementing but II.23.4 is missing details details
+  /* II.23.4 Marshalling descriptors lists some native types, but at least mono created a 0x1E fixed array
+   see 
+   https://docs.microsoft.com/en-us/dotnet/framework/unmanaged-api/metadata/cornativetype-enumeration
+   for a full list. And dotnet core has full implementation for fixed array, safe array, etc.:
+   - https://github.com/dotnet/runtime/blob/6a9245f9a1a85773713ca8985a1bdd3d1c650aed/src/coreclr/ilasm/prebuilt/asmparse.cpp#L3995
+   - https://github.com/dotnet/runtime/blob/d4f06a9c524819dfd1345745a17b3cc6e060ba8b/src/coreclr/inc/formattype.cpp#L1234
+   - https://github.com/dotnet/runtime/blob/1043f003c2b6e404014845e42d25513cebe2b9d9/src/coreclr/tools/metainfo/mdinfo.cpp#L2270
+   - https://github.com/dotnet/runtime/blob/6a9245f9a1a85773713ca8985a1bdd3d1c650aed/src/coreclr/md/compiler/custattr_emit.cpp#L1569
+  */
 }
 
 // II.22.18
