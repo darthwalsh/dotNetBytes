@@ -169,8 +169,6 @@ enum MachineType : ushort
 // II.25.2.3
 sealed class PEOptionalHeader : CodeNode
 {
-  //TODO(Descriptions)
-
   public PEHeaderStandardFields PEHeaderStandardFields;
   [Description("RVA of the data section. (This is a hint to the loader.) Only present in PE32, not PE32+")]
   public int BaseOfData = -1;
@@ -402,23 +400,80 @@ sealed class SectionHeader : CodeNode
   };
 }
 
+// https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-image_section_header constants with IMAGE_SCN_
 [Flags]
 enum SectionHeaderCharacteristics : uint
 {
-  ShouldNotBePadded = 0x00000008,
-  ContainsCode = 0x00000020,
-  ContainsInitializedData = 0x00000040,
-  ContainsUninitializedData = 0x00000080,
-  LinkContainsComments = 0x00000200,
-  LinkShouldBeRemoved = 0x00000800,
-  Link_COMDAT = 0x00001000,
-  MemoryCanBeDiscarded = 0x02000000,
-  MemoryCannotBeCached = 0x04000000,
-  MemoryCannotBePaged = 0x08000000,
-  MemoryCanBeShared = 0x10000000,
-  MemoryCanBeExecutedAsCode = 0x20000000,
-  MemoryCanBeRead = 0x40000000,
-  MemoryCanBeWrittenTo = 0x80000000,
+  [Description("The section should not be padded to the next boundary. This flag is obsolete and is replaced by IMAGE_SCN_ALIGN_1BYTES.")]
+  TYPE_NO_PAD = 0x00000008,
+  [Description("The section contains executable code.")]
+  CNT_CODE = 0x00000020,
+  [Description("The section contains initialized data.")]
+  CNT_INITIALIZED_DATA = 0x00000040,
+  [Description("The section contains uninitialized data.")]
+  CNT_UNINITIALIZED_DATA = 0x00000080,
+  [Description("Reserved.")]
+  LNK_OTHER = 0x00000100,
+  [Description("The section contains comments or other information. This is valid only for object files.")]
+  LNK_INFO = 0x00000200,
+  [Description("The section will not become part of the image. This is valid only for object files.")]
+  LNK_REMOVE = 0x00000800,
+  [Description("The section contains COMDAT data. This is valid only for object files.")]
+  LNK_COMDAT = 0x00001000,
+  [Description("Reset speculative exceptions handling bits in the TLB entries for this section.")]
+  NO_DEFER_SPEC_EXC = 0x00004000,
+  [Description("The section contains data referenced through the global pointer.")]
+  GPREL = 0x00008000,
+  [Description("Reserved.")]
+  MEM_PURGEABLE = 0x00020000,
+  [Description("Reserved.")]
+  MEM_LOCKED = 0x00040000,
+  [Description("Reserved.")]
+  MEM_PRELOAD = 0x00080000,
+  [Description("Align data on a 1-byte boundary. This is valid only for object files.")]
+  ALIGN_1BYTES = 0x00100000,
+  [Description("Align data on a 2-byte boundary. This is valid only for object files.")]
+  ALIGN_2BYTES = 0x00200000,
+  [Description("Align data on a 4-byte boundary. This is valid only for object files.")]
+  ALIGN_4BYTES = 0x00300000,
+  [Description("Align data on a 8-byte boundary. This is valid only for object files.")]
+  ALIGN_8BYTES = 0x00400000,
+  [Description("Align data on a 16-byte boundary. This is valid only for object files.")]
+  ALIGN_16BYTES = 0x00500000,
+  [Description("Align data on a 32-byte boundary. This is valid only for object files.")]
+  ALIGN_32BYTES = 0x00600000,
+  [Description("Align data on a 64-byte boundary. This is valid only for object files.")]
+  ALIGN_64BYTES = 0x00700000,
+  [Description("Align data on a 128-byte boundary. This is valid only for object files.")]
+  ALIGN_128BYTES = 0x00800000,
+  [Description("Align data on a 256-byte boundary. This is valid only for object files.")]
+  ALIGN_256BYTES = 0x00900000,
+  [Description("Align data on a 512-byte boundary. This is valid only for object files.")]
+  ALIGN_512BYTES = 0x00A00000,
+  [Description("Align data on a 1024-byte boundary. This is valid only for object files.")]
+  ALIGN_1024BYTES = 0x00B00000,
+  [Description("Align data on a 2048-byte boundary. This is valid only for object files.")]
+  ALIGN_2048BYTES = 0x00C00000,
+  [Description("Align data on a 4096-byte boundary. This is valid only for object files.")]
+  ALIGN_4096BYTES = 0x00D00000,
+  [Description("Align data on a 8192-byte boundary. This is valid only for object files.")]
+  ALIGN_8192BYTES = 0x00E00000,
+  [Description("The section contains extended relocations. The count of relocations for the section exceeds the 16 bits that is reserved for it in the section header. If the NumberOfRelocations field in the section header is 0xffff, the actual relocation count is stored in the VirtualAddress field of the first relocation. It is an error if IMAGE_SCN_LNK_NRELOC_OVFL is set and there are fewer than 0xffff relocations in the section.")]
+  LNK_NRELOC_OVFL = 0x01000000,
+  [Description("The section can be discarded as needed.")]
+  MEM_DISCARDABLE = 0x02000000,
+  [Description("The section cannot be cached.")]
+  MEM_NOT_CACHED = 0x04000000,
+  [Description("The section cannot be paged.")]
+  MEM_NOT_PAGED = 0x08000000,
+  [Description("The section can be shared in memory.")]
+  MEM_SHARED = 0x10000000,
+  [Description("The section can be executed as code.")]
+  MEM_EXECUTE = 0x20000000,
+  [Description("The section can be read.")]
+  MEM_READ = 0x40000000,
+  [Description("The section can be written to.")]
+  MEM_WRITE = 0x80000000,
 }
 
 sealed class Section : CodeNode
@@ -703,10 +758,15 @@ sealed class CLIHeader : CodeNode
 [Flags]
 enum CliHeaderFlags : uint
 {
+  [Description("Shall be 1.")]
   ILOnly = 0x01,
+  [Description("Image can only be loaded into a 32-bit process, for instance if there are 32-bit vtablefixups, or casts from native integers to int32. CLI implementations that have 64-bit native integers shall refuse loading binaries with this flag set.")]
   Required32Bit = 0x02,
+  [Description("Image has a strong name signature.")]
   StrongNameSigned = 0x08,
+  [Description("Shall be 0.")]
   NativeEntryPoint = 0x10,
+  [Description("Should be 0 (§II.24.1).")]
   TrackDebugData = 0x10000,
 }
 

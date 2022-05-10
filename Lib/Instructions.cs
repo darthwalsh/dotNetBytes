@@ -37,15 +37,7 @@ sealed class InstructionStream : CodeNode
       ops.Add(op.Start, op);
     }
 
-    try
-    {
-         ValidateStack();
-    }
-    catch (NotImplementedException)
-    {
-        // TODO remove all the NotImplementedException
-    }
-
+    // TODO(fixme) call ValidateStack() here but fix all the NotImplementedException
     Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
   }
 

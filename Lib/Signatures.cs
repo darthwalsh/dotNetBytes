@@ -9,6 +9,54 @@ using System.Linq;
 // II.23.2 Blobs and signatures
 // MAYBE move this into Lib/MetadataStructs
 
+sealed class CallingConvention : CodeNode
+{
+  public LowerBits Kind { get; private set; }
+  public UpperBits Flags { get; private set; }
+
+  protected override void InnerRead() {
+    var data = Bytes.Read<byte>();
+    Kind = (LowerBits)(data & lowerMask);
+    Flags = (UpperBits)(data & flagsMask);
+  }
+
+  public override string NodeValue => (new Enum[] { Kind, Flags }).GetString();
+  public override string Description => string.Join("\n", Kind.Describe().Concat(Flags.Describe()));
+
+  const byte lowerMask = 0xF;
+  public enum LowerBits : byte
+  {
+    [Description("Normal .NET method call.")]
+    DEFAULT = 0x0,
+    [Description("Unmanaged standard C style call")]
+    C = 0x1,
+    [Description("Unmanaged standard C++ style call.")]
+    STDCALL = 0x2,
+    [Description("Unmanaged call expecting an implicit this pointer.")]
+    THISCALL = 0x3,
+    [Description("Unmanaged C style fastcall.")]
+    FASTCALL = 0x4,
+    [Description("Accepting a variable number of arguments.")]
+    VARARG = 0x5,
+
+    FIELD = 0x6,
+    LOCAL_SIG = 0x7,
+    PROPERTY = 0x8,
+  }
+
+  const byte flagsMask = 0xF0;
+  [Flags]
+  public enum UpperBits : byte
+  {
+    [Description("Instance member: this shall be passed.")]
+    GENERIC = 0x10,
+    [Description("Instance member: this shall be passed.")]
+    HASTHIS = 0x20,
+    [Description("First param specifies the type of this pointer.")]
+    EXPLICITTHIS = 0x40,
+  }
+}
+
 sealed class UnsignedCompressed : CodeNode
 {
   public uint Value { get; private set; }
@@ -144,10 +192,7 @@ sealed class FieldSig : CodeNode
 // II.23.2.5
 sealed class PropertySig : CodeNode
 {
-  const byte HASTHIS = 0x20;
-
-  [Description("0x28 if HASTHIS, 0x08 if static")]
-  public byte PropAndThis;
+  public CallingConvention Kind;
   public UnsignedCompressed ParamCount;
   public CustomMods CustomMods;
   public TypeSig Type;
@@ -156,7 +201,7 @@ sealed class PropertySig : CodeNode
   public override string NodeValue {
     get {
       var parts = new[] {
-          HasThis ? "" : "static",
+          Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
           Type.NodeValue,
           Param.Any() ? $"({string.Join(", ", Param.Select(p => p.NodeValue))})" : "",
           CustomMods.NodeValue,
@@ -165,10 +210,8 @@ sealed class PropertySig : CodeNode
     }
   }
 
-  public bool HasThis => (PropAndThis & HASTHIS) == HASTHIS;
-
   protected override void InnerRead() {
-    AddChild(nameof(PropAndThis));
+    AddChild(nameof(Kind));
     AddChild(nameof(ParamCount));
 
     AddChild(nameof(CustomMods));

@@ -1068,8 +1068,8 @@
             },
             {
               "Name": "Characteristics",
-              "Description": "Flags describing section’s characteristics.",
-              "Value": "0x60000020 ContainsCode, MemoryCanBeExecutedAsCode, MemoryCanBeRead",
+              "Description": "Flags describing section’s characteristics.\n0x00000020 CNT_CODE The section contains executable code.\n0x20000000 MEM_EXECUTE The section can be executed as code.\n0x40000000 MEM_READ The section can be read.",
+              "Value": "0x60000020 CNT_CODE, MEM_EXECUTE, MEM_READ",
               "Start": 412,
               "End": 416,
               "LinkPath": null,
@@ -1179,8 +1179,8 @@
             },
             {
               "Name": "Characteristics",
-              "Description": "Flags describing section’s characteristics.",
-              "Value": "0x42000040 ContainsInitializedData, MemoryCanBeDiscarded, MemoryCanBeRead",
+              "Description": "Flags describing section’s characteristics.\n0x00000040 CNT_INITIALIZED_DATA The section contains initialized data.\n0x02000000 MEM_DISCARDABLE The section can be discarded as needed.\n0x40000000 MEM_READ The section can be read.",
+              "Value": "0x42000040 CNT_INITIALIZED_DATA, MEM_DISCARDABLE, MEM_READ",
               "Start": 452,
               "End": 456,
               "LinkPath": null,
@@ -1303,7 +1303,7 @@
             },
             {
               "Name": "Flags",
-              "Description": "Flags describing this runtime image. (§II.25.3.3.1).",
+              "Description": "Flags describing this runtime image. (§II.25.3.3.1).\n0x00000001 ILOnly Shall be 1.",
               "Value": "0x00000001 ILOnly",
               "Start": 536,
               "End": 540,
@@ -2441,7 +2441,7 @@
               "Children": [
                 {
                   "Name": "Flags",
-                  "Description": "",
+                  "Description": "Class has no public scope\nClass fields are auto-laid out\nType is a class\nLPSTR is interpreted as ANSI",
                   "Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
                   "Start": 814,
                   "End": 818,
@@ -2512,7 +2512,7 @@
               "Children": [
                 {
                   "Name": "Flags",
-                  "Description": "",
+                  "Description": "Class has no public scope\nClass fields are auto-laid out\nType is a class\nLPSTR is interpreted as ANSI",
                   "Value": "{0x00000000 NotPublic, 0x00000000 AutoLayout, 0x00000000 Class, 0x00000000 AnsiClass, 0x00000000 0}",
                   "Start": 828,
                   "End": 832,
@@ -2593,7 +2593,7 @@
                 },
                 {
                   "Name": "ImplFlags",
-                  "Description": "",
+                  "Description": "Method impl is CIL\nMethod impl is managed",
                   "Value": "{0x0000 IL, 0x0000 Managed, 0x0000 0}",
                   "Start": 846,
                   "End": 848,
@@ -2603,7 +2603,7 @@
                 },
                 {
                   "Name": "Flags",
-                  "Description": "",
+                  "Description": "Member not referenceable\nMethod reuses existing slot in vtable\n0x0010 Static Defined on type, else per instance",
                   "Value": "{0x0000 CompilerControlled, 0x0000 ReuseSlot, 0x0010 Static}",
                   "Start": 848,
                   "End": 850,

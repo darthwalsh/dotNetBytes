@@ -54,7 +54,9 @@ sealed class FieldAttributes : CodeNode
     Flags = (AdditionalFlags)(data & flagsMask);
   }
 
-  public override string NodeValue => (new Enum[] { Access, Flags }).GetString(); //TODO(Descriptions) Enum[] text doesn't show up in GUI
+  public override string NodeValue => (new Enum[] { Access, Flags }).GetString();
+  public override string Description => string.Join("\n", Access.Describe().Concat(Flags.Describe()));
+
 
   const ushort accessMask = 0x0007;
 
@@ -126,6 +128,8 @@ sealed class GenericParamAttributes : CodeNode
   }
 
   public override string NodeValue => (new Enum[] { Variance, SpecialConstraint }).GetString();
+  public override string Description => string.Join("\n", Variance.Describe().Concat(SpecialConstraint.Describe()));
+
 
   const ushort varianceMask = 0x0003;
 
@@ -167,6 +171,9 @@ sealed class PInvokeAttributes : CodeNode
   }
 
   public override string NodeValue => (new Enum[] { CharacterSet, CallingConvention, Flags }).GetString();
+  public override string Description => string.Join("\n", CharacterSet.Describe()
+    .Concat(CallingConvention.Describe())
+    .Concat(Flags.Describe()));
 
   const ushort characterSetMask = 0x0007;
 
@@ -233,6 +240,10 @@ sealed class MethodAttributes : CodeNode
   }
 
   public override string NodeValue => (new Enum[] { MemberAccess, VtableLayout, Flags }).GetString();
+
+  public override string Description => string.Join("\n", MemberAccess.Describe()
+    .Concat(VtableLayout.Describe())
+    .Concat(Flags.Describe()));
 
   const ushort memberAccessMask = 0x0007;
 
@@ -310,6 +321,9 @@ sealed class MethodImplAttributes : CodeNode
   }
 
   public override string NodeValue => (new Enum[] { CodeType, Managed, Flags }).GetString();
+  public override string Description => string.Join("\n", CodeType.Describe()
+    .Concat(Managed.Describe())
+    .Concat(Flags.Describe()));
 
   const ushort codeTypeMask = 0x0003;
 
@@ -422,6 +436,12 @@ sealed class TypeAttributes : CodeNode
 
   public override string NodeValue => (new Enum[] { Visibility, Layout, ClassSemantics, StringInteropFormat, Flags }).GetString();
 
+  public override string Description => string.Join("\n", Visibility.Describe()
+    .Concat(Layout.Describe())
+    .Concat(ClassSemantics.Describe())
+    .Concat(StringInteropFormat.Describe())
+    .Concat(Flags.Describe()));
+
   const uint visibilityMask = 0x00000007;
 
   public enum VisibilityAttributes : uint
@@ -510,19 +530,33 @@ enum ElementType : byte
 {
   [Description("Marks end of a list")]
   End = 0x00,
+  [Description("void")]
   Void = 0x01,
+  [Description("bool")]
   Boolean = 0x02,
+  [Description("char")]
   Char = 0x03,
+  [Description("sbyte")]
   Int1 = 0x04,
+  [Description("byte")]
   UInt1 = 0x05,
+  [Description("short")]
   Int2 = 0x06,
+  [Description("ushort")]
   UInt2 = 0x07,
+  [Description("int")]
   Int4 = 0x08,
+  [Description("uint")]
   UInt4 = 0x09,
+  [Description("long")]
   Int8 = 0x0a,
+  [Description("ulong")]
   UInt8 = 0x0b,
+  [Description("float")]
   Real4 = 0x0c,
+  [Description("double")]
   Real8 = 0x0d,
+  [Description("string")]
   String = 0x0e,
   [Description("Followed by type")]
   Ptr = 0x0f,
@@ -1183,7 +1217,7 @@ abstract class SizedTableIndex<Ti, Ts> : CodeNode where Ti : struct where Ts : C
     // A little ugliness here makes each use of TableIndex very readable.
     fieldInfo = typeof(TildeStream).GetFields()
       .Where(field => field.FieldType.IsArray && field.FieldType.GetElementType() == typeof(Ts))
-      .Single();      
+      .Single();
   }
 
   public int Index;

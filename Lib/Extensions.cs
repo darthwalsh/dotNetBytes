@@ -115,8 +115,7 @@ static class TypeExtensions
     });
   }
 
-  static Dictionary<char, string> escapes = new Dictionary<char, string>
-  {
+  static Dictionary<char, string> escapes = new Dictionary<char, string> {
     ['\0'] = @"\0",
     ['\t'] = @"\t",
     ['\r'] = @"\r",
@@ -165,6 +164,44 @@ static class TypeExtensions
     }
 
     return o.ToString();
+  }
+
+  public static IEnumerable<string> Describe<T>(this T value) where T : Enum {
+    var flags = typeof(T).IsDefined(typeof(FlagsAttribute));
+    var values = typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static)
+      .Select(fi => new { fi, t = (T)fi.GetRawConstantValue() });
+    if (flags) {
+      foreach (var o in values) {
+        if (value.HasFlag(o.t)) {
+          if (o.fi.TryGetAttribute(out DescriptionAttribute desc)) {
+            yield return $"{o.t.GetString()} {desc.Description}";
+          } else {
+            if (typeof(T) != typeof(MetadataTableFlags)) {
+              throw new NotImplementedException($"OOPS {typeof(T)} {o.t.GetString()} Missing [Description] text!");
+            }
+          }
+        }
+      }
+      yield break;
+    }
+
+    var fi = values.SingleOrDefault(o => value.Equals(o.t));
+    if (fi == default) {
+      // TODO(pedant) should there be an Error when enum value doesn't exist?
+    } else if (fi.fi.TryGetAttribute(out DescriptionAttribute desc)) {
+      yield return desc.Description;
+    }
+    // No problem if the enum value doesn't have a description
+  }
+
+  public static bool TryGetAttribute<T>(this MemberInfo member, out T attr) where T : Attribute {
+    var attrs = member.GetCustomAttributes(typeof(T), false);
+    if (!attrs.Any()) {
+      attr = null;
+      return false;
+    }
+    attr = (T)attrs.Single();
+    return true;
   }
 
   public static bool SmartEquals(object expected, object actual) {

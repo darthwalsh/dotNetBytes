@@ -69,9 +69,9 @@ public abstract class CodeNode
 
     if (orderedFields.Count > 1) {
       orderedFields = orderedFields.OrderBy(field => {
-        if (TryGetAttribute(field, out OrderedFieldAttribute o)) return o.Order;
-        if (TryGetAttribute(field, out ExpectedAttribute e)) return e.Line;
-        if (TryGetAttribute(field, out DescriptionAttribute d)) return d.Line;
+        if (field.TryGetAttribute(out OrderedFieldAttribute o)) return o.Order;
+        if (field.TryGetAttribute(out ExpectedAttribute e)) return e.Line;
+        if (field.TryGetAttribute(out DescriptionAttribute d)) return d.Line;
         throw new InvalidOperationException($"{this.GetType().FullName}.{field.Name} is missing [OrderedField]");
       }).ToList();
     }
@@ -94,8 +94,8 @@ public abstract class CodeNode
     var child = ReadField(fieldName);
     Children.Add(child);
     child.NodeName = fieldName;
-    if (TryGetAttribute(field, out DescriptionAttribute desc)) {
-      child.Description = desc.Description;
+    if (field.TryGetAttribute(out DescriptionAttribute desc)) {
+      child.Description = (desc.Description + "\n" + child.Description).Trim();
     }
     CheckExpected(field);
   }
@@ -138,7 +138,7 @@ public abstract class CodeNode
       var elementType = fieldType.GetElementType();
       if (elementType.IsValueType) {
         int len;
-        if (TryGetAttribute<ExpectedAttribute>(field, out var e)) {
+        if (field.TryGetAttribute(out ExpectedAttribute e)) {
           if (e.Value is string s) {
             len = s.Length;
           } else {
@@ -148,12 +148,12 @@ public abstract class CodeNode
           len = GetCount(fieldName);
         }
 
-        var sn = typeof(StructArrayNode<>).MakeGenericType(elementType);
-        var o = (CodeNode)Activator.CreateInstance(sn, len);
+        var san = typeof(StructArrayNode<>).MakeGenericType(elementType);
+        var o = (CodeNode)Activator.CreateInstance(san, len);
         o.Bytes = Bytes;
         o.Read();
 
-        var value = sn.GetField("arr").GetValue(o);
+        var value = san.GetField("arr").GetValue(o);
         field.SetValue(this, value);
         o.NodeValue = value.GetString();
         return o;
@@ -168,9 +168,16 @@ public abstract class CodeNode
       field.SetValue(this, o);
       return o;
     }
-    if (fieldType.IsValueType) {
-      var sn = typeof(StructNode<>).MakeGenericType(fieldType);
-      var o = (CodeNode)Activator.CreateInstance(sn);
+    Type sn;
+    if (fieldType.IsEnum) {
+      sn = typeof(EnumNode<>).MakeGenericType(fieldType); ;
+    } else if (fieldType.IsValueType) {
+      sn = typeof(StructNode<>).MakeGenericType(fieldType);
+    } else {
+      throw new InvalidOperationException(fieldType.Name);
+    }
+    {
+      CodeNode o = (CodeNode)Activator.CreateInstance(sn);
       o.Bytes = Bytes;
       o.Read();
       var value = sn.GetField("t").GetValue(o);
@@ -178,29 +185,18 @@ public abstract class CodeNode
       o.NodeValue = value.GetString();
       return o;
     }
-    throw new InvalidOperationException(fieldType.Name);
   }
 
   protected virtual int GetCount(string field) =>
     throw new InvalidOperationException($"{GetType().Name} .{field}");
 
   void CheckExpected(FieldInfo field) {
-    if (TryGetAttribute(field, out ExpectedAttribute expected)) {
+    if (field.TryGetAttribute(out ExpectedAttribute expected)) {
       var actual = field.GetValue(this);
       if (!TypeExtensions.SmartEquals(expected.Value, actual)) {
         Errors.Add($"Expected {field.Name} to be {expected.Value.GetString()} but instead found {actual.GetString()} at address 0x{Start:X}");
       }
     }
-  }
-
-  static bool TryGetAttribute<T>(MemberInfo member, out T attr) where T : Attribute {
-    var attrs = member.GetCustomAttributes(typeof(T), false);
-    if (!attrs.Any()) {
-      attr = null;
-      return false;
-    }
-    attr = (T)attrs.Single();
-    return true;
   }
 
   public string ToJson(JsonSerializerOptions options = null) {
@@ -265,4 +261,17 @@ public sealed class StructNode<T> : CodeNode where T : struct
     t = Bytes.Read<T>();
     NodeValue = t.GetString();
   }
+}
+
+public sealed class EnumNode<T> : CodeNode where T : struct, Enum
+{
+  public T t;
+
+  protected override void InnerRead() {
+    t = Bytes.Read<T>();
+    NodeValue = t.GetString();
+
+    Description = string.Join('\n', t.Describe());
+  }
+  // TODO(fixme) think about this pattern: DON'T override Description because CodeNode expects to use the setter if the enum fieldinfo also has a description
 }
