@@ -100,6 +100,14 @@ public abstract class CodeNode
     CheckExpected(field);
   }
 
+  protected bool TryAddChild<T>(string fieldName, T expected) where T : struct {
+    if (expected.Equals(Bytes.Peek<T>())) {
+      AddChild(fieldName);
+      return true;
+    }
+    return false;
+  }
+
   protected void ResizeLastChild() {
     var child = Children.Last();
     if (child.End == child.Start) {

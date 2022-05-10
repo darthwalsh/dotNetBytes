@@ -262,22 +262,18 @@ sealed class LocalVarSig : CodeNode
     }
 
     protected override void InnerRead() {
+      TryAddChild(nameof(Constraint), ElementType.Pinned);
+
       if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
-        var typedByRef = Bytes.Read<ElementType>();
-        value = typedByRef.S();
+        value = Bytes.Read<ElementType>().S();
         return;
       }
 
       AddChild(nameof(CustomMods));
       ResizeLastChild();
 
-      if (Bytes.Peek<ElementType>() == ElementType.Pinned) {
-        AddChild(nameof(Constraint));
-      }
-
-      if (Bytes.Peek<ElementType>() == ElementType.ByRef) {
-        AddChild(nameof(ByRef));
-      }
+      TryAddChild(nameof(Constraint), ElementType.Pinned);
+      TryAddChild(nameof(ByRef), ElementType.ByRef);
       AddChild(nameof(Type));
 
       if (Children.Count == 1) {
@@ -361,15 +357,11 @@ sealed class ParamSig : CodeNode
     ResizeLastChild();
 
     if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
-      var typedByRef = Bytes.Read<ElementType>(); // MAYBE API like TryRead(TypedByRef, nameof(TypedByRef)) can replace Peek() and read a named child?
-      NodeValue = typedByRef.S();
+      NodeValue = Bytes.Read<ElementType>().S();
       return;
     }
 
-    if (Bytes.Peek<ElementType>() == ElementType.ByRef) {
-      AddChild(nameof(ByRef));
-    }
-
+    TryAddChild(nameof(ByRef), ElementType.ByRef);
     AddChild(nameof(Type));
     NodeValue = string.Join(" ", new[] {
           Type.NodeValue,
@@ -437,9 +429,7 @@ sealed class TypeSig : CodeNode
         SetNodeValue($"!!{VarNumber.Value}");
         return;
       case ElementType.Ptr:
-        var ptrVoidPeek = Bytes.Peek<ElementType>();
-        if (ptrVoidPeek == ElementType.Void) {
-          AddChild(nameof(PtrVoid));
+        if (TryAddChild(nameof(PtrVoid), ElementType.Void)) {
           SetNodeValue("void*");
         } else {
           AddChild(nameof(PtrType));
