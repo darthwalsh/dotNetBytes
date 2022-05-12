@@ -401,6 +401,7 @@ namespace Tests
           nameof(TildeStream.ModuleRefs),
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
+          nameof(MethodDefSig.RetType),
           nameof(PropertySig.Param),
           nameof(TypeSig.ArrayElementType),
           nameof(TypeSig.GenArgTypes),

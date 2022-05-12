@@ -163,7 +163,38 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
 }
 
 // II.23.2.1
-// sealed class MethodDefSig : CodeNode { }
+sealed class MethodDefSig : CodeNode
+{
+  public CallingConvention Kind;
+  public UnsignedCompressed GenParamCount;
+  public UnsignedCompressed ParamCount;
+  public RetType RetType;
+  public ParamSig[] Param;
+
+  public override string NodeValue {
+    get {
+      var parts = new[] {
+          Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
+          GenParamCount?.Value > 0 ? "<GenericTODO>" : "",
+          RetType.NodeValue,
+          $"({string.Join(", ", Param.Select(p => p.NodeValue))})",
+        };
+      return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+    }
+  }
+
+  protected override void InnerRead() {
+    AddChild(nameof(Kind));
+    if (Kind.Flags.HasFlag(CallingConvention.UpperBits.GENERIC)) {
+      AddChild(nameof(GenParamCount));
+    }
+
+    AddChild(nameof(ParamCount));
+    AddChild(nameof(RetType));
+    AddChildren(nameof(Param), (int)ParamCount.Value);
+  }
+}
+
 // II.23.2.2
 // sealed class MethodRefSig : CodeNode { }
 // II.23.2.3
@@ -356,23 +387,51 @@ sealed class ParamSig : CodeNode
     AddChild(nameof(CustomMods));
     ResizeLastChild();
 
+    string val;
     if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
-      NodeValue = Bytes.Read<ElementType>().S();
-      return;
+      val = Bytes.Read<ElementType>().S();
+    } else {
+      TryAddChild(nameof(ByRef), ElementType.ByRef);
+      AddChild(nameof(Type));
+      val = Type.NodeValue + (ByRef != default ? "&" : "");
     }
 
-    TryAddChild(nameof(ByRef), ElementType.ByRef);
-    AddChild(nameof(Type));
     NodeValue = string.Join(" ", new[] {
-          Type.NodeValue,
-          ByRef != default ? "&" : "",
-          CustomMods.NodeValue,
-        }.Where(s => !string.IsNullOrEmpty(s))).Replace(" &", "&");
+        val,
+        CustomMods.NodeValue,
+      }.Where(s => !string.IsNullOrEmpty(s)));
   }
 }
 
 // II.23.2.11
-// sealed class RetType : CodeNode { }
+sealed class RetType : CodeNode
+{
+  public CustomMods CustomMods;
+  public ElementType ByRef;
+  public TypeSig Type;
+  public ElementType Void;
+
+  protected override void InnerRead() {
+    AddChild(nameof(CustomMods));
+    ResizeLastChild();
+
+    string val;
+    if (Bytes.Peek<ElementType>() == ElementType.TypedByRef) {
+      val = Bytes.Read<ElementType>().S();
+    } else if (TryAddChild(nameof(Void), ElementType.Void)) {
+      val = "void";
+    } else {
+      TryAddChild(nameof(ByRef), ElementType.ByRef);
+      AddChild(nameof(Type));
+      val = Type.NodeValue + (ByRef != default ? "&" : "");
+    }
+
+    NodeValue = string.Join(" ", new[] {
+        val,
+        CustomMods.NodeValue,
+      }.Where(s => !string.IsNullOrEmpty(s)));
+  }
+}
 
 // II.23.2.12
 sealed class TypeSig : CodeNode

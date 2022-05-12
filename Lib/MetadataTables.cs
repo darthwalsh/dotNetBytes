@@ -298,6 +298,7 @@ sealed class MemberRef : CodeNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig OR MethodRefSig
   // FieldSig starts with FIELD 0x06 while MethodRefSig so could peek for this byte
+  // TODO??? The same heap bytes can be used for MethodRefSig and MethodDefSig, so maybe munge the two types together for reading
 
   public override string NodeValue => Name.NodeValue;
 }
@@ -310,6 +311,7 @@ sealed class MethodDef : CodeNode
   [OrderedField] public MethodAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodDefSig
+  // [OrderedField] public Signature<MethodDefSig> Signature;
   [OrderedField] public UnknownCodedIndex ParamList; // contiguous run of Params; continues to last row or the next ParamList
 
   public override string NodeValue => Name.NodeValue;
@@ -338,7 +340,7 @@ sealed class MethodSemantics : CodeNode
 // II.22.29
 sealed class MethodSpec : CodeNode
 {
-  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // TODO(sig) include the signature with i.e. MethodDefSig? Replace generic types with actual instantiated? nested?
+  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // TODO(sig) include the signature HERE i.e. MethodDefSig? Replace generic types with actual instantiated? nested?
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
   [OrderedField] public Signature<MethodSpecSig> Instantiation;
 }
@@ -401,7 +403,7 @@ sealed class PropertyMap : CodeNode
 sealed class StandAloneSig : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;
-  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) BUG could instead be StandAloneMethodSig
+  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) NotImplemented-- could instead be StandAloneMethodSig
   // LocalVarSig starts with LocalSig 0x07 while StandAloneMethodSig doesn't so could peek for this byte
 }
 
