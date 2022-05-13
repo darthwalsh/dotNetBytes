@@ -23,7 +23,7 @@ sealed class CallingConvention : CodeNode
   public override string NodeValue => (new Enum[] { Kind, Flags }).GetString();
   public override string Description => string.Join("\n", Kind.Describe().Concat(Flags.Describe()));
 
-  const byte lowerMask = 0xF;
+  public const byte lowerMask = 0xF;
   public enum LowerBits : byte
   {
     [Description("Normal .NET method call.")]
@@ -138,6 +138,7 @@ sealed class SignedCompressed : CodeNode
   }
 }
 
+//TODO(Index4Bytes) This and EitherSignature assume that blob heap index is 2-bytes wide
 sealed class Signature<T> : SizedSignature<short, T> where T : CodeNode, new()
 {
 }
@@ -162,25 +163,96 @@ abstract class SizedSignature<Ti, Ts> : CodeNode where Ti : struct where Ts : Co
   }
 }
 
-// II.23.2.1
-sealed class MethodDefSig : CodeNode
+interface INamedValue
+{
+  string NamedValue(string name);
+}
+
+sealed class EitherSignature : CodeNode
+{
+  // This exists to solve a tricky problem: the two Tables that use EitherSignature can contain either some method sig, or a different sig. So peek at the first byte of the sig to figure out the kind, then use the appropriate type to read it.
+
+  public short Index;
+
+  Lazy<CodeNode> link;
+  string methodSigName;
+  CallingConvention.LowerBits allowedKind;
+  public EitherSignature(string methodSigName, CallingConvention.LowerBits kind) {
+    link = new Lazy<CodeNode>(ReadLink);
+    this.methodSigName = methodSigName;
+    this.allowedKind = kind;
+  }
+
+  public override CodeNode Link => link.Value;
+  public override string NodeValue => Link.NodeValue;
+  public string NamedValue(string name) => ((INamedValue)Link).NamedValue(name);
+
+  public FieldSig FieldSig { get; private set; }
+  public LocalVarSig LocalVarSig { get; private set; }
+  public PropertySig PropertySig { get; private set; }
+  public MethodDefRefSig MethodDefRefSig { get; private set; }
+
+  void CheckKind(CallingConvention.LowerBits actual) {
+    if (allowedKind != actual) {
+      Errors.Add($"Expected {methodSigName} or {allowedKind} but found {actual}");
+    }
+  }
+
+  public CodeNode ReadLink() {
+    var b = Bytes.BlobHeap.GetByte(Index);
+    var kind = (CallingConvention.LowerBits)(CallingConvention.lowerMask & b);
+
+    switch (kind) {
+      case CallingConvention.LowerBits.FIELD:
+        CheckKind(kind);
+        return FieldSig = Bytes.BlobHeap.GetCustom<FieldSig>(Index);
+      case CallingConvention.LowerBits.LOCAL_SIG:
+        CheckKind(kind);
+        return LocalVarSig = Bytes.BlobHeap.GetCustom<LocalVarSig>(Index);
+      case CallingConvention.LowerBits.PROPERTY:
+        CheckKind(kind);
+        return PropertySig = Bytes.BlobHeap.GetCustom<PropertySig>(Index);
+      default:
+        var sig = Bytes.BlobHeap.GetCustom<MethodDefRefSig>(Index);
+        sig.NodeName = methodSigName;
+        return MethodDefRefSig = sig;
+    }
+  }
+
+  protected override void InnerRead() {
+    Index = Bytes.Read<short>();
+    // Actually read the sig from the blob heap later, AFTER all tilde metadata tables are read
+  }
+}
+
+// II.23.2.1 MethodDefSig
+// II.23.2.2 MethodRefSig
+// II.23.2.3 StandAloneMethodSig
+// The same heap bytes can be used for MethodRefSig and MethodDefSig, so munge the types together so two different types don't exist at the same location.
+sealed class MethodDefRefSig : CodeNode, INamedValue
 {
   public CallingConvention Kind;
   public UnsignedCompressed GenParamCount;
   public UnsignedCompressed ParamCount;
   public RetType RetType;
-  public ParamSig[] Param;
+  public ParamSig[] Params;
+  public ElementType VarArgSentinel;
+  public ParamSig[] VarArgParams;
 
-  public override string NodeValue {
-    get {
-      var parts = new[] {
-          Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
-          GenParamCount?.Value > 0 ? "<GenericTODO>" : "",
-          RetType.NodeValue,
-          $"({string.Join(", ", Param.Select(p => p.NodeValue))})",
-        };
-      return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+  public override string NodeValue => NamedValue("");
+
+  public string NamedValue(string name) {
+    var genVal = GenParamCount?.Value > 0 ? "<>" : ""; //TODO(link) pull in Name, in/out, struct/new(), constraints from GenericParam and GenericParamConstraint
+    var values = Params.Select(p => p.NodeValue);
+    if (Kind.Kind == CallingConvention.LowerBits.VARARG) {
+      values = values.Concat(new[] { "..." }).Concat(VarArgParams.Select(p => p.NodeValue));
     }
+    var parts = new[] {
+          Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
+          RetType.NodeValue,
+          $"{name}{genVal}({string.Join(", ", values)})",
+        };
+    return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
   }
 
   protected override void InnerRead() {
@@ -191,24 +263,53 @@ sealed class MethodDefSig : CodeNode
 
     AddChild(nameof(ParamCount));
     AddChild(nameof(RetType));
-    AddChildren(nameof(Param), (int)ParamCount.Value);
+
+    // Tricky code to fill Params with m params, then after Sentinel fill VarArgParams with N-m params
+    List<ParamSig> ps = new List<ParamSig>(), vaps = new List<ParamSig>(), curr = ps;
+    var currName = nameof(Params);
+    var expectingSentinel = Kind.Kind == CallingConvention.LowerBits.VARARG;
+    for (var i = 0; i < ParamCount.Value; ++i) {
+      if (expectingSentinel && TryAddChild(nameof(VarArgSentinel), ElementType.Sentinel)) {
+        expectingSentinel = false;
+        curr = vaps;
+        currName = nameof(VarArgParams);
+      }
+
+      var p = Bytes.ReadClass<ParamSig>();
+      p.NodeName = $"{currName}[{curr.Count}]";
+      curr.Add(p);
+      Children.Add(p);
+    }
+    Params = ps.ToArray();
+    VarArgParams = vaps.ToArray();
+
+    if (expectingSentinel && TryAddChild(nameof(VarArgSentinel), ElementType.Sentinel)) {
+      //TODO(SpecViolation) mono will put a sentinel here even if there are no varargs params
+    }
   }
 }
 
-// II.23.2.2
-// sealed class MethodRefSig : CodeNode { }
-// II.23.2.3
-// sealed class StandAloneMethodSig : CodeNode { }
+
 
 // II.23.2.4
-sealed class FieldSig : CodeNode
+sealed class FieldSig : CodeNode, INamedValue
 {
   [Expected(0x6)]
   public byte FIELD;
   public CustomMods CustomMods;
   public TypeSig Type;
 
-  public override string NodeValue => $"{Type.NodeValue} {CustomMods.NodeValue}".Trim();
+  public override string NodeValue => NamedValue("");
+
+  public string NamedValue(string name) {
+    var parts = new[] {
+          Type.NodeValue,
+          CustomMods.NodeValue,
+          name,
+        };
+    return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
+
+  }
 
   protected override void InnerRead() {
     AddChild(nameof(FIELD));
@@ -221,7 +322,7 @@ sealed class FieldSig : CodeNode
 }
 
 // II.23.2.5
-sealed class PropertySig : CodeNode
+sealed class PropertySig : CodeNode, INamedValue
 {
   public CallingConvention Kind;
   public UnsignedCompressed ParamCount;
@@ -229,16 +330,16 @@ sealed class PropertySig : CodeNode
   public TypeSig Type;
   public ParamSig[] Param;
 
-  public override string NodeValue {
-    get {
-      var parts = new[] {
-          Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
-          Type.NodeValue,
-          Param.Any() ? $"({string.Join(", ", Param.Select(p => p.NodeValue))})" : "",
-          CustomMods.NodeValue,
-        };
-      return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
-    }
+  public override string NodeValue => NamedValue("");
+  public string NamedValue(string name) {
+    var parts = new[] {
+        Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
+        Type.NodeValue,
+        name,
+        Param.Any() ? $"({string.Join(", ", Param.Select(p => p.NodeValue))})" : "",
+        CustomMods.NodeValue,
+      };
+    return string.Join(" ", parts.Where(s => !string.IsNullOrEmpty(s)));
   }
 
   protected override void InnerRead() {
@@ -437,7 +538,7 @@ sealed class RetType : CodeNode
 sealed class TypeSig : CodeNode
 {
   public CustomMods PrefixCustomMods;
-  // TODO(SpecViolation) CModOpt shouldn't be allowed at start of TypeSpec, but found from i.e. `object modopt ([mscorlib]System.Text.StringBuilder)`
+  //TODO(SpecViolation) CModOpt shouldn't be allowed at start of TypeSpec, but found from i.e. `object modopt ([mscorlib]System.Text.StringBuilder)`
   public ElementType Type;
 
   public TypeDefOrRefOrSpecEncoded TypeEncoded;

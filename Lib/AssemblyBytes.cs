@@ -63,12 +63,28 @@ public class AssemblyBytes
   }
 
   public T Peek<T>() where T : struct {
-    var origPos = Stream.Position;
-    try {
+    using (TempReposition()) {
       return Read<T>();
     }
-    finally {
-      Stream.Position = origPos;
+  }
+
+  public IDisposable TempReposition(long pos = -1) {
+    var orig = new ResetPos(Stream);
+    if (pos >= 0) Stream.Position = pos;
+    return orig;
+  }
+
+  class ResetPos : IDisposable {
+    Stream stream;
+    long origPos;
+
+    public ResetPos(Stream s) {
+      this.stream = s;
+      this.origPos = s.Position;
+    }
+
+    public void Dispose() {
+      stream.Position = origPos;
     }
   }
 }

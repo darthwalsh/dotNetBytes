@@ -135,6 +135,39 @@ ret
   pop
   ret 
 }
+}
+
+.class StandAloneMethodSigTests {
+.method static int32 AddTen(int32) {
+  ldarg.0
+  ret
+}
+.method public static vararg void VarArgsMethod(int32 required) {
+  ret
+}
+
+.method static void StandAloneMethodSigRunner()
+{
+  ldc.i4.1
+  ldftn int32 StandAloneMethodSigTests::AddTen(int32)
+  calli int32(int32)
+  pop
+
+  ldc.i4.1
+  call vararg void StandAloneMethodSigTests::VarArgsMethod(int32, ...)
+
+  ldc.i4.1
+  ldc.i4.2
+  call vararg void StandAloneMethodSigTests::VarArgsMethod(int32, ..., int32)
+
+  ldftn vararg void StandAloneMethodSigTests::VarArgsMethod(int32, ..., uint32)
+  ldc.i4.1
+  ldc.i4.6
+  calli vararg void(int32, ..., uint32)
+  pop
+
+  ret
+}
 
 }
 
@@ -146,6 +179,16 @@ ret
 
 .data classInt = int32(123) // MAYBE parse the .sdata section in DLL where 123 is hardcoded
 .field public static int32 classCount at classInt
+
+.method static void FieldSigRunner()
+{
+  ldsfld int32 FieldSigTests::classCount
+  pop
+  ldsflda int32* FieldSigTests::classCount
+  pop
+
+  ret
+}
 }
 .data globalInt = int32(123)
 .field public static int32 globalCount at globalInt

@@ -187,7 +187,7 @@ static class TypeExtensions
 
     var fi = values.SingleOrDefault(o => value.Equals(o.t));
     if (fi == default) {
-      // TODO(pedant) should there be an Error when enum value doesn't exist?
+      //TODO(pedant) should there be an Error when enum value doesn't exist?
     } else if (fi.fi.TryGetAttribute(out DescriptionAttribute desc)) {
       yield return desc.Description;
     }

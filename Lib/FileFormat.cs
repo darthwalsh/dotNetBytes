@@ -521,7 +521,7 @@ sealed class Section : CodeNode
         .Where(nr => nr.rva.RVA > 0)
         .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + End - Start)
         .OrderBy(nr => nr.rva.RVA)) {
-      Reposition(nr.rva.RVA); // TODO(link) every Position= or Reposition() should be a Link?!
+      Reposition(nr.rva.RVA); //TODO(link) every Position= or Reposition() should be a Link?!
 
       switch (nr.name) {
         case "CLIHeader":

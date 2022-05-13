@@ -281,5 +281,5 @@ public sealed class EnumNode<T> : CodeNode where T : struct, Enum
 
     Description = string.Join('\n', t.Describe());
   }
-  // TODO(fixme) think about this pattern: DON'T override Description because CodeNode expects to use the setter if the enum fieldinfo also has a description
+  //TODO(fixme) think about this pattern: DON'T override Description because CodeNode expects to use the setter if the enum fieldinfo also has a description
 }

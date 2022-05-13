@@ -37,7 +37,7 @@ sealed class InstructionStream : CodeNode
       ops.Add(op.Start, op);
     }
 
-    // TODO(fixme) call ValidateStack() here but fix all the NotImplementedException
+    //TODO(fixme) call ValidateStack() here but fix all the NotImplementedException
     Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
   }
 
@@ -209,6 +209,7 @@ sealed class Op : CodeNode
   }
 
   string ReadInLineArguments() => Def.opParams switch {
+    // MAYBE use OpCode const fields
     "InlineBrTarget" => With<uint>(),
     "InlineField" => WithToken(),
     "InlineI" => With<int>(),
@@ -244,7 +245,7 @@ sealed class Op : CodeNode
   }
 
   public uint Count;
-  //TODO(link) link each target to op. Using StructNode<uint> keeps each row its own size
+  //TODO(link) link each switch target to op. Using StructNode[] keeps each row its own size
   public StructNode<int>[] Targets;
   string SwitchOp() {
     AddChild(nameof(Count));

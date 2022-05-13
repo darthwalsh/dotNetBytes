@@ -129,7 +129,8 @@ namespace Tests
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
 
-    //TODO try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports or https://github.com/RealGecko/NppLanguageTool/
+    //MAYBE try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports with https://www.nuget.org/packages/UnmanagedExports
+    // or maybe CIL can export unmanaged functions
 
     /* Testing, for compiling C# and IL:
       - OSX use dotnet core
@@ -252,13 +253,18 @@ namespace Tests
         UseShellExecute = false,
 
         RedirectStandardOutput = true,
+        RedirectStandardError = true,
       });
       p.WaitForExit();
 
       var stdout = p.StandardOutput.ReadToEnd();
       Console.Error.WriteLine(stdout);
 
-      Assert.AreEqual(0, p.ExitCode, "exit code. {0}", stdout);
+      var stderr = p.StandardError.ReadToEnd();
+      Console.Error.WriteLine(stderr);
+
+      Assert.AreEqual(0, p.ExitCode, "exit code. {0} from running {1} {2}", stdout, filename, processArgs);
+
       return stdout;
     }
 
@@ -401,7 +407,7 @@ namespace Tests
           nameof(TildeStream.ModuleRefs),
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
-          nameof(MethodDefSig.RetType),
+          nameof(MethodDefRefSig.RetType),
           nameof(PropertySig.Param),
           nameof(TypeSig.ArrayElementType),
           nameof(TypeSig.GenArgTypes),

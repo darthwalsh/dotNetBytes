@@ -142,7 +142,7 @@ sealed class DeclSecurity : CodeNode
 {
   [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
   [OrderedField] public CodedIndex.HasDeclSecurity Parent;
-  [OrderedField] public BlobHeapIndex PermissionSet; // Not implementing parsing this for now
+  [OrderedField] public BlobHeapIndex PermissionSet; // MAYBE parse this
 }
 
 // II.22.12
@@ -183,7 +183,7 @@ sealed class Field : CodeNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public Signature<FieldSig> Signature;
 
-  public override string NodeValue => $"{Signature.NodeValue} {Name.NodeValue}";
+  public override string NodeValue => Signature.Value.NamedValue(Name.NodeValue);
 }
 
 // II.22.16
@@ -197,7 +197,7 @@ sealed class FieldLayout : CodeNode
 sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-  [OrderedField] public BlobHeapIndex NativeType; //MAYBE(Sig) worth implementing but II.23.4 is missing details details
+  [OrderedField] public BlobHeapIndex NativeType; // MAYBE Implement parsing Marshalling Descriptor Signature but II.23.4 is missing details for enum values that mono uses...
   /* II.23.4 Marshalling descriptors lists some native types, but at least mono created a 0x1E fixed array
    see 
    https://docs.microsoft.com/en-us/dotnet/framework/unmanaged-api/metadata/cornativetype-enumeration
@@ -296,11 +296,9 @@ sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) FieldSig OR MethodRefSig
-  // FieldSig starts with FIELD 0x06 while MethodRefSig so could peek for this byte
-  // TODO??? The same heap bytes can be used for MethodRefSig and MethodDefSig, so maybe munge the two types together for reading
+  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodRefSig", CallingConvention.LowerBits.FIELD);
 
-  public override string NodeValue => Name.NodeValue;
+  public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 }
 
 // II.22.26
@@ -310,11 +308,14 @@ sealed class MethodDef : CodeNode
   [OrderedField] public MethodImplAttributes ImplFlags;
   [OrderedField] public MethodAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public BlobHeapIndex Signature; //TODO(Sig) MethodDefSig
-  // [OrderedField] public Signature<MethodDefSig> Signature;
+  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodDefSig", 0); // Not an either-or signature, but ensure name isn't "MethodDefRefSig"
+                                                                                            //TODO(SpecViolation) typo in II.23.2.1 MethodDefSig -- MethodDefSig is indexed by "Method.Signature" not "MethodDef.Signature"
+                                                                                            // ALSO in II.22.28 MethodSemantics: 0x18 
+                                                                                            // ALSO in II.22.36 StandAloneSig: 0x11
+
   [OrderedField] public UnknownCodedIndex ParamList; // contiguous run of Params; continues to last row or the next ParamList
 
-  public override string NodeValue => Name.NodeValue;
+  public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 
   public void SetLink(Method method) {
     Children.First().Link = method;
@@ -340,7 +341,7 @@ sealed class MethodSemantics : CodeNode
 // II.22.29
 sealed class MethodSpec : CodeNode
 {
-  public override string NodeValue => $"{Method.NodeValue}{Instantiation.NodeValue}()"; // TODO(sig) include the signature HERE i.e. MethodDefSig? Replace generic types with actual instantiated? nested?
+  public override string NodeValue => Method.NodeValue.Replace("<>", Instantiation.NodeValue);
   [OrderedField] public CodedIndex.MethodDefOrRef Method;
   [OrderedField] public Signature<MethodSpecSig> Instantiation;
 }
@@ -369,7 +370,7 @@ sealed class ModuleRef : CodeNode
 sealed class Nestedclass : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> NestedClass;
-  [OrderedField] public TableIndex<TypeDef> EnclosingClass; //MAYBE printing typename of nestedclass should be like Outer/Inner
+  [OrderedField] public TableIndex<TypeDef> EnclosingClass; // MAYBE printing typename of nestedclass should be like Outer/Inner
 }
 
 // II.22.33
@@ -379,7 +380,7 @@ sealed class Param : CodeNode
   [OrderedField] public ushort Sequence;
   [OrderedField] public StringHeapIndex Name;
 
-  public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; //TODO(SpecViolation) mono violates 10)[] WARNING] by indexing to an empty string instead of null for COM return type
+  public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; // MAYBE not a spec violaiton, but mono does the "wrong thing," see 10)[] WARNING] by indexing to an empty string instead of null for COM return type
 }
 
 // II.22.34
@@ -389,7 +390,7 @@ sealed class Property : CodeNode
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public Signature<PropertySig> Type;
 
-  public override string NodeValue => $"{Type.NodeValue} {Name.NodeValue}";
+  public override string NodeValue => Type.Value.NamedValue(Name.NodeValue);
 }
 
 // II.22.35
@@ -403,8 +404,7 @@ sealed class PropertyMap : CodeNode
 sealed class StandAloneSig : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;
-  [OrderedField] public Signature<LocalVarSig> Signature; //TODO(Sig) NotImplemented-- could instead be StandAloneMethodSig
-  // LocalVarSig starts with LocalSig 0x07 while StandAloneMethodSig doesn't so could peek for this byte
+  [OrderedField] public EitherSignature Signature = new EitherSignature("StandAloneMethodSig", CallingConvention.LowerBits.LOCAL_SIG);
 }
 
 // II.22.37

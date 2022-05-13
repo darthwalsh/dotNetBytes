@@ -27,9 +27,9 @@ Explanations:
 
 TODO(fixme)         - Probablty a bug.
 TODO(Descriptions)  - Use [DescriptionAttribute] and copy text from spec.
+TODO(Index4Bytes)   - heap/table index can be 2 or 4 bytes wide, but assuming short instead of int
 TODO(link)          - .Link should be implemented.
 TODO(method)        - Error validation for method op codes
-TODO(pedant)        - Small pedantic wrong behavior
-TODO(Sig)           - Using BlobHeapIndex as byte[] but should parse the semantics
+TODO(pedant)        - Small errors aren't caught
 TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve.
 */

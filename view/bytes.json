@@ -1476,7 +1476,7 @@
                 },
                 {
                   "Name": "CilOps",
-                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox int\ncall Concat\ncall WriteLine",
+                  "Description": "ldstr \"Hello, World!\"\nldc.i4.s 0x2C\nbox int\ncall static string Concat(object, object)\ncall static void WriteLine(string)",
                   "Value": "",
                   "Start": 593,
                   "End": 615,
@@ -1620,7 +1620,7 @@
                     },
                     {
                       "Name": "Op[3]",
-                      "Description": "call Concat",
+                      "Description": "call static string Concat(object, object)",
                       "Value": "",
                       "Start": 605,
                       "End": 610,
@@ -1640,7 +1640,7 @@
                         {
                           "Name": "Token",
                           "Description": "",
-                          "Value": "Concat",
+                          "Value": "static string Concat(object, object)",
                           "Start": 606,
                           "End": 610,
                           "LinkPath": null,
@@ -1672,7 +1672,7 @@
                     },
                     {
                       "Name": "Op[4]",
-                      "Description": "call WriteLine",
+                      "Description": "call static void WriteLine(string)",
                       "Value": "",
                       "Start": 610,
                       "End": 615,
@@ -1692,7 +1692,7 @@
                         {
                           "Name": "Token",
                           "Description": "",
-                          "Value": "WriteLine",
+                          "Value": "static void WriteLine(string)",
                           "Start": 611,
                           "End": 615,
                           "LinkPath": null,
@@ -2575,7 +2575,7 @@
             {
               "Name": "MethodDefs[0]",
               "Description": "",
-              "Value": "Main",
+              "Value": "static void Main()",
               "Start": 842,
               "End": 856,
               "LinkPath": null,
@@ -2623,11 +2623,11 @@
                 },
                 {
                   "Name": "Signature",
-                  "Description": "Blob Heap index 3",
-                  "Value": "{0x0, 0x0, 0x1}",
+                  "Description": "",
+                  "Value": "static void ()",
                   "Start": 852,
                   "End": 854,
-                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]",
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]/MethodDefSig",
                   "Errors": [],
                   "Children": []
                 },
@@ -2646,7 +2646,7 @@
             {
               "Name": "MemberRefs[0]",
               "Description": "",
-              "Value": "Concat",
+              "Value": "static string Concat(object, object)",
               "Start": 856,
               "End": 862,
               "LinkPath": null,
@@ -2674,11 +2674,11 @@
                 },
                 {
                   "Name": "Signature",
-                  "Description": "Blob Heap index 7",
-                  "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+                  "Description": "",
+                  "Value": "static string (object, object)",
                   "Start": 860,
                   "End": 862,
-                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[7]",
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[7]/MethodRefSig",
                   "Errors": [],
                   "Children": []
                 }
@@ -2687,7 +2687,7 @@
             {
               "Name": "MemberRefs[1]",
               "Description": "",
-              "Value": "WriteLine",
+              "Value": "static void WriteLine(string)",
               "Start": 862,
               "End": 868,
               "LinkPath": null,
@@ -2715,11 +2715,11 @@
                 },
                 {
                   "Name": "Signature",
-                  "Description": "Blob Heap index D",
-                  "Value": "{0x0, 0x1, 0x1, 0xE}",
+                  "Description": "",
+                  "Value": "static void (string)",
                   "Start": 866,
                   "End": 868,
-                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[13]",
+                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[13]/MethodRefSig",
                   "Errors": [],
                   "Children": []
                 }
@@ -3186,7 +3186,7 @@
             {
               "Name": "BlobHeap[1]",
               "Description": "",
-              "Value": "",
+              "Value": "int",
               "Start": 1061,
               "End": 1063,
               "LinkPath": null,
@@ -3217,7 +3217,7 @@
             {
               "Name": "BlobHeap[3]",
               "Description": "",
-              "Value": "{0x0, 0x0, 0x1}",
+              "Value": "static void ()",
               "Start": 1063,
               "End": 1067,
               "LinkPath": null,
@@ -3234,21 +3234,63 @@
                   "Children": []
                 },
                 {
-                  "Name": "Blob",
+                  "Name": "MethodDefSig",
                   "Description": "",
-                  "Value": "{0x0, 0x0, 0x1}",
+                  "Value": "static void ()",
                   "Start": 1064,
                   "End": 1067,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": []
+                  "Children": [
+                    {
+                      "Name": "Kind",
+                      "Description": "Normal .NET method call.",
+                      "Value": "{0x00 DEFAULT, 0x00 0}",
+                      "Start": 1064,
+                      "End": 1065,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "ParamCount",
+                      "Description": "",
+                      "Value": "0x0",
+                      "Start": 1065,
+                      "End": 1066,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "RetType",
+                      "Description": "",
+                      "Value": "void",
+                      "Start": 1066,
+                      "End": 1067,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Void",
+                          "Description": "void",
+                          "Value": "0x01 Void",
+                          "Start": 1066,
+                          "End": 1067,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
             {
               "Name": "BlobHeap[7]",
               "Description": "",
-              "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+              "Value": "static string (object, object)",
               "Start": 1067,
               "End": 1073,
               "LinkPath": null,
@@ -3265,21 +3307,105 @@
                   "Children": []
                 },
                 {
-                  "Name": "Blob",
+                  "Name": "MethodRefSig",
                   "Description": "",
-                  "Value": "{0x0, 0x2, 0xE, 0x1C, 0x1C}",
+                  "Value": "static string (object, object)",
                   "Start": 1068,
                   "End": 1073,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": []
+                  "Children": [
+                    {
+                      "Name": "Kind",
+                      "Description": "Normal .NET method call.",
+                      "Value": "{0x00 DEFAULT, 0x00 0}",
+                      "Start": 1068,
+                      "End": 1069,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "ParamCount",
+                      "Description": "",
+                      "Value": "0x2",
+                      "Start": 1069,
+                      "End": 1070,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "RetType",
+                      "Description": "",
+                      "Value": "string",
+                      "Start": 1070,
+                      "End": 1071,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Type",
+                          "Description": "",
+                          "Value": "string",
+                          "Start": 1070,
+                          "End": 1071,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Params[0]",
+                      "Description": "",
+                      "Value": "object",
+                      "Start": 1071,
+                      "End": 1072,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Type",
+                          "Description": "",
+                          "Value": "object",
+                          "Start": 1071,
+                          "End": 1072,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Params[1]",
+                      "Description": "",
+                      "Value": "object",
+                      "Start": 1072,
+                      "End": 1073,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Type",
+                          "Description": "",
+                          "Value": "object",
+                          "Start": 1072,
+                          "End": 1073,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
             {
               "Name": "BlobHeap[13]",
               "Description": "",
-              "Value": "{0x0, 0x1, 0x1, 0xE}",
+              "Value": "static void (string)",
               "Start": 1073,
               "End": 1078,
               "LinkPath": null,
@@ -3296,14 +3422,77 @@
                   "Children": []
                 },
                 {
-                  "Name": "Blob",
+                  "Name": "MethodRefSig",
                   "Description": "",
-                  "Value": "{0x0, 0x1, 0x1, 0xE}",
+                  "Value": "static void (string)",
                   "Start": 1074,
                   "End": 1078,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": []
+                  "Children": [
+                    {
+                      "Name": "Kind",
+                      "Description": "Normal .NET method call.",
+                      "Value": "{0x00 DEFAULT, 0x00 0}",
+                      "Start": 1074,
+                      "End": 1075,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "ParamCount",
+                      "Description": "",
+                      "Value": "0x1",
+                      "Start": 1075,
+                      "End": 1076,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "RetType",
+                      "Description": "",
+                      "Value": "void",
+                      "Start": 1076,
+                      "End": 1077,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Void",
+                          "Description": "void",
+                          "Value": "0x01 Void",
+                          "Start": 1076,
+                          "End": 1077,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    },
+                    {
+                      "Name": "Params[0]",
+                      "Description": "",
+                      "Value": "string",
+                      "Start": 1077,
+                      "End": 1078,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": [
+                        {
+                          "Name": "Type",
+                          "Description": "",
+                          "Value": "string",
+                          "Start": 1077,
+                          "End": 1078,
+                          "LinkPath": null,
+                          "Errors": [],
+                          "Children": []
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }

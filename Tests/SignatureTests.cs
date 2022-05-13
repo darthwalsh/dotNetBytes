@@ -99,6 +99,18 @@ namespace Tests
     }
 
     [TestMethod]
+    public void MethodRefDefSig() {
+      var links = MethodLinks("StandAloneMethodSigRunner");
+      var vals = links.Select(n => n.NodeValue).ToList();
+      Assert.AreEqual(@"static int AddTen(int)
+static int (int)
+static void VarArgsMethod(int, ...)
+static void VarArgsMethod(int, ..., int)
+static void VarArgsMethod(int, ..., uint)
+static void (int, ..., uint)", string.Join("\n", vals));
+    }
+
+    [TestMethod]
     public void FieldSig() {
       var fields = assm.TildeStream.Fields.ToDictionary(f => f.Name.NodeValue);
       var fieldSigs = fields.ToDictionary(f => f.Key, f => f.Value.Signature.Value.NodeValue);
@@ -119,10 +131,18 @@ namespace Tests
     }
 
     [TestMethod]
+    public void FieldSigOps() {
+      var links = MethodLinks("FieldSigRunner");
+      Assert.AreEqual(@"int classCount
+int* classCount", string.Join("\n", links.Select(n => n.NodeValue).ToList()));
+    }
+
+    [TestMethod]
     public void MethodSpecs() {
       var links = MethodLinks("MethodSpecs");
-      var actual = string.Join("|", links.Cast<MethodSpec>().Select(x => x.NodeValue));
-      Assert.AreEqual("Gen<int, string>()|Gen<string, class MethodSpecsTests>()", actual);
+      var actual = string.Join("\n", links.Cast<MethodSpec>().Select(x => x.NodeValue));
+      Assert.AreEqual(@"static void Gen<int, string>(char)
+static void Gen<string, class MethodSpecsTests>(char)", actual);
     }
 
     [TestMethod]

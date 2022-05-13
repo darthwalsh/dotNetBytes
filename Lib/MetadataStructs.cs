@@ -525,7 +525,6 @@ sealed class TypeAttributes : CodeNode
 }
 
 // II.23.1.16
-[Flags]
 enum ElementType : byte
 {
   [Description("Marks end of a list")]
@@ -716,10 +715,7 @@ abstract class Heap<T> : CodeNode
   protected abstract (T, CodeNode) ReadChild(int index);
 
   protected (T t, CodeNode node) AddChild(int index) {
-    var origPos = Bytes.Stream.Position;
-    try {
-      Bytes.Stream.Position = Start + index;
-
+    using (Bytes.TempReposition(Start + index)) {
       if (!children.TryGetValue(index, out var childpair)) {
         var (t, child) = ReadChild(index);
         if (child == null) {
@@ -736,8 +732,6 @@ abstract class Heap<T> : CodeNode
       }
 
       return childpair;
-    } finally {
-      Bytes.Stream.Position = origPos;
     }
   }
 
@@ -877,6 +871,13 @@ sealed class BlobHeap : Heap<object>
     return (entry.Blob.arr, entry);
   }
 
+  public byte GetByte(int index) {
+    using (Bytes.TempReposition(Start + index)) {
+      Bytes.ReadClass<EncodedLength>();
+      return Bytes.Read<byte>();
+    }
+  }
+
   public T GetCustom<T>(int i) where T : CodeNode, new() {
     if (customEntry != null) throw new InvalidOperationException();
     customEntry = new CustomEntry<T> { Bytes = Bytes };
@@ -911,6 +912,8 @@ sealed class BlobHeap : Heap<object>
     public EncodedLength Length;
     public T Value;
     public object IValue => Value;
+
+    public override string NodeValue => Value.NodeValue;
 
     protected override void InnerRead() {
       AddChild(nameof(Length));
@@ -1040,9 +1043,9 @@ sealed class TildeStream : CodeNode
     }
 
     if (TildeData.HeapSizes != 0)
-      throw new NotImplementedException("HeapSizes aren't 4-byte-aware");
+      throw new NotImplementedException("HeapSizes aren't 4-byte-aware"); //TODO(Index4Bytes)
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
-      throw new NotImplementedException("CodedIndex aren't 4-byte-aware");
+      throw new NotImplementedException("CodedIndex aren't 4-byte-aware"); //TODO(Index4Bytes)
   }
 
   void ReadTables(MetadataTableFlags flag, int row) {
@@ -1136,7 +1139,7 @@ sealed class StringHeapIndex : CodeNode
 {
   public short Index;
   // ushort? shortIndex;
-  // uint? intIndex;//TODO(pedant) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
+  // uint? intIndex; //TODO(Index4Bytes) not implemented: Make all Index generic for 4-byte index; ditto ALL HeapIndexes
   // public int Index => (int)(intIndex ?? shortIndex);
 
 
