@@ -20,94 +20,102 @@ namespace Tests
 
     [TestMethod]
     public void GenericTypeSpec() {
-      var actual = GetTypeSpec("Dict");
+      var actual = MethodLines("Dict");
       Assert.AreEqual("Generic class System.Collections.Generic.Dictionary`2<int, string>", actual);
     }
 
     [TestMethod]
     public void ArrayTypeSpec() {
-      Assert.AreEqual("int[3]", GetTypeSpec("Array1"));
-      Assert.AreEqual("int[,,,,,,]", GetTypeSpec("Array2"));
-      Assert.AreEqual("int[4,3,,,,]", GetTypeSpec("Array3"));
-      Assert.AreEqual("int[1...2,6...8]", GetTypeSpec("Array4"));
-      Assert.AreEqual("int[5,3...5,,]", GetTypeSpec("Array5"));
+      Assert.AreEqual("int[3]", MethodLines("Array1"));
+      Assert.AreEqual("int[,,,,,,]", MethodLines("Array2"));
+      Assert.AreEqual("int[4,3,,,,]", MethodLines("Array3"));
+      Assert.AreEqual("int[1...2,6...8]", MethodLines("Array4"));
+      Assert.AreEqual("int[5,3...5,,]", MethodLines("Array5"));
     }
 
     [TestMethod]
     public void ArrayNestedTypeSpec() {
-      Assert.AreEqual("int[5...8][,]", GetTypeSpec("ArrayNested"));
+      Assert.AreEqual("int[5...8][,]", MethodLines("ArrayNested"));
     }
 
     [TestMethod]
     public void ArrayNegativeTypeSpec() {
-      Assert.AreEqual("int[,-5...-2,-5...,-5...0]", GetTypeSpec("ArrayNegative"));
+      Assert.AreEqual("int[,-5...-2,-5...,-5...0]", MethodLines("ArrayNegative"));
     }
 
     [TestMethod]
     public void ClassTypeSpec() {
-      Assert.AreEqual("class SignatureTests", GetTypeSpec("Class"));
+      Assert.AreEqual("class SignatureTests", MethodLines("Class"));
     }
 
     [TestMethod]
     public void ValueTypeTypeSpec() {
-      Assert.AreEqual("valuetype System.ValueTuple", GetTypeSpec("ValueType"));
+      Assert.AreEqual("valuetype System.ValueTuple", MethodLines("ValueType"));
     }
 
     [TestMethod]
     public void ModObjectSpec() {
-      var actual = GetTypeSpec("ModObject");
+      var actual = MethodLines("ModObject");
       Assert.AreEqual("object modopt (System.Text.StringBuilder)", actual);
     }
 
     [TestMethod]
     public void ModObjectArraySpec() {
-      var actual = GetTypeSpec("ModObjectArray");
+      var actual = MethodLines("ModObjectArray");
       Assert.AreEqual("object modopt (string)[]", actual);
     }
 
     [TestMethod]
     public void ModArrayObjectSpec() {
-      var actual = GetTypeSpec("ModArrayObject");
+      var actual = MethodLines("ModArrayObject");
       Assert.AreEqual("object[] modopt (string)", actual);
     }
 
     [TestMethod]
     public void SzArrayTypeSpec() {
-      Assert.AreEqual("int[]", GetTypeSpec("SzArray"));
+      Assert.AreEqual("int[]", MethodLines("SzArray"));
     }
 
     [TestMethod]
     public void PtrTypeSpec() {
-      Assert.AreEqual("int*", GetTypeSpec("Ptr"));
-      Assert.AreEqual("void*", GetTypeSpec("VoidPtr"));
+      Assert.AreEqual("int*", MethodLines("Ptr"));
+      Assert.AreEqual("void*", MethodLines("VoidPtr"));
     }
 
     [TestMethod]
     public void ModTypeSpec() {
-      Assert.AreEqual("int modopt (char)[]", GetTypeSpec("Mod"));
+      Assert.AreEqual("int modopt (char)[]", MethodLines("Mod"));
     }
 
     [TestMethod]
     public void ModsTypeSpec() {
-      var actual = GetTypeSpec("Mods");
+      var actual = MethodLines("Mods");
       Assert.AreEqual("int modopt (char) modreq (int) modreq (short) modopt (short)[]", actual);
     }
 
     [TestMethod]
+    public void FnptrTypeSpec() {
+      var actual =  MethodLines("Fnptr");
+      Assert.AreEqual(@"method static void *(int)
+method explicitthis char *()
+method void *()
+method static vararg void *(method static fastcall void *(char, uint), ...)", actual);
+    }
+
+    [TestMethod]
     public void GenTypeSpec() {
-      Assert.AreEqual("!!0", GetTypeSpec("GenCast"));
+      Assert.AreEqual("!!0", MethodLines("GenCast"));
     }
 
     [TestMethod]
     public void MethodRefDefSig() {
-      var links = MethodLinks("StandAloneMethodSigRunner");
-      var vals = links.Select(n => n.NodeValue).ToList();
+      var actual = MethodLines("StandAloneMethodSigRunner");
       Assert.AreEqual(@"static int AddTen(int)
 static int (int)
-static void VarArgsMethod(int, ...)
-static void VarArgsMethod(int, ..., int)
-static void VarArgsMethod(int, ..., uint)
-static void (int, ..., uint)", string.Join("\n", vals));
+static vararg void VarArgsMethod(int, ...)
+static vararg void VarArgsMethod(int, ..., int)
+static vararg void VarArgsMethod(int, ..., uint)
+static vararg void (int, ..., uint)", actual);
     }
 
     [TestMethod]
@@ -132,17 +140,14 @@ static void (int, ..., uint)", string.Join("\n", vals));
 
     [TestMethod]
     public void FieldSigOps() {
-      var links = MethodLinks("FieldSigRunner");
       Assert.AreEqual(@"int classCount
-int* classCount", string.Join("\n", links.Select(n => n.NodeValue).ToList()));
+int* classCount", MethodLines("FieldSigRunner"));
     }
 
     [TestMethod]
     public void MethodSpecs() {
-      var links = MethodLinks("MethodSpecs");
-      var actual = string.Join("\n", links.Cast<MethodSpec>().Select(x => x.NodeValue));
       Assert.AreEqual(@"static void Gen<int, string>(char)
-static void Gen<string, class MethodSpecsTests>(char)", actual);
+static void Gen<string, class MethodSpecsTests>(char)", MethodLines("MethodSpecs"));
     }
 
     [TestMethod]
@@ -155,11 +160,7 @@ static void Gen<string, class MethodSpecsTests>(char)", actual);
       Assert.AreEqual("typedref, IntPtr", GetMethod("TypeRefVar").FatFormat.LocalVarSigTok.NodeValue);
     }
 
-    static string GetTypeSpec(string methodName) {
-      var links = MethodLinks(methodName);
-      var spec = (TypeSpec)links.Single();
-      return spec.Signature.NodeValue;
-    }
+    static string MethodLines(string methodName) => string.Join("\n", MethodLinks(methodName).Select(n => n.NodeValue));
 
     static List<CodeNode> MethodLinks(string methodName) {
       var method = GetMethod(methodName);

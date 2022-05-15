@@ -275,7 +275,7 @@ namespace Tests
       return JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
     }
 
-    static Dictionary<string, object> Rewrite(CodeNode node) {
+    static Dictionary<string, object> Rewrite(CodeNode node, AssemblyBytes assm) {
       var dict = new Dictionary<string, object>();
       // Skip name
       if (node.Description != "") dict[nameof(node.Description)] = node.Description;
@@ -290,13 +290,20 @@ namespace Tests
         while (dict.ContainsKey(name)) {
           name = "_" + name;
         }
-        dict[name] = Rewrite(ch);
+        dict[name] = Rewrite(ch, assm);
+      }
+      if (node.NodeName.Contains("BlobHeap[")) {
+        var bytes = new byte[node.End - node.Start];
+        using (assm.TempReposition(node.Start)) {
+          assm.Stream.ReadWholeArray(bytes);
+        }
+        dict["RawBytes"] = string.Join(' ', bytes.Select(b => b.ToString("X2")));
       }
       return dict;
     }
 
     public static void DumpJson(string path, AssemblyBytes assm) {
-      var json = JsonConvert.SerializeObject(Rewrite(assm.Node), Formatting.Indented);
+      var json = JsonConvert.SerializeObject(Rewrite(assm.Node, assm), Formatting.Indented);
       var jsonPath = Path.Join(AppContext.BaseDirectory, Path.GetFileNameWithoutExtension(path) + ".json");
       File.WriteAllText(jsonPath, json);
       Console.Error.WriteLine($"jsonPath: {jsonPath}");

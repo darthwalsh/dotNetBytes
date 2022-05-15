@@ -197,8 +197,8 @@ sealed class FieldLayout : CodeNode
 sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
-  [OrderedField] public BlobHeapIndex NativeType; // MAYBE Implement parsing Marshalling Descriptor Signature but II.23.4 is missing details for enum values that mono uses...
-  /* II.23.4 Marshalling descriptors lists some native types, but at least mono created a 0x1E fixed array
+  [OrderedField] public BlobHeapIndex NativeType; // MAYBE Implement parsing Marshalling Descriptor Signature but II.23.4 is missing details for enum values that ilasm creates...
+  /* II.23.4 Marshalling descriptors lists some native types, but at least ilasm created a 0x1E fixed array
    see 
    https://docs.microsoft.com/en-us/dotnet/framework/unmanaged-api/metadata/cornativetype-enumeration
    for a full list. And dotnet core has full implementation for fixed array, safe array, etc.:
@@ -380,7 +380,7 @@ sealed class Param : CodeNode
   [OrderedField] public ushort Sequence;
   [OrderedField] public StringHeapIndex Name;
 
-  public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; // MAYBE not a spec violaiton, but mono does the "wrong thing," see 10)[] WARNING] by indexing to an empty string instead of null for COM return type
+  public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; // MAYBE not a spec violaiton, but ilasm does the "wrong thing," see 10)[] WARNING] by indexing to an empty string instead of null for COM return type
 }
 
 // II.22.34

@@ -247,8 +247,21 @@ sealed class MethodDefRefSig : CodeNode, INamedValue
     if (Kind.Kind == CallingConvention.LowerBits.VARARG) {
       values = values.Concat(new[] { "..." }).Concat(VarArgParams.Select(p => p.NodeValue));
     }
+
+    var callKind = (Kind.Kind) switch {
+      CallingConvention.LowerBits.DEFAULT => "",
+      CallingConvention.LowerBits.C => "cdecl",
+      CallingConvention.LowerBits.STDCALL => "stdcall",
+      CallingConvention.LowerBits.THISCALL => "thiscall",
+      CallingConvention.LowerBits.FASTCALL => "fastcall",
+      CallingConvention.LowerBits.VARARG => "vararg",
+      _ => throw new InvalidOperationException(),
+    };
+
     var parts = new[] {
           Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) ? "" : "static",
+          Kind.Flags.HasFlag(CallingConvention.UpperBits.EXPLICITTHIS) ? "explicitthis" : "",
+          callKind,
           RetType.NodeValue,
           $"{name}{genVal}({string.Join(", ", values)})",
         };
@@ -284,7 +297,7 @@ sealed class MethodDefRefSig : CodeNode, INamedValue
     VarArgParams = vaps.ToArray();
 
     if (expectingSentinel && TryAddChild(nameof(VarArgSentinel), ElementType.Sentinel)) {
-      //TODO(SpecViolation) mono will put a sentinel here even if there are no varargs params
+      //TODO(SpecViolation) ilasm will put a sentinel here even if there are no varargs params
     }
   }
 }
@@ -545,6 +558,7 @@ sealed class TypeSig : CodeNode
   public UnsignedCompressed VarNumber;
   public TypeSig PtrType;
   public ElementType PtrVoid;
+  public MethodDefRefSig MethodRefSig; // use MethodRefSig as it si the superset type
 
   protected override void InnerRead() {
     AddChild(nameof(PrefixCustomMods));
@@ -580,7 +594,9 @@ sealed class TypeSig : CodeNode
         SetNodeValue(Type.S(), TypeEncoded.NodeValue);
         return;
       case ElementType.Fnptr:
-        throw new NotImplementedException("Fnptr"); // MethodDefSig | MethodRefSig
+        AddChild(nameof(MethodRefSig));
+        SetNodeValue($"method {MethodRefSig.NamedValue("*")}");
+        return;
       case ElementType.GenericInst:
         ReadGeneric();
         return;

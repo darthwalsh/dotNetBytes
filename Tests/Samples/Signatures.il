@@ -129,6 +129,15 @@ ret
   ret 
 }
 
+.method static void Fnptr() {
+  ldc.i4.3 newarr method void *(int32) pop
+  ldc.i4.3 newarr method instance explicit char *() pop
+  ldc.i4.3 newarr method instance void *() pop
+  ldc.i4.3 newarr method vararg void *(method unmanaged fastcall void *(char, unsigned int32)) pop
+
+  ret 
+}
+
 .method static void GenCast<T1>() {
   ldnull 
   castclass !!T1
