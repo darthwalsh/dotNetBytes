@@ -783,7 +783,12 @@ sealed class Methods : CodeNode
     foreach (var methodDefGroup in methodDefs) {
       var rva = methodDefGroup.Key;
       if (rva == 0) continue;
-      var method = new Method(rva);
+
+      var ret = methodDefGroup.Select(m => {
+        _ = m.NodeValue; // Force reading delayed value
+        return m.Signature.MethodDefRefSig.RetType.Void;}
+      ).Distinct().Single();
+      var method = new Method(rva, ret == ElementType.Void);
       foreach (var methodDef in methodDefGroup) {
         methodDef.SetLink(method);
       }
@@ -802,14 +807,16 @@ sealed class Method : CodeNode
 {
   public byte Header; //TODO(pedant) ? enum
   public FatFormat FatFormat;
-  public MethodDataSection[] DataSections;
+  public MethodDataSections MethodDataSections;
   public InstructionStream CilOps;
 
-  public Method(uint rva) {
+  public Method(uint rva, bool returnsVoid) {
     RVA = rva;
+    ReturnsVoid = returnsVoid;
   }
 
   public uint RVA { get; private set; }
+  public bool ReturnsVoid { get; private set; }
   public int CodeSize { get; private set; }
   public int MaxStack { get; private set; }
 
@@ -844,30 +851,35 @@ sealed class Method : CodeNode
     }
 
     CilOps = new InstructionStream(this) { Bytes = Bytes };
-    AddChild(nameof(CilOps));
+    AddChild(nameof(CilOps)); // TODO need to know the exception handling tables in order to validate the ops stream...?
 
     if (moreSects) {
       while (Bytes.Stream.Position % 4 != 0) {
         _ = Bytes.Read<byte>();
       }
 
-      var dataSections = Bytes.ReadClass<MethodDataSections>();
-      dataSections.NodeName = "MethodDataSections";
-      Children.Add(dataSections.Children.Count == 1 ? dataSections.Children.Single() : dataSections);
+      AddChild(nameof(MethodDataSections));
+      ResizeLastChild();
     }
   }
 }
 
 sealed class MethodDataSections : CodeNode
 {
+  public MethodDataSection[] Sections { get; private set;}
+
   protected override void InnerRead() {
+    var sections = new List<MethodDataSection>();
     MethodDataSection dataSection = null;
     do {
       dataSection = Bytes.ReadClass<MethodDataSection>();
       dataSection.NodeName = $"{nameof(MethodDataSections)}[{Children.Count}]";
       Children.Add(dataSection);
+      sections.Add(dataSection);
     }
     while (dataSection.MethodHeaderSection.HasFlag(MethodHeaderSection.MoreSects));
+
+    Sections = sections.ToArray();
   }
 }
 

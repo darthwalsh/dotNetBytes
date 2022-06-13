@@ -173,7 +173,6 @@ ret
   ldc.i4.1
   ldc.i4.6
   calli vararg void(int32, ..., uint32)
-  pop
 
   ret
 }
@@ -204,7 +203,9 @@ ret
 
 .class MethodSpecsTests {
 .method static void MethodSpecs() {
+  ldc.i4.1
   call void class MethodSpecsTests::Gen<int32, string> (char)
+  ldc.i4.1
   call void class MethodSpecsTests::Gen<string, class MethodSpecsTests> (char)
   ret
 }

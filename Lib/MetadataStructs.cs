@@ -1117,7 +1117,7 @@ sealed class TildeData : CodeNode
   public byte MinorVersion;
   [Description("Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)")]
   [Expected(0)]
-  public TildeDateHeapSizes HeapSizes;
+  public TildeDataHeapSizes HeapSizes;
   [Description("Reserved, always 1 (§II.24.1).")]
   [Expected(1)]
   public byte Reserved2;
@@ -1128,7 +1128,7 @@ sealed class TildeData : CodeNode
 }
 
 [Flags]
-enum TildeDateHeapSizes : byte
+enum TildeDataHeapSizes : byte
 {
   StringHeapIndexWide = 0x01,
   GuidHeapIndexWide = 0x02,

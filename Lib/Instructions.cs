@@ -8,15 +8,10 @@ using System.Linq;
 // CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
-//TODO(link) Link branch targets
-//TODO(method) §III.1.7.2 validate branch targets are valid offsets
-//TODO(method) §III.1.3 validate stack depth doesn't go negative or violate maxstack §III.1.7.4
+//TODO(link) Link branch targets -- done for br and switch, do for throw
 //TODO(method) §III.1.5 validate operand type with needed manual conversions
-//TODO(method) §III.1.7.4 validate branching stack depth is consistant
-//TODO(method) §III.1.7.5 unseen op after unconditional branch the stack is assumed to have depth zero
 //TODO(method) §III.1.8.1.3 validate all branches have mergable types in the stack
-
-// TODO?????checking that methods return with 0 or 1 elements on the stack
+//TODO(method) check multiple branches to ret with different type on the stack?
 
 // III
 sealed class InstructionStream : CodeNode
@@ -37,27 +32,39 @@ sealed class InstructionStream : CodeNode
       ops.Add(op.Start, op);
     }
 
-    //TODO(fixme) call ValidateStack() here but fix all the NotImplementedException
-    Description = string.Join("\n", Children.Take(10).Select(n => n.Description));
+    if (method.MethodDataSections == null) {
+      ValidateStack(); // TODO(fixme) fix stack validation for catch blocks that push an exception object
+    }
+    Description = string.Join("\n", Children.Take(10).Select(n => n.Description.Split(" (Stack:")[0]));
   }
 
   void ValidateStack() {
     int? stack = null;
     foreach (Op op in Children) {
-      if (op.Def.controlFlow == "RETURN") {
-        // stack should be 1 if return type != void
-        if (stack > 1) {
-          op.Errors.Add($"Stack depth is {stack} on RETURN");
-        }
-        stack = null;
-        continue;
-      }
-
+      // III.1.7.5 even after unconditional branch, we must assume the stack is empty
       if (!stack.HasValue) stack = 0;
 
       ValidateOp(op, stack.Value);
 
-      stack = Op.DataPopPush(op.Def, stack.Value);
+      if (op.Def.controlFlow == "RETURN") {
+        if (this.method.ReturnsVoid) {
+          if (stack > 0) {
+            op.Errors.Add($"return type is void, but stack is {stack}");
+          }
+        } else {
+          if (stack != 1) {
+            op.Errors.Add($"stack should be 1, but stack is {stack}");
+          }
+          --stack;
+        }
+        op.SetEndStack(stack.Value);
+
+        stack = null;
+        continue;
+      }
+
+
+      stack = op.DataPopPush(method.MaxStack);
 
       switch (op.Def.controlFlow) {
         case "NEXT":
@@ -73,15 +80,13 @@ sealed class InstructionStream : CodeNode
           ValidateBranch(op, stack.Value);
           break;
         case "THROW":
-          throw new NotImplementedException();
+          throw new NotImplementedException("throw catch/finally frames");
         case "RETURN":
           stack = null;
           break;
         default:
           throw new InvalidOperationException(op.Def.controlFlow);
       }
-
-      if (op.Def.controlFlow != "NEXT") throw new NotImplementedException(op.Def.controlFlow);
     }
   }
 
@@ -95,8 +100,10 @@ sealed class InstructionStream : CodeNode
     }
   }
 
+  // III.1.7.2 validate branch targets are valid offsets
   void ValidateBranch(Op op, int stack) {
-    foreach (var targetArg in op.Children.Skip(1)) {
+    var targets = op.Def.name == "switch" ? op.Targets : op.Children.Skip(1);
+    foreach (var targetArg in targets) {
       var target = targetArg.GetInt32() + op.End;
 
       if (!ops.TryGetValue(target, out var targetOp)) {
@@ -115,6 +122,7 @@ sealed class MetadataToken : CodeNode
 {
   public UInt24 Offset;
   public byte Table;
+  public CodeNode LinkedTableRow { get; private set; }
 
   public UserStringHeapIndex Index;
 
@@ -131,7 +139,7 @@ sealed class MetadataToken : CodeNode
       AddChild(nameof(Index));
 
       if (Bytes.Read<byte>() != 0)
-        throw new NotImplementedException("Too big UserStringHeapIndex");
+        throw new InvalidOperationException("UserStringHeap can only be two-byte");
       Index.End++;
 
       AddChild(nameof(Table));
@@ -142,7 +150,7 @@ sealed class MetadataToken : CodeNode
       var flag = (MetadataTableFlags)(1L << Table);
       Children.Last().Description = flag.ToString();
       var link = Bytes.TildeStream.GetCodeNode(flag, Offset.IntValue - 1); // indexed by 1
-      Children.First().Link = link;
+      Children.First().Link = LinkedTableRow = link;
       NodeValue = link.NodeValue;
     }
   }
@@ -155,6 +163,10 @@ sealed class Op : CodeNode
   public OpCode Def { get; set; }
   public int StartStack { get; set; } = -1; // would be better to use types
   public bool StackCalculated => StartStack != -1;
+
+  string desc;
+  string stackTransition;
+  public override string Description => $"{desc} (Stack: {stackTransition})";
 
   protected override void InnerRead() {
     AddChild(nameof(Opcode));
@@ -173,7 +185,7 @@ sealed class Op : CodeNode
 
     Children.Single().Description = Def.name;
 
-    Description = ReadInLineArguments();
+    desc = ReadInLineArguments();
 
     if (Children.Count == 1) {
       NodeValue = Children.Single().NodeValue;
@@ -181,32 +193,90 @@ sealed class Op : CodeNode
     }
   }
 
-  // §VI.C.2
-  public static int DataPopPush(OpCode def, int stack) {
-    if (def.stackPop == "VarPop") throw new NotImplementedException();
-    foreach (var s in def.stackPop.Split("Pop").Where(s => s != "")) {
-      stack -= GetStackElem(s);
-    }
+  // III.1.3 validate stack tranditions
+  // III.1.7.4 validate stack depth doesn't violate maxstack
+  public int DataPopPush(int maxstack) {
+    int stack = StartStack;
 
-    if (def.stackPush == "VarPush") throw new NotImplementedException();
-    foreach (var s in def.stackPush.Split("Push").Where(s => s != "")) {
-      stack += GetStackElem(s);
-    }
+    if (Def.stackPop == "VarPop") {
+      // We know that RETURN was already handled, so we have a Token
 
-    static int GetStackElem(string s) {
-      return s switch {
-        "0" => 0,
-        "1" => 1,
-        "I" => 1,
-        "I8" => 1,
-        "R4" => 1,
-        "R8" => 1,
-        "Ref" => 1,
-        _ => throw new InvalidOperationException(s),
+      var o = Token.LinkedTableRow;
+      if (o is MethodSpec spec) {
+        o = spec.Method.Link;
+      }
+      var sig = o switch {
+        MemberRef m => m.Signature.MethodDefRefSig,
+        MethodDef m => m.Signature.MethodDefRefSig,
+        StandAloneSig s => s.Signature.MethodDefRefSig,
+        _ => throw new InvalidOperationException(o.GetType().Name),
       };
+
+      if (Def.name == "calli") {
+        stack -= 1; // ftn
+      }
+      stack -= sig.Params.Length;
+      stack -= sig.VarArgParams.Length;
+
+      if (Def.name != "newobj" &&
+          sig.Kind.Flags.HasFlag(CallingConvention.UpperBits.HASTHIS) &&
+          !sig.Kind.Flags.HasFlag(CallingConvention.UpperBits.EXPLICITTHIS)) {
+        stack -= 1; // obj
+      }
+
+      if (stack < 0) {
+        Errors.Add($"Stack underflow!");
+        stack = 0;
+      }
+
+      if (Def.name == "newobj") {
+        // .ctor return type is void but the reference is pushed on the stack
+        stack += 1;
+      } else if (Def.stackPush == "VarPush") {
+        if (sig.RetType.Void != ElementType.Void) {
+          stack += 1;
+        }
+      } else {
+        throw new InvalidOperationException(Def.stackPush);
+      }
+    } else {
+
+      foreach (var s in Def.stackPop.Split("Pop").Where(s => s != "")) {
+        stack -= GetStackElem(s);
+      }
+      if (stack < 0) {
+        Errors.Add($"Stack underflow!");
+        stack = 0;
+      }
+      foreach (var s in Def.stackPush.Split("Push").Where(s => s != "")) {
+        stack += GetStackElem(s);
+      }
+    }
+
+    if (stack > maxstack) {
+      Errors.Add($"Stack is {stack} > maxstack {maxstack}");
+    }
+
+    if (stackTransition == null) {
+      SetEndStack(stack);
     }
     return stack;
   }
+
+  public void SetEndStack(int stack) => stackTransition = $"{StartStack} -> {stack}";
+
+  // VI.C.2 CIL opcode descriptions
+  static int GetStackElem(string s) => s switch {
+    // TODO(StackType) these should return int, float, etc
+    "0" => 0,
+    "1" => 1,
+    "I" => 1,
+    "I8" => 1,
+    "R4" => 1,
+    "R8" => 1,
+    "Ref" => 1,
+    _ => throw new InvalidOperationException(s),
+  };
 
   string ReadInLineArguments() => Def.opParams switch {
     // MAYBE use OpCode const fields
@@ -245,7 +315,7 @@ sealed class Op : CodeNode
   }
 
   public uint Count;
-  //TODO(link) link each switch target to op. Using StructNode[] keeps each row its own size
+  // Using StructNode[] keeps each row its own size
   public StructNode<int>[] Targets;
   string SwitchOp() {
     AddChild(nameof(Count));

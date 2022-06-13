@@ -1485,7 +1485,7 @@
                   "Children": [
                     {
                       "Name": "Op[0]",
-                      "Description": "ldstr \"Hello, World!\"",
+                      "Description": "ldstr \"Hello, World!\" (Stack: 0 -> 1)",
                       "Value": "",
                       "Start": 593,
                       "End": 598,
@@ -1537,7 +1537,7 @@
                     },
                     {
                       "Name": "Op[1]",
-                      "Description": "ldc.i4.s 0x2C",
+                      "Description": "ldc.i4.s 0x2C (Stack: 1 -> 2)",
                       "Value": "",
                       "Start": 598,
                       "End": 600,
@@ -1568,7 +1568,7 @@
                     },
                     {
                       "Name": "Op[2]",
-                      "Description": "box int",
+                      "Description": "box int (Stack: 2 -> 2)",
                       "Value": "",
                       "Start": 600,
                       "End": 605,
@@ -1620,7 +1620,7 @@
                     },
                     {
                       "Name": "Op[3]",
-                      "Description": "call static string Concat(object, object)",
+                      "Description": "call static string Concat(object, object) (Stack: 2 -> 1)",
                       "Value": "",
                       "Start": 605,
                       "End": 610,
@@ -1672,7 +1672,7 @@
                     },
                     {
                       "Name": "Op[4]",
-                      "Description": "call static void WriteLine(string)",
+                      "Description": "call static void WriteLine(string) (Stack: 1 -> 0)",
                       "Value": "",
                       "Start": 610,
                       "End": 615,
