@@ -129,6 +129,10 @@ namespace Tests
     //MAYBE create test case that exercises all IL features, check code coverage, then test modifying each byte of the code...
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
 
+    //TODO(fixme) Managed pointers, Span, ref struct, C#11 ref fields https://blog.ndepend.com/managed-pointers-span-ref-struct-c11-ref-fields-and-the-scoped-keyword/
+
+    //MAYBE Test Embedded PDB support. In rosyln command line compile with, /debug:embedded
+
     //MAYBE try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports with https://www.nuget.org/packages/UnmanagedExports
     // or maybe CIL can export unmanaged functions
 

@@ -95,3 +95,5 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 - Get testing working on Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/main?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/main)
 
 - Get `dotnet test` working in [CloudFlare](https://developers.cloudflare.com/pages/platform/build-configuration) or on another Linux environment
+
+- MAYBE bundle as a vscode extension?

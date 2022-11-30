@@ -60,8 +60,9 @@ public abstract class CodeNode
     }
   }
 
-  protected virtual long BeforeReposition => START_END_NOT_SET; 
+  protected virtual long BeforeReposition => START_END_NOT_SET;
 
+  //TODO(PERF) skip reflection by having a source generator produce this exact code for each field
   protected virtual void InnerRead() {
     var orderedFields = this.GetType().GetFields()
         .Where(field => field.DeclaringType != typeof(CodeNode))
@@ -81,6 +82,8 @@ public abstract class CodeNode
     }
   }
 
+  //TODO(PERF) add overloads i.e. CodeNode[] field to skip reflection? Use CallerArgumentExpression https://stackoverflow.com/a/70038692/771768
+  //TODO(PERF) Or, worth passing (x => Field3 = x) for a setter? OR, ref param?
   protected void AddChild(string fieldName) {
     var field = GetType().GetField(fieldName);
     var type = field.FieldType;

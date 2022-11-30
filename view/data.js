@@ -137,6 +137,7 @@ function setByte(i, color, cursor) {
 
 /** @param {CodeNode} node */
 function scrollIntoView(node) {
+  //TODO(PERF) could skipping getBoundingClientRect improve render time?
   const first = $(byteID(node.Start));
   const last = $(byteID(node.End - 1));
 
@@ -472,7 +473,7 @@ function findLinkReferences(node) {
 }
 
 function drawToc() {
-  const ul = create("ul");
+  const ul = create("ul"); // MAYBE would nested <details> be simpler? https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
   $("toc").appendChild(ul);
 
   drawTocHelper(FileFormat, ul);
