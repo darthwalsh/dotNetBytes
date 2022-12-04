@@ -5,5 +5,7 @@ obj
 packages
 *.nupkg
 .vs/
+dotnet3/
+dotnet-install.sh
 
 PerfTest/BenchmarkDotNet.Artifacts/
