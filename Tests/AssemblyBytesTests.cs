@@ -181,6 +181,8 @@ namespace Tests
           csc = FindCsc();
         }
         RunProcess(csc, args);
+      } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+        RunProcess("/usr/bin/mcs", args); // instead of csc (Roslyn)
       } else {
         throw new NotImplementedException();
       }

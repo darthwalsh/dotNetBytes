@@ -1,7 +1,7 @@
 dotNetBytes
 ===========
 
-[![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/main?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/main)
+*Windows:* [![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/main?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/main)
 
 Have you ever wondered what was inside your C# EXE or DLL? Have you ever tried to modify a binary and got some weird CLR exception? dotNetBytes can help.
 
@@ -56,7 +56,7 @@ There are four major parts:
  - [`Lib/`](Lib/) has the disassembly library, and can be executed on the command line to see a pseudo-YAML view of the nested objects
  - [`view`/](view/) is the web frontend
  - [`CloudFunction`/](CloudFunction/) is a Google Cloud Function serverless function running `Lib`.
- - [`Test`/](Test/) is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
+ - [`Tests`/](Tests/) is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
 
 The interface is the frontend POSTS the assembly, and the back-end returns recursive JSON description of the entire assembly, in this recursive format:
 

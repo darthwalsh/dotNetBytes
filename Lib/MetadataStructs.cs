@@ -1119,7 +1119,8 @@ sealed class TildeData : CodeNode
   [Expected(0)]
   public TildeDateHeapSizes HeapSizes;
   [Description("Reserved, always 1 (§II.24.1).")]
-  [Expected(1)]
+  //TODO(SpecViolation) mono seems to generate 0x10 here, but https://github.com/jbevain/cecil/blob/4ad9c0f0174347763165caf724f4f13a554450d3/Mono.Cecil.Metadata/Buffers.cs#L123 generates 10?
+  // [Expected(1)] 
   public byte Reserved2;
   [Description("Bit vector of present tables, let n be the number of bits that are 1.")]
   public MetadataTableFlags Valid;
