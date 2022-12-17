@@ -130,6 +130,7 @@ namespace Tests
     //    if the exe blows up does it needs to produce error in dotNetBytes (and not an exception)
 
     //TODO(fixme) Managed pointers, Span, ref struct, C#11 ref fields https://blog.ndepend.com/managed-pointers-span-ref-struct-c11-ref-fields-and-the-scoped-keyword/
+    //TODO(fixme) look through all new C# fatures that required runtime changes, i.e. https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-11.0/generic-attributes
 
     //MAYBE Test Embedded PDB support. In rosyln command line compile with, /debug:embedded
 
