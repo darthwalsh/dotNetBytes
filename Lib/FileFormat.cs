@@ -542,11 +542,13 @@ sealed class Section : CodeNode
                 break;
               case "#US":
                 UserStringHeap = new UserStringHeap((int)streamHeader.Size);
-                AddChild(nameof(UserStringHeap));
+                if (streamHeader.Size>0)
+                  AddChild(nameof(UserStringHeap)); //TODO why is this empty?
                 break;
               case "#Blob":
                 BlobHeap = new BlobHeap((int)streamHeader.Size);
-                AddChild(nameof(BlobHeap));
+                if (streamHeader.Size>0)
+                  AddChild(nameof(BlobHeap)); //TODO why is this empty?
                 break;
               case "#GUID":
                 GuidHeap = new GuidHeap((int)streamHeader.Size);
@@ -737,7 +739,7 @@ sealed class CLIHeader : CodeNode
   [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
   public CliHeaderFlags Flags;
   [Description("Token for the MethodDef or File of the entry point for the image")]
-  public uint EntryPointToken;
+  public uint EntryPointToken; //TODO(link)
   [Description("RVA and size of implementation-specific resources.")]
   public RVAandSize Resources;
   [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]

@@ -151,17 +151,15 @@ namespace Tests
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
           return Path.Join(AppContext.BaseDirectory, "runtimes", "osx-x64", "native", "ilasm");
-        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-          return @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\ilasm.exe";
-          // Doesn't work in dotnet core
-          // ToolLocationHelper.GetPathToDotNetFrameworkFile(ilasm.exe, VersionLatest);
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+          return "/usr/bin/ilasm";
         } else {
           throw new NotImplementedException();
         }
       }
     }
 
-    static string csc;
+    static string csc; // TODO delete all
     static void RunCsc(string args) {
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
         if (csc is null) {
@@ -176,52 +174,32 @@ namespace Tests
           Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/3.1.0/ref/netcoreapp3.1/", "*.dll")
           .Select(dll => "/reference:" + dll));
         RunProcess("dotnet", $"{csc} {refs} {args}");
-      } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-        if (csc is null) {
-          csc = FindCsc();
-        }
-        RunProcess(csc, args);
       } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
         RunProcess("/usr/bin/mcs", args); // instead of csc (Roslyn)
       } else {
         throw new NotImplementedException();
       }
-
-      static string FindCsc() {
-        // Doesn't work in dotnet core
-        // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
-        var years = new[] { "2022", "2019", "2017" };
-        var editions = new[] { "Enterprise", "Professional", "Community" };
-        foreach (var year in years) {
-          foreach (var edition in editions) {
-            var path = Path.Combine(
-              Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-              "Microsoft Visual Studio",
-              year,
-              edition,
-              "MSBuild",
-              "Current",
-              "Bin",
-              "Roslyn",
-              "csc.exe");
-            if (File.Exists(path)) return path;
-          }
-        }
-        throw new FileNotFoundException("csc.exe");
-      }
     }
 
+    // TODO dotnet clean should delete the compiled&assembled EXEs/DLLs
+    // TODO run peverify on compiled / assembled outputs
     static bool ShouldCompile(string path, string outpath) => !File.Exists(outpath) || File.GetLastWriteTime(Path.Join("Samples", path)) > File.GetLastWriteTime(outpath);
 
-    public static string Assemble(string path, string args = "") {
-      var outpath = Path.GetFullPath(path.Replace(".il", $".{CleanFileName(args)}.il.exe"));
+    internal static string Assemble(BuildTools build, string path, string args = "") {
+      // TODO output should have $plaform in the name: mono / dotnet / .NET Framework
+      var exe = path.Replace(".il", $".{CleanFileName(args)}.il.{build.Id}.exe");
+      var outpath = Path.Join(AppContext.BaseDirectory, exe);
+
+      if (args.Contains("/dll")) {
+        outpath = outpath.Replace(".il.exe", ".il.dll");
+      }
 
       if (ShouldCompile(path, outpath)) {
         Console.Error.WriteLine($"Assembling {outpath}");
 
-        var switchchar = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "-";
-        args = string.Join(' ', args.Split(' ').Select(arg => arg.StartsWith('/') ? switchchar + arg.Substring(1) : arg));
-        RunProcess(ilasm, $@"""{path}"" {switchchar}OUTPUT=""{outpath}"" {args}");
+        // var switchchar = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "-";
+        // args = string.Join(' ', args.Split(' ').Select(arg => arg.StartsWith('/') ? switchchar + arg.Substring(1) : arg));
+        build.Assemble($@"""{path}"" /OUTPUT=""{outpath}"" {args}");
       } else {
         Console.Error.WriteLine($"Using existing {outpath}");
       }
@@ -229,29 +207,33 @@ namespace Tests
       return outpath;
     }
 
-    static void RunIL(string path, string args = "") => Run(Assemble(path, args));
-
-    //MAYBE either invoke in-memory compiler and assembler, or run compiler as part of build time
-    static void RunCompile(string path, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
-      var allArgs = $"{optimize} {noconfig} {args}";
-
-      var outpath = Path.GetFullPath(path.Replace(".cs", $".{CleanFileName(allArgs)}.exe"));
-
-      if (ShouldCompile(path, outpath)) {
-        Console.Error.WriteLine($"Compiling {outpath}");
-
-        RunCsc($@"""{path}"" /out:""{outpath}"" {allArgs}");
-      } else {
-        Console.Error.WriteLine($"Using existing {outpath}");
+    static void RunIL(string file, string args = "") {
+      foreach (var build in PlatformTools.All()) {
+        Run(Assemble(build, file, args));
       }
-      /*//Uncomment this block if you want to see the web version of the parse
-                  Program.Run(outpath);
-                  Assert.Fail("Oops comment me out");
-      /*/
-      Run(outpath);
-      //*/
     }
 
+    //MAYBE either invoke in-memory compiler and assembler, or run compiler as part of build time
+    static void RunCompile(string file, string args = "", string optimize = "/optimize", string noconfig = "/noconfig") {
+      var allArgs = $"{optimize} {noconfig} {args}";
+
+      foreach (var build in PlatformTools.All()) {
+        var exe = file.Replace(".cs", $".{CleanFileName(allArgs)}.{build.Id}.exe");
+        var outpath = Path.Join(AppContext.BaseDirectory, exe);
+
+        if (ShouldCompile(file, outpath)) {
+          Console.Error.WriteLine($"Compiling {outpath}");
+
+          build.Compile($@"""{file}"" /out:""{outpath}"" {allArgs}");
+        } else {
+          Console.Error.WriteLine($"Using existing {outpath}");
+        }
+        // Program.Run(outpath); // Uncomment to see the web result
+        Run(outpath);
+      }
+    }
+
+    // TODO delete
     static string RunProcess(string filename, string processArgs) {
       using var p = Process.Start(new ProcessStartInfo {
         FileName = filename,

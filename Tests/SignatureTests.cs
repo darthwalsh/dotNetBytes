@@ -12,7 +12,7 @@ namespace Tests
 
     [ClassInitialize()]
     public static void MyClassInitialize(TestContext testContext) {
-      var assembled = AssemblyBytesTests.Assemble("Signatures.il");
+      var assembled = AssemblyBytesTests.Assemble(PlatformTools.All().First(), "Signatures.il"); // TODO
       var openFile = File.OpenRead(assembled);
       assm = new AssemblyBytes(openFile);
       AssemblyBytesTests.DumpJson(assembled, assm);
