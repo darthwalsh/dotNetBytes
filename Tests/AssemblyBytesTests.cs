@@ -134,6 +134,8 @@ namespace Tests
 
     //MAYBE Test Embedded PDB support. In rosyln command line compile with, /debug:embedded
 
+    //MAYBE Validate ilasm output using [Peverify.exe](https://learn.microsoft.com/en-us/dotnet/framework/tools/peverify-exe-peverify-tool) to avoid testing with bad binaries
+
     //MAYBE try out unmanaged exports library? https://sites.google.com/site/robertgiesecke/Home/uploads/unmanagedexports with https://www.nuget.org/packages/UnmanagedExports
     // or maybe CIL can export unmanaged functions
 

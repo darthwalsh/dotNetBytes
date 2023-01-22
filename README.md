@@ -94,6 +94,11 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 - Get testing working on Windows: [![Build status](https://ci.appveyor.com/api/projects/status/4ejfir3fhv80rhjv/branch/main?svg=true)](https://ci.appveyor.com/project/darthwalsh/dotnetbytes/branch/main)
 
-- Get `dotnet test` working in [CloudFlare](https://developers.cloudflare.com/pages/platform/build-configuration) or on another Linux environment
+- Get `dotnet test` working on linux
+  - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration): Installed dotnet 3.1.302	
+  - CloudFlare [Blazor guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-blazor-site/) showing dotnet bootstrap
+  - CloudFlare [Deploying "anything"](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/)
+  - CloudFlare [current build image OS](https://github.com/cloudflare/pages-build-image/discussions/1):  Ubuntu 16.04 (xenial) but might upgrade to 22.04 (jammy) and dotnet 6.0.5
+
 
 - MAYBE bundle as a vscode extension?
