@@ -145,6 +145,8 @@ namespace Tests
       - Windows use .NET Framework
     */
 
+    // MAYBE, use DataTestMethod (could that simplify above? ) https://www.meziantou.net/mstest-v2-data-tests.htm
+
     static string ilasm {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
