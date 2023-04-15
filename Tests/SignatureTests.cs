@@ -96,7 +96,7 @@ namespace Tests
     [TestMethod]
     public void FnptrTypeSpec() {
       var actual =  MethodLines("Fnptr");
-      Assert.AreEqual(@"method static void *(int)
+      Lines.AreEqual(@"method static void *(int)
 method explicitthis char *()
 method void *()
 method static vararg void *(method static fastcall void *(char, uint), ...)", actual);
@@ -110,7 +110,7 @@ method static vararg void *(method static fastcall void *(char, uint), ...)", ac
     [TestMethod]
     public void MethodRefDefSig() {
       var actual = MethodLines("StandAloneMethodSigRunner");
-      Assert.AreEqual(@"static int AddTen(int)
+      Lines.AreEqual(@"static int AddTen(int)
 static int (int)
 static vararg void VarArgsMethod(int, ...)
 static vararg void VarArgsMethod(int, ..., int)
@@ -140,13 +140,13 @@ static vararg void (int, ..., uint)", actual);
 
     [TestMethod]
     public void FieldSigOps() {
-      Assert.AreEqual(@"int classCount
+      Lines.AreEqual(@"int classCount
 int* classCount", MethodLines("FieldSigRunner"));
     }
 
     [TestMethod]
     public void MethodSpecs() {
-      Assert.AreEqual(@"static void Gen<int, string>(char)
+      Lines.AreEqual(@"static void Gen<int, string>(char)
 static void Gen<string, class MethodSpecsTests>(char)", MethodLines("MethodSpecs"));
     }
 
@@ -172,6 +172,13 @@ static void Gen<string, class MethodSpecsTests>(char)", MethodLines("MethodSpecs
     static Method GetMethod(string methodName) {
       var def = assm.TildeStream.MethodDefs.Where(m => m.Name.NodeValue == methodName).Single();
       return (Method)def.Children.Where(n => n.NodeName == "RVA").Single().Link;
+    }
+  }
+
+  static class Lines {
+    public static void AreEqual(string x, string y) {
+      // Don't rely on the source code EOL
+      Assert.AreEqual(x.Replace("\r", ""), y.Replace("\r", ""));
     }
   }
 }
