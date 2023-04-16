@@ -14,8 +14,7 @@ public class AssemblyBytes
     FileFormat.NodeName = "FileFormat";
     try {
       FileFormat.Read();
-    }
-    catch (EndOfStreamException e) {
+    } catch (EndOfStreamException e) {
       FileFormat.Errors.Add(e.ToString());
     }
 
@@ -54,6 +53,17 @@ public class AssemblyBytes
   internal GuidHeap GuidHeap => CLIHeaderSection.GuidHeap;
   internal TildeStream TildeStream => CLIHeaderSection.TildeStream;
 
+  CodeNode pendingLink;
+  public CodeNode PendingLink {
+    get {
+      return pendingLink;
+    }
+    internal set {
+      if (PendingLink != null && value != null) throw new InvalidOperationException();
+      pendingLink = value;
+    }
+  }
+
   public T Read<T>() where T : struct => Stream.ReadStruct<T>();
   public T ReadClass<T>() where T : CodeNode, new() {
     // MAYBE https://stackoverflow.com/questions/2974519/generic-constraints-where-t-struct-and-where-t-class
@@ -74,7 +84,8 @@ public class AssemblyBytes
     return orig;
   }
 
-  class ResetPos : IDisposable {
+  class ResetPos : IDisposable
+  {
     Stream stream;
     long origPos;
 

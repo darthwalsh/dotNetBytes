@@ -212,7 +212,7 @@ sealed class PEHeaderStandardFields : CodeNode
   [Description("Size of the uninitialized data section, or the sum of all such sections if there are multiple unitinitalized data sections.")]
   public uint UninitializedDataSize; //TODO(size)
   [Description("RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs")]
-  public uint EntryPointRVA; //TODO(link)
+  public uint EntryPointRVA;
   [Description("RVA of the code section. (This is a hint to the loader.)")]
   public uint BaseOfCode;
 }
@@ -358,7 +358,7 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
 
 sealed class RVAandSize : CodeNode
 {
-  [OrderedField] public uint RVA; //TODO(link)
+  [OrderedField] public uint RVA;
   [OrderedField] public uint Size; //TODO(size)
 }
 
@@ -374,7 +374,7 @@ sealed class SectionHeader : CodeNode
   [Description("Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.")]
   public uint SizeOfRawData;
   [Description("Offset of section's first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
-  public uint PointerToRawData; //TODO(link)
+  public uint PointerToRawData;
   [Description("Should be 0 (§II.24.1).")]
   [Expected(0)]
   public uint PointerToRelocations;
@@ -501,6 +501,8 @@ sealed class Section : CodeNode
 
   protected override void InnerRead() {
     Start = (int)header.PointerToRawData;
+    header.Child(nameof(header.PointerToRawData)).Link = this;
+
     End = Start + (int)header.SizeOfRawData;
     rva = (int)header.VirtualAddress;
     string name = new string(header.Name);
@@ -515,19 +517,20 @@ sealed class Section : CodeNode
         .Where(nr => nr.rva.RVA > 0)
         .Where(nr => rva <= nr.rva.RVA && nr.rva.RVA < rva + End - Start)
         .OrderBy(nr => nr.rva.RVA)) {
-      Reposition(nr.rva.RVA); //TODO(link) every Position= or Reposition() should be a Link?!
+      LinkReposition(nr.rva, nameof(nr.rva.RVA));
 
       switch (nr.name) {
         case "CLIHeader":
           Bytes.CLIHeaderSection = this;
           AddChild(nameof(CLIHeader));
 
-          Reposition(CLIHeader.MetaData.RVA);
+          LinkReposition(CLIHeader.MetaData, nameof(CLIHeader.MetaData.RVA));
+
           AddChild(nameof(MetadataRoot));
 
           foreach (var streamHeader in MetadataRoot.StreamHeaders.OrderBy(h => h.Name.Str.IndexOf('~'))) // Read #~ after heaps
           {
-            Reposition(streamHeader.Offset + CLIHeader.MetaData.RVA);
+            LinkReposition(streamHeader.Child(nameof(streamHeader.Offset)), streamHeader.Offset + CLIHeader.MetaData.RVA);
 
             switch (streamHeader.Name.Str) {
               case "#Strings":
@@ -568,16 +571,17 @@ sealed class Section : CodeNode
         case "ImportTable":
           AddChild(nameof(ImportTable));
 
-          Reposition(ImportTable.ImportLookupTable);
+          LinkReposition(ImportTable, nameof(ImportTable.ImportLookupTable));
           AddChild(nameof(ImportLookupTable));
 
-          Reposition(ImportLookupTable.HintNameTableRVA);
+          LinkReposition(ImportLookupTable, nameof(ImportLookupTable.HintNameTableRVA));
           AddChild(nameof(ImportAddressHintNameTable));
 
-          Reposition(ImportTable.Name);
+          LinkReposition(ImportTable, nameof(ImportTable.Name));
           AddChild(nameof(RuntimeEngineName));
 
-          Reposition(optionalHeader.PEHeaderStandardFields.EntryPointRVA);
+          var standardFields = optionalHeader.PEHeaderStandardFields;
+          LinkReposition(standardFields, nameof(standardFields.EntryPointRVA));
           AddChild(nameof(NativeEntryPoint));
           break;
         case "ImportAddressTable":
@@ -599,7 +603,7 @@ sealed class Section : CodeNode
     for (int i = 0; i < TildeStream.ManifestResources.Length; ++i) {
       var manifest = TildeStream.ManifestResources[i];
 
-      Reposition(manifest.Offset + CLIHeader.Resources.RVA);
+      LinkReposition(manifest.Child(nameof(manifest.Offset)), manifest.Offset + CLIHeader.Resources.RVA); 
       var entry = Bytes.ReadClass<ResourceEntry>();
 
       entry.NodeName = $"{nameof(ResourceEntries)}[{i}]";
@@ -610,14 +614,24 @@ sealed class Section : CodeNode
     Children.AddRange(entries);
   }
 
-  public void Reposition(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;
+  public void RepositionWithoutLink(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;
+
+  public void LinkReposition(CodeNode parent, string childName) {
+    var child = parent.Child(childName);
+    LinkReposition(child, child.GetInt32());
+  }
+
+  public void LinkReposition(CodeNode linker, long dataRVA) {
+    Bytes.PendingLink = linker;
+    RepositionWithoutLink(dataRVA);
+  }
 }
 
 // II.25.3.1
 sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
-  public uint ImportLookupTable; //TODO(link)
+  public uint ImportLookupTable;
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
   public uint DateTimeStamp;
@@ -625,7 +639,7 @@ sealed class ImportTable : CodeNode
   [Expected(0)]
   public uint ForwarderChain;
   [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
-  public uint Name; //TODO(link)
+  public uint Name;
   [Description("RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).")]
   public uint ImportAddressTableRVA; //TODO(link)
   [Description("End of Import Table. Shall be filled with zeros.")]
@@ -646,7 +660,7 @@ sealed class ImportAddressTable : CodeNode
 sealed class ImportLookupTable : CodeNode
 {
   [OrderedField]
-  public uint HintNameTableRVA; //TODO(link)
+  public uint HintNameTableRVA;
   [Expected(0)]
   public uint NullTerminated;
 }
@@ -790,12 +804,12 @@ sealed class Methods : CodeNode
       var rva = methodDefGroup.Key;
       if (rva == 0) continue;
 
-      Bytes.CLIHeaderSection.Reposition(rva);
+      Bytes.CLIHeaderSection.RepositionWithoutLink(rva);
       var method = Bytes.ReadClass<Method>();
       foreach (var methodDef in methodDefGroup) {
         methodDef.Child(nameof(methodDef.RVA)).Link = method;
       }
-      
+
       method.NodeName = $"{nameof(Method)}[{Children.Count}]";
       Children.Add(method);
     }

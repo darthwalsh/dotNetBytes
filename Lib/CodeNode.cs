@@ -52,6 +52,12 @@ public abstract class CodeNode
   }
 
   public void Read() {
+    if (Bytes.PendingLink != null) {
+      if (Bytes.PendingLink.Link != null) throw new InvalidOperationException();
+      Bytes.PendingLink.Link = this;
+      Bytes.PendingLink = null;
+    }
+
     Start = (int)Bytes.Stream.Position;
     InnerRead();
     if (End == START_END_NOT_SET) {

@@ -1,4 +1,4 @@
-Context: https://github.com/darthwalsh/dotNetBytes/tree/wip-linktarget is trying to solve TODO:
+Context: https://github.com/darthwalsh/dotNetBytes/tree/wip-linktarget is trying to solve javascript TODO:
 
 ```
 //TODO(LINK) link targets, using dim? What if both?

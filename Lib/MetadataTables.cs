@@ -212,7 +212,7 @@ sealed class FieldMarshal : CodeNode
 // II.22.18
 sealed class FieldRVA : CodeNode
 {
-  [OrderedField] public uint RVA;
+  [OrderedField] public uint RVA; //TODO(link) where this field's initial value is store, maybe in .sdata
   [OrderedField] public TableIndex<Field> Field;
 }
 
@@ -263,7 +263,7 @@ sealed class InterfaceImpl : CodeNode
 // II.22.24
 sealed class ManifestResource : CodeNode
 {
-  [OrderedField] public uint Offset; //TODO(link)
+  [OrderedField] public uint Offset;
   [OrderedField] public ManifestResourceAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
   [OrderedField] public CodedIndex.Implementation Implementation;

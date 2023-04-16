@@ -691,7 +691,7 @@ sealed class MetadataRoot : CodeNode
 sealed class StreamHeader : CodeNode
 {
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
-  public uint Offset; //TODO(link)
+  public uint Offset;
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
   public uint Size; //TODO(size)
   [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
