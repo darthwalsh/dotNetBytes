@@ -273,17 +273,8 @@ sealed class ManifestResource : CodeNode
 
 sealed class ResourceEntry : CodeNode
 {
-  int i;
-  public ResourceEntry(int i) {
-    this.i = i;
-  }
-
   [OrderedField] public uint Length;
   [OrderedField] public byte[] Data;
-
-  protected override long BeforeReposition =>
-    Bytes.TildeStream.ManifestResources[i].Offset +
-    Bytes.CLIHeaderSection.CLIHeader.Resources.RVA;
 
   protected override int GetCount(string field) => field switch {
     nameof(Data) => (int)Length,

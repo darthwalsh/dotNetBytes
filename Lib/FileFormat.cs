@@ -13,18 +13,17 @@ using System.Text;
 
 sealed class FileFormat : CodeNode
 {
-  [OrderedField] public PEHeader PEHeader;
-  [OrderedField] public Section[] Sections;
+  public PEHeader PEHeader;
+  public Section[] Sections;
 
   protected override void InnerRead() {
-    base.InnerRead();
+    AddChild(nameof(PEHeader));
+
+    Sections = PEHeader.SectionHeaders.Select(h => new Section(h)).ToArray();
+    AddChildren(nameof(Sections), Sections.Length);
+
     End = Sections.Max(s => s.End);
   }
-
-  protected override int GetCount(string field) => field switch {
-    nameof(Sections) => PEHeader.SectionHeaders.Length,
-    _ => base.GetCount(field),
-  };
 }
 
 // II.25.2
@@ -495,14 +494,12 @@ sealed class Section : CodeNode
 
   public Methods Methods;
 
-  int sectionI;
-  public Section(int i) {
-    sectionI = i;
+  SectionHeader header;
+  public Section(SectionHeader header) {
+    this.header = header;
   }
 
   protected override void InnerRead() {
-    var header = Bytes.FileFormat.PEHeader.SectionHeaders[sectionI];
-
     Start = (int)header.PointerToRawData;
     End = Start + (int)header.SizeOfRawData;
     rva = (int)header.VirtualAddress;
@@ -553,9 +550,7 @@ sealed class Section : CodeNode
                 TildeStream = new TildeStream(this);
                 AddChild(nameof(TildeStream));
 
-                if (TildeStream.ManifestResources != null) {
-                  AddChildren(nameof(ResourceEntries), TildeStream.ManifestResources.Length);
-                }
+                ReadManifestResources();
 
                 AddChild(nameof(Methods));
                 if (!Methods.Children.Any()) {
@@ -595,6 +590,24 @@ sealed class Section : CodeNode
           throw new NotImplementedException($"{name} {nr.name}");
       }
     }
+  }
+
+  void ReadManifestResources() {
+    if (TildeStream.ManifestResources == null) return;
+
+    var entries = new List<ResourceEntry>();
+    for (int i = 0; i < TildeStream.ManifestResources.Length; ++i) {
+      var manifest = TildeStream.ManifestResources[i];
+
+      Reposition(manifest.Offset + CLIHeader.Resources.RVA);
+      var entry = Bytes.ReadClass<ResourceEntry>();
+
+      entry.NodeName = $"{nameof(ResourceEntries)}[{i}]";
+      entries.Add(entry);
+    }
+
+    ResourceEntries = entries.ToArray();
+    Children.AddRange(entries);
   }
 
   public void Reposition(long dataRVA) => Bytes.Stream.Position = Start + dataRVA - rva;

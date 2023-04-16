@@ -48,19 +48,12 @@ public abstract class CodeNode
   }
 
   public void Read() {
-    var reposition = BeforeReposition;
-    if (reposition != START_END_NOT_SET) {
-      Bytes.CLIHeaderSection.Reposition(reposition);
-    }
-
     Start = (int)Bytes.Stream.Position;
     InnerRead();
     if (End == START_END_NOT_SET) {
       End = (int)Bytes.Stream.Position;
     }
   }
-
-  protected virtual long BeforeReposition => START_END_NOT_SET;
 
   //TODO(PERF) skip reflection by having a source generator produce this exact code for each field
   protected virtual void InnerRead() {
@@ -127,10 +120,8 @@ public abstract class CodeNode
     var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
     field.SetValue(this, arr);
     var elType = field.FieldType.GetElementType();
-    var ctorIndexed = elType.GetConstructor(new[] { typeof(int) }) != null;
     for (var i = 0; i < arr.Length; i++) {
-      var param = ctorIndexed ? new object[] { i } : new object[] { };
-      var o = arr[i] ?? (CodeNode)Activator.CreateInstance(elType, param);
+      var o = arr[i] ?? (CodeNode)Activator.CreateInstance(elType);
       o.Bytes = Bytes;
       o.Read();
       arr[i] = o;
