@@ -792,10 +792,10 @@ sealed class Methods : CodeNode
 
       Bytes.CLIHeaderSection.Reposition(rva);
       var method = Bytes.ReadClass<Method>();
-
       foreach (var methodDef in methodDefGroup) {
-        methodDef.SetLink(method);
+        methodDef.Child(nameof(methodDef.RVA)).Link = method;
       }
+      
       method.NodeName = $"{nameof(Method)}[{Children.Count}]";
       Children.Add(method);
     }

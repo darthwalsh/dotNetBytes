@@ -307,10 +307,6 @@ sealed class MethodDef : CodeNode
   [OrderedField] public UnknownCodedIndex ParamList; // contiguous run of Params; continues to last row or the next ParamList
 
   public override string NodeValue => Signature.NamedValue(Name.NodeValue);
-
-  public void SetLink(Method method) {
-    Children.First().Link = method;
-  }
 }
 
 // II.22.27

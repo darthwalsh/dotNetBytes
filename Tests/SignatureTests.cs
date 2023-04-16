@@ -171,7 +171,7 @@ static void Gen<string, class MethodSpecsTests>(char)", MethodLines("MethodSpecs
 
     static Method GetMethod(string methodName) {
       var def = assm.TildeStream.MethodDefs.Where(m => m.Name.NodeValue == methodName).Single();
-      return (Method)def.Children.Where(n => n.NodeName == "RVA").Single().Link;
+      return (Method)def.Child(nameof(def.RVA)).Link;
     }
   }
 

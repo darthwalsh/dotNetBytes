@@ -47,6 +47,10 @@ public abstract class CodeNode
     }
   }
 
+  public CodeNode Child(string name) {
+    return Children.Where(n => n.NodeName == name).Single();
+  }
+
   public void Read() {
     Start = (int)Bytes.Stream.Position;
     InnerRead();
