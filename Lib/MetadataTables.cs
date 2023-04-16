@@ -414,8 +414,8 @@ sealed class TypeDef : CodeNode
   [OrderedField] public StringHeapIndex TypeName;
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.TypeDefOrRef Extends;
-  [OrderedField] public UnknownCodedIndex FieldList; // contiguous run of Fields; continues to last row or the next FieldList
-  [OrderedField] public UnknownCodedIndex MethodList; // contiguous run of Methods; continues to last row or the next MethodList
+  [OrderedField] public UnknownCodedIndex FieldList; //TODO(link) contiguous run of Fields; continues to last row or the next FieldList
+  [OrderedField] public UnknownCodedIndex MethodList; //TODO(link) contiguous run of Methods; continues to last row or the next MethodList
   public override string NodeValue => TypeNamespace.NodeValue != "" ?
     TypeNamespace.NodeValue + "." + TypeName.NodeValue :
     TypeName.NodeValue;

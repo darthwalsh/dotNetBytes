@@ -691,9 +691,9 @@ sealed class MetadataRoot : CodeNode
 sealed class StreamHeader : CodeNode
 {
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
-  public uint Offset;
+  public uint Offset; //TODO(link)
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
-  public uint Size;
+  public uint Size; //TODO(size)
   [Description("Name of the stream as null-terminated variable length array of ASCII characters, padded to the next 4 - byte boundary with null characters.")]
   public NullTerminatedString Name = new NullTerminatedString(Encoding.ASCII, 4);
 }
@@ -971,7 +971,7 @@ sealed class TildeStreamRows : CodeNode
     this.count = count;
   }
   //TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
-  public StructNode<uint>[] Rows;
+  public StructNode<uint>[] Rows; //TODO(size)
 
   protected override int GetCount(string field) => count;
 }

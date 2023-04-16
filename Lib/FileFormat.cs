@@ -135,7 +135,7 @@ class PEFileHeader : CodeNode
   [Expected(0)]
   public uint NumberOfSymbols;
   [Description("Size of the optional header, the format is described below.")]
-  public ushort OptionalHeaderSize;
+  public ushort OptionalHeaderSize; //TODO(size)
   [Description("Flags indicating attributes of the file, see §II.25.2.2.1.")]
   public ushort Characteristics;
 }
@@ -207,13 +207,13 @@ sealed class PEHeaderStandardFields : CodeNode
   [Expected(0)]
   public byte LMinor;
   [Description("Size of the code (text) section, or the sum of all code sections if there are multiple sections.")]
-  public uint CodeSize;
+  public uint CodeSize; //TODO(size)
   [Description("Size of the initialized data section, or the sum of all such sections if there are multiple data sections.")]
-  public uint InitializedDataSize;
+  public uint InitializedDataSize; //TODO(size)
   [Description("Size of the uninitialized data section, or the sum of all such sections if there are multiple unitinitalized data sections.")]
-  public uint UninitializedDataSize;
+  public uint UninitializedDataSize; //TODO(size)
   [Description("RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs")]
-  public uint EntryPointRVA;
+  public uint EntryPointRVA; //TODO(link)
   [Description("RVA of the code section. (This is a hint to the loader.)")]
   public uint BaseOfCode;
 }
@@ -255,9 +255,9 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   [Expected(0)]
   public uint Reserved;
   [Description("Size, in bytes, of image, including all headers and padding; shall be a multiple of Section Alignment.")]
-  public uint ImageSize;
+  public uint ImageSize; //TODO(size)
   [Description("Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.")]
-  public uint HeaderSize;
+  public uint HeaderSize; //TODO(size)
   [Description("Should be 0 (§II.24.1).")]
   [Expected(0)]
   public uint FileChecksum;
@@ -279,7 +279,7 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   public uint LoaderFlags;
   [Description("Shall be 0x10")]
   [Expected(0x10)]
-  public uint NumberOfDataDirectories;
+  public uint NumberOfDataDirectories; //TODO(size) PEHeaderHeaderDataDirectories
 }
 
 [Flags]
@@ -312,9 +312,6 @@ enum DllCharacteristics : ushort
 // II.25.2.3.3
 sealed class PEHeaderHeaderDataDirectories : CodeNode
 {
-  //TODO(link) all Raw Address from understandingCIL
-  //TODO(link) RVAandSize all 
-
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
   public ulong ExportTable;
@@ -362,8 +359,8 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
 
 sealed class RVAandSize : CodeNode
 {
-  [OrderedField] public uint RVA;
-  [OrderedField] public uint Size;
+  [OrderedField] public uint RVA; //TODO(link)
+  [OrderedField] public uint Size; //TODO(size)
 }
 
 // II.25.3
@@ -372,13 +369,13 @@ sealed class SectionHeader : CodeNode
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
   public char[] Name;
   [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
-  public uint VirtualSize;
+  public uint VirtualSize; //TODO(size)
   [Description("For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.")]
   public uint VirtualAddress;
   [Description("Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.")]
   public uint SizeOfRawData;
   [Description("Offset of section's first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
-  public uint PointerToRawData;
+  public uint PointerToRawData; //TODO(link)
   [Description("Should be 0 (§II.24.1).")]
   [Expected(0)]
   public uint PointerToRelocations;
@@ -607,7 +604,7 @@ sealed class Section : CodeNode
 sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
-  public uint ImportLookupTable;
+  public uint ImportLookupTable; //TODO(link)
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
   public uint DateTimeStamp;
@@ -615,9 +612,9 @@ sealed class ImportTable : CodeNode
   [Expected(0)]
   public uint ForwarderChain;
   [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
-  public uint Name;
+  public uint Name; //TODO(link)
   [Description("RVA of Import Address Table (this is the same as the RVA of the IAT descriptor in the optional header).")]
-  public uint ImportAddressTableRVA;
+  public uint ImportAddressTableRVA; //TODO(link)
   [Description("End of Import Table. Shall be filled with zeros.")]
   [Expected(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -628,7 +625,7 @@ sealed class ImportTable : CodeNode
 sealed class ImportAddressTable : CodeNode
 {
   [OrderedField]
-  public uint HintNameTableRVA;
+  public uint HintNameTableRVA; //TODO(link)
   [Expected(0)]
   public uint NullTerminated;
 }
@@ -636,7 +633,7 @@ sealed class ImportAddressTable : CodeNode
 sealed class ImportLookupTable : CodeNode
 {
   [OrderedField]
-  public uint HintNameTableRVA;
+  public uint HintNameTableRVA; //TODO(link)
   [Expected(0)]
   public uint NullTerminated;
 }
@@ -727,7 +724,7 @@ sealed class Fixup : CodeNode
 sealed class CLIHeader : CodeNode
 {
   [Description("Size of the header in bytes")]
-  public uint Cb;
+  public uint Cb; //TODO(size)
   [Description("The minimum version of the runtime required to run this program, currently 2.")]
   public ushort MajorRuntimeVersion;
   [Description("The minor portion of the version, currently 0.")]
@@ -737,7 +734,7 @@ sealed class CLIHeader : CodeNode
   [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
   public CliHeaderFlags Flags;
   [Description("Token for the MethodDef or File of the entry point for the image")]
-  public uint EntryPointToken;
+  public uint EntryPointToken; //TODO(link) should this be MetadataToken?
   [Description("RVA and size of implementation-specific resources.")]
   public RVAandSize Resources;
   [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]

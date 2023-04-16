@@ -6,5 +6,8 @@
   "dotnet-test-explorer.showCodeLens": true,
   "csharp.testsCodeLens.enabled": true,
   "csharp.referencesCodeLens.enabled": true,
-  "coverage-gutters.coverageFileNames": ["coverage.info"]
+  "coverage-gutters.coverageFileNames": [
+    "coverage.info"
+  ],
+  "livePreview.portNumber": 5500
 }
