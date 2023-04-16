@@ -213,9 +213,11 @@ function linkFilterHelper(node, counter) {
     ++counter.n;
 
     let e = node.tocLIdom;
+    let first = true;
     while (e !== $("toc")) {
       showToc(e);
-      if (e.previousElementSibling) showToc(e.previousElementSibling);
+      if (e.previousElementSibling && !first) showToc(e.previousElementSibling);
+      first = false;
       e = e.parentElement;
     }
   }
@@ -292,8 +294,14 @@ function setFocus(node) {
   const sib = toc.nextElementSibling;
   if (sib) showToc(sib);
 
-  allTocLI().forEach(li => (li.style.textDecoration = ""));
+  allTocLI().forEach(li => {
+    li.style.textDecoration = "";
+    li.style.cursor = "";
+  });
   toc.style.textDecoration = "underline";
+  if (node.LinkPath) {
+    toc.style.cursor = "pointer";
+  }
 
   const byteSet = Array(FileFormat.End).fill(false);
   setFocusHelper(node, null, byteSet);
@@ -366,6 +374,10 @@ function onHashChange() {
 }
 
 function currentNode() {
+  if (isLinks()) {
+    return FileFormat;
+  }
+
   const hash = window.location.href.split("#")[1];
   return hash ? lookupNode(hash) : FileFormat;
 }
@@ -481,7 +493,17 @@ function drawToc() {
 
 /** @param {CodeNode} node */
 function drawTocHelper(node, parentUL) {
-  const li = create("li", {textContent: node.Name, onclick: _ => setFocusObject(node)});
+  const onclick = _ => {
+    if (node == currentNode() && node.LinkPath) {
+      window.location.hash = node.LinkPath;
+    } else {
+      setFocusObject(node);
+    }
+  };
+  const li = create("li", {textContent: node.Name, onclick});
+  if (node.LinkPath) {
+    li.style.color = "blue";
+  }
 
   node.tocLIdom = li;
 
@@ -649,10 +671,9 @@ async function setupExampleBytes() {
 async function setupFromFile(buf) {
   displayHex(buf);
 
-  const parseUrl =
-    window.location.href.startsWith("http://localhost:5500")
-      ? "http://127.0.0.1:8080"
-      : "https://us-central1-dotnetbytes.cloudfunctions.net/parse";
+  const parseUrl = window.location.href.startsWith("http://localhost:5500")
+    ? "http://127.0.0.1:8080"
+    : "https://us-central1-dotnetbytes.cloudfunctions.net/parse";
 
   const response = await fetch(parseUrl, {
     method: "POST",
@@ -690,7 +711,7 @@ if (!window.location.href.includes("?Example=true")) {
     /** @type {ArrayBuffer} */
     const buf = await ev.bytes.arrayBuffer();
     if (!buf.byteLength) return;
-    
+
     cleanupDisplay();
 
     const dateString = ev.bytes.lastModifiedDate.toLocaleString([], {
@@ -715,7 +736,6 @@ if (!window.location.href.includes("?Example=true")) {
 }
 
 //TODO rightPanel width isn't always wide enough for link text i.e. Methods/Method[0]/CilOps/Op[2]/Token/Offset
-//TODO(LINK) Make the ToC blue like a link, clickable
 //TODO(LINK) link targets, using dim? What if both?
 //TODO(LINK) visualize link sizes (using onhover to highlight size of target)
 //TODO link-references should include name of linking object instead of path
