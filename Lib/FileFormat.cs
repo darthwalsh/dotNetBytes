@@ -769,28 +769,26 @@ enum CliHeaderFlags : uint
 
 sealed class Methods : CodeNode
 {
-  public Method[] Method;
-
   protected override void InnerRead() {
     if (Bytes.TildeStream.MethodDefs == null) return;
 
-    var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA);
-
-    var methods = new List<Method>();
+    var methodDefs = Bytes.TildeStream.MethodDefs.GroupBy(m => m.RVA).OrderBy(g => g.Key);
     foreach (var methodDefGroup in methodDefs) {
       var rva = methodDefGroup.Key;
       if (rva == 0) continue;
-      var method = new Method(rva);
+
+      Bytes.CLIHeaderSection.Reposition(rva);
+      var method = Bytes.ReadClass<Method>();
+
       foreach (var methodDef in methodDefGroup) {
         methodDef.SetLink(method);
       }
-      methods.Add(method);
+      method.NodeName = $"{nameof(Method)}[{Children.Count}]";
+      Children.Add(method);
     }
 
-    Method = methods.OrderBy(m => m.RVA).ToArray();
-    base.InnerRead();
-    Start = Method.Min(m => m.Start);
-    End = Method.Max(m => m.End);
+    Start = Children.Min(m => m.Start);
+    End = Children.Max(m => m.End);
   }
 }
 
@@ -802,15 +800,8 @@ sealed class Method : CodeNode
   public MethodDataSection[] DataSections;
   public InstructionStream CilOps;
 
-  public Method(uint rva) {
-    RVA = rva;
-  }
-
-  public uint RVA { get; private set; }
   public int CodeSize { get; private set; }
   public int MaxStack { get; private set; }
-
-  protected override long BeforeReposition => RVA;
 
   protected override void InnerRead() {
     AddChild(nameof(Header));
