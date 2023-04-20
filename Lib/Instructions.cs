@@ -183,7 +183,10 @@ sealed class Op : CodeNode
 
   // §VI.C.2
   public static int DataPopPush(OpCode def, int stack) {
+    //TODO(method) ensure that invoking instance function pops one extra.
+    //TODO(method) Also, not sure where the code should go, but ldarg.0 in instance method gives this
     if (def.stackPop == "VarPop") throw new NotImplementedException();
+
     foreach (var s in def.stackPop.Split("Pop").Where(s => s != "")) {
       stack -= GetStackElem(s);
     }
