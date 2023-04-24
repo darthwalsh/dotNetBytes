@@ -20,7 +20,7 @@ sealed class FileFormat : CodeNode
     AddChild(nameof(PEHeader));
 
     Sections = PEHeader.SectionHeaders.Select(h => new Section(h)).ToArray();
-    AddChildren(nameof(Sections), Sections.Length);
+    AddChildren(nameof(Sections));
 
     End = Sections.Max(s => s.End);
   }

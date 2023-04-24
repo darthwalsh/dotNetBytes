@@ -1027,6 +1027,10 @@ sealed class TildeStream : CodeNode
   public GenericParamConstraint[] GenericParamConstraints;
 
   public TableRun<Field>[] FieldRuns;
+  public TableRun<MethodDef>[] MethodDefRuns;
+  public TableRun<Param>[] ParamRuns;
+  public TableRun<Event>[] EventRuns;
+  public TableRun<Property>[] PropertyRuns;
 
   Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
@@ -1048,10 +1052,30 @@ sealed class TildeStream : CodeNode
     foreach (var (flag, count) in validTables.Zip(Rows.Rows.Select(r => r.GetInt32()))) {
       var name = GetFieldName(flag);
       switch (flag) {
-        case MetadataTableFlags.Field: // TODO refactor this a bit, for adding 4 more cases
+        case MetadataTableFlags.Field:
           FieldRuns = MakeTableRun<Field>(name, TypeDefs.Select(td => td.FieldList).ToList(), count);
-          AddChildren(nameof(FieldRuns), FieldRuns.Length);
-          Fields = FieldRuns.SelectMany(fr => fr.run).ToArray();
+          AddChildren(nameof(FieldRuns));
+          Fields = FieldRuns.SelectMany(tr => tr.run).ToArray();
+          break;
+        case MetadataTableFlags.MethodDef:
+          MethodDefRuns = MakeTableRun<MethodDef>(name, TypeDefs.Select(td => td.MethodList).ToList(), count);
+          AddChildren(nameof(MethodDefRuns));
+          MethodDefs = MethodDefRuns.SelectMany(tr => tr.run).ToArray();
+          break;
+        case MetadataTableFlags.Param:
+          ParamRuns = MakeTableRun<Param>(name, MethodDefs.Select(md => md.ParamList).ToList(), count);
+          AddChildren(nameof(ParamRuns));
+          Params = ParamRuns.SelectMany(tr => tr.run).ToArray();
+          break;
+        case MetadataTableFlags.Event:
+          EventRuns = MakeTableRun<Event>(name, EventMaps.Select(td => td.EventList).ToList(), count);
+          AddChildren(nameof(EventRuns));
+          Events = EventRuns.SelectMany(tr => tr.run).ToArray();
+          break;
+        case MetadataTableFlags.Property:
+          PropertyRuns = MakeTableRun<Property>(name, PropertyMaps.Select(td => td.PropertyList).ToList(), count);
+          AddChildren(nameof(PropertyRuns));
+          Properties = PropertyRuns.SelectMany(tr => tr.run).ToArray();
           break;
         default:
           AddChildren(name, count);
@@ -1245,18 +1269,6 @@ sealed class TableList : CodeNode
       return Link.Children[0].NodeName + " - " + Link.Children.Last().NodeName;
     }
   }
-
-  protected override void InnerRead() {
-    Index = Bytes.Read<ushort>();
-  }
-}
-
-//TODO(link) implement all CodedIndex
-sealed class UnknownCodedIndex : CodeNode
-{
-  public ushort Index;
-
-  public override string NodeValue => Index.GetString();
 
   protected override void InnerRead() {
     Index = Bytes.Read<ushort>();

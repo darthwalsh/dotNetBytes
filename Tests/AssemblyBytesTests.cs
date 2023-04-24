@@ -421,7 +421,6 @@ namespace Tests
           nameof(TildeStream.TypeSpecs),
           nameof(TildeStream.StandAloneSigs),
           nameof(TildeStream.ModuleRefs),
-          nameof(TildeStream.FieldRuns),
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
           nameof(MethodDefRefSig.RetType),
@@ -430,6 +429,9 @@ namespace Tests
           nameof(TypeSig.GenArgTypes),
         };
         if (exceptions.Any(sub => node.NodeName.Contains(sub))) {
+          return;
+        }
+        if (node.GetType().GetGenericTypeDefinition() == typeof(TableRun<>)) {
           return;
         }
         Assert.Fail($"{node.SelfPath} at {node.Start} is same size as child {node.Children.Single().NodeName}");

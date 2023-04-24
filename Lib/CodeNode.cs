@@ -125,7 +125,7 @@ public abstract class CodeNode
     }
   }
 
-  protected void AddChildren(string fieldName, int length) {
+  protected void AddChildren(string fieldName, int length = -1) {
     var field = GetType().GetField(fieldName);
     var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
     field.SetValue(this, arr);

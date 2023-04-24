@@ -2492,7 +2492,7 @@
                 {
                   "Name": "MethodList",
                   "Description": "",
-                  "Value": "0x1",
+                  "Value": "(null)",
                   "Start": 826,
                   "End": 828,
                   "LinkPath": null,
@@ -2563,83 +2563,94 @@
                 {
                   "Name": "MethodList",
                   "Description": "",
-                  "Value": "0x1",
+                  "Value": "MethodDefs[0]",
                   "Start": 840,
                   "End": 842,
-                  "LinkPath": null,
+                  "LinkPath": "FileFormat/Sections[0]/TildeStream/MethodDefRuns[0]",
                   "Errors": [],
                   "Children": []
                 }
               ]
             },
             {
-              "Name": "MethodDefs[0]",
+              "Name": "MethodDefRuns[0]",
               "Description": "",
-              "Value": "static void Main()",
+              "Value": "",
               "Start": 842,
               "End": 856,
               "LinkPath": null,
               "Errors": [],
               "Children": [
                 {
-                  "Name": "RVA",
+                  "Name": "MethodDefs[0]",
                   "Description": "",
-                  "Value": "0x2050",
+                  "Value": "static void Main()",
                   "Start": 842,
-                  "End": 846,
-                  "LinkPath": "FileFormat/Sections[0]/Methods/Method[0]",
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "ImplFlags",
-                  "Description": "Method impl is CIL\nMethod impl is managed",
-                  "Value": "{0x0000 IL, 0x0000 Managed, 0x0000 0}",
-                  "Start": 846,
-                  "End": 848,
-                  "LinkPath": null,
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "Flags",
-                  "Description": "Member not referenceable\nMethod reuses existing slot in vtable\n0x0010 Static Defined on type, else per instance",
-                  "Value": "{0x0000 CompilerControlled, 0x0000 ReuseSlot, 0x0010 Static}",
-                  "Start": 848,
-                  "End": 850,
-                  "LinkPath": null,
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "Name",
-                  "Description": "String Heap index 4B",
-                  "Value": "Main",
-                  "Start": 850,
-                  "End": 852,
-                  "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[75]",
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "Signature",
-                  "Description": "",
-                  "Value": "static void ()",
-                  "Start": 852,
-                  "End": 854,
-                  "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]/MethodDefSig",
-                  "Errors": [],
-                  "Children": []
-                },
-                {
-                  "Name": "ParamList",
-                  "Description": "",
-                  "Value": "0x1",
-                  "Start": 854,
                   "End": 856,
                   "LinkPath": null,
                   "Errors": [],
-                  "Children": []
+                  "Children": [
+                    {
+                      "Name": "RVA",
+                      "Description": "",
+                      "Value": "0x2050",
+                      "Start": 842,
+                      "End": 846,
+                      "LinkPath": "FileFormat/Sections[0]/Methods/Method[0]",
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "ImplFlags",
+                      "Description": "Method impl is CIL\nMethod impl is managed",
+                      "Value": "{0x0000 IL, 0x0000 Managed, 0x0000 0}",
+                      "Start": 846,
+                      "End": 848,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "Flags",
+                      "Description": "Member not referenceable\nMethod reuses existing slot in vtable\n0x0010 Static Defined on type, else per instance",
+                      "Value": "{0x0000 CompilerControlled, 0x0000 ReuseSlot, 0x0010 Static}",
+                      "Start": 848,
+                      "End": 850,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "Name",
+                      "Description": "String Heap index 4B",
+                      "Value": "Main",
+                      "Start": 850,
+                      "End": 852,
+                      "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[75]",
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "Signature",
+                      "Description": "",
+                      "Value": "static void ()",
+                      "Start": 852,
+                      "End": 854,
+                      "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]/MethodDefSig",
+                      "Errors": [],
+                      "Children": []
+                    },
+                    {
+                      "Name": "ParamList",
+                      "Description": "",
+                      "Value": "(null)",
+                      "Start": 854,
+                      "End": 856,
+                      "LinkPath": null,
+                      "Errors": [],
+                      "Children": []
+                    }
+                  ]
                 }
               ]
             },

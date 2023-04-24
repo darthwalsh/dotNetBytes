@@ -149,7 +149,7 @@ sealed class DeclSecurity : CodeNode
 sealed class EventMap : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Parent;
-  [OrderedField] public UnknownCodedIndex EventList; // contiguous run of Events; continues to last row or the next EventList
+  [OrderedField] public TableList EventList;
 }
 
 // II.22.13
@@ -212,7 +212,7 @@ sealed class FieldMarshal : CodeNode
 // II.22.18
 sealed class FieldRVA : CodeNode
 {
-  [OrderedField] public uint RVA; //TODO(link) where this field's initial value is store, maybe in .sdata
+  [OrderedField] public uint RVA; //TODO(link) where this field's initial value is stored, maybe in .sdata
   [OrderedField] public TableIndex<Field> Field;
 }
 
@@ -304,7 +304,7 @@ sealed class MethodDef : CodeNode
                                                                                             // ALSO in II.22.28 MethodSemantics: 0x18 
                                                                                             // ALSO in II.22.36 StandAloneSig: 0x11
 
-  [OrderedField] public UnknownCodedIndex ParamList; // contiguous run of Params; continues to last row or the next ParamList
+  [OrderedField] public TableList ParamList;
 
   public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 }
@@ -384,7 +384,7 @@ sealed class Property : CodeNode
 sealed class PropertyMap : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Parent;
-  [OrderedField] public UnknownCodedIndex PropertyList; // contiguous run of Properties; continues to last row or the next PropertyList
+  [OrderedField] public TableList PropertyList;
 }
 
 // II.22.36
@@ -402,7 +402,7 @@ sealed class TypeDef : CodeNode
   [OrderedField] public StringHeapIndex TypeNamespace;
   [OrderedField] public CodedIndex.TypeDefOrRef Extends;
   [OrderedField] public TableList FieldList;
-  [OrderedField] public UnknownCodedIndex MethodList; //TODO(link) contiguous run of Methods; continues to last row or the next MethodList
+  [OrderedField] public TableList MethodList;
   public override string NodeValue => TypeNamespace.NodeValue != "" ?
     TypeNamespace.NodeValue + "." + TypeName.NodeValue :
     TypeName.NodeValue;
