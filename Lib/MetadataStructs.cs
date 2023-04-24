@@ -984,81 +984,86 @@ sealed class TildeStream : CodeNode
     Section = section;
   }
 
-  [OrderedField] public TildeData TildeData;
-  [OrderedField] public TildeStreamRows Rows;
+  public TildeData TildeData;
+  public TildeStreamRows Rows;
 
-  [OrderedField] public Module[] Modules;
-  [OrderedField] public TypeRef[] TypeRefs;
-  [OrderedField] public TypeDef[] TypeDefs;
-  [OrderedField] public Field[] Fields;
-  [OrderedField] public MethodDef[] MethodDefs;
-  [OrderedField] public Param[] Params;
-  [OrderedField] public InterfaceImpl[] InterfaceImpls;
-  [OrderedField] public MemberRef[] MemberRefs;
-  [OrderedField] public Constant[] Constants;
-  [OrderedField] public CustomAttribute[] CustomAttributes;
-  [OrderedField] public FieldMarshal[] FieldMarshals;
-  [OrderedField] public DeclSecurity[] DeclSecuritys;
-  [OrderedField] public ClassLayout[] ClassLayouts;
-  [OrderedField] public FieldLayout[] FieldLayouts;
-  [OrderedField] public StandAloneSig[] StandAloneSigs;
-  [OrderedField] public EventMap[] EventMaps;
-  [OrderedField] public Event[] Events;
-  [OrderedField] public PropertyMap[] PropertyMaps;
-  [OrderedField] public Property[] Properties;
-  [OrderedField] public MethodSemantics[] MethodSemantics;
-  [OrderedField] public MethodImpl[] MethodImpls;
-  [OrderedField] public ModuleRef[] ModuleRefs;
-  [OrderedField] public TypeSpec[] TypeSpecs;
-  [OrderedField] public ImplMap[] ImplMaps;
-  [OrderedField] public FieldRVA[] FieldRVAs;
-  [OrderedField] public Assembly[] Assemblies;
-  [OrderedField] public AssemblyProcessor[] AssemblyProcessors;
-  [OrderedField] public AssemblyOS[] AssemblyOSs;
-  [OrderedField] public AssemblyRef[] AssemblyRefs;
-  [OrderedField] public AssemblyRefProcessor[] AssemblyRefProcessors;
-  [OrderedField] public AssemblyRefOS[] AssemblyRefOSs;
-  [OrderedField] public FileTable[] Files;
-  [OrderedField] public ExportedType[] ExportedTypes;
-  [OrderedField] public ManifestResource[] ManifestResources;
-  [OrderedField] public Nestedclass[] NestedClasses;
-  [OrderedField] public GenericParam[] GenericParams;
-  [OrderedField] public MethodSpec[] MethodSpecs;
-  [OrderedField] public GenericParamConstraint[] GenericParamConstraints;
+  public Module[] Modules;
+  public TypeRef[] TypeRefs;
+  public TypeDef[] TypeDefs;
+  public Field[] Fields;
+  public MethodDef[] MethodDefs;
+  public Param[] Params;
+  public InterfaceImpl[] InterfaceImpls;
+  public MemberRef[] MemberRefs;
+  public Constant[] Constants;
+  public CustomAttribute[] CustomAttributes;
+  public FieldMarshal[] FieldMarshals;
+  public DeclSecurity[] DeclSecuritys;
+  public ClassLayout[] ClassLayouts;
+  public FieldLayout[] FieldLayouts;
+  public StandAloneSig[] StandAloneSigs;
+  public EventMap[] EventMaps;
+  public Event[] Events;
+  public PropertyMap[] PropertyMaps;
+  public Property[] Properties;
+  public MethodSemantics[] MethodSemantics;
+  public MethodImpl[] MethodImpls;
+  public ModuleRef[] ModuleRefs;
+  public TypeSpec[] TypeSpecs;
+  public ImplMap[] ImplMaps;
+  public FieldRVA[] FieldRVAs;
+  public Assembly[] Assemblies;
+  public AssemblyProcessor[] AssemblyProcessors;
+  public AssemblyOS[] AssemblyOSs;
+  public AssemblyRef[] AssemblyRefs;
+  public AssemblyRefProcessor[] AssemblyRefProcessors;
+  public AssemblyRefOS[] AssemblyRefOSs;
+  public FileTable[] Files;
+  public ExportedType[] ExportedTypes;
+  public ManifestResource[] ManifestResources;
+  public Nestedclass[] NestedClasses;
+  public GenericParam[] GenericParams;
+  public MethodSpec[] MethodSpecs;
+  public GenericParamConstraint[] GenericParamConstraints;
+
+  public TableRun<Field>[] FieldRuns;
 
   Dictionary<MetadataTableFlags, IEnumerable<CodeNode>> streamNodes = new Dictionary<MetadataTableFlags, IEnumerable<CodeNode>>();
 
   protected override void InnerRead() {
     AddChild(nameof(TildeData));
-    Rows = new TildeStreamRows(((ulong)TildeData.Valid).CountSetBits());
-    AddChild(nameof(Rows));
-
-    int row = 0;
-    foreach (var value in Enum.GetValues(typeof(MetadataTableFlags))) {
-      var flag = (MetadataTableFlags)value;
-      if (!TildeData.Valid.HasFlag(flag))
-        continue;
-      ReadTables(flag, row);
-      ++row;
-    }
-
     if (TildeData.HeapSizes != 0)
       throw new NotImplementedException("HeapSizes aren't 4-byte-aware"); //TODO(Index4Bytes)
+
+    var validTables = Enum.GetValues(typeof(MetadataTableFlags))
+      .Cast<MetadataTableFlags>()
+      .Where(v => TildeData.Valid.HasFlag(v))
+      .ToList();
+
+    Rows = new TildeStreamRows(validTables.Count);
+    AddChild(nameof(Rows));
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
       throw new NotImplementedException("CodedIndex aren't 4-byte-aware"); //TODO(Index4Bytes)
+
+    foreach (var (flag, count) in validTables.Zip(Rows.Rows.Select(r => r.GetInt32()))) {
+      var name = GetFieldName(flag);
+      switch (flag) {
+        case MetadataTableFlags.Field: // TODO refactor this a bit, for adding 4 more cases
+          FieldRuns = MakeTableRun<Field>(name, TypeDefs.Select(td => td.FieldList).ToList(), count);
+          AddChildren(nameof(FieldRuns), FieldRuns.Length);
+          Fields = FieldRuns.SelectMany(fr => fr.run).ToArray();
+          break;
+        default:
+          AddChildren(name, count);
+          break;
+      }
+
+      var nodes = (IEnumerable<CodeNode>)GetType().GetField(name).GetValue(this);
+      streamNodes.Add(flag, nodes);
+    }
   }
 
-  void ReadTables(MetadataTableFlags flag, int row) {
-    var count = (int)Rows.Rows[row].t;
-
-    var name = GetFieldName(flag);
-    AddChildren(name, count);
-
-    var nodes = (IEnumerable<CodeNode>)GetType().GetField(name).GetValue(this);
-    streamNodes.Add(flag, nodes);
-  }
-
-  string GetFieldName(MetadataTableFlags flag) => flag switch {
+  static string GetFieldName(MetadataTableFlags flag) => flag switch {
     MetadataTableFlags.Module => nameof(Modules),
     MetadataTableFlags.TypeRef => nameof(TypeRefs),
     MetadataTableFlags.TypeDef => nameof(TypeDefs),
@@ -1100,8 +1105,46 @@ sealed class TildeStream : CodeNode
     _ => throw new InvalidOperationException("Not a real MetadataTableFlags " + flag),
   };
 
-
   public CodeNode GetCodeNode(MetadataTableFlags flag, int i) => streamNodes[flag].Skip(i).First();
+
+  TableRun<T>[] MakeTableRun<T>(string name, List<TableList> lists, int len) where T : CodeNode, new() {
+    var runs = new List<TableRun<T>>();
+    var ends = lists.Skip(1).Select(t => t.Index - 1).Concat(new[] { len });
+    foreach (var (list, end) in lists.Zip(ends)) {
+      var i = list.Index - 1;
+      if (i == end) continue;
+      var run = new TableRun<T>(name, i, end);
+      runs.Add(run);
+      list.Link = run;
+    }
+    return runs.ToArray();
+  }
+}
+
+sealed class TableRun<T> : CodeNode where T : CodeNode, new()
+{
+  public T[] run;
+
+  string name;
+  int start;
+  int end;
+
+  public TableRun(string name, int start, int end) {
+    this.name = name;
+    this.start = start;
+    this.end = end;
+  }
+
+  protected override void InnerRead() {
+    var list = new List<T>();
+    for (int i = start; i < end; ++i) {
+      var o = Bytes.ReadClass<T>();
+      o.NodeName = $"{name}[{i}]";
+      list.Add(o);
+    }
+    run = list.ToArray();
+    Children.AddRange(run);
+  }
 }
 
 sealed class TildeData : CodeNode
@@ -1188,6 +1231,23 @@ sealed class GuidHeapIndex : CodeNode
     NodeValue = Bytes.GuidHeap.Get(Index).GetString();
     Description = $"Guid Heap index {Index:X}";
     Link = Bytes.GuidHeap.GetNode(Index);
+  }
+}
+
+sealed class TableList : CodeNode
+{
+  public ushort Index;
+
+  public override string NodeValue {
+    get {
+      if (Link == null) return "(null)";
+      if (Link.Children.Count == 1) return Link.Children[0].NodeName;
+      return Link.Children[0].NodeName + " - " + Link.Children.Last().NodeName;
+    }
+  }
+
+  protected override void InnerRead() {
+    Index = Bytes.Read<ushort>();
   }
 }
 

@@ -137,13 +137,6 @@ static class TypeExtensions
     }));
   }
 
-  public static int CountSetBits(this ulong n) {
-    ulong count = 0;
-    for (; n != 0; n >>= 1)
-      count += n & 0x1;
-    return (int)count;
-  }
-
   public static string GetString(this object o) {
     if (o == null) throw new ArgumentNullException();
 

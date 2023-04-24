@@ -355,11 +355,11 @@ namespace Tests
       DumpJson(path, assm);
 
       try {
+        assm.Node.CallBack(AssertNoErrors);
+
         assm.Node.CallBack(AssertSized);
 
         assm.Node.CallBack(AssertChildrenDontOverlap);
-
-        assm.Node.CallBack(AssertNoErrors);
 
         assm.Node.CallBack(AssertUniqueNames);
 
@@ -421,6 +421,7 @@ namespace Tests
           nameof(TildeStream.TypeSpecs),
           nameof(TildeStream.StandAloneSigs),
           nameof(TildeStream.ModuleRefs),
+          nameof(TildeStream.FieldRuns),
           nameof(Method.CilOps),
           nameof(TypeSpecSig),
           nameof(MethodDefRefSig.RetType),
