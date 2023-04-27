@@ -94,6 +94,8 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 ## Future work
 
+- [ ] Convert comments like `// II.23.1.4` to `[EcmaAttribute("II.23.1.4") ]` on types, and include links from the UI
+  - [ ] Have some [link URL that shows the details](https://github.com/stakx/ecma-335/issues/10#issuecomment-1524807503)
 - [ ] Update CloudFunction to .NET 6 [recommended by GCP](https://cloud.google.com/functions/docs/concepts/dotnet-runtime)
 - [ ] Implement all [TODOs](Lib/Program.cs)
 - [ ] Get `dotnet test` working on linux
