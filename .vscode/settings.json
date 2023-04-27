@@ -9,5 +9,11 @@
   "coverage-gutters.coverageFileNames": [
     "coverage.info"
   ],
-  "livePreview.portNumber": 5500
+  "livePreview.portNumber": 5500,
+  "autolink.queries": [
+    {
+      "linkPattern": "(III?\\.[.\\d]+)",
+      "linkText": "https://github.com/stakx/ecma-335/search?q=${0}"
+    },
+  ],
 }

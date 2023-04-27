@@ -17,7 +17,7 @@ enum AssemblyHashAlgorithm : uint
   SHA1 = 0x8004,
 }
 
-// II.23.1.2 
+// II.23.1.2
 [Flags]
 enum AssemblyFlags : uint
 {
