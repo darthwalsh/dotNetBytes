@@ -29,7 +29,7 @@ TODO(fixme)         - Probablty a bug.
 TODO(Descriptions)  - Use [DescriptionAttribute] and copy text from spec.
 TODO(Index4Bytes)   - heap/table index can be 2 or 4 bytes wide, but assuming short instead of int
 TODO(link)          - .Link should be implemented.
-TODO(size)          - like link but points to the end... not sure how to implement for now.
+TODO(size)          - set .Link, but also check link End-Start and create Error if size doesn't match
 TODO(method)        - Error validation for method op codes
 TODO(pedant)        - Small errors aren't caught
 TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve.

@@ -214,7 +214,7 @@ sealed class PEHeaderStandardFields : CodeNode
   [Description("RVA of entry point , needs to point to bytes 0xFF 0x25 followed by the RVA in a section marked execute/read for EXEs or 0 for DLLs")]
   public uint EntryPointRVA;
   [Description("RVA of the code section. (This is a hint to the loader.)")]
-  public uint BaseOfCode;
+  public uint BaseOfCode; //TODO(link) -- TODO: assert that any field with RVA in Name or Description should have .Link?
 }
 
 enum PE32Magic : ushort
@@ -278,7 +278,7 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   public uint LoaderFlags;
   [Description("Shall be 0x10")]
   [Expected(0x10)]
-  public uint NumberOfDataDirectories; //TODO(size) PEHeaderHeaderDataDirectories
+  public uint NumberOfDataDirectories; //TODO(size) PEHeaderHeaderDataDirectories but not assert byte count. MAYBE can do math 0x10 x4bytes?
 }
 
 [Flags]
@@ -368,7 +368,7 @@ sealed class SectionHeader : CodeNode
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
   public char[] Name;
   [Description("Total size of the section in bytes. If this value is greater than SizeOfRawData, the section is zero-padded.")]
-  public uint VirtualSize; //TODO(size)
+  public uint VirtualSize; //TODO(size) check if there are any .Error from validating this byte size
   [Description("For executable images this is the address of the first byte of the section, when loaded into memory, relative to the image base.")]
   public uint VirtualAddress;
   [Description("Size of the initialized data on disk in bytes, shall be a multiple of FileAlignment from the PE header. If this is less than VirtualSize the remainder of the section is zero filled. Because this field is rounded while the VirtualSize field is not it is possible for this to be greater than VirtualSize as well. When a section contains only uninitialized data, this field should be 0.")]
@@ -751,7 +751,7 @@ sealed class Fixup : CodeNode
 sealed class CLIHeader : CodeNode
 {
   [Description("Size of the header in bytes")]
-  public uint Cb; //TODO(size)
+  public uint Cb; //TODO(size) rename to CbHeaderSize
   [Description("The minimum version of the runtime required to run this program, currently 2.")]
   public ushort MajorRuntimeVersion;
   [Description("The minor portion of the version, currently 0.")]
@@ -997,11 +997,11 @@ sealed class SmallExceptionHandlingClause : CodeNode
   [Description("Offset in bytes of try block from start of method body.")]
   public ushort TryOffset; //TODO(link)
   [Description("Length in bytes of the try block")]
-  public byte TryLength;
+  public byte TryLength; //TODO(size) maybe
   [Description("Location of the handler for this try block")]
-  public ushort HandlerOffset;
+  public ushort HandlerOffset; //TODO(link)
   [Description("Size of the handler code in bytes")]
-  public byte HandlerLength;
+  public byte HandlerLength; //TODO(size) maybe
   [Description("Meta data token for a type-based exception handler OR Offset in method body for filter-based exception handler")]
   public uint ClassTokenOrFilterOffset; //TODO(link)
 }
@@ -1024,7 +1024,7 @@ sealed class LargeExceptionHandlingClause : CodeNode
   [Description("Flags.")]
   public uint LargeExceptionClauseFlags;
   [Description("Offset in bytes of try block from start of method body.")]
-  public uint TryOffset;
+  public uint TryOffset; //TODO(link) ditto all from SmallExceptionHandlingClause
   [Description("Length in bytes of the try block")]
   public uint TryLength;
   [Description("Location of the handler for this try block")]
