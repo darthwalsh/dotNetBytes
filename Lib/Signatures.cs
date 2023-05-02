@@ -7,7 +7,6 @@ using System.Linq;
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 // II.23.2 Blobs and signatures
-// MAYBE move this into Lib/MetadataStructs
 
 sealed class CallingConvention : CodeNode
 {
@@ -760,4 +759,4 @@ sealed class MethodSpecSig : CodeNode
 // II.23.2.16
 // MAYBE forced Short form signatures:
 //   No ElementType.Class then TypeRef of System.String or System.Object
-//   No ElementType.ValueType then TypeRef to any primitibe already in ElementType or TypedByRef
+//   No ElementType.ValueType then TypeRef to any primitive already in ElementType or TypedByRef

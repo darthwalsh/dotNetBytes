@@ -147,6 +147,8 @@ namespace Tests
 
     // MAYBE, use DataTestMethod (could that simplify above? ) https://www.meziantou.net/mstest-v2-data-tests.htm
 
+    // MAYBE implement tests for the ECMA sample programs, and check the results are reasonable: https://github.com/stakx/ecma-335/blob/master/docs/vi.b-sample-programs.md
+
     static string ilasm {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {

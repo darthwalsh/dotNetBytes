@@ -94,10 +94,14 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 ## Future work
 
-- [ ] Convert comments like `// II.23.1.4` to `[EcmaAttribute("II.23.1.4") ]` on types, and include links from the UI
+- [ ] Convert comments like `// II.23.1.4` to something shown from the UI
+  - [ ] COULD use `[EcmaAttribute("II.23.1.4") ]` but that won't work for [OpCode.cs](Lib/OpCode.cs)
+  - [ ] MAYBE have a property instead?
   - [ ] Have some [link URL that shows the details](https://github.com/stakx/ecma-335/issues/10#issuecomment-1524807503)
+  - [ ] Add ECMA links for all OpCode too
+  - [ ] MAYBE assert that all values (all with children) have an ECMA section
 - [ ] Update CloudFunction to .NET 6 [recommended by GCP](https://cloud.google.com/functions/docs/concepts/dotnet-runtime)
-- [ ] Implement all [TODOs](Lib/Program.cs)
+- [ ] Implement all [TODOs for Lib](Lib/Program.cs) and [Test](Tests/AssemblyBytesTests.cs)
 - [ ] Get `dotnet test` working on linux
   - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration): Installed dotnet 3.1.302	 (or dotnet6)
   - CloudFlare [Blazor guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-blazor-site/) showing dotnet bootstrap
