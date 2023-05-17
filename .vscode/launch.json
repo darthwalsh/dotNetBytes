@@ -30,10 +30,9 @@
     {
       "name": "Client",
       "request": "launch",
-      "type": "pwa-chrome",
-      "url": "http://localhost:5500",
+      "type": "chrome",
       "webRoot": "${workspaceFolder}",
-      "runtimeArgs": ["--app=http://localhost:5500"]
+      "runtimeArgs": ["http://127.0.0.1:5500/view/?Example=true"]
     }
   ],
   "compounds": [

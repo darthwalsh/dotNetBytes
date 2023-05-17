@@ -43,10 +43,9 @@ There are many ways to help out!
 To debug everything, the vscode debug task `CloudFunction/Client` runs both in watch mode..
 
 When coding on the frontend, I normally:
- - use [`LiveServer` extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
- - run vscode debug task for a separate chrome PWA window, or open http://127.0.0.1:5500?Example=true
+ - use [Live Preview extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)
+ - run vscode debug task `Client` for a separate chrome PWA window, or open http://127.0.0.1:5500/view/?Example=true
  - use Chrome dev-tools to debug HTML, and VS Code / dev-tools for coding or debugging JS
-  - FIXME: Only working on macOS with dotnet core installed.
 
 ### Software design
 
