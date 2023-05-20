@@ -43,7 +43,7 @@ function create(tag, attr) {
   return el;
 }
 
-// http://stackoverflow.com/a/8023734/771768
+// https://stackoverflow.com/a/8023734/771768
 // 0 <= h, s, v <= 1
 function HSVtoRGB(h, s, v) {
   let r, g, b, i, f, p, q, t;

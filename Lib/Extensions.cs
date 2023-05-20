@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 
 // Used to guarantee reflecting over class fields uses line number
-// http://stackoverflow.com/a/17998371/771768
+// https://stackoverflow.com/a/17998371/771768
 sealed class OrderedFieldAttribute : Attribute
 {
   public int Order;
@@ -41,7 +41,7 @@ sealed class DescriptionAttribute : Attribute
 
 static class StreamExtensions
 {
-  // http://jonskeet.uk/csharp/readbinary.html
+  // https://jonskeet.uk/csharp/readbinary.html
   public static void ReadWholeArray(this Stream stream, byte[] data) {
     if (!stream.TryReadWholeArray(data, out var error))
       throw new EndOfStreamException(error);
@@ -66,7 +66,7 @@ static class StreamExtensions
   public static T ReadStruct<T>(this Stream stream) where T : struct => (T)stream.ReadStruct(typeof(T));
 
   public static object ReadStruct(this Stream stream, Type t) {
-    // http://stackoverflow.com/a/4159279/771768
+    // https://stackoverflow.com/a/4159279/771768
     var sz = t.GetSize();
     var buffer = new byte[sz];
     stream.ReadWholeArray(buffer);
