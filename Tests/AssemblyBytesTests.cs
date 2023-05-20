@@ -190,21 +190,24 @@ namespace Tests
       static string FindCsc() {
         // Doesn't work in dotnet core
         // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        var programFiles = new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 };
         var years = new[] { "2022", "2019", "2017" };
         var editions = new[] { "Enterprise", "Professional", "Community" };
-        foreach (var year in years) {
-          foreach (var edition in editions) {
-            var path = Path.Combine(
-              Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-              "Microsoft Visual Studio",
-              year,
-              edition,
-              "MSBuild",
-              "Current",
-              "Bin",
-              "Roslyn",
-              "csc.exe");
-            if (File.Exists(path)) return path;
+        foreach (var programFile in programFiles) {
+          foreach (var year in years) {
+            foreach (var edition in editions) {
+              var path = Path.Combine(
+                Environment.GetFolderPath(programFile),
+                "Microsoft Visual Studio",
+                year,
+                edition,
+                "MSBuild",
+                "Current",
+                "Bin",
+                "Roslyn",
+                "csc.exe");
+              if (File.Exists(path)) return path;
+            }
           }
         }
         throw new FileNotFoundException("csc.exe");
