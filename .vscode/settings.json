@@ -13,7 +13,7 @@
   "autolink.queries": [
     {
       "linkPattern": "(III?\\.[.\\d]+)",
-      "linkText": "https://github.com/stakx/ecma-335/search?q=${0}"
+      "linkText": "https://darthwalsh.github.io/ecma-335?section=${0}"
     },
   ],
 }
