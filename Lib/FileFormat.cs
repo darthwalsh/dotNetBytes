@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 
 // CodeNode is written though reflection
@@ -11,6 +8,7 @@ using System.Text;
 
 // II.25 File format extensions to PE 
 
+// II.25.1
 sealed class FileFormat : CodeNode
 {
   public PEHeader PEHeader;
@@ -760,16 +758,16 @@ sealed class CLIHeader : CodeNode
   public RVAandSize MetaData;
   [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
   public CliHeaderFlags Flags;
-  [Description("Token for the MethodDef or File of the entry point for the image")]
+  [Description("Token for the MethodDef or File of the entry point for the image. (§II.25.3.3.2)")]
   public uint EntryPointToken; //TODO(link) should this be MetadataToken?
   [Description("RVA and size of implementation-specific resources.")]
   public RVAandSize Resources;
-  [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning")]
+  [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning. (§II.25.3.3.4)")]
   public RVAandSize StrongNameSignature;
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
   public ulong CodeManagerTable;
-  [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.")]
+  [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots). (§II.25.3.3.3)")]
   public RVAandSize VTableFixups;
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
@@ -840,7 +838,7 @@ sealed class Method : CodeNode
       case MethodHeaderType.Tiny:
         CodeSize = Header >> 2;
         MaxStack = 8;
-        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long";
+        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)";
         break;
       case MethodHeaderType.Fat:
         AddChild(nameof(FatFormat));
@@ -886,7 +884,7 @@ sealed class MethodDataSections : CodeNode
   }
 }
 
-// II.25.4.1 and .4
+// II.25.4.1 (also .4 but we can ignore that)
 enum MethodHeaderType : byte
 {
   Tiny = 0x02,

@@ -1313,7 +1313,7 @@
             },
             {
               "Name": "EntryPointToken",
-              "Description": "Token for the MethodDef or File of the entry point for the image",
+              "Description": "Token for the MethodDef or File of the entry point for the image. (§II.25.3.3.2)",
               "Value": "0x6000001",
               "Start": 540,
               "End": 544,
@@ -1354,7 +1354,7 @@
             },
             {
               "Name": "StrongNameSignature",
-              "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning",
+              "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning. (§II.25.3.3.4)",
               "Value": "",
               "Start": 552,
               "End": 560,
@@ -1395,7 +1395,7 @@
             },
             {
               "Name": "VTableFixups",
-              "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots), see below.",
+              "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots). (§II.25.3.3.3)",
               "Value": "",
               "Start": 568,
               "End": 576,
@@ -1466,7 +1466,7 @@
               "Children": [
                 {
                   "Name": "Header",
-                  "Description": "Tiny Header, 0x16 bytes long",
+                  "Description": "Tiny Header, 0x16 bytes long (§II.25.4.2)",
                   "Value": "0x5A",
                   "Start": 592,
                   "End": 593,

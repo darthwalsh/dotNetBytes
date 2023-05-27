@@ -605,6 +605,7 @@ enum ElementType : byte
   Unknown3 = 0x52,
   [Description("Used in custom attributes to indicate a FIELD (§II.22.10, II.23.3).")]
   Unknown4 = 0x53,
+  //TODO(fixme) 0x54 and 0x55 for custom attributes
 }
 static class ElementTypeExtensions
 {
@@ -655,8 +656,8 @@ static class ElementTypeExtensions
   };
 }
 
-// II.24.2.1
 // MAYBE split to a new file https://devblogs.microsoft.com/oldnewthing/20190916-00/?p=102892
+// II.24.2.1
 sealed class MetadataRoot : CodeNode
 {
   [Description("Magic signature for physical metadata : 0x424A5342.")]

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 
 // II.22 Metadata logical format: tables 
 
@@ -353,8 +351,8 @@ sealed class ModuleRef : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.32 (Should be NestedClass but renaming type so field is allowed to be NestedClass)
-sealed class Nestedclass : CodeNode
+// II.22.32
+sealed class Nestedclass : CodeNode // Would have named class NestedClass but renaming type so field is allowed to be NestedClass
 {
   [OrderedField] public TableIndex<TypeDef> NestedClass;
   [OrderedField] public TableIndex<TypeDef> EnclosingClass; // MAYBE printing typename of nestedclass should be like Outer/Inner

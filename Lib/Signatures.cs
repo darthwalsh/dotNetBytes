@@ -8,6 +8,7 @@ using System.Linq;
 
 // II.23.2 Blobs and signatures
 
+// II.23.2.3
 sealed class CallingConvention : CodeNode
 {
   public LowerBits Kind { get; private set; }
@@ -56,6 +57,7 @@ sealed class CallingConvention : CodeNode
   }
 }
 
+// II.23.2
 sealed class UnsignedCompressed : CodeNode
 {
   public uint Value { get; private set; }
@@ -107,6 +109,7 @@ sealed class UnsignedCompressed : CodeNode
   }
 }
 
+// II.23.2
 sealed class SignedCompressed : CodeNode
 {
   public int Value { get; private set; }
@@ -167,6 +170,7 @@ interface INamedValue
   string NamedValue(string name);
 }
 
+//TODO(ECMA) methodSigName should also correspond to ii.23.2.1 .2 or .3
 sealed class EitherSignature : CodeNode
 {
   // This exists to solve a tricky problem: the two Tables that use EitherSignature can contain either some method sig, or a different sig. So peek at the first byte of the sig to figure out the kind, then use the appropriate type to read it.
@@ -386,7 +390,7 @@ sealed class LocalVarSig : CodeNode
   public sealed class LocalVar : CodeNode
   {
     public CustomMods CustomMods;
-    public ElementType Constraint; // II.23.2.9
+    public ElementType Constraint; //TODO(ECMA) II.23.2.9
     public ElementType ByRef;
     public TypeSig Type;
 
@@ -756,7 +760,6 @@ sealed class MethodSpecSig : CodeNode
   };
 }
 
-// II.23.2.16
-// MAYBE forced Short form signatures:
+// II.23.2.16 MAYBE forced Short form signatures:
 //   No ElementType.Class then TypeRef of System.String or System.Object
 //   No ElementType.ValueType then TypeRef to any primitive already in ElementType or TypedByRef

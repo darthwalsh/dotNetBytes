@@ -275,6 +275,9 @@ sealed class OpCode
     OPDEF("constrained.", Pop0, Push0, InlineType, IPrefix, 2, 0xFE, 0x16, META);
     OPDEF("cpblk", PopI + PopI + PopI, Push0, InlineNone, IPrimitive, 2, 0xFE, 0x17, NEXT);
     OPDEF("initblk", PopI + PopI + PopI, Push0, InlineNone, IPrimitive, 2, 0xFE, 0x18, NEXT);
+    //TODO(SPEC) III.2.2 no. is marked as unused in OPDEF, but maybe it should be:
+    // OPDEF("no.", Pop0, Push0, ShortInlineI, IPrefix, 2, 0xFE, 0x19, META);
+    // OPDEF("unused", Pop0, Push0, InlineNone, IPrimitive, 2, 0xFE, 0x19, NEXT)
     OPDEF("rethrow", Pop0, Push0, InlineNone, IObjModel, 2, 0xFE, 0x1A, THROW);
     OPDEF("sizeof", Pop0, PushI, InlineType, IPrimitive, 2, 0xFE, 0x1C, NEXT);
     OPDEF("refanytype", Pop1, PushI, InlineNone, IPrimitive, 2, 0xFE, 0x1D, NEXT);
@@ -284,7 +287,7 @@ sealed class OpCode
   static Dictionary<byte, OpCode> firstOps = new Dictionary<byte, OpCode>();
   static Dictionary<byte, OpCode> secondOps = new Dictionary<byte, OpCode>();
 
-  static void OPDEF(string name, string stackPop, string stackPush, string opParams, string kind, int length, byte b1, byte b2, string controlFlow) {
+  static void OPDEF(string name, string stackPop, string stackPush, string opParams, string _kind, int length, byte b1, byte b2, string controlFlow) {
     var op = new OpCode(name, stackPop, stackPush, opParams, controlFlow);
     if (length == 1 && b1 == 0xFF) {
       firstOps.Add(b2, op);
@@ -303,11 +306,160 @@ sealed class OpCode
   public string stackPush;
   public string opParams;
   public string controlFlow;
+  public string ecma;
   OpCode(string name, string stackPop, string stackPush, string opParams, string controlFlow) {
     this.name = name;
     this.stackPop = stackPop;
     this.stackPush = stackPush;
     this.opParams = opParams;
     this.controlFlow = controlFlow;
+
+    this.ecma = ECMA(name);
   }
+
+  static string ECMA(string name) => name switch {
+    "constrained" => "III.2.1",
+    "no" => "III.2.2",
+    "readonly" => "III.2.3",
+    "tail" => "III.2.4",
+    "unaligned" => "III.2.5",
+    "volatile" => "III.2.6",
+    "add" => "III.3.1",
+    "add.ovf" => "III.3.2",
+    "and" => "III.3.3",
+    "arglist" => "III.3.4",
+    "beq" => "III.3.5",
+    "bge" => "III.3.6",
+    "bge.un" => "III.3.7",
+    "bgt" => "III.3.8",
+    "bgt.un" => "III.3.9",
+    "ble" => "III.3.10",
+    "ble.un" => "III.3.11",
+    "blt" => "III.3.12",
+    "blt.un" => "III.3.13",
+    "bne.un" => "III.3.14",
+    "br" => "III.3.15",
+    "break" => "III.3.16",
+    "brfalse" => "III.3.17",
+    "brtrue" => "III.3.18",
+    "call" => "III.3.19",
+    "calli" => "III.3.20",
+    "ceq" => "III.3.21",
+    "cgt" => "III.3.22",
+    "cgt.un" => "III.3.23",
+    "ckfinite" => "III.3.24",
+    "clt" => "III.3.25",
+    "clt.un" => "III.3.26",
+    "conv" => "III.3.27",
+    "conv.ovf" => "III.3.28",
+    "conv.ovf.i1.un" => "III.3.29",
+    "conv.ovf.i2.un" => "III.3.29",
+    "conv.ovf.i4.un" => "III.3.29",
+    "conv.ovf.i8.un" => "III.3.29",
+    "conv.ovf.u1.un" => "III.3.29",
+    "conv.ovf.u2.un" => "III.3.29",
+    "conv.ovf.u4.un" => "III.3.29",
+    "conv.ovf.u8.un" => "III.3.29",
+    "conv.ovf.i.un" => "III.3.29",
+    "conv.ovf.u.un" => "III.3.29",
+    "cpblk" => "III.3.30",
+    "div" => "III.3.31",
+    "div.un" => "III.3.32",
+    "dup" => "III.3.33",
+    "endfilter" => "III.3.34",
+    "endfinally" => "III.3.35",
+    "initblk" => "III.3.36",
+    "jmp" => "III.3.37",
+    "ldarg" => "III.3.38",
+    "ldarga" => "III.3.39",
+    "ldc.i4.m1" => "III.3.40",
+    "ldc.i4" => "III.3.40",
+    "ldc.i8" => "III.3.40",
+    "ldc.r4" => "III.3.40",
+    "ldc.r8" => "III.3.40",
+    "ldftn" => "III.3.41",
+    "ldind" => "III.3.42",
+    "ldloc" => "III.3.43",
+    "ldloca" => "III.3.44",
+    "ldnull" => "III.3.45",
+    "leave" => "III.3.46",
+    "localloc" => "III.3.47",
+    "mul" => "III.3.48",
+    "mul.ovf" => "III.3.49",
+    "neg" => "III.3.50",
+    "nop" => "III.3.51",
+    "not" => "III.3.52",
+    "or" => "III.3.53",
+    "pop" => "III.3.54",
+    "rem" => "III.3.55",
+    "rem.un" => "III.3.56",
+    "ret" => "III.3.57",
+    "shl" => "III.3.58",
+    "shr" => "III.3.59",
+    "shr.un" => "III.3.60",
+    "starg" => "III.3.61",
+    "stind" => "III.3.62",
+    "stloc" => "III.3.63",
+    "sub" => "III.3.64",
+    "sub.ovf" => "III.3.65",
+    "switch" => "III.3.66",
+    "xor" => "III.3.67",
+    "box" => "III.4.1",
+    "callvirt" => "III.4.2",
+    "castclass" => "III.4.3",
+    "cpobj" => "III.4.4",
+    "initobj" => "III.4.5",
+    "isinst" => "III.4.6",
+    "ldelem" => "III.4.7",
+    "ldelem.i1" => "III.4.8",
+    "ldelem.u1" => "III.4.8",
+    "ldelem.i2" => "III.4.8",
+    "ldelem.u2" => "III.4.8",
+    "ldelem.i4" => "III.4.8",
+    "ldelem.u4" => "III.4.8",
+    "ldelem.i8" => "III.4.8",
+    "ldelem.i" => "III.4.8",
+    "ldelem.r4" => "III.4.8",
+    "ldelem.r8" => "III.4.8",
+    "ldelem.ref" => "III.4.8",
+    "ldelema" => "III.4.9",
+    "ldfld" => "III.4.10",
+    "ldflda" => "III.4.11",
+    "ldlen" => "III.4.12",
+    "ldobj" => "III.4.13",
+    "ldsfld" => "III.4.14",
+    "ldsflda" => "III.4.15",
+    "ldstr" => "III.4.16",
+    "ldtoken" => "III.4.17",
+    "ldvirtftn" => "III.4.18",
+    "mkrefany" => "III.4.19",
+    "newarr" => "III.4.20",
+    "newobj" => "III.4.21",
+    "refanytype" => "III.4.22",
+    "refanyval" => "III.4.23",
+    "rethrow" => "III.4.24",
+    "sizeof" => "III.4.25",
+    "stelem" => "III.4.26",
+    "stelem.i1" => "III.4.27",
+    "stelem.u1" => "III.4.27",
+    "stelem.i2" => "III.4.27",
+    "stelem.u2" => "III.4.27",
+    "stelem.i4" => "III.4.27",
+    "stelem.u4" => "III.4.27",
+    "stelem.i8" => "III.4.27",
+    "stelem.i" => "III.4.27",
+    "stelem.r4" => "III.4.27",
+    "stelem.r8" => "III.4.27",
+    "stelem.ref" => "III.4.27",
+    "stfld" => "III.4.28",
+    "stobj" => "III.4.29",
+    "stsfld" => "III.4.30",
+    "throw" => "III.4.31",
+    "unbox" => "III.4.32",
+    "unbox.any" => "III.4.33",
+    _ => name.Contains(".") ?
+        // Recurse so i.e. conv.r8 lookup matches conv
+        ECMA(name.Substring(0, name.LastIndexOf("."))) : 
+        throw new InvalidOperationException(name)
+  };
 }
