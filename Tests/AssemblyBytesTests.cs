@@ -149,6 +149,10 @@ namespace Tests
 
     // MAYBE implement tests for the ECMA sample programs, and check the results are reasonable: https://github.com/stakx/ecma-335/blob/master/docs/vi.b-sample-programs.md
 
+    //TODO(ECMA) assert that every non-leaf codenode defines Ecma
+    //TODO(ECMA) assert that every enum-type codenode defines Ecma
+    //TODO(ECMA) MAYBE add assertion that "§II" not in Description, but instead moved to Ecma JSON field -- edit the Description to replace the text?
+
     static string ilasm {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {

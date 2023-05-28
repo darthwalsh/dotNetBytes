@@ -39,6 +39,14 @@ sealed class DescriptionAttribute : Attribute
   }
 }
 
+sealed class EcmaAttribute : Attribute
+{
+  public string EcmaSection;
+  public EcmaAttribute(string section) {
+    EcmaSection = section;
+  }
+}
+
 static class StreamExtensions
 {
   // https://jonskeet.uk/csharp/readbinary.html
@@ -188,13 +196,8 @@ static class TypeExtensions
   }
 
   public static bool TryGetAttribute<T>(this MemberInfo member, out T attr) where T : Attribute {
-    var attrs = member.GetCustomAttributes(typeof(T), false);
-    if (!attrs.Any()) {
-      attr = null;
-      return false;
-    }
-    attr = (T)attrs.Single();
-    return true;
+    attr = (T)member.GetCustomAttributes(typeof(T), false).SingleOrDefault();
+    return attr != default;
   }
 
   public static bool SmartEquals(object expected, object actual) {

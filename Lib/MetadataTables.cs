@@ -48,7 +48,7 @@ public enum MetadataTableFlags : ulong
   GenericParamConstraint = 1L << 0x2C,
 }
 
-// II.22.2
+[Ecma("II.22.2")]
 sealed class Assembly : CodeNode
 {
   [OrderedField] public AssemblyHashAlgorithm HashAlgId;
@@ -64,7 +64,7 @@ sealed class Assembly : CodeNode
   public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
-// II.22.3
+[Ecma("II.22.3")]
 sealed class AssemblyOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
@@ -72,13 +72,13 @@ sealed class AssemblyOS : CodeNode
   [OrderedField] public uint OSMinorVersion;
 }
 
-// II.22.4
+[Ecma("II.22.4")]
 sealed class AssemblyProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
 }
 
-// II.22.5
+[Ecma("II.22.5")]
 sealed class AssemblyRef : CodeNode
 {
   [OrderedField] public ushort MajorVersion;
@@ -94,7 +94,7 @@ sealed class AssemblyRef : CodeNode
   public override string NodeValue => Name.NodeValue + " " + new Version(MajorVersion, MinorVersion, BuildNumber, RevisionNumber).ToString();
 }
 
-// II.22.6
+[Ecma("II.22.6")]
 sealed class AssemblyRefOS : CodeNode
 {
   [OrderedField] public uint OSPlatformID;
@@ -103,14 +103,14 @@ sealed class AssemblyRefOS : CodeNode
   [OrderedField] public TableIndex<AssemblyRef> AssemblyRef;
 }
 
-// II.22.7
+[Ecma("II.22.7")]
 sealed class AssemblyRefProcessor : CodeNode
 {
   [OrderedField] public uint Processor;
   [OrderedField] public TableIndex<AssemblyRef> AssemblyRef;
 }
 
-// II.22.8
+[Ecma("II.22.8")]
 sealed class ClassLayout : CodeNode
 {
   [OrderedField] public ushort PackingSize;
@@ -118,7 +118,7 @@ sealed class ClassLayout : CodeNode
   [OrderedField] public TableIndex<TypeDef> Parent;
 }
 
-// II.22.9
+[Ecma("II.22.9")]
 sealed class Constant : CodeNode
 {
   [OrderedField] public ElementType Type;
@@ -127,7 +127,7 @@ sealed class Constant : CodeNode
   [OrderedField] public BlobHeapIndex Value; // MAYBE parse value based on II.16.2
 }
 
-// II.22.10
+[Ecma("II.22.10")]
 sealed class CustomAttribute : CodeNode
 {
   [OrderedField] public CodedIndex.HasCustomAttribute Parent;
@@ -135,7 +135,7 @@ sealed class CustomAttribute : CodeNode
   [OrderedField] public BlobHeapIndex Value; //TODO(pedant) II.23.3 Custom attributes 
 }
 
-// II.22.11
+[Ecma("II.22.11")]
 sealed class DeclSecurity : CodeNode
 {
   [OrderedField] public ushort Action; // Not implementing these flags as details are lacking in 22.11
@@ -143,14 +143,14 @@ sealed class DeclSecurity : CodeNode
   [OrderedField] public BlobHeapIndex PermissionSet; // MAYBE parse this
 }
 
-// II.22.12
+[Ecma("II.22.12")]
 sealed class EventMap : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Parent;
   [OrderedField] public TableList EventList;
 }
 
-// II.22.13
+[Ecma("II.22.13")]
 sealed class Event : CodeNode
 {
   [OrderedField] public EventAttributes Flags;
@@ -160,7 +160,7 @@ sealed class Event : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.14
+[Ecma("II.22.14")]
 sealed class ExportedType : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
@@ -174,7 +174,7 @@ sealed class ExportedType : CodeNode
     TypeName.NodeValue;
 }
 
-// II.22.15
+[Ecma("II.22.15")]
 sealed class Field : CodeNode
 {
   [OrderedField] public FieldAttributes Flags;
@@ -184,14 +184,14 @@ sealed class Field : CodeNode
   public override string NodeValue => Signature.Value.NamedValue(Name.NodeValue);
 }
 
-// II.22.16
+[Ecma("II.22.16")]
 sealed class FieldLayout : CodeNode
 {
   [OrderedField] public uint Offset;
   [OrderedField] public TableIndex<Field> Field;
 }
 
-// II.22.17
+[Ecma("II.22.17")]
 sealed class FieldMarshal : CodeNode
 {
   [OrderedField] public CodedIndex.HasFieldMarshall Parent;
@@ -207,14 +207,14 @@ sealed class FieldMarshal : CodeNode
   */
 }
 
-// II.22.18
+[Ecma("II.22.18")]
 sealed class FieldRVA : CodeNode
 {
   [OrderedField] public uint RVA; //TODO(link) where this field's initial value is stored, maybe in .sdata
   [OrderedField] public TableIndex<Field> Field;
 }
 
-// II.22.19
+[Ecma("II.22.19")]
 sealed class FileTable : CodeNode
 {
   [OrderedField] public FileAttributes Flags;
@@ -224,7 +224,7 @@ sealed class FileTable : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.20
+[Ecma("II.22.20")]
 sealed class GenericParam : CodeNode
 {
   [OrderedField] public ushort Number;
@@ -235,14 +235,14 @@ sealed class GenericParam : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.21
+[Ecma("II.22.21")]
 sealed class GenericParamConstraint : CodeNode
 {
   [OrderedField] public TableIndex<GenericParam> Owner;
   [OrderedField] public CodedIndex.TypeDefOrRef Constraint;
 }
 
-// II.22.22
+[Ecma("II.22.22")]
 sealed class ImplMap : CodeNode
 {
   [OrderedField] public PInvokeAttributes MappingFlags;
@@ -251,14 +251,14 @@ sealed class ImplMap : CodeNode
   [OrderedField] public TableIndex<ModuleRef> ImportScope;
 }
 
-// II.22.23
+[Ecma("II.22.23")]
 sealed class InterfaceImpl : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Class;
   [OrderedField] public CodedIndex.TypeDefOrRef Interface;
 }
 
-// II.22.24
+[Ecma("II.22.24")]
 sealed class ManifestResource : CodeNode
 {
   [OrderedField] public uint Offset;
@@ -280,7 +280,7 @@ sealed class ResourceEntry : CodeNode
   };
 }
 
-// II.22.25
+[Ecma("II.22.25")]
 sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
@@ -290,7 +290,7 @@ sealed class MemberRef : CodeNode
   public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 }
 
-// II.22.26
+[Ecma("II.22.26")]
 sealed class MethodDef : CodeNode
 {
   [OrderedField] public uint RVA;
@@ -307,7 +307,7 @@ sealed class MethodDef : CodeNode
   public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 }
 
-// II.22.27
+[Ecma("II.22.27")]
 sealed class MethodImpl : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Class;
@@ -315,7 +315,7 @@ sealed class MethodImpl : CodeNode
   [OrderedField] public CodedIndex.MethodDefOrRef MethodDeclaration;
 }
 
-// II.22.28
+[Ecma("II.22.28")]
 sealed class MethodSemantics : CodeNode
 {
   [OrderedField] public MethodSemanticsAttributes Semantics;
@@ -323,7 +323,7 @@ sealed class MethodSemantics : CodeNode
   [OrderedField] public CodedIndex.HasSemantics Association;
 }
 
-// II.22.29
+[Ecma("II.22.29")]
 sealed class MethodSpec : CodeNode
 {
   public override string NodeValue => Method.NodeValue.Replace("<>", Instantiation.NodeValue);
@@ -331,7 +331,7 @@ sealed class MethodSpec : CodeNode
   [OrderedField] public Signature<MethodSpecSig> Instantiation;
 }
 
-// II.22.30
+[Ecma("II.22.30")]
 sealed class Module : CodeNode
 {
   [OrderedField] public ushort Generation;
@@ -343,7 +343,7 @@ sealed class Module : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.31
+[Ecma("II.22.31")]
 sealed class ModuleRef : CodeNode
 {
   [OrderedField] public StringHeapIndex Name;
@@ -351,14 +351,14 @@ sealed class ModuleRef : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
-// II.22.32
+[Ecma("II.22.32")]
 sealed class Nestedclass : CodeNode // Would have named class NestedClass but renaming type so field is allowed to be NestedClass
 {
   [OrderedField] public TableIndex<TypeDef> NestedClass;
   [OrderedField] public TableIndex<TypeDef> EnclosingClass; // MAYBE printing typename of nestedclass should be like Outer/Inner
 }
 
-// II.22.33
+[Ecma("II.22.33")]
 sealed class Param : CodeNode
 {
   [OrderedField] public ParamAttributes Flags;
@@ -368,7 +368,7 @@ sealed class Param : CodeNode
   public override string NodeValue => Name.NodeValue.Length > 0 ? Name.NodeValue : "<empty-string>"; // MAYBE not a spec violaiton, but ilasm does the "wrong thing," see 10)[] WARNING] by indexing to an empty string instead of null for COM return type
 }
 
-// II.22.34
+[Ecma("II.22.34")]
 sealed class Property : CodeNode
 {
   [OrderedField] public PropertyAttributes Flags;
@@ -378,21 +378,21 @@ sealed class Property : CodeNode
   public override string NodeValue => Type.Value.NamedValue(Name.NodeValue);
 }
 
-// II.22.35
+[Ecma("II.22.35")]
 sealed class PropertyMap : CodeNode
 {
   [OrderedField] public TableIndex<TypeDef> Parent;
   [OrderedField] public TableList PropertyList;
 }
 
-// II.22.36
+[Ecma("II.22.36")]
 sealed class StandAloneSig : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;
   [OrderedField] public EitherSignature Signature = new EitherSignature("StandAloneMethodSig", CallingConvention.LowerBits.LOCAL_SIG);
 }
 
-// II.22.37
+[Ecma("II.22.37")]
 sealed class TypeDef : CodeNode
 {
   [OrderedField] public TypeAttributes Flags;
@@ -406,7 +406,7 @@ sealed class TypeDef : CodeNode
     TypeName.NodeValue;
 }
 
-// II.22.38
+[Ecma("II.22.38")]
 sealed class TypeRef : CodeNode
 {
   [OrderedField] public CodedIndex.ResolutionScope ResolutionScope;
@@ -418,7 +418,7 @@ sealed class TypeRef : CodeNode
     TypeName.NodeValue;
 }
 
-// II.22.39
+[Ecma("II.22.39")]
 sealed class TypeSpec : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;

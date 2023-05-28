@@ -9,7 +9,7 @@ using System.Text;
 // CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
-// II.23.1.1
+[Ecma("II.23.1.1")] //TODO(ECMA) doesn't show up, need T type check in StructNode?
 enum AssemblyHashAlgorithm : uint
 {
   None = 0x0000,
@@ -17,7 +17,7 @@ enum AssemblyHashAlgorithm : uint
   SHA1 = 0x8004,
 }
 
-// II.23.1.2
+[Ecma("II.23.1.2")]
 [Flags]
 enum AssemblyFlags : uint
 {
@@ -31,7 +31,7 @@ enum AssemblyFlags : uint
   EnableJITcompileTracking = 0x8000,
 }
 
-// II.23.1.4
+[Ecma("II.23.1.4")]
 [Flags]
 enum EventAttributes : ushort
 {
@@ -41,7 +41,7 @@ enum EventAttributes : ushort
   RTSpecialName = 0x0400,
 }
 
-// II.23.1.5
+[Ecma("II.23.1.5")]
 sealed class FieldAttributes : CodeNode
 {
   // MAYBE add props for all the attrs below
@@ -105,7 +105,7 @@ sealed class FieldAttributes : CodeNode
   }
 }
 
-// II.23.1.6
+[Ecma("II.23.1.6")]
 [Flags]
 enum FileAttributes : uint
 {
@@ -115,7 +115,7 @@ enum FileAttributes : uint
   ContainsNoMetaData = 0x0001,
 }
 
-// II.23.1.7
+[Ecma("II.23.1.7")]
 sealed class GenericParamAttributes : CodeNode
 {
   public VarianceAttributes Variance { get; private set; }
@@ -156,7 +156,7 @@ sealed class GenericParamAttributes : CodeNode
   }
 }
 
-// II.23.1.8
+[Ecma("II.23.1.8")]
 sealed class PInvokeAttributes : CodeNode
 {
   public CharacterSetAttributes CharacterSet { get; private set; }
@@ -216,7 +216,7 @@ sealed class PInvokeAttributes : CodeNode
   }
 }
 
-// II.23.1.9
+[Ecma("II.23.1.9")]
 enum ManifestResourceAttributes : uint
 {
   [Description("The Resource is exported from the Assembly")]
@@ -225,7 +225,7 @@ enum ManifestResourceAttributes : uint
   Private = 0x0002,
 }
 
-// II.23.1.10
+[Ecma("II.23.1.10")]
 sealed class MethodAttributes : CodeNode
 {
   public MemberAccessAttributes MemberAccess { get; private set; }
@@ -306,7 +306,7 @@ sealed class MethodAttributes : CodeNode
   }
 }
 
-// II.23.1.11
+[Ecma("II.23.1.11")]
 sealed class MethodImplAttributes : CodeNode
 {
   public CodeTypeAttributes CodeType { get; private set; }
@@ -368,7 +368,7 @@ sealed class MethodImplAttributes : CodeNode
   }
 }
 
-// II.23.1.12
+[Ecma("II.23.1.12")]
 [Flags]
 enum MethodSemanticsAttributes : ushort
 {
@@ -386,7 +386,7 @@ enum MethodSemanticsAttributes : ushort
   Fire = 0x0020,
 }
 
-// II.23.1.13
+[Ecma("II.23.1.13")]
 [Flags]
 public enum ParamAttributes : ushort
 {
@@ -402,7 +402,7 @@ public enum ParamAttributes : ushort
   HasFieldMarshal = 0x2000,
 }
 
-// II.23.1.14
+[Ecma("II.23.1.14")]
 [Flags]
 enum PropertyAttributes : ushort
 {
@@ -415,7 +415,7 @@ enum PropertyAttributes : ushort
 }
 
 
-// II.23.1.15
+[Ecma("II.23.1.15")]
 sealed class TypeAttributes : CodeNode
 {
   public uint Data;
@@ -524,7 +524,7 @@ sealed class TypeAttributes : CodeNode
   }
 }
 
-// II.23.1.16
+[Ecma("II.23.1.16")]
 enum ElementType : byte
 {
   [Description("Marks end of a list")]
@@ -657,7 +657,7 @@ static class ElementTypeExtensions
 }
 
 // MAYBE split to a new file https://devblogs.microsoft.com/oldnewthing/20190916-00/?p=102892
-// II.24.2.1
+[Ecma("II.24.2.1")]
 sealed class MetadataRoot : CodeNode
 {
   [Description("Magic signature for physical metadata : 0x424A5342.")]
@@ -688,7 +688,7 @@ sealed class MetadataRoot : CodeNode
   };
 }
 
-// II.24.2.2
+[Ecma("II.24.2.2")]
 sealed class StreamHeader : CodeNode
 {
   [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
@@ -786,7 +786,7 @@ abstract class Heap<T> : CodeNode
   }
 }
 
-// II.24.2.3
+[Ecma("II.24.2.3")]
 sealed class StringHeap : Heap<string>
 {
   public StringHeap(int size)
@@ -801,7 +801,7 @@ sealed class StringHeap : Heap<string>
   }
 }
 
-// II.24.2.4
+[Ecma("II.24.2.4")]
 sealed class UserStringHeap : Heap<string>
 {
   public UserStringHeap(int size)
@@ -945,7 +945,7 @@ sealed class BlobHeap : Heap<object>
 
 }
 
-// II.24.2.5
+[Ecma("II.24.2.5")]
 sealed class GuidHeap : Heap<Guid>
 {
   public GuidHeap(int size)
@@ -977,7 +977,7 @@ sealed class TildeStreamRows : CodeNode
   protected override int GetCount(string field) => count;
 }
 
-// II.24.2.6
+[Ecma("II.24.2.6")]
 sealed class TildeStream : CodeNode
 {
   public Section Section { get; private set; }

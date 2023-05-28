@@ -8,7 +8,7 @@ using System.Text;
 
 // II.25 File format extensions to PE 
 
-// II.25.1
+[Ecma("II.25.1")]
 sealed class FileFormat : CodeNode
 {
   public PEHeader PEHeader;
@@ -24,7 +24,7 @@ sealed class FileFormat : CodeNode
   }
 }
 
-// II.25.2
+[Ecma("II.25.2")]
 sealed class PEHeader : CodeNode
 {
   [OrderedField] public DosHeader DosHeader;
@@ -39,7 +39,7 @@ sealed class PEHeader : CodeNode
   };
 }
 
-// II.25.2.1
+[Ecma("II.25.2.1")]
 sealed class DosHeader : CodeNode
 {
   [Expected('M')]
@@ -116,7 +116,7 @@ class PESignature : CodeNode
   public ushort Reserved;
 }
 
-// II.25.2.2 
+[Ecma("II.25.2.2")]
 class PEFileHeader : CodeNode
 {
   [Description("0x14c is I386.")]
@@ -163,7 +163,7 @@ enum MachineType : ushort
   Wcemipsv2 = 0x169
 }
 
-// II.25.2.3
+[Ecma("II.25.2.3")]
 sealed class PEOptionalHeader : CodeNode
 {
   public PEHeaderStandardFields PEHeaderStandardFields;
@@ -193,7 +193,7 @@ sealed class PEOptionalHeader : CodeNode
   }
 }
 
-// II.25.2.3.1
+[Ecma("II.25.2.3.1")]
 sealed class PEHeaderStandardFields : CodeNode
 {
   [Description("Identifies version.")]
@@ -221,7 +221,7 @@ enum PE32Magic : ushort
   PE32plus = 0x20b,
 }
 
-// II.25.2.3.2
+[Ecma("II.25.2.3.2")]
 sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
 {
   [Description("Shall be a multiple of 0x10000.")]
@@ -306,13 +306,13 @@ enum DllCharacteristics : ushort
   TERMINAL_SERVER_AWARE = 0x8000,
 }
 
-// II.25.2.3.3
+[Ecma("II.25.2.3.3")]
 sealed class PEHeaderHeaderDataDirectories : CodeNode
 {
   [Description("Always 0 (§II.24.1).")]
   [Expected(0)]
   public ulong ExportTable;
-  [Description("RVA and Size of Import Table, (§II.25.3.1).")]
+  [Description("RVA and Size of Import Table, (§II.25.3.1).")] //TODO(ECMA)
   public RVAandSize ImportTable;
   [Description("Always 0, unless resources are compiled in (§II.24.1).")]
   public ulong ResourceTable;
@@ -360,7 +360,7 @@ sealed class RVAandSize : CodeNode
   [OrderedField] public uint Size; //TODO(size)
 }
 
-// II.25.3
+[Ecma("II.25.3")]
 sealed class SectionHeader : CodeNode
 {
   [Description("An 8-byte, null-padded ASCII string. There is no terminating null if the string is exactly eight characters long.")]
@@ -625,7 +625,7 @@ sealed class Section : CodeNode
   }
 }
 
-// II.25.3.1
+[Ecma("II.25.3.1")]
 sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
@@ -690,7 +690,7 @@ sealed class NativeEntryPoint : CodeNode
   public uint JumpTarget;
 }
 
-// II.25.3.2
+[Ecma("II.25.3.2")]
 sealed class Relocations : CodeNode
 {
   [OrderedField]
@@ -745,7 +745,7 @@ sealed class Fixup : CodeNode
   }
 }
 
-// II.25.3.3
+[Ecma("II.25.3.3")]
 sealed class CLIHeader : CodeNode
 {
   [Description("Size of the header in bytes")]
@@ -817,7 +817,7 @@ sealed class Methods : CodeNode
   }
 }
 
-// II.25.4
+[Ecma("II.25.4")]
 sealed class Method : CodeNode
 {
   public byte Header; //TODO(pedant) ? enum
@@ -838,7 +838,7 @@ sealed class Method : CodeNode
       case MethodHeaderType.Tiny:
         CodeSize = Header >> 2;
         MaxStack = 8;
-        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)";
+        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)"; //TODO(ECMA)
         break;
       case MethodHeaderType.Fat:
         AddChild(nameof(FatFormat));
@@ -884,7 +884,7 @@ sealed class MethodDataSections : CodeNode
   }
 }
 
-// II.25.4.1 (also .4 but we can ignore that)
+[Ecma("II.25.4.1")] // also .4 but we'll ignore that
 enum MethodHeaderType : byte
 {
   Tiny = 0x02,
@@ -893,7 +893,7 @@ enum MethodHeaderType : byte
   InitLocals = 0x10,
 }
 
-// II.25.4.3
+[Ecma("II.25.4.3")]
 sealed class FatFormat : CodeNode
 {
   [Description("Lower four bits is rest of Flags, Upper four bits is size of this header expressed as the count of 4-byte integers occupied (currently 3)")]
@@ -906,7 +906,7 @@ sealed class FatFormat : CodeNode
   public MetadataToken LocalVarSigTok; // MAYBE is "Meta Data token? defined somewhere
 }
 
-// II.25.4.5
+[Ecma("II.25.4.5")]
 sealed class MethodDataSection : CodeNode
 {
   public MethodHeaderSection MethodHeaderSection;
@@ -987,7 +987,7 @@ sealed class LargeMethodHeader : CodeNode
   };
 }
 
-// II.25.4.6
+[Ecma("II.25.4.6")]
 sealed class SmallExceptionHandlingClause : CodeNode
 {
   [Description("Flags")]

@@ -7,6 +7,7 @@ import "./fileWatcher.js";
  *
  * @property {number} Start absolute position of start
  * @property {number} End absolute position of end byte, exclusive
+ * @property {?string} Ecma Section of ECMA-335 defining this node
  * @property {string[]} Errors
  *
  * @property {?string} LinkPath optional path like FileFormat/Array[2]/Flag
@@ -523,7 +524,14 @@ function drawTocHelper(node, parentUL) {
 /** @param {CodeNode} node */
 function createBasicDetailsDOM(node) {
   const details = create("div", {onclick: _ => setFocusObject(node)});
-  details.appendChild(create("p", {textContent: node.Name}));
+  const name = create("p", {textContent: node.Name});
+  if (node.Ecma) {
+    name.textContent += " ";
+    const href = `https://darthwalsh.github.io/ecma-335?section=${node.Ecma}`;
+    name.appendChild(create("a", {href, target: "_blank", textContent: `[ECMA] §${node.Ecma}`})); //TODO(ECMA) favicon?
+    //TODO(ECMA) maybe get ecma link from going up the parent chain?
+  }
+  details.appendChild(name);
   details.appendChild(create("p", {textContent: node.Value}));
   return details;
 }

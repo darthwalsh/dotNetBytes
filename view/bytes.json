@@ -5,6 +5,7 @@
   "Start": 0,
   "End": 2048,
   "LinkPath": null,
+  "Ecma": "II.25.1",
   "Errors": [],
   "Children": [
     {
@@ -14,6 +15,7 @@
       "Start": 0,
       "End": 456,
       "LinkPath": null,
+      "Ecma": "II.25.2",
       "Errors": [],
       "Children": [
         {
@@ -23,6 +25,7 @@
           "Start": 0,
           "End": 128,
           "LinkPath": null,
+          "Ecma": "II.25.2.1",
           "Errors": [],
           "Children": [
             {
@@ -32,6 +35,7 @@
               "Start": 0,
               "End": 1,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -42,6 +46,7 @@
               "Start": 1,
               "End": 2,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -52,6 +57,7 @@
               "Start": 2,
               "End": 4,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -62,6 +68,7 @@
               "Start": 4,
               "End": 6,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -72,6 +79,7 @@
               "Start": 6,
               "End": 8,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -82,6 +90,7 @@
               "Start": 8,
               "End": 10,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -92,6 +101,7 @@
               "Start": 10,
               "End": 12,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -102,6 +112,7 @@
               "Start": 12,
               "End": 14,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -112,6 +123,7 @@
               "Start": 14,
               "End": 16,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -122,6 +134,7 @@
               "Start": 16,
               "End": 18,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -132,6 +145,7 @@
               "Start": 18,
               "End": 20,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -142,6 +156,7 @@
               "Start": 20,
               "End": 22,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -152,6 +167,7 @@
               "Start": 22,
               "End": 24,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -162,6 +178,7 @@
               "Start": 24,
               "End": 26,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -172,6 +189,7 @@
               "Start": 26,
               "End": 28,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -182,6 +200,7 @@
               "Start": 28,
               "End": 36,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -192,6 +211,7 @@
               "Start": 36,
               "End": 38,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -202,6 +222,7 @@
               "Start": 38,
               "End": 40,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -212,6 +233,7 @@
               "Start": 40,
               "End": 60,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -222,6 +244,7 @@
               "Start": 60,
               "End": 64,
               "LinkPath": "FileFormat/PEHeader/PESignature",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -232,6 +255,7 @@
               "Start": 64,
               "End": 78,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -242,6 +266,7 @@
               "Start": 78,
               "End": 121,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -252,6 +277,7 @@
               "Start": 121,
               "End": 128,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -264,6 +290,7 @@
           "Start": 128,
           "End": 132,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -273,6 +300,7 @@
               "Start": 128,
               "End": 129,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -283,6 +311,7 @@
               "Start": 129,
               "End": 130,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -293,6 +322,7 @@
               "Start": 130,
               "End": 132,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -305,6 +335,7 @@
           "Start": 132,
           "End": 152,
           "LinkPath": null,
+          "Ecma": "II.25.2.2",
           "Errors": [],
           "Children": [
             {
@@ -314,6 +345,7 @@
               "Start": 132,
               "End": 134,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -324,6 +356,7 @@
               "Start": 134,
               "End": 136,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -334,6 +367,7 @@
               "Start": 136,
               "End": 140,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -344,6 +378,7 @@
               "Start": 140,
               "End": 144,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -354,6 +389,7 @@
               "Start": 144,
               "End": 148,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -364,6 +400,7 @@
               "Start": 148,
               "End": 150,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -374,6 +411,7 @@
               "Start": 150,
               "End": 152,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -386,6 +424,7 @@
           "Start": 152,
           "End": 376,
           "LinkPath": null,
+          "Ecma": "II.25.2.3",
           "Errors": [],
           "Children": [
             {
@@ -395,6 +434,7 @@
               "Start": 152,
               "End": 176,
               "LinkPath": null,
+              "Ecma": "II.25.2.3.1",
               "Errors": [],
               "Children": [
                 {
@@ -404,6 +444,7 @@
                   "Start": 152,
                   "End": 154,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -414,6 +455,7 @@
                   "Start": 154,
                   "End": 155,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -424,6 +466,7 @@
                   "Start": 155,
                   "End": 156,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -434,6 +477,7 @@
                   "Start": 156,
                   "End": 160,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -444,6 +488,7 @@
                   "Start": 160,
                   "End": 164,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -454,6 +499,7 @@
                   "Start": 164,
                   "End": 168,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -464,6 +510,7 @@
                   "Start": 168,
                   "End": 172,
                   "LinkPath": "FileFormat/Sections[0]/NativeEntryPoint",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -474,6 +521,7 @@
                   "Start": 172,
                   "End": 176,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -486,6 +534,7 @@
               "Start": 176,
               "End": 180,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -496,6 +545,7 @@
               "Start": 180,
               "End": 248,
               "LinkPath": null,
+              "Ecma": "II.25.2.3.2",
               "Errors": [],
               "Children": [
                 {
@@ -505,6 +555,7 @@
                   "Start": 180,
                   "End": 184,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -515,6 +566,7 @@
                   "Start": 184,
                   "End": 188,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -525,6 +577,7 @@
                   "Start": 188,
                   "End": 192,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -535,6 +588,7 @@
                   "Start": 192,
                   "End": 194,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -545,6 +599,7 @@
                   "Start": 194,
                   "End": 196,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -555,6 +610,7 @@
                   "Start": 196,
                   "End": 198,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -565,6 +621,7 @@
                   "Start": 198,
                   "End": 200,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -575,6 +632,7 @@
                   "Start": 200,
                   "End": 202,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -585,6 +643,7 @@
                   "Start": 202,
                   "End": 204,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -595,6 +654,7 @@
                   "Start": 204,
                   "End": 208,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -605,6 +665,7 @@
                   "Start": 208,
                   "End": 212,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -615,6 +676,7 @@
                   "Start": 212,
                   "End": 216,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -625,6 +687,7 @@
                   "Start": 216,
                   "End": 220,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -635,6 +698,7 @@
                   "Start": 220,
                   "End": 222,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -645,6 +709,7 @@
                   "Start": 222,
                   "End": 224,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -655,6 +720,7 @@
                   "Start": 224,
                   "End": 228,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -665,6 +731,7 @@
                   "Start": 228,
                   "End": 232,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -675,6 +742,7 @@
                   "Start": 232,
                   "End": 236,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -685,6 +753,7 @@
                   "Start": 236,
                   "End": 240,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -695,6 +764,7 @@
                   "Start": 240,
                   "End": 244,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -705,6 +775,7 @@
                   "Start": 244,
                   "End": 248,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -717,6 +788,7 @@
               "Start": 248,
               "End": 376,
               "LinkPath": null,
+              "Ecma": "II.25.2.3.3",
               "Errors": [],
               "Children": [
                 {
@@ -726,6 +798,7 @@
                   "Start": 248,
                   "End": 256,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -736,6 +809,7 @@
                   "Start": 256,
                   "End": 264,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -745,6 +819,7 @@
                       "Start": 256,
                       "End": 260,
                       "LinkPath": "FileFormat/Sections[0]/ImportTable",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -755,6 +830,7 @@
                       "Start": 260,
                       "End": 264,
                       "LinkPath": null,
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     }
@@ -767,6 +843,7 @@
                   "Start": 264,
                   "End": 272,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -777,6 +854,7 @@
                   "Start": 272,
                   "End": 280,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -787,6 +865,7 @@
                   "Start": 280,
                   "End": 288,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -797,6 +876,7 @@
                   "Start": 288,
                   "End": 296,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -806,6 +886,7 @@
                       "Start": 288,
                       "End": 292,
                       "LinkPath": "FileFormat/Sections[1]/Relocations",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -816,6 +897,7 @@
                       "Start": 292,
                       "End": 296,
                       "LinkPath": null,
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     }
@@ -828,6 +910,7 @@
                   "Start": 296,
                   "End": 304,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -838,6 +921,7 @@
                   "Start": 304,
                   "End": 312,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -848,6 +932,7 @@
                   "Start": 312,
                   "End": 320,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -858,6 +943,7 @@
                   "Start": 320,
                   "End": 328,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -868,6 +954,7 @@
                   "Start": 328,
                   "End": 336,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -878,6 +965,7 @@
                   "Start": 336,
                   "End": 344,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -888,6 +976,7 @@
                   "Start": 344,
                   "End": 352,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -897,6 +986,7 @@
                       "Start": 344,
                       "End": 348,
                       "LinkPath": "FileFormat/Sections[0]/ImportAddressTable",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -907,6 +997,7 @@
                       "Start": 348,
                       "End": 352,
                       "LinkPath": null,
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     }
@@ -919,6 +1010,7 @@
                   "Start": 352,
                   "End": 360,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -929,6 +1021,7 @@
                   "Start": 360,
                   "End": 368,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -938,6 +1031,7 @@
                       "Start": 360,
                       "End": 364,
                       "LinkPath": "FileFormat/Sections[0]/CLIHeader",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -948,6 +1042,7 @@
                       "Start": 364,
                       "End": 368,
                       "LinkPath": null,
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     }
@@ -960,6 +1055,7 @@
                   "Start": 368,
                   "End": 376,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -974,6 +1070,7 @@
           "Start": 376,
           "End": 416,
           "LinkPath": null,
+          "Ecma": "II.25.3",
           "Errors": [],
           "Children": [
             {
@@ -983,6 +1080,7 @@
               "Start": 376,
               "End": 384,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -993,6 +1091,7 @@
               "Start": 384,
               "End": 388,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1003,6 +1102,7 @@
               "Start": 388,
               "End": 392,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1013,6 +1113,7 @@
               "Start": 392,
               "End": 396,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1023,6 +1124,7 @@
               "Start": 396,
               "End": 400,
               "LinkPath": "FileFormat/Sections[0]",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1033,6 +1135,7 @@
               "Start": 400,
               "End": 404,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1043,6 +1146,7 @@
               "Start": 404,
               "End": 408,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1053,6 +1157,7 @@
               "Start": 408,
               "End": 410,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1063,6 +1168,7 @@
               "Start": 410,
               "End": 412,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1073,6 +1179,7 @@
               "Start": 412,
               "End": 416,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -1085,6 +1192,7 @@
           "Start": 416,
           "End": 456,
           "LinkPath": null,
+          "Ecma": "II.25.3",
           "Errors": [],
           "Children": [
             {
@@ -1094,6 +1202,7 @@
               "Start": 416,
               "End": 424,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1104,6 +1213,7 @@
               "Start": 424,
               "End": 428,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1114,6 +1224,7 @@
               "Start": 428,
               "End": 432,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1124,6 +1235,7 @@
               "Start": 432,
               "End": 436,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1134,6 +1246,7 @@
               "Start": 436,
               "End": 440,
               "LinkPath": "FileFormat/Sections[1]",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1144,6 +1257,7 @@
               "Start": 440,
               "End": 444,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1154,6 +1268,7 @@
               "Start": 444,
               "End": 448,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1164,6 +1279,7 @@
               "Start": 448,
               "End": 450,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1174,6 +1290,7 @@
               "Start": 450,
               "End": 452,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1184,6 +1301,7 @@
               "Start": 452,
               "End": 456,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -1198,6 +1316,7 @@
       "Start": 512,
       "End": 1536,
       "LinkPath": null,
+      "Ecma": null,
       "Errors": [],
       "Children": [
         {
@@ -1207,6 +1326,7 @@
           "Start": 512,
           "End": 520,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -1216,6 +1336,7 @@
               "Start": 512,
               "End": 516,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1226,6 +1347,7 @@
               "Start": 516,
               "End": 520,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -1238,6 +1360,7 @@
           "Start": 520,
           "End": 592,
           "LinkPath": null,
+          "Ecma": "II.25.3.3",
           "Errors": [],
           "Children": [
             {
@@ -1247,6 +1370,7 @@
               "Start": 520,
               "End": 524,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1257,6 +1381,7 @@
               "Start": 524,
               "End": 526,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1267,6 +1392,7 @@
               "Start": 526,
               "End": 528,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1277,6 +1403,7 @@
               "Start": 528,
               "End": 536,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -1286,6 +1413,7 @@
                   "Start": 528,
                   "End": 532,
                   "LinkPath": "FileFormat/Sections[0]/MetadataRoot",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1296,6 +1424,7 @@
                   "Start": 532,
                   "End": 536,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1308,6 +1437,7 @@
               "Start": 536,
               "End": 540,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1318,6 +1448,7 @@
               "Start": 540,
               "End": 544,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1328,6 +1459,7 @@
               "Start": 544,
               "End": 552,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -1337,6 +1469,7 @@
                   "Start": 544,
                   "End": 548,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1347,6 +1480,7 @@
                   "Start": 548,
                   "End": 552,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1359,6 +1493,7 @@
               "Start": 552,
               "End": 560,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -1368,6 +1503,7 @@
                   "Start": 552,
                   "End": 556,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1378,6 +1514,7 @@
                   "Start": 556,
                   "End": 560,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1390,6 +1527,7 @@
               "Start": 560,
               "End": 568,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1400,6 +1538,7 @@
               "Start": 568,
               "End": 576,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -1409,6 +1548,7 @@
                   "Start": 568,
                   "End": 572,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1419,6 +1559,7 @@
                   "Start": 572,
                   "End": 576,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1431,6 +1572,7 @@
               "Start": 576,
               "End": 584,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1441,6 +1583,7 @@
               "Start": 584,
               "End": 592,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -1453,6 +1596,7 @@
           "Start": 592,
           "End": 615,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -1462,6 +1606,7 @@
               "Start": 592,
               "End": 615,
               "LinkPath": null,
+              "Ecma": "II.25.4",
               "Errors": [],
               "Children": [
                 {
@@ -1471,6 +1616,7 @@
                   "Start": 592,
                   "End": 593,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1481,6 +1627,7 @@
                   "Start": 593,
                   "End": 615,
                   "LinkPath": null,
+                  "Ecma": "III.1.7.1",
                   "Errors": [],
                   "Children": [
                     {
@@ -1490,6 +1637,7 @@
                       "Start": 593,
                       "End": 598,
                       "LinkPath": null,
+                      "Ecma": "III.4.16",
                       "Errors": [],
                       "Children": [
                         {
@@ -1499,6 +1647,7 @@
                           "Start": 593,
                           "End": 594,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         },
@@ -1509,6 +1658,7 @@
                           "Start": 594,
                           "End": 598,
                           "LinkPath": null,
+                          "Ecma": "III.1.9",
                           "Errors": [],
                           "Children": [
                             {
@@ -1518,6 +1668,7 @@
                               "Start": 594,
                               "End": 597,
                               "LinkPath": "FileFormat/Sections[0]/UserStringHeap/UserStringHeap[1]",
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             },
@@ -1528,6 +1679,7 @@
                               "Start": 597,
                               "End": 598,
                               "LinkPath": null,
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             }
@@ -1542,6 +1694,7 @@
                       "Start": 598,
                       "End": 600,
                       "LinkPath": null,
+                      "Ecma": "III.3.40",
                       "Errors": [],
                       "Children": [
                         {
@@ -1551,6 +1704,7 @@
                           "Start": 598,
                           "End": 599,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         },
@@ -1561,6 +1715,7 @@
                           "Start": 599,
                           "End": 600,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         }
@@ -1573,6 +1728,7 @@
                       "Start": 600,
                       "End": 605,
                       "LinkPath": null,
+                      "Ecma": "III.4.1",
                       "Errors": [],
                       "Children": [
                         {
@@ -1582,6 +1738,7 @@
                           "Start": 600,
                           "End": 601,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         },
@@ -1592,6 +1749,7 @@
                           "Start": 601,
                           "End": 605,
                           "LinkPath": null,
+                          "Ecma": "III.1.9",
                           "Errors": [],
                           "Children": [
                             {
@@ -1601,6 +1759,7 @@
                               "Start": 601,
                               "End": 604,
                               "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeSpecs[0]",
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             },
@@ -1611,6 +1770,7 @@
                               "Start": 604,
                               "End": 605,
                               "LinkPath": null,
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             }
@@ -1625,6 +1785,7 @@
                       "Start": 605,
                       "End": 610,
                       "LinkPath": null,
+                      "Ecma": "III.3.19",
                       "Errors": [],
                       "Children": [
                         {
@@ -1634,6 +1795,7 @@
                           "Start": 605,
                           "End": 606,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         },
@@ -1644,6 +1806,7 @@
                           "Start": 606,
                           "End": 610,
                           "LinkPath": null,
+                          "Ecma": "III.1.9",
                           "Errors": [],
                           "Children": [
                             {
@@ -1653,6 +1816,7 @@
                               "Start": 606,
                               "End": 609,
                               "LinkPath": "FileFormat/Sections[0]/TildeStream/MemberRefs[0]",
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             },
@@ -1663,6 +1827,7 @@
                               "Start": 609,
                               "End": 610,
                               "LinkPath": null,
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             }
@@ -1677,6 +1842,7 @@
                       "Start": 610,
                       "End": 615,
                       "LinkPath": null,
+                      "Ecma": "III.3.19",
                       "Errors": [],
                       "Children": [
                         {
@@ -1686,6 +1852,7 @@
                           "Start": 610,
                           "End": 611,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         },
@@ -1696,6 +1863,7 @@
                           "Start": 611,
                           "End": 615,
                           "LinkPath": null,
+                          "Ecma": "III.1.9",
                           "Errors": [],
                           "Children": [
                             {
@@ -1705,6 +1873,7 @@
                               "Start": 611,
                               "End": 614,
                               "LinkPath": "FileFormat/Sections[0]/TildeStream/MemberRefs[1]",
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             },
@@ -1715,6 +1884,7 @@
                               "Start": 614,
                               "End": 615,
                               "LinkPath": null,
+                              "Ecma": null,
                               "Errors": [],
                               "Children": []
                             }
@@ -1735,6 +1905,7 @@
           "Start": 616,
           "End": 724,
           "LinkPath": null,
+          "Ecma": "II.24.2.1",
           "Errors": [],
           "Children": [
             {
@@ -1744,6 +1915,7 @@
               "Start": 616,
               "End": 620,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1754,6 +1926,7 @@
               "Start": 620,
               "End": 622,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1764,6 +1937,7 @@
               "Start": 622,
               "End": 624,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1774,6 +1948,7 @@
               "Start": 624,
               "End": 628,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1784,6 +1959,7 @@
               "Start": 628,
               "End": 632,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1794,6 +1970,7 @@
               "Start": 632,
               "End": 644,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1804,6 +1981,7 @@
               "Start": 644,
               "End": 646,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1814,6 +1992,7 @@
               "Start": 646,
               "End": 648,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -1824,6 +2003,7 @@
               "Start": 648,
               "End": 660,
               "LinkPath": null,
+              "Ecma": "II.24.2.2",
               "Errors": [],
               "Children": [
                 {
@@ -1833,6 +2013,7 @@
                   "Start": 648,
                   "End": 652,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1843,6 +2024,7 @@
                   "Start": 652,
                   "End": 656,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1853,6 +2035,7 @@
                   "Start": 656,
                   "End": 660,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1865,6 +2048,7 @@
               "Start": 660,
               "End": 680,
               "LinkPath": null,
+              "Ecma": "II.24.2.2",
               "Errors": [],
               "Children": [
                 {
@@ -1874,6 +2058,7 @@
                   "Start": 660,
                   "End": 664,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1884,6 +2069,7 @@
                   "Start": 664,
                   "End": 668,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1894,6 +2080,7 @@
                   "Start": 668,
                   "End": 680,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1906,6 +2093,7 @@
               "Start": 680,
               "End": 692,
               "LinkPath": null,
+              "Ecma": "II.24.2.2",
               "Errors": [],
               "Children": [
                 {
@@ -1915,6 +2103,7 @@
                   "Start": 680,
                   "End": 684,
                   "LinkPath": "FileFormat/Sections[0]/UserStringHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1925,6 +2114,7 @@
                   "Start": 684,
                   "End": 688,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1935,6 +2125,7 @@
                   "Start": 688,
                   "End": 692,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1947,6 +2138,7 @@
               "Start": 692,
               "End": 708,
               "LinkPath": null,
+              "Ecma": "II.24.2.2",
               "Errors": [],
               "Children": [
                 {
@@ -1956,6 +2148,7 @@
                   "Start": 692,
                   "End": 696,
                   "LinkPath": "FileFormat/Sections[0]/GuidHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1966,6 +2159,7 @@
                   "Start": 696,
                   "End": 700,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -1976,6 +2170,7 @@
                   "Start": 700,
                   "End": 708,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -1988,6 +2183,7 @@
               "Start": 708,
               "End": 724,
               "LinkPath": null,
+              "Ecma": "II.24.2.2",
               "Errors": [],
               "Children": [
                 {
@@ -1997,6 +2193,7 @@
                   "Start": 708,
                   "End": 712,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2007,6 +2204,7 @@
                   "Start": 712,
                   "End": 716,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2017,6 +2215,7 @@
                   "Start": 716,
                   "End": 724,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2031,6 +2230,7 @@
           "Start": 724,
           "End": 912,
           "LinkPath": null,
+          "Ecma": "II.24.2.6",
           "Errors": [],
           "Children": [
             {
@@ -2040,6 +2240,7 @@
               "Start": 724,
               "End": 748,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -2049,6 +2250,7 @@
                   "Start": 724,
                   "End": 728,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2059,6 +2261,7 @@
                   "Start": 728,
                   "End": 729,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2069,6 +2272,7 @@
                   "Start": 729,
                   "End": 730,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2079,6 +2283,7 @@
                   "Start": 730,
                   "End": 731,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2089,6 +2294,7 @@
                   "Start": 731,
                   "End": 732,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2099,6 +2305,7 @@
                   "Start": 732,
                   "End": 740,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2109,6 +2316,7 @@
                   "Start": 740,
                   "End": 748,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2121,6 +2329,7 @@
               "Start": 748,
               "End": 780,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -2130,6 +2339,7 @@
                   "Start": 748,
                   "End": 752,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2140,6 +2350,7 @@
                   "Start": 752,
                   "End": 756,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2150,6 +2361,7 @@
                   "Start": 756,
                   "End": 760,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2160,6 +2372,7 @@
                   "Start": 760,
                   "End": 764,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2170,6 +2383,7 @@
                   "Start": 764,
                   "End": 768,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2180,6 +2394,7 @@
                   "Start": 768,
                   "End": 772,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2190,6 +2405,7 @@
                   "Start": 772,
                   "End": 776,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2200,6 +2416,7 @@
                   "Start": 776,
                   "End": 780,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2212,6 +2429,7 @@
               "Start": 780,
               "End": 790,
               "LinkPath": null,
+              "Ecma": "II.22.30",
               "Errors": [],
               "Children": [
                 {
@@ -2221,6 +2439,7 @@
                   "Start": 780,
                   "End": 782,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2231,6 +2450,7 @@
                   "Start": 782,
                   "End": 784,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[10]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2241,6 +2461,7 @@
                   "Start": 784,
                   "End": 786,
                   "LinkPath": "FileFormat/Sections[0]/GuidHeap/GuidHeap[1]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2251,6 +2472,7 @@
                   "Start": 786,
                   "End": 788,
                   "LinkPath": "FileFormat/Sections[0]/GuidHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2261,6 +2483,7 @@
                   "Start": 788,
                   "End": 790,
                   "LinkPath": "FileFormat/Sections[0]/GuidHeap",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2273,6 +2496,7 @@
               "Start": 790,
               "End": 796,
               "LinkPath": null,
+              "Ecma": "II.22.38",
               "Errors": [],
               "Children": [
                 {
@@ -2282,6 +2506,7 @@
                   "Start": 790,
                   "End": 792,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2292,6 +2517,7 @@
                   "Start": 792,
                   "End": 794,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[40]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2302,6 +2528,7 @@
                   "Start": 794,
                   "End": 796,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2314,6 +2541,7 @@
               "Start": 796,
               "End": 802,
               "LinkPath": null,
+              "Ecma": "II.22.38",
               "Errors": [],
               "Children": [
                 {
@@ -2323,6 +2551,7 @@
                   "Start": 796,
                   "End": 798,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2333,6 +2562,7 @@
                   "Start": 798,
                   "End": 800,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[54]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2343,6 +2573,7 @@
                   "Start": 800,
                   "End": 802,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2355,6 +2586,7 @@
               "Start": 802,
               "End": 808,
               "LinkPath": null,
+              "Ecma": "II.22.38",
               "Errors": [],
               "Children": [
                 {
@@ -2364,6 +2596,7 @@
                   "Start": 802,
                   "End": 804,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2374,6 +2607,7 @@
                   "Start": 804,
                   "End": 806,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[60]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2384,6 +2618,7 @@
                   "Start": 806,
                   "End": 808,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2396,6 +2631,7 @@
               "Start": 808,
               "End": 814,
               "LinkPath": null,
+              "Ecma": "II.22.38",
               "Errors": [],
               "Children": [
                 {
@@ -2405,6 +2641,7 @@
                   "Start": 808,
                   "End": 810,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/AssemblyRefs[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2415,6 +2652,7 @@
                   "Start": 810,
                   "End": 812,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[67]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2425,6 +2663,7 @@
                   "Start": 812,
                   "End": 814,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[47]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2437,6 +2676,7 @@
               "Start": 814,
               "End": 828,
               "LinkPath": null,
+              "Ecma": "II.22.37",
               "Errors": [],
               "Children": [
                 {
@@ -2446,6 +2686,7 @@
                   "Start": 814,
                   "End": 818,
                   "LinkPath": null,
+                  "Ecma": "II.23.1.15",
                   "Errors": [],
                   "Children": []
                 },
@@ -2456,6 +2697,7 @@
                   "Start": 818,
                   "End": 820,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[25]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2466,6 +2708,7 @@
                   "Start": 820,
                   "End": 822,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2476,6 +2719,7 @@
                   "Start": 822,
                   "End": 824,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2486,6 +2730,7 @@
                   "Start": 824,
                   "End": 826,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2496,6 +2741,7 @@
                   "Start": 826,
                   "End": 828,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2508,6 +2754,7 @@
               "Start": 828,
               "End": 842,
               "LinkPath": null,
+              "Ecma": "II.22.37",
               "Errors": [],
               "Children": [
                 {
@@ -2517,6 +2764,7 @@
                   "Start": 828,
                   "End": 832,
                   "LinkPath": null,
+                  "Ecma": "II.23.1.15",
                   "Errors": [],
                   "Children": []
                 },
@@ -2527,6 +2775,7 @@
                   "Start": 832,
                   "End": 834,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[34]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2537,6 +2786,7 @@
                   "Start": 834,
                   "End": 836,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2547,6 +2797,7 @@
                   "Start": 836,
                   "End": 838,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2557,6 +2808,7 @@
                   "Start": 838,
                   "End": 840,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2567,6 +2819,7 @@
                   "Start": 840,
                   "End": 842,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/MethodDefRuns[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2579,6 +2832,7 @@
               "Start": 842,
               "End": 856,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -2588,6 +2842,7 @@
                   "Start": 842,
                   "End": 856,
                   "LinkPath": null,
+                  "Ecma": "II.22.26",
                   "Errors": [],
                   "Children": [
                     {
@@ -2597,6 +2852,7 @@
                       "Start": 842,
                       "End": 846,
                       "LinkPath": "FileFormat/Sections[0]/Methods/Method[0]",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -2607,6 +2863,7 @@
                       "Start": 846,
                       "End": 848,
                       "LinkPath": null,
+                      "Ecma": "II.23.1.11",
                       "Errors": [],
                       "Children": []
                     },
@@ -2617,6 +2874,7 @@
                       "Start": 848,
                       "End": 850,
                       "LinkPath": null,
+                      "Ecma": "II.23.1.10",
                       "Errors": [],
                       "Children": []
                     },
@@ -2627,6 +2885,7 @@
                       "Start": 850,
                       "End": 852,
                       "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[75]",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -2637,6 +2896,7 @@
                       "Start": 852,
                       "End": 854,
                       "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[3]/MethodDefSig",
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     },
@@ -2647,6 +2907,7 @@
                       "Start": 854,
                       "End": 856,
                       "LinkPath": null,
+                      "Ecma": null,
                       "Errors": [],
                       "Children": []
                     }
@@ -2661,6 +2922,7 @@
               "Start": 856,
               "End": 862,
               "LinkPath": null,
+              "Ecma": "II.22.25",
               "Errors": [],
               "Children": [
                 {
@@ -2670,6 +2932,7 @@
                   "Start": 856,
                   "End": 858,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[2]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2680,6 +2943,7 @@
                   "Start": 858,
                   "End": 860,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[80]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2690,6 +2954,7 @@
                   "Start": 860,
                   "End": 862,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[7]/MethodRefSig",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2702,6 +2967,7 @@
               "Start": 862,
               "End": 868,
               "LinkPath": null,
+              "Ecma": "II.22.25",
               "Errors": [],
               "Children": [
                 {
@@ -2711,6 +2977,7 @@
                   "Start": 862,
                   "End": 864,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream/TypeRefs[3]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2721,6 +2988,7 @@
                   "Start": 864,
                   "End": 866,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[87]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2731,6 +2999,7 @@
                   "Start": 866,
                   "End": 868,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[13]/MethodRefSig",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2743,6 +3012,7 @@
               "Start": 868,
               "End": 870,
               "LinkPath": null,
+              "Ecma": "II.22.39",
               "Errors": [],
               "Children": [
                 {
@@ -2752,6 +3022,7 @@
                   "Start": 868,
                   "End": 870,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[1]/TypeSpecSig",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2764,6 +3035,7 @@
               "Start": 870,
               "End": 892,
               "LinkPath": null,
+              "Ecma": "II.22.2",
               "Errors": [],
               "Children": [
                 {
@@ -2773,6 +3045,7 @@
                   "Start": 870,
                   "End": 874,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2783,6 +3056,7 @@
                   "Start": 874,
                   "End": 876,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2793,6 +3067,7 @@
                   "Start": 876,
                   "End": 878,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2803,6 +3078,7 @@
                   "Start": 878,
                   "End": 880,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2813,6 +3089,7 @@
                   "Start": 880,
                   "End": 882,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2823,6 +3100,7 @@
                   "Start": 882,
                   "End": 886,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2833,6 +3111,7 @@
                   "Start": 886,
                   "End": 888,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2843,6 +3122,7 @@
                   "Start": 888,
                   "End": 890,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[19]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2853,6 +3133,7 @@
                   "Start": 890,
                   "End": 892,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2865,6 +3146,7 @@
               "Start": 892,
               "End": 912,
               "LinkPath": null,
+              "Ecma": "II.22.5",
               "Errors": [],
               "Children": [
                 {
@@ -2874,6 +3156,7 @@
                   "Start": 892,
                   "End": 894,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2884,6 +3167,7 @@
                   "Start": 894,
                   "End": 896,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2894,6 +3178,7 @@
                   "Start": 896,
                   "End": 898,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2904,6 +3189,7 @@
                   "Start": 898,
                   "End": 900,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2914,6 +3200,7 @@
                   "Start": 900,
                   "End": 904,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2924,6 +3211,7 @@
                   "Start": 904,
                   "End": 906,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2934,6 +3222,7 @@
                   "Start": 906,
                   "End": 908,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[1]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2944,6 +3233,7 @@
                   "Start": 908,
                   "End": 910,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap/StringHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -2954,6 +3244,7 @@
                   "Start": 910,
                   "End": 912,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap/BlobHeap[0]",
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -2968,6 +3259,7 @@
           "Start": 912,
           "End": 1012,
           "LinkPath": null,
+          "Ecma": "II.24.2.3",
           "Errors": [],
           "Children": [
             {
@@ -2977,6 +3269,7 @@
               "Start": 912,
               "End": 913,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -2987,6 +3280,7 @@
               "Start": 913,
               "End": 922,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -2997,6 +3291,7 @@
               "Start": 922,
               "End": 931,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3007,6 +3302,7 @@
               "Start": 931,
               "End": 937,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3017,6 +3313,7 @@
               "Start": 937,
               "End": 946,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3027,6 +3324,7 @@
               "Start": 946,
               "End": 952,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3037,6 +3335,7 @@
               "Start": 952,
               "End": 959,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3047,6 +3346,7 @@
               "Start": 959,
               "End": 966,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3057,6 +3357,7 @@
               "Start": 966,
               "End": 972,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3067,6 +3368,7 @@
               "Start": 972,
               "End": 979,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3077,6 +3379,7 @@
               "Start": 979,
               "End": 987,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3087,6 +3390,7 @@
               "Start": 987,
               "End": 992,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3097,6 +3401,7 @@
               "Start": 992,
               "End": 999,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3107,6 +3412,7 @@
               "Start": 999,
               "End": 1009,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3119,6 +3425,7 @@
           "Start": 1012,
           "End": 1044,
           "LinkPath": null,
+          "Ecma": "II.24.2.4",
           "Errors": [],
           "Children": [
             {
@@ -3128,6 +3435,7 @@
               "Start": 1013,
               "End": 1040,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3137,6 +3445,7 @@
                   "Start": 1013,
                   "End": 1014,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3147,6 +3456,7 @@
                   "Start": 1014,
                   "End": 1040,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -3161,6 +3471,7 @@
           "Start": 1044,
           "End": 1060,
           "LinkPath": null,
+          "Ecma": "II.24.2.5",
           "Errors": [],
           "Children": [
             {
@@ -3170,6 +3481,7 @@
               "Start": 1044,
               "End": 1060,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3182,6 +3494,7 @@
           "Start": 1060,
           "End": 1080,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -3191,6 +3504,7 @@
               "Start": 1060,
               "End": 1061,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3201,6 +3515,7 @@
               "Start": 1061,
               "End": 1063,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3210,6 +3525,7 @@
                   "Start": 1061,
                   "End": 1062,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3220,6 +3536,7 @@
                   "Start": 1062,
                   "End": 1063,
                   "LinkPath": null,
+                  "Ecma": "II.23.2.14",
                   "Errors": [],
                   "Children": []
                 }
@@ -3232,6 +3549,7 @@
               "Start": 1063,
               "End": 1067,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3241,6 +3559,7 @@
                   "Start": 1063,
                   "End": 1064,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3251,6 +3570,7 @@
                   "Start": 1064,
                   "End": 1067,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -3260,6 +3580,7 @@
                       "Start": 1064,
                       "End": 1065,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.3",
                       "Errors": [],
                       "Children": []
                     },
@@ -3270,6 +3591,7 @@
                       "Start": 1065,
                       "End": 1066,
                       "LinkPath": null,
+                      "Ecma": "II.23.2",
                       "Errors": [],
                       "Children": []
                     },
@@ -3280,6 +3602,7 @@
                       "Start": 1066,
                       "End": 1067,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.11",
                       "Errors": [],
                       "Children": [
                         {
@@ -3289,6 +3612,7 @@
                           "Start": 1066,
                           "End": 1067,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         }
@@ -3305,6 +3629,7 @@
               "Start": 1067,
               "End": 1073,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3314,6 +3639,7 @@
                   "Start": 1067,
                   "End": 1068,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3324,6 +3650,7 @@
                   "Start": 1068,
                   "End": 1073,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -3333,6 +3660,7 @@
                       "Start": 1068,
                       "End": 1069,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.3",
                       "Errors": [],
                       "Children": []
                     },
@@ -3343,6 +3671,7 @@
                       "Start": 1069,
                       "End": 1070,
                       "LinkPath": null,
+                      "Ecma": "II.23.2",
                       "Errors": [],
                       "Children": []
                     },
@@ -3353,6 +3682,7 @@
                       "Start": 1070,
                       "End": 1071,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.11",
                       "Errors": [],
                       "Children": [
                         {
@@ -3362,6 +3692,7 @@
                           "Start": 1070,
                           "End": 1071,
                           "LinkPath": null,
+                          "Ecma": "II.23.2.12",
                           "Errors": [],
                           "Children": []
                         }
@@ -3374,6 +3705,7 @@
                       "Start": 1071,
                       "End": 1072,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.10",
                       "Errors": [],
                       "Children": [
                         {
@@ -3383,6 +3715,7 @@
                           "Start": 1071,
                           "End": 1072,
                           "LinkPath": null,
+                          "Ecma": "II.23.2.12",
                           "Errors": [],
                           "Children": []
                         }
@@ -3395,6 +3728,7 @@
                       "Start": 1072,
                       "End": 1073,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.10",
                       "Errors": [],
                       "Children": [
                         {
@@ -3404,6 +3738,7 @@
                           "Start": 1072,
                           "End": 1073,
                           "LinkPath": null,
+                          "Ecma": "II.23.2.12",
                           "Errors": [],
                           "Children": []
                         }
@@ -3420,6 +3755,7 @@
               "Start": 1073,
               "End": 1078,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3429,6 +3765,7 @@
                   "Start": 1073,
                   "End": 1074,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3439,6 +3776,7 @@
                   "Start": 1074,
                   "End": 1078,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": [
                     {
@@ -3448,6 +3786,7 @@
                       "Start": 1074,
                       "End": 1075,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.3",
                       "Errors": [],
                       "Children": []
                     },
@@ -3458,6 +3797,7 @@
                       "Start": 1075,
                       "End": 1076,
                       "LinkPath": null,
+                      "Ecma": "II.23.2",
                       "Errors": [],
                       "Children": []
                     },
@@ -3468,6 +3808,7 @@
                       "Start": 1076,
                       "End": 1077,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.11",
                       "Errors": [],
                       "Children": [
                         {
@@ -3477,6 +3818,7 @@
                           "Start": 1076,
                           "End": 1077,
                           "LinkPath": null,
+                          "Ecma": null,
                           "Errors": [],
                           "Children": []
                         }
@@ -3489,6 +3831,7 @@
                       "Start": 1077,
                       "End": 1078,
                       "LinkPath": null,
+                      "Ecma": "II.23.2.10",
                       "Errors": [],
                       "Children": [
                         {
@@ -3498,6 +3841,7 @@
                           "Start": 1077,
                           "End": 1078,
                           "LinkPath": null,
+                          "Ecma": "II.23.2.12",
                           "Errors": [],
                           "Children": []
                         }
@@ -3516,6 +3860,7 @@
           "Start": 1088,
           "End": 1128,
           "LinkPath": null,
+          "Ecma": "II.25.3.1",
           "Errors": [],
           "Children": [
             {
@@ -3525,6 +3870,7 @@
               "Start": 1088,
               "End": 1092,
               "LinkPath": "FileFormat/Sections[0]/ImportLookupTable",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3535,6 +3881,7 @@
               "Start": 1092,
               "End": 1096,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3545,6 +3892,7 @@
               "Start": 1096,
               "End": 1100,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3555,6 +3903,7 @@
               "Start": 1100,
               "End": 1104,
               "LinkPath": "FileFormat/Sections[0]/RuntimeEngineName",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3565,6 +3914,7 @@
               "Start": 1104,
               "End": 1108,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3575,6 +3925,7 @@
               "Start": 1108,
               "End": 1128,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3587,6 +3938,7 @@
           "Start": 1128,
           "End": 1136,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -3596,6 +3948,7 @@
               "Start": 1128,
               "End": 1132,
               "LinkPath": "FileFormat/Sections[0]/ImportAddressHintNameTable",
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3606,6 +3959,7 @@
               "Start": 1132,
               "End": 1136,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3618,6 +3972,7 @@
           "Start": 1136,
           "End": 1150,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -3627,6 +3982,7 @@
               "Start": 1136,
               "End": 1138,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3637,6 +3993,7 @@
               "Start": 1138,
               "End": 1150,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3649,6 +4006,7 @@
           "Start": 1150,
           "End": 1162,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": []
         },
@@ -3659,6 +4017,7 @@
           "Start": 1166,
           "End": 1172,
           "LinkPath": null,
+          "Ecma": null,
           "Errors": [],
           "Children": [
             {
@@ -3668,6 +4027,7 @@
               "Start": 1166,
               "End": 1167,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3678,6 +4038,7 @@
               "Start": 1167,
               "End": 1168,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             },
@@ -3688,6 +4049,7 @@
               "Start": 1168,
               "End": 1172,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": []
             }
@@ -3702,6 +4064,7 @@
       "Start": 1536,
       "End": 2048,
       "LinkPath": null,
+      "Ecma": null,
       "Errors": [],
       "Children": [
         {
@@ -3711,6 +4074,7 @@
           "Start": 1536,
           "End": 1548,
           "LinkPath": null,
+          "Ecma": "II.25.3.2",
           "Errors": [],
           "Children": [
             {
@@ -3720,6 +4084,7 @@
               "Start": 1536,
               "End": 1544,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3729,6 +4094,7 @@
                   "Start": 1536,
                   "End": 1540,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3739,6 +4105,7 @@
                   "Start": 1540,
                   "End": 1544,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -3751,6 +4118,7 @@
               "Start": 1544,
               "End": 1546,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3760,6 +4128,7 @@
                   "Start": 1544,
                   "End": 1545,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3770,6 +4139,7 @@
                   "Start": 1545,
                   "End": 1546,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }
@@ -3782,6 +4152,7 @@
               "Start": 1546,
               "End": 1548,
               "LinkPath": null,
+              "Ecma": null,
               "Errors": [],
               "Children": [
                 {
@@ -3791,6 +4162,7 @@
                   "Start": 1546,
                   "End": 1547,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 },
@@ -3801,6 +4173,7 @@
                   "Start": 1547,
                   "End": 1548,
                   "LinkPath": null,
+                  "Ecma": null,
                   "Errors": [],
                   "Children": []
                 }

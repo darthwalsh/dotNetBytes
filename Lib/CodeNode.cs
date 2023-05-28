@@ -25,6 +25,8 @@ public abstract class CodeNode
   public virtual CodeNode Link { get; set; } // MAYBE this should probably be protected, but need to figure out RVA
   public string SelfPath { get; private set; }
 
+  public virtual string EcmaSection => GetType().TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null;
+
   public void CallBack(Action<CodeNode> action) {
     action(this);
     foreach (var child in Children) {
@@ -234,6 +236,7 @@ public abstract class CodeNode
       writer.WriteNumber(nameof(node.Start), node.Start);
       writer.WriteNumber(nameof(node.End), node.End);
       writer.WriteString("LinkPath", node.Link?.SelfPath);
+      writer.WriteString("Ecma", node.EcmaSection);
 
       writer.WritePropertyName(nameof(node.Errors));
       JsonSerializer.Serialize(writer, node.Errors);

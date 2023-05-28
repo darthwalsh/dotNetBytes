@@ -8,7 +8,7 @@ using System.Linq;
 
 // II.23.2 Blobs and signatures
 
-// II.23.2.3
+[Ecma("II.23.2.3")]
 sealed class CallingConvention : CodeNode
 {
   public LowerBits Kind { get; private set; }
@@ -57,7 +57,7 @@ sealed class CallingConvention : CodeNode
   }
 }
 
-// II.23.2
+[Ecma("II.23.2")]
 sealed class UnsignedCompressed : CodeNode
 {
   public uint Value { get; private set; }
@@ -109,7 +109,7 @@ sealed class UnsignedCompressed : CodeNode
   }
 }
 
-// II.23.2
+[Ecma("II.23.2")]
 sealed class SignedCompressed : CodeNode
 {
   public int Value { get; private set; }
@@ -170,7 +170,7 @@ interface INamedValue
   string NamedValue(string name);
 }
 
-//TODO(ECMA) methodSigName should also correspond to ii.23.2.1 .2 or .3
+//TODO(ECMA) methodSigName should also correspond to ii.23.2.1 .2 or .3 -- also need to ensure the right ECMA link is present in the BlobHeap Sig
 sealed class EitherSignature : CodeNode
 {
   // This exists to solve a tricky problem: the two Tables that use EitherSignature can contain either some method sig, or a different sig. So peek at the first byte of the sig to figure out the kind, then use the appropriate type to read it.
@@ -228,7 +228,7 @@ sealed class EitherSignature : CodeNode
   }
 }
 
-// II.23.2.1 MethodDefSig
+// II.23.2.1 MethodDefSig //TODO(ECMA) EitherSignature
 // II.23.2.2 MethodRefSig
 // II.23.2.3 StandAloneMethodSig
 // The same heap bytes can be used for MethodRefSig and MethodDefSig, so munge the types together so two different types don't exist at the same location.
@@ -307,7 +307,7 @@ sealed class MethodDefRefSig : CodeNode, INamedValue
 
 
 
-// II.23.2.4
+[Ecma("II.23.2.4")]
 sealed class FieldSig : CodeNode, INamedValue
 {
   [Expected(0x6)]
@@ -337,7 +337,7 @@ sealed class FieldSig : CodeNode, INamedValue
   }
 }
 
-// II.23.2.5
+[Ecma("II.23.2.5")]
 sealed class PropertySig : CodeNode, INamedValue
 {
   public CallingConvention Kind;
@@ -370,7 +370,7 @@ sealed class PropertySig : CodeNode, INamedValue
   }
 }
 
-// II.23.2.6
+[Ecma("II.23.2.6")]
 sealed class LocalVarSig : CodeNode
 {
   [Expected(0x7)]
@@ -431,7 +431,7 @@ sealed class LocalVarSig : CodeNode
   }
 }
 
-// II.23.2.7
+[Ecma("II.23.2.7")]
 sealed class CustomMod : CodeNode
 {
   public ElementType OptOrReq;
@@ -473,7 +473,7 @@ sealed class CustomMods : CodeNode
   }
 }
 
-// II.23.2.8
+[Ecma("II.23.2.8")]
 sealed class TypeDefOrRefOrSpecEncoded : CodeNode
 {
   protected override void InnerRead() {
@@ -493,7 +493,7 @@ sealed class TypeDefOrRefOrSpecEncoded : CodeNode
   }
 }
 
-// II.23.2.10
+[Ecma("II.23.2.10")]
 sealed class ParamSig : CodeNode
 {
   public CustomMods CustomMods;
@@ -520,7 +520,7 @@ sealed class ParamSig : CodeNode
   }
 }
 
-// II.23.2.11
+[Ecma("II.23.2.11")]
 sealed class RetType : CodeNode
 {
   public CustomMods CustomMods;
@@ -550,7 +550,7 @@ sealed class RetType : CodeNode
   }
 }
 
-// II.23.2.12
+[Ecma("II.23.2.12")]
 sealed class TypeSig : CodeNode
 {
   public CustomMods PrefixCustomMods;
@@ -672,7 +672,7 @@ sealed class TypeSig : CodeNode
   }
 }
 
-// II.23.2.13
+[Ecma("II.23.2.13")]
 sealed class ArrayShape : CodeNode
 {
   public UnsignedCompressed Rank;
@@ -712,7 +712,7 @@ sealed class ArrayShape : CodeNode
   }
 }
 
-// II.23.2.14
+[Ecma("II.23.2.14")]
 sealed class TypeSpecSig : CodeNode
 {
   public TypeSig TypeSig;
@@ -742,7 +742,7 @@ sealed class TypeSpecSig : CodeNode
   }
 }
 
-// II.23.2.15
+[Ecma("II.23.2.15")]
 sealed class MethodSpecSig : CodeNode
 {
   [Expected(0x0A)]
@@ -760,6 +760,6 @@ sealed class MethodSpecSig : CodeNode
   };
 }
 
-// II.23.2.16 MAYBE forced Short form signatures:
+// MAYBE implement the errors from II.23.2.16 checking Short form signatures:
 //   No ElementType.Class then TypeRef of System.String or System.Object
 //   No ElementType.ValueType then TypeRef to any primitive already in ElementType or TypedByRef

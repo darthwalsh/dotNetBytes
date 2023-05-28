@@ -18,7 +18,9 @@ using System.Linq;
 
 // TODO?????checking that methods return with 0 or 1 elements on the stack
 
-// III
+// III CIL Instruction Set
+
+[Ecma("III.1.7.1")]
 sealed class InstructionStream : CodeNode
 {
   Dictionary<int, Op> ops = new Dictionary<int, Op>();
@@ -110,7 +112,7 @@ sealed class InstructionStream : CodeNode
   }
 }
 
-// III.1.9
+[Ecma("III.1.9")]
 sealed class MetadataToken : CodeNode
 {
   public UInt24 Offset;
@@ -155,6 +157,8 @@ sealed class Op : CodeNode
   public OpCode Def { get; set; }
   public int StartStack { get; set; } = -1; // would be better to use types
   public bool StackCalculated => StartStack != -1;
+
+  public override string EcmaSection => Def.ecma;
 
   protected override void InnerRead() {
     AddChild(nameof(Opcode));
