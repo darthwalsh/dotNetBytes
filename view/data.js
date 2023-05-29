@@ -528,7 +528,13 @@ function createBasicDetailsDOM(node) {
   if (node.Ecma) {
     name.textContent += " ";
     const href = `https://darthwalsh.github.io/ecma-335?section=${node.Ecma}`;
-    name.appendChild(create("a", {href, target: "_blank", textContent: `[ECMA] §${node.Ecma}`})); //TODO(ECMA) favicon?
+    const ecmaLink = create("a", {href, target: "_blank"});
+
+    const ecma = create("img", {src: "ecma.png"});
+    ecma.style.height = "1em";
+    ecmaLink.appendChild(ecma);
+    ecmaLink.append(`§${node.Ecma}`);
+    name.appendChild(ecmaLink);
     //TODO(ECMA) maybe get ecma link from going up the parent chain?
   }
   details.appendChild(name);
