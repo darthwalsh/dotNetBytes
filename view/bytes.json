@@ -340,7 +340,7 @@
           "Children": [
             {
               "Name": "Machine",
-              "Description": "0x14c is I386.",
+              "Description": "Intel 386 or later processors and compatible processors",
               "Value": "0x014C I386",
               "Start": 132,
               "End": 134,
@@ -1179,7 +1179,7 @@
               "Start": 412,
               "End": 416,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3",
               "Errors": [],
               "Children": []
             }
@@ -1301,7 +1301,7 @@
               "Start": 452,
               "End": 456,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3",
               "Errors": [],
               "Children": []
             }
@@ -1432,12 +1432,12 @@
             },
             {
               "Name": "Flags",
-              "Description": "Flags describing this runtime image. (§II.25.3.3.1).\n0x00000001 ILOnly Shall be 1.",
+              "Description": "Flags describing this runtime image.\n0x00000001 ILOnly Shall be 1.",
               "Value": "0x00000001 ILOnly",
               "Start": 536,
               "End": 540,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3.3.1",
               "Errors": [],
               "Children": []
             },
@@ -2240,7 +2240,7 @@
               "Start": 724,
               "End": 748,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.24.2.6",
               "Errors": [],
               "Children": [
                 {
@@ -2283,7 +2283,7 @@
                   "Start": 730,
                   "End": 731,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.24.2.6",
                   "Errors": [],
                   "Children": []
                 },
@@ -2305,7 +2305,7 @@
                   "Start": 732,
                   "End": 740,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.24.2.6",
                   "Errors": [],
                   "Children": []
                 },
@@ -2316,7 +2316,7 @@
                   "Start": 740,
                   "End": 748,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.24.2.6",
                   "Errors": [],
                   "Children": []
                 }
@@ -3045,7 +3045,7 @@
                   "Start": 870,
                   "End": 874,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.23.1.1",
                   "Errors": [],
                   "Children": []
                 },
@@ -3100,7 +3100,7 @@
                   "Start": 882,
                   "End": 886,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.23.1.2",
                   "Errors": [],
                   "Children": []
                 },
@@ -3200,7 +3200,7 @@
                   "Start": 900,
                   "End": 904,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.23.1.2",
                   "Errors": [],
                   "Children": []
                 },
@@ -3612,7 +3612,7 @@
                           "Start": 1066,
                           "End": 1067,
                           "LinkPath": null,
-                          "Ecma": null,
+                          "Ecma": "II.23.1.16",
                           "Errors": [],
                           "Children": []
                         }
@@ -3818,7 +3818,7 @@
                           "Start": 1076,
                           "End": 1077,
                           "LinkPath": null,
-                          "Ecma": null,
+                          "Ecma": "II.23.1.16",
                           "Errors": [],
                           "Children": []
                         }

@@ -282,6 +282,8 @@ public sealed class EnumNode<T> : CodeNode where T : struct, Enum
 {
   public T t;
 
+  public override string EcmaSection => typeof(T).TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null;
+
   protected override void InnerRead() {
     t = Bytes.Read<T>();
     NodeValue = t.GetString();

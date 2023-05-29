@@ -374,6 +374,8 @@ namespace Tests
 
         assm.Node.CallBack(AssertLinkOrChildren);
 
+        assm.Node.CallBack(AssertEcma);
+
         assm.Node.CallBack(AssertNamed);
 
         assm.Node.CallBack(AssertParentDifferentSizeThanChild);
@@ -415,6 +417,16 @@ namespace Tests
     static void AssertLinkOrChildren(CodeNode node) {
       if (node.Link?.SelfPath != null && node.Children.Any()) {
         Assert.Fail($"{node.NodeName} has link {node.SelfPath} and {node.Children.Count} children");
+      }
+    }
+
+    static void AssertEcma(CodeNode node) {
+      if (node is EnumNode<MachineType>) return;
+      if (node is EnumNode<PE32Magic>) return;
+      if (node is EnumNode<DllCharacteristics>) return;
+
+      if (node.GetType().IsGenericType && node.GetType().GetGenericTypeDefinition() == typeof(EnumNode<>)) {
+        Assert.IsNotNull(node.EcmaSection, $"{node.SelfPath} is an enum but has no EcmaSection");
       }
     }
 

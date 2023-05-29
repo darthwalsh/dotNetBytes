@@ -6,6 +6,7 @@
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
 [Flags]
+[Ecma("II.24.2.6")]
 public enum MetadataTableFlags : ulong
 {
   Module = 1L << 0x00,

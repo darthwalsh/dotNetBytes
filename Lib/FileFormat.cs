@@ -119,7 +119,7 @@ class PESignature : CodeNode
 [Ecma("II.25.2.2")]
 class PEFileHeader : CodeNode
 {
-  [Description("0x14c is I386.")]
+  [OrderedField]
   public MachineType Machine;
   [Description("Number of sections; indicates size of the Section Table, which immediately follows the headers.")]
   public ushort NumberOfSections;
@@ -137,30 +137,68 @@ class PEFileHeader : CodeNode
   public ushort Characteristics;
 }
 
+// https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#machine-types
 enum MachineType : ushort
 {
-  Unknown = 0x0,
-  Am33 = 0x1d3,
-  Amd64 = 0x8664,
-  Arm = 0x1c0,
-  Armnt = 0x1c4,
-  Arm64 = 0xaa64,
-  Ebc = 0xebc,
+  UNKNOWN = 0x0,
+  [Description("Alpha AXP, 32-bit address space")]
+  ALPHA = 0x184,
+  [Description("Alpha 64, 64-bit address space")]
+  ALPHA64 = 0x284,
+  [Description("Matsushita AM33")]
+  AM33 = 0x1d3,
+  [Description("x64")]
+  AMD64 = 0x8664,
+  [Description("ARM little endian")]
+  ARM = 0x1c0,
+  [Description("ARM64 little endian")]
+  ARM64 = 0xaa64,
+  [Description("ARM Thumb-2 little endian")]
+  ARMNT = 0x1c4,
+  [Description("AXP 64 (Same as Alpha 64)")]
+  AXP64 = 0x284,
+  [Description("EFI byte code")]
+  EBC = 0xebc,
+  [Description("Intel 386 or later processors and compatible processors")]
   I386 = 0x14c,
-  Ia64 = 0x200,
-  M32r = 0x9041,
-  Mips16 = 0x266,
-  Mipsfpu = 0x366,
-  Mipsfpu16 = 0x466,
-  Powerpc = 0x1f0,
-  Powerpcfp = 0x1f1,
+  [Description("Intel Itanium processor family")]
+  IA64 = 0x200,
+  [Description("LoongArch 32-bit processor family")]
+  LOONGARCH32 = 0x6232,
+  [Description("LoongArch 64-bit processor family")]
+  LOONGARCH64 = 0x6264,
+  [Description("Mitsubishi M32R little endian")]
+  M32R = 0x9041,
+  [Description("MIPS16")]
+  MIPS16 = 0x266,
+  [Description("MIPS with FPU")]
+  MIPSFPU = 0x366,
+  [Description("MIPS16 with FPU")]
+  MIPSFPU16 = 0x466,
+  [Description("Power PC little endian")]
+  POWERPC = 0x1f0,
+  [Description("Power PC with floating point support")]
+  POWERPCFP = 0x1f1,
+  [Description("MIPS little endian")]
   R4000 = 0x166,
-  Sh3 = 0x1a2,
-  Sh3dsp = 0x1a3,
-  Sh4 = 0x1a6,
-  Sh5 = 0x1a8,
-  Thumb = 0x1c2,
-  Wcemipsv2 = 0x169
+  [Description("RISC-V 32-bit address space")]
+  RISCV32 = 0x5032,
+  [Description("RISC-V 64-bit address space")]
+  RISCV64 = 0x5064,
+  [Description("RISC-V 128-bit address space")]
+  RISCV128 = 0x5128,
+  [Description("Hitachi SH3")]
+  SH3 = 0x1a2,
+  [Description("Hitachi SH3 DSP")]
+  SH3DSP = 0x1a3,
+  [Description("Hitachi SH4")]
+  SH4 = 0x1a6,
+  [Description("Hitachi SH5")]
+  SH5 = 0x1a8,
+  [Description("Thumb")]
+  THUMB = 0x1c2,
+  [Description("MIPS little-endian WCE v2")]
+  WCEMIPSV2 = 0x169,
 }
 
 [Ecma("II.25.2.3")]
@@ -215,6 +253,7 @@ sealed class PEHeaderStandardFields : CodeNode
   public uint BaseOfCode; //TODO(link) -- TODO: assert that any field with RVA in Name or Description should have .Link?
 }
 
+// https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#optional-header-image-only
 enum PE32Magic : ushort
 {
   PE32 = 0x10b,
@@ -279,6 +318,7 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   public uint NumberOfDataDirectories; //TODO(size) PEHeaderHeaderDataDirectories but not assert byte count. MAYBE can do math 0x10 x4bytes?
 }
 
+// https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#dll-characteristics
 [Flags]
 enum DllCharacteristics : ushort
 {
@@ -396,6 +436,7 @@ sealed class SectionHeader : CodeNode
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-image_section_header constants with IMAGE_SCN_
 [Flags]
+[Ecma("II.25.3")]
 enum SectionHeaderCharacteristics : uint
 {
   [Description("The section should not be padded to the next boundary. This flag is obsolete and is replaced by IMAGE_SCN_ALIGN_1BYTES.")]
@@ -756,7 +797,7 @@ sealed class CLIHeader : CodeNode
   public ushort MinorRuntimeVersion;
   [Description("RVA and size of the physical metadata (§II.24).")]
   public RVAandSize MetaData;
-  [Description("Flags describing this runtime image. (§II.25.3.3.1).")]
+  [Description("Flags describing this runtime image.")]
   public CliHeaderFlags Flags;
   [Description("Token for the MethodDef or File of the entry point for the image. (§II.25.3.3.2)")]
   public uint EntryPointToken; //TODO(link) should this be MetadataToken?
@@ -778,6 +819,7 @@ sealed class CLIHeader : CodeNode
 }
 
 [Flags]
+[Ecma("II.25.3.3.1")]
 enum CliHeaderFlags : uint
 {
   [Description("Shall be 1.")]
@@ -929,6 +971,7 @@ sealed class MethodDataSection : CodeNode
 }
 
 [Flags]
+[Ecma("II.25.4.5")]
 enum MethodHeaderSection : byte
 {
   [Description("Exception handling data.")]

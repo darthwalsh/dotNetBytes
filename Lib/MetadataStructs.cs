@@ -9,7 +9,7 @@ using System.Text;
 // CodeNode is written though reflection
 #pragma warning disable 0649 // CS0649: Field '...' is never assigned to
 
-[Ecma("II.23.1.1")] //TODO(ECMA) doesn't show up, need T type check in StructNode?
+[Ecma("II.23.1.1")]
 enum AssemblyHashAlgorithm : uint
 {
   None = 0x0000,
@@ -1172,6 +1172,7 @@ sealed class TableRun<T> : CodeNode where T : CodeNode, new()
   }
 }
 
+[Ecma("II.24.2.6")]
 sealed class TildeData : CodeNode
 {
   [Description("Reserved, always 0 (§II.24.1).")]
@@ -1196,6 +1197,7 @@ sealed class TildeData : CodeNode
 }
 
 [Flags]
+[Ecma("II.24.2.6")]
 enum TildeDateHeapSizes : byte
 {
   StringHeapIndexWide = 0x01,
