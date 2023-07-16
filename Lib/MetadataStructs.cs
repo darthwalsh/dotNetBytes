@@ -668,13 +668,13 @@ sealed class MetadataRoot : CodeNode
   [Description("Minor version, 1 (ignore on read)")]
   [Expected(1)]
   public ushort MinorVersion;
-  [Description("Reserved, always 0 (§II.24.1).")]
+  [Description("Reserved, always 0.")]
   public uint Reserved;
   [Description("Number of bytes allocated to hold version string, rounded up to a multiple of four.")]
   public uint Length;
   [Description("UTF8-encoded null-terminated version string.")]
   public NullTerminatedString Version = new NullTerminatedString(Encoding.UTF8, 4);
-  [Description("Reserved, always 0 (§II.24.1).")]
+  [Description("Reserved, always 0.")]
   [Expected(0)]
   public ushort Flags;
   [Description("Number of streams.")]
@@ -1175,19 +1175,19 @@ sealed class TableRun<T> : CodeNode where T : CodeNode, new()
 [Ecma("II.24.2.6")]
 sealed class TildeData : CodeNode
 {
-  [Description("Reserved, always 0 (§II.24.1).")]
+  [Description("Reserved, always 0.")]
   [Expected(0)]
   public uint Reserved;
-  [Description("Major version of table schemata; shall be 2 (§II.24.1).")]
+  [Description("Major version of table schemata; shall be 2.")]
   [Expected(2)]
   public byte MajorVersion;
-  [Description("Minor version of table schemata; shall be 0 (§II.24.1).")]
+  [Description("Minor version of table schemata; shall be 0.")]
   [Expected(0)]
   public byte MinorVersion;
   [Description("Bit vector for heap sizes. (Allowed to be non-zero but I haven't implemented that...)")]
   [Expected(0)]
   public TildeDateHeapSizes HeapSizes;
-  [Description("Reserved, always 1 (§II.24.1).")]
+  [Description("Reserved, always 1.")]
   [Expected(1)]
   public byte Reserved2;
   [Description("Bit vector of present tables, let n be the number of bits that are 1.")]

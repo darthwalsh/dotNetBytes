@@ -125,10 +125,10 @@ class PEFileHeader : CodeNode
   public ushort NumberOfSections;
   [Description("Time and date the file was created in seconds since January 1st 1970 00:00:00 or 0.")]
   public uint TimeDateStamp;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public uint PointerToSymbolTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public uint NumberOfSymbols;
   [Description("Size of the optional header, the format is described below.")]
@@ -236,9 +236,9 @@ sealed class PEHeaderStandardFields : CodeNode
 {
   [Description("Identifies version.")]
   public PE32Magic Magic;
-  [Description("Spec says always 6, sometimes more (§II.24.1).")]
+  [Description("Spec says always 6, sometimes more.")]
   public byte LMajor;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public byte LMinor;
   [Description("Size of the code (text) section, or the sum of all code sections if there are multiple sections.")]
@@ -267,24 +267,24 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   public Tint ImageBase;
   [Description("Shall be greater than File Alignment.")]
   public uint SectionAlignment;
-  [Description("Should be 0x200 (§II.24.1).")]
+  [Description("Should be 0x200.")]
   [Expected(0x200)]
   public uint FileAlignment;
-  [Description("Should be 5 (§II.24.1).")]
+  [Description("Should be 5.")]
   public ushort OSMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort OSMinor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort UserMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort UserMinor;
-  [Description("Should be 5 (§II.24.1).")]
+  [Description("Should be 5.")]
   //[Expected(5)]
   public ushort SubSysMajor;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort SubSysMinor;
   [Description("Shall be zero")]
@@ -294,21 +294,21 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
   public uint ImageSize; //TODO(size)
   [Description("Combined size of MS-DOS Header, PE Header, PE Optional Header and padding; shall be a multiple of the file alignment.")]
   public uint HeaderSize; //TODO(size)
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public uint FileChecksum;
   [Description("Subsystem required to run this image. Shall be either IMAGE_SUBSYSTEM_WINDOWS_CUI (0x3) or IMAGE_SUBSYSTEM_WINDOWS_GUI (0x2).")]
   public ushort SubSystem;
   [Description("Bits 0x100f shall be zero.")]
   public DllCharacteristics DLLFlags;
-  [Description("Often 1Mb for x86 or 4Mb for x64 (§II.24.1).")]
+  [Description("Often 1Mb for x86 or 4Mb for x64.")]
   public Tint StackReserveSize;
-  [Description("Often 4Kb for x86 or 16Kb for x64 (§II.24.1).")]
+  [Description("Often 4Kb for x86 or 16Kb for x64.")]
   public Tint StackCommitSize;
-  [Description("Should be 0x100000 (1Mb) (§II.24.1).")]
+  [Description("Should be 0x100000 (1Mb).")]
   [Expected(0x100000)]
   public Tint HeapReserveSize;
-  [Description("Often 4Kb for x86 or 8Kb for x64 (§II.24.1).")]
+  [Description("Often 4Kb for x86 or 8Kb for x64.")]
   public Tint HeapCommitSize;
   [Description("Shall be 0")]
   [Expected(0)]
@@ -349,47 +349,47 @@ enum DllCharacteristics : ushort
 [Ecma("II.25.2.3.3")]
 sealed class PEHeaderHeaderDataDirectories : CodeNode
 {
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong ExportTable;
   [Description("RVA and Size of Import Table, (§II.25.3.1).")] //TODO(ECMA)
   public RVAandSize ImportTable;
-  [Description("Always 0, unless resources are compiled in (§II.24.1).")]
+  [Description("Always 0, unless resources are compiled in.")]
   public ulong ResourceTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong ExceptionTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong CertificateTable;
-  [Description("Relocation Table; set to 0 if unused (§).")]
+  [Description("Relocation Table; set to 0 if unused (§).")] // this was typo in spec
   public RVAandSize BaseRelocationTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
   public ulong Debug;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong Copyright;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong GlobalPtr;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong TLSTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong LoadConfigTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong BoundImport;
   [Description("RVA and Size of Import Address Table,(§II.25.3.1).")]
   public RVAandSize ImportAddressTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong DelayImportDescriptor;
   [Description("CLI Header with directories for runtime data,(§II.25.3.1).")]
   public RVAandSize CLIHeader;
-  [Description("Always 0 (§II.24.1)")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong Reserved;
 }
@@ -413,16 +413,16 @@ sealed class SectionHeader : CodeNode
   public uint SizeOfRawData;
   [Description("Offset of section's first page within the PE file. This shall be a multiple of FileAlignment from the optional header. When a section contains only uninitialized data, this field should be 0.")]
   public uint PointerToRawData;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public uint PointerToRelocations;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public uint PointerToLinenumbers;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort NumberOfRelocations;
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   [Expected(0)]
   public ushort NumberOfLinenumbers;
   [Description("Flags describing section’s characteristics.")]
@@ -671,10 +671,10 @@ sealed class ImportTable : CodeNode
 {
   [Description("RVA of the Import Lookup Table")]
   public uint ImportLookupTable;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public uint DateTimeStamp;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public uint ForwarderChain;
   [Description("RVA of null-terminated ASCII string “mscoree.dll”.")]
@@ -805,15 +805,15 @@ sealed class CLIHeader : CodeNode
   public RVAandSize Resources;
   [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning. (§II.25.3.3.4)")]
   public RVAandSize StrongNameSignature;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong CodeManagerTable;
   [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots). (§II.25.3.3.3)")]
   public RVAandSize VTableFixups;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong ExportAddressTableJumps;
-  [Description("Always 0 (§II.24.1).")]
+  [Description("Always 0.")]
   [Expected(0)]
   public ulong ManagedNativeHeader;
 }
@@ -830,7 +830,7 @@ enum CliHeaderFlags : uint
   StrongNameSigned = 0x08,
   [Description("Shall be 0.")]
   NativeEntryPoint = 0x10,
-  [Description("Should be 0 (§II.24.1).")]
+  [Description("Should be 0.")]
   TrackDebugData = 0x10000,
 }
 
@@ -880,7 +880,7 @@ sealed class Method : CodeNode
       case MethodHeaderType.Tiny:
         CodeSize = Header >> 2;
         MaxStack = 8;
-        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)"; //TODO(ECMA)
+        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)"; //TODO(ECMA) either set .EcmaSection or have TinyFormat class
         break;
       case MethodHeaderType.Fat:
         AddChild(nameof(FatFormat));
