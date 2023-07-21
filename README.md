@@ -80,7 +80,7 @@ Some guarantees about the JSON format:
 
 ### Scenarios for full test pass
 - Run both `CloudFunction` and SPA with `CloudFunction/Client` task and with `python -m http.server 5500 -d view`; click around, upload EXE, modify EXE
-  - For SPA-only changes, can just run http-server, open http://127.0.0.1:8080?Example=true, click around
+  - For SPA-only changes, can just run http-server, open http://127.0.0.1:5500?Example=true, click around
 - `dotnet test` passes
 
 ## Deploying
@@ -99,6 +99,7 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
   - [x] Have some [link URL that shows the details](https://github.com/stakx/ecma-335/issues/10#issuecomment-1524807503)
   - [x] Add ECMA links for all OpCode too
   - [ ] MAYBE assert that all values (all with children) have an ECMA section
+  - [ ] Fix all TODO(ECMA) comments
 - [ ] Update CloudFunction to .NET 6 [recommended by GCP](https://cloud.google.com/functions/docs/concepts/dotnet-runtime)
 - [ ] Implement all [TODOs for Lib](Lib/Program.cs) and [Test](Tests/AssemblyBytesTests.cs)
 - [ ] Get `dotnet test` working on linux

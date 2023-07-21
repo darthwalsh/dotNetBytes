@@ -378,7 +378,7 @@ enum MethodSemanticsAttributes : ushort
   Getter = 0x0002,
   [Description("Other method for property or event")]
   Other = 0x0004,
-  [Description("AddOn method for event. This refers to the required add_ method for events. (§22.13)")]
+  [Description("AddOn method for event. This refers to the required add_ method for events. (§22.13)")] //TODO(ECMA) possible to ECMA link the enum value?
   AddOn = 0x0008,
   [Description("RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)")]
   RemoveOn = 0x0010,
@@ -691,7 +691,8 @@ sealed class MetadataRoot : CodeNode
 [Ecma("II.24.2.2")]
 sealed class StreamHeader : CodeNode
 {
-  [Description("Memory offset to start of this stream from start of the metadata root(§II.24.2.1)")]
+  [Description("Memory offset to start of this stream from start of the metadata root")]
+  [Ecma("II.24.2.1")]
   public uint Offset;
   [Description("Size of this stream in bytes, shall be a multiple of 4.")]
   public uint Size; //TODO(size)

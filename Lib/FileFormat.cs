@@ -133,7 +133,8 @@ class PEFileHeader : CodeNode
   public uint NumberOfSymbols;
   [Description("Size of the optional header, the format is described below.")]
   public ushort OptionalHeaderSize; //TODO(size)
-  [Description("Flags indicating attributes of the file, see §II.25.2.2.1.")]
+  [Description("Flags indicating attributes of the file.")]
+  [Ecma("II.25.2.2.1")]
   public ushort Characteristics;
 }
 
@@ -352,7 +353,8 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
   [Description("Always 0.")]
   [Expected(0)]
   public ulong ExportTable;
-  [Description("RVA and Size of Import Table, (§II.25.3.1).")] //TODO(ECMA)
+  [Description("RVA and Size of Import Table.")]
+  [Ecma("II.25.3.1")]
   public RVAandSize ImportTable;
   [Description("Always 0, unless resources are compiled in.")]
   public ulong ResourceTable;
@@ -362,7 +364,7 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
   [Description("Always 0.")]
   [Expected(0)]
   public ulong CertificateTable;
-  [Description("Relocation Table; set to 0 if unused (§).")] // this was typo in spec
+  [Description("Relocation Table; set to 0 if unused.")] // Typo in spec! Literally just says "(§)"
   public RVAandSize BaseRelocationTable;
   [Description("Always 0.")]
   //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
@@ -382,12 +384,14 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
   [Description("Always 0.")]
   [Expected(0)]
   public ulong BoundImport;
-  [Description("RVA and Size of Import Address Table,(§II.25.3.1).")]
+  [Description("RVA and Size of Import Address Table.")]
+  [Ecma("II.25.3.1")]
   public RVAandSize ImportAddressTable;
   [Description("Always 0.")]
   [Expected(0)]
   public ulong DelayImportDescriptor;
-  [Description("CLI Header with directories for runtime data,(§II.25.3.1).")]
+  [Description("CLI Header with directories for runtime data.")]
+  [Ecma("II.25.3.1")]
   public RVAandSize CLIHeader;
   [Description("Always 0.")]
   [Expected(0)]
@@ -795,20 +799,24 @@ sealed class CLIHeader : CodeNode
   public ushort MajorRuntimeVersion;
   [Description("The minor portion of the version, currently 0.")]
   public ushort MinorRuntimeVersion;
-  [Description("RVA and size of the physical metadata (§II.24).")]
+  [Description("RVA and size of the physical metadata.")]
+  [Ecma("II.24")]
   public RVAandSize MetaData;
   [Description("Flags describing this runtime image.")]
   public CliHeaderFlags Flags;
-  [Description("Token for the MethodDef or File of the entry point for the image. (§II.25.3.3.2)")]
+  [Description("Token for the MethodDef or File of the entry point for the image.")]
+  [Ecma("II.25.3.3.2")]
   public uint EntryPointToken; //TODO(link) should this be MetadataToken?
   [Description("RVA and size of implementation-specific resources.")]
   public RVAandSize Resources;
-  [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning. (§II.25.3.3.4)")]
+  [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning.")]
+  [Ecma("II.25.3.3.4")]
   public RVAandSize StrongNameSignature;
   [Description("Always 0.")]
   [Expected(0)]
   public ulong CodeManagerTable;
-  [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots). (§II.25.3.3.3)")]
+  [Description("RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots).")]
+  [Ecma("II.25.3.3.3")]
   public RVAandSize VTableFixups;
   [Description("Always 0.")]
   [Expected(0)]
@@ -880,7 +888,8 @@ sealed class Method : CodeNode
       case MethodHeaderType.Tiny:
         CodeSize = Header >> 2;
         MaxStack = 8;
-        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long (§II.25.4.2)"; //TODO(ECMA) either set .EcmaSection or have TinyFormat class
+        header.Description = $"Tiny Header, 0x{CodeSize:X} bytes long";
+        header.EcmaSection = "II.25.4.2";
         break;
       case MethodHeaderType.Fat:
         AddChild(nameof(FatFormat));

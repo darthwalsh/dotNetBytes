@@ -25,7 +25,21 @@ public abstract class CodeNode
   public virtual CodeNode Link { get; set; } // MAYBE this should probably be protected, but need to figure out RVA
   public string SelfPath { get; private set; }
 
-  public virtual string EcmaSection => GetType().TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null;
+
+  string ecmaSection;
+  public virtual string EcmaSection {
+    get {
+      if (ecmaSection == null) {
+        GetType().TryGetAttribute(out EcmaAttribute e);
+        ecmaSection = e?.EcmaSection;
+      }
+      return ecmaSection;
+    }
+    set {
+      ecmaSection = value;
+    }
+  }
+  
 
   public void CallBack(Action<CodeNode> action) {
     action(this);
@@ -105,6 +119,11 @@ public abstract class CodeNode
     if (field.TryGetAttribute(out DescriptionAttribute desc)) {
       child.Description = (desc.Description + "\n" + child.Description).Trim();
     }
+
+    if (field.TryGetAttribute(out EcmaAttribute ecma)) {
+      child.EcmaSection = ecma.EcmaSection;
+    }
+
     CheckExpected(field);
   }
 

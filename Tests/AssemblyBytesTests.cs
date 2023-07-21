@@ -151,7 +151,6 @@ namespace Tests
 
     //TODO(ECMA) assert that every non-leaf codenode defines Ecma
     //TODO(ECMA) assert that every enum-type codenode defines Ecma
-    //TODO(ECMA) MAYBE add assertion that "§II" not in Description, but instead moved to Ecma JSON field -- edit the Description to replace the text?
 
     static string ilasm {
       get {
@@ -428,6 +427,12 @@ namespace Tests
       if (node.GetType().IsGenericType && node.GetType().GetGenericTypeDefinition() == typeof(EnumNode<>)) {
         Assert.IsNotNull(node.EcmaSection, $"{node.SelfPath} is an enum but has no EcmaSection");
       }
+
+      if (node.Description == null) return;
+
+      if (node is EnumNode<MethodSemanticsAttributes>) return; // TODO(ECMA) enum section links
+
+      Assert.IsFalse(node.Description.Contains("§"), $"{node.NodeName} description {node.Description} should not contain the '§' character");
     }
 
     static void AssertNamed(CodeNode node) {

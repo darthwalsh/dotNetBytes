@@ -406,12 +406,12 @@
             },
             {
               "Name": "Characteristics",
-              "Description": "Flags indicating attributes of the file, see §II.25.2.2.1.",
+              "Description": "Flags indicating attributes of the file.",
               "Value": "0x10E",
               "Start": 150,
               "End": 152,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.2.2.1",
               "Errors": [],
               "Children": []
             }
@@ -804,12 +804,12 @@
                 },
                 {
                   "Name": "ImportTable",
-                  "Description": "RVA and Size of Import Table, (§II.25.3.1).",
+                  "Description": "RVA and Size of Import Table.",
                   "Value": "",
                   "Start": 256,
                   "End": 264,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.25.3.1",
                   "Errors": [],
                   "Children": [
                     {
@@ -871,7 +871,7 @@
                 },
                 {
                   "Name": "BaseRelocationTable",
-                  "Description": "Relocation Table; set to 0 if unused (§).",
+                  "Description": "Relocation Table; set to 0 if unused.",
                   "Value": "",
                   "Start": 288,
                   "End": 296,
@@ -971,12 +971,12 @@
                 },
                 {
                   "Name": "ImportAddressTable",
-                  "Description": "RVA and Size of Import Address Table,(§II.25.3.1).",
+                  "Description": "RVA and Size of Import Address Table.",
                   "Value": "",
                   "Start": 344,
                   "End": 352,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.25.3.1",
                   "Errors": [],
                   "Children": [
                     {
@@ -1016,12 +1016,12 @@
                 },
                 {
                   "Name": "CLIHeader",
-                  "Description": "CLI Header with directories for runtime data,(§II.25.3.1).",
+                  "Description": "CLI Header with directories for runtime data.",
                   "Value": "",
                   "Start": 360,
                   "End": 368,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.25.3.1",
                   "Errors": [],
                   "Children": [
                     {
@@ -1398,12 +1398,12 @@
             },
             {
               "Name": "MetaData",
-              "Description": "RVA and size of the physical metadata (§II.24).",
+              "Description": "RVA and size of the physical metadata.",
               "Value": "",
               "Start": 528,
               "End": 536,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.24",
               "Errors": [],
               "Children": [
                 {
@@ -1443,12 +1443,12 @@
             },
             {
               "Name": "EntryPointToken",
-              "Description": "Token for the MethodDef or File of the entry point for the image. (§II.25.3.3.2)",
+              "Description": "Token for the MethodDef or File of the entry point for the image.",
               "Value": "0x6000001",
               "Start": 540,
               "End": 544,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3.3.2",
               "Errors": [],
               "Children": []
             },
@@ -1488,12 +1488,12 @@
             },
             {
               "Name": "StrongNameSignature",
-              "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning. (§II.25.3.3.4)",
+              "Description": "RVA of the hash data for this PE file used by the CLI loader for binding and versioning.",
               "Value": "",
               "Start": 552,
               "End": 560,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3.3.4",
               "Errors": [],
               "Children": [
                 {
@@ -1533,12 +1533,12 @@
             },
             {
               "Name": "VTableFixups",
-              "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots). (§II.25.3.3.3)",
+              "Description": "RVA of an array of locations in the file that contain an array of function pointers (e.g., vtable slots).",
               "Value": "",
               "Start": 568,
               "End": 576,
               "LinkPath": null,
-              "Ecma": null,
+              "Ecma": "II.25.3.3.3",
               "Errors": [],
               "Children": [
                 {
@@ -1611,12 +1611,12 @@
               "Children": [
                 {
                   "Name": "Header",
-                  "Description": "Tiny Header, 0x16 bytes long (§II.25.4.2)",
+                  "Description": "Tiny Header, 0x16 bytes long",
                   "Value": "0x5A",
                   "Start": 592,
                   "End": 593,
                   "LinkPath": null,
-                  "Ecma": null,
+                  "Ecma": "II.25.4.2",
                   "Errors": [],
                   "Children": []
                 },
@@ -2008,12 +2008,12 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
+                  "Description": "Memory offset to start of this stream from start of the metadata root",
                   "Value": "0x6C",
                   "Start": 648,
                   "End": 652,
                   "LinkPath": "FileFormat/Sections[0]/TildeStream",
-                  "Ecma": null,
+                  "Ecma": "II.24.2.1",
                   "Errors": [],
                   "Children": []
                 },
@@ -2053,12 +2053,12 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
+                  "Description": "Memory offset to start of this stream from start of the metadata root",
                   "Value": "0x128",
                   "Start": 660,
                   "End": 664,
                   "LinkPath": "FileFormat/Sections[0]/StringHeap",
-                  "Ecma": null,
+                  "Ecma": "II.24.2.1",
                   "Errors": [],
                   "Children": []
                 },
@@ -2098,12 +2098,12 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
+                  "Description": "Memory offset to start of this stream from start of the metadata root",
                   "Value": "0x18C",
                   "Start": 680,
                   "End": 684,
                   "LinkPath": "FileFormat/Sections[0]/UserStringHeap",
-                  "Ecma": null,
+                  "Ecma": "II.24.2.1",
                   "Errors": [],
                   "Children": []
                 },
@@ -2143,12 +2143,12 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
+                  "Description": "Memory offset to start of this stream from start of the metadata root",
                   "Value": "0x1AC",
                   "Start": 692,
                   "End": 696,
                   "LinkPath": "FileFormat/Sections[0]/GuidHeap",
-                  "Ecma": null,
+                  "Ecma": "II.24.2.1",
                   "Errors": [],
                   "Children": []
                 },
@@ -2188,12 +2188,12 @@
               "Children": [
                 {
                   "Name": "Offset",
-                  "Description": "Memory offset to start of this stream from start of the metadata root(§II.24.2.1)",
+                  "Description": "Memory offset to start of this stream from start of the metadata root",
                   "Value": "0x1BC",
                   "Start": 708,
                   "End": 712,
                   "LinkPath": "FileFormat/Sections[0]/BlobHeap",
-                  "Ecma": null,
+                  "Ecma": "II.24.2.1",
                   "Errors": [],
                   "Children": []
                 },
