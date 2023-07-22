@@ -150,7 +150,6 @@ namespace Tests
     // MAYBE implement tests for the ECMA sample programs, and check the results are reasonable: https://github.com/stakx/ecma-335/blob/master/docs/vi.b-sample-programs.md
 
     //TODO(ECMA) assert that every non-leaf codenode defines Ecma
-    //TODO(ECMA) assert that every enum-type codenode defines Ecma
 
     static string ilasm {
       get {
@@ -300,6 +299,7 @@ namespace Tests
       dict[nameof(node.Start)] = "0x" + node.Start.ToString("X");
       dict[nameof(node.End)] = "0x" + node.End.ToString("X");
       if (node.Link != null) dict["LinkPath"] = node.Link?.SelfPath;
+      if (node.EcmaSection != null) dict["Ecma"] = node.EcmaSection;
       if (node.Errors.Any()) dict[nameof(node.Errors)] = node.Errors;
 
       foreach (var ch in node.Children) {
@@ -420,19 +420,13 @@ namespace Tests
     }
 
     static void AssertEcma(CodeNode node) {
-      if (node is EnumNode<MachineType>) return;
-      if (node is EnumNode<PE32Magic>) return;
-      if (node is EnumNode<DllCharacteristics>) return;
-
       if (node.GetType().IsGenericType && node.GetType().GetGenericTypeDefinition() == typeof(EnumNode<>)) {
         Assert.IsNotNull(node.EcmaSection, $"{node.SelfPath} is an enum but has no EcmaSection");
       }
 
-      if (node.Description == null) return;
-
-      if (node is EnumNode<MethodSemanticsAttributes>) return; // TODO(ECMA) enum section links
-
-      Assert.IsFalse(node.Description.Contains("§"), $"{node.NodeName} description {node.Description} should not contain the '§' character");
+      if (node.Description != null) {
+        Assert.IsFalse(node.Description.Contains("§"), $"{node.NodeName} description {node.Description} should not contain the '§' character");
+      }
     }
 
     static void AssertNamed(CodeNode node) {

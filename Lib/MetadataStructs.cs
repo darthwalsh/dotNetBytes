@@ -378,11 +378,12 @@ enum MethodSemanticsAttributes : ushort
   Getter = 0x0002,
   [Description("Other method for property or event")]
   Other = 0x0004,
-  [Description("AddOn method for event. This refers to the required add_ method for events. (§22.13)")] //TODO(ECMA) possible to ECMA link the enum value?
+  [Description("AddOn method for event. This refers to the required add_ method for events.")] // Typo in spec! Description had text "(§22.13)" but should be II.22.13
+  //MAYBE enum value codenode already links to II.23.1.12 so can't also link to II.22
   AddOn = 0x0008,
-  [Description("RemoveOn method for event. This refers to the required remove_ method for events. (§22.13)")]
+  [Description("RemoveOn method for event. This refers to the required remove_ method for events.")] 
   RemoveOn = 0x0010,
-  [Description("Fire method for event. This refers to the optional raise_ method for events. (§22.13)")]
+  [Description("Fire method for event. This refers to the optional raise_ method for events.")]
   Fire = 0x0020,
 }
 

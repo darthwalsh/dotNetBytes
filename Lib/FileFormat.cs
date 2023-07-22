@@ -139,6 +139,7 @@ class PEFileHeader : CodeNode
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#machine-types
+[Ecma("II.25.2.2")] // MAYBE it would be more useful to link to the PE format docs instead, but that's not possible in the protocol yet
 enum MachineType : ushort
 {
   UNKNOWN = 0x0,
@@ -255,6 +256,7 @@ sealed class PEHeaderStandardFields : CodeNode
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#optional-header-image-only
+[Ecma("II.25.2.3.1")]
 enum PE32Magic : ushort
 {
   PE32 = 0x10b,
@@ -320,6 +322,7 @@ sealed class PEHeaderWindowsNtSpecificFields<Tint> : CodeNode
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#dll-characteristics
+[Ecma("II.25.2.3.2")]
 [Flags]
 enum DllCharacteristics : ushort
 {
