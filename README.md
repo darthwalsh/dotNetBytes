@@ -59,16 +59,22 @@ There are four major parts:
 
 The interface is the frontend POSTS the assembly, and the back-end returns recursive JSON description of the entire assembly, in this recursive format:
 
-	{
-        "Name": "SomeUniqueName"
-	  , "Description": "Notes about this node based on the language spec"
-	  , "Value": "A ToString() view of the node\n Can Be multiple lines"
-	  , "Start": StartingByteIndex
-	  , "End": EndingByteIndex
-	  , "LinkPath": Path/To/Another/Node
-	  , "Errors": ["Any problems in the bytes that violate the language spec"]
-	  , "Children": [ { $DescriptionsOfTheInnerNodes }, ... ]
-    }
+```json
+{
+  "Name": "SomeUniqueName",
+  "Description": "Notes about this node based on the language spec",
+  "Value": "A ToString() view of the node\n Can Be multiple lines",
+  "Start": 16,
+  "End": 32,
+  "Ecma": "II.24.2.1",
+  "LinkPath": "Path/To/Another/Node",
+  "Errors": ["Any problems in the bytes that violate the language spec"],
+  "Children": [
+    { "Name": "FirstChild", "Description": "" },
+    { "Name": "Next Child", "Description": "etc etc" }
+  ]
+}
+```
 
 Some guarantees about the JSON format:
 
@@ -76,7 +82,7 @@ Some guarantees about the JSON format:
 - A node's `Children` will have unique `Name`
 - A node's `Children` will not have have overlapping `[Start, End)` ranges
 - An array will be represented with names with string suffix, i.e. `{Name:Methods, Children:[ {Name: Method[0], ...}, {Name: Method[1], ...} ]}`
-- Apart from array nodes with a single element, a node's `Children` will be smaller than the node.
+- Apart from container nodes (e.g. arrays) with a single element, a node's `Children` will be strictly smaller than the node.
 
 ### Scenarios for full test pass
 - Run both `CloudFunction` and SPA with `CloudFunction/Client` task and with `python -m http.server 5500 -d view`; click around, upload EXE, modify EXE
