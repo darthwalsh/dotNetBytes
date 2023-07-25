@@ -107,9 +107,10 @@ public abstract class CodeNode
     var field = GetType().GetField(fieldName);
     var type = field.FieldType;
 
+    field.TryGetAttribute(out EcmaAttribute ecma);
     if (type.IsArray && type.GetElementType().IsSubclassOf(typeof(CodeNode))) {
       var len = ((Array)field.GetValue(this))?.Length ?? GetCount(fieldName);
-      AddChildren(fieldName, len);
+      AddChildren(fieldName, len, ecma?.EcmaSection);
       return;
     }
 
@@ -120,7 +121,7 @@ public abstract class CodeNode
       child.Description = (desc.Description + "\n" + child.Description).Trim();
     }
 
-    if (field.TryGetAttribute(out EcmaAttribute ecma)) {
+    if (ecma != null) {
       child.EcmaSection = ecma.EcmaSection;
     }
 
@@ -146,7 +147,7 @@ public abstract class CodeNode
     }
   }
 
-  protected void AddChildren(string fieldName, int length = -1) {
+  protected void AddChildren(string fieldName, int length = -1, string ecmaSection = null) {
     var field = GetType().GetField(fieldName);
     var arr = (CodeNode[])(field.GetValue(this) ?? Activator.CreateInstance(field.FieldType, length));
     field.SetValue(this, arr);
@@ -159,6 +160,9 @@ public abstract class CodeNode
 
       Children.Add(o);
       o.NodeName = $"{fieldName}[{i}]";
+      if (ecmaSection != null) {
+        o.EcmaSection = ecmaSection;
+      }
     }
     CheckExpected(field);
   }
@@ -301,7 +305,7 @@ public sealed class EnumNode<T> : CodeNode where T : struct, Enum
 {
   public T t;
 
-  public override string EcmaSection => typeof(T).TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null;
+  public override string EcmaSection => base.EcmaSection ?? (typeof(T).TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null);
 
   protected override void InnerRead() {
     t = Bytes.Read<T>();

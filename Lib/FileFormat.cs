@@ -106,6 +106,7 @@ sealed class DosHeader : CodeNode
   }
 }
 
+[Ecma("II.25.2.1")]
 class PESignature : CodeNode
 {
   [Expected('P')]
@@ -368,6 +369,7 @@ sealed class PEHeaderHeaderDataDirectories : CodeNode
   [Expected(0)]
   public ulong CertificateTable;
   [Description("Relocation Table; set to 0 if unused.")] // Typo in spec! Literally just says "(§)"
+  [Ecma("II.25.3.2")]
   public RVAandSize BaseRelocationTable;
   [Description("Always 0.")]
   //TODO(pedant) What's the right behavior? Multiple expected attributes? [Expected(0)]
@@ -518,6 +520,7 @@ enum SectionHeaderCharacteristics : uint
   MEM_WRITE = 0x80000000,
 }
 
+[Ecma("II.25.3")]
 sealed class Section : CodeNode
 {
   int rva;
@@ -649,6 +652,7 @@ sealed class Section : CodeNode
     for (int i = 0; i < TildeStream.ManifestResources.Length; ++i) {
       var manifest = TildeStream.ManifestResources[i];
 
+      // TODO(pedant) .Implementation not-null means the resource entry is in another file
       LinkReposition(manifest.Child(nameof(manifest.Offset)), manifest.Offset + CLIHeader.Resources.RVA); 
       var entry = Bytes.ReadClass<ResourceEntry>();
 
@@ -695,6 +699,7 @@ sealed class ImportTable : CodeNode
   public byte[] Reserved;
 }
 
+[Ecma("II.25.3.1")]
 sealed class ImportAddressTable : CodeNode
 {
   [OrderedField]
@@ -703,6 +708,7 @@ sealed class ImportAddressTable : CodeNode
   public uint NullTerminated;
 }
 
+[Ecma("II.25.3.1")]
 sealed class ImportLookupTable : CodeNode
 {
   [OrderedField]
@@ -711,6 +717,7 @@ sealed class ImportLookupTable : CodeNode
   public uint NullTerminated;
 }
 
+[Ecma("II.25.3.1")]
 sealed class ImportAddressHintNameTable : CodeNode
 {
   [Description("Shall be 0.")]
@@ -726,6 +733,7 @@ sealed class ImportAddressHintNameTable : CodeNode
 }
 
 // It would be nice to parse all x86 or other kind of assemblies like ARM or JAR, but that's out-of-scope
+[Ecma("II.25.2.3.1")]
 sealed class NativeEntryPoint : CodeNode
 {
   [Description("JMP op code in X86")]
@@ -758,12 +766,14 @@ sealed class Relocations : CodeNode
   }
 }
 
+[Ecma("II.25.3.2")]
 sealed class BaseRelocationTable : CodeNode
 {
   [OrderedField] public uint PageRVA;
   [OrderedField] public uint BlockSize;
 }
 
+[Ecma("II.25.3.2")]
 sealed class Fixup : CodeNode
 {
 
@@ -811,6 +821,7 @@ sealed class CLIHeader : CodeNode
   [Ecma("II.25.3.3.2")]
   public uint EntryPointToken; //TODO(link) should this be MetadataToken?
   [Description("RVA and size of implementation-specific resources.")]
+  [Ecma("II.25.3.3")]
   public RVAandSize Resources;
   [Description("RVA of the hash data for this PE file used by the CLI loader for binding and versioning.")]
   [Ecma("II.25.3.3.4")]
@@ -845,6 +856,7 @@ enum CliHeaderFlags : uint
   TrackDebugData = 0x10000,
 }
 
+[Ecma("II.25.4")]
 sealed class Methods : CodeNode
 {
   protected override void InnerRead() {
@@ -996,6 +1008,7 @@ enum MethodHeaderSection : byte
   MoreSects = 0x80,
 }
 
+[Ecma("II.25.4.5")]
 sealed class SmallMethodHeader : CodeNode
 {
 
@@ -1021,6 +1034,7 @@ sealed class SmallMethodHeader : CodeNode
   };
 }
 
+[Ecma("II.25.4.5")]
 sealed class LargeMethodHeader : CodeNode
 {
   [Description("Size of the data for the block, including the header, say n * 24 + 4.")]

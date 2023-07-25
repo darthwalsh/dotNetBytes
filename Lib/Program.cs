@@ -34,5 +34,4 @@ TODO(method)        - Error validation for method op codes
 TODO(pedant)        - Small errors aren't caught
 TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve.
 TODO(PERF)          - Idea to speed up performance; not needed if app is "fast enough"
-TODO(ECMA)          - Need to set ECMA links
 */

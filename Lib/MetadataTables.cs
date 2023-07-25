@@ -270,6 +270,7 @@ sealed class ManifestResource : CodeNode
   public override string NodeValue => Name.NodeValue;
 }
 
+[Ecma("II.22.24")]
 sealed class ResourceEntry : CodeNode
 {
   [OrderedField] public uint Length;
@@ -286,7 +287,7 @@ sealed class MemberRef : CodeNode
 {
   [OrderedField] public CodedIndex.MemberRefParent Class;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodRefSig", CallingConvention.LowerBits.FIELD);
+  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodRefSig", "II.23.2.2", CallingConvention.LowerBits.FIELD);
 
   public override string NodeValue => Signature.NamedValue(Name.NodeValue);
 }
@@ -298,7 +299,7 @@ sealed class MethodDef : CodeNode
   [OrderedField] public MethodImplAttributes ImplFlags;
   [OrderedField] public MethodAttributes Flags;
   [OrderedField] public StringHeapIndex Name;
-  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodDefSig", 0); // Not an either-or signature, but ensure name isn't "MethodDefRefSig"
+  [OrderedField] public EitherSignature Signature = new EitherSignature("MethodDefSig", "II.23.2.1", 0); // Not an either-or signature, but ensure name isn't "MethodDefRefSig"
                                                                                             //TODO(SpecViolation) typo in II.23.2.1 MethodDefSig -- MethodDefSig is indexed by "Method.Signature" not "MethodDef.Signature"
                                                                                             // ALSO in II.22.28 MethodSemantics: 0x18 
                                                                                             // ALSO in II.22.36 StandAloneSig: 0x11
@@ -390,7 +391,7 @@ sealed class PropertyMap : CodeNode
 sealed class StandAloneSig : CodeNode
 {
   public override string NodeValue => Signature.NodeValue;
-  [OrderedField] public EitherSignature Signature = new EitherSignature("StandAloneMethodSig", CallingConvention.LowerBits.LOCAL_SIG);
+  [OrderedField] public EitherSignature Signature = new EitherSignature("StandAloneMethodSig", "II.23.2.3", CallingConvention.LowerBits.LOCAL_SIG);
 }
 
 [Ecma("II.22.37")]

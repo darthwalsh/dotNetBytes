@@ -815,6 +815,7 @@ sealed class UserStringHeap : Heap<string>
     return (entry.String.Str, entry);
   }
 
+  [Ecma("II.24.2.4")]
   sealed class Entry : CodeNode
   {
     public EncodedLength Length;
@@ -850,6 +851,7 @@ sealed class UserStringHeap : Heap<string>
   }
 }
 
+[Ecma("II.24.2.4")]
 sealed class BlobHeap : Heap<object>
 {
   public BlobHeap(int size)
@@ -896,6 +898,7 @@ sealed class BlobHeap : Heap<object>
     return (T)o.t;
   }
 
+  [Ecma("II.24.2.4")]
   sealed class BytesEntry : CodeNode
   {
     public EncodedLength Length;
@@ -910,6 +913,7 @@ sealed class BlobHeap : Heap<object>
     }
   }
 
+  [Ecma("II.24.2.4")]
   sealed class CustomEntry<T> : CodeNode, IEntry where T : CodeNode, new()
   {
     public EncodedLength Length;
@@ -967,6 +971,7 @@ sealed class GuidHeap : Heap<Guid>
   }
 }
 
+[Ecma("II.24.2.6")]
 sealed class TildeStreamRows : CodeNode
 {
   int count;
@@ -974,6 +979,7 @@ sealed class TildeStreamRows : CodeNode
     this.count = count;
   }
   //TODO(Descriptions) give a name for each row. Using StructNode<uint> keeps each row its own size
+  [Ecma("II.24.2.6")]
   public StructNode<uint>[] Rows; //TODO(size)
 
   protected override int GetCount(string field) => count;
@@ -1161,6 +1167,8 @@ sealed class TableRun<T> : CodeNode where T : CodeNode, new()
     this.start = start;
     this.end = end;
   }
+
+  public override string EcmaSection => typeof(T).TryGetAttribute(out EcmaAttribute e) ? e.EcmaSection : null;
 
   protected override void InnerRead() {
     var list = new List<T>();

@@ -149,8 +149,6 @@ namespace Tests
 
     // MAYBE implement tests for the ECMA sample programs, and check the results are reasonable: https://github.com/stakx/ecma-335/blob/master/docs/vi.b-sample-programs.md
 
-    //TODO(ECMA) assert that every non-leaf codenode defines Ecma
-
     static string ilasm {
       get {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
@@ -426,6 +424,11 @@ namespace Tests
 
       if (node.Description != null) {
         Assert.IsFalse(node.Description.Contains("§"), $"{node.NodeName} description {node.Description} should not contain the '§' character");
+      }
+
+      if (node.Children.Any()) {
+        // if (node.EcmaSection == null) Console.Error.WriteLine(node.SelfPath.Replace("/", " / "));
+        Assert.IsNotNull(node.EcmaSection, $"{node.SelfPath} has children but no EcmaSection");
       }
     }
 

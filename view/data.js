@@ -535,7 +535,6 @@ function createBasicDetailsDOM(node) {
     ecmaLink.appendChild(ecma);
     ecmaLink.append(`§${node.Ecma}`);
     name.appendChild(ecmaLink);
-    //TODO(ECMA) maybe get ecma link from going up the parent chain?
   }
   details.appendChild(name);
   details.appendChild(create("p", {textContent: node.Value}));

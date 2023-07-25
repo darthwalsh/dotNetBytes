@@ -8,7 +8,7 @@ using System.Linq;
 
 // II.23.2 Blobs and signatures
 
-[Ecma("II.23.2.3")]
+// Most defined in II.23.2.3, superset of defintions in .1 .2 .5
 sealed class CallingConvention : CodeNode
 {
   public LowerBits Kind { get; private set; }
@@ -170,7 +170,6 @@ interface INamedValue
   string NamedValue(string name);
 }
 
-//TODO(ECMA) methodSigName should also correspond to ii.23.2.1 .2 or .3 -- also need to ensure the right ECMA link is present in the BlobHeap Sig
 sealed class EitherSignature : CodeNode
 {
   // This exists to solve a tricky problem: the two Tables that use EitherSignature can contain either some method sig, or a different sig. So peek at the first byte of the sig to figure out the kind, then use the appropriate type to read it.
@@ -179,16 +178,20 @@ sealed class EitherSignature : CodeNode
 
   Lazy<CodeNode> link;
   string methodSigName;
+  string ecma;
   CallingConvention.LowerBits allowedKind;
-  public EitherSignature(string methodSigName, CallingConvention.LowerBits kind) {
+  public EitherSignature(string methodSigName, string ecma, CallingConvention.LowerBits kind) {
     link = new Lazy<CodeNode>(ReadLink);
     this.methodSigName = methodSigName;
+    this.ecma = ecma;
     this.allowedKind = kind;
   }
 
   public override CodeNode Link => link.Value;
   public override string NodeValue => Link.NodeValue;
   public string NamedValue(string name) => ((INamedValue)Link).NamedValue(name);
+
+  public override string EcmaSection => ecma;
 
   public FieldSig FieldSig { get; private set; }
   public LocalVarSig LocalVarSig { get; private set; }
@@ -218,6 +221,8 @@ sealed class EitherSignature : CodeNode
       default:
         var sig = Bytes.BlobHeap.GetCustom<MethodDefRefSig>(Index);
         sig.NodeName = methodSigName;
+        sig.EcmaSection = ecma;
+        sig.Kind.EcmaSection = ecma;
         return MethodDefRefSig = sig;
     }
   }
@@ -228,7 +233,7 @@ sealed class EitherSignature : CodeNode
   }
 }
 
-// II.23.2.1 MethodDefSig //TODO(ECMA) EitherSignature
+// II.23.2.1 MethodDefSig
 // II.23.2.2 MethodRefSig
 // II.23.2.3 StandAloneMethodSig
 // The same heap bytes can be used for MethodRefSig and MethodDefSig, so munge the types together so two different types don't exist at the same location.
@@ -340,6 +345,7 @@ sealed class FieldSig : CodeNode, INamedValue
 [Ecma("II.23.2.5")]
 sealed class PropertySig : CodeNode, INamedValue
 {
+  [Ecma("II.23.2.5")]
   public CallingConvention Kind;
   public UnsignedCompressed ParamCount;
   public CustomMods CustomMods;
@@ -378,6 +384,7 @@ sealed class LocalVarSig : CodeNode
   [OrderedField]
   public UnsignedCompressed Count;
   [OrderedField]
+  [Ecma("II.23.2.6")]
   public LocalVar[] Types;
 
   public override string NodeValue => string.Join(", ", Types.Select(t => t.NodeValue));
@@ -390,7 +397,8 @@ sealed class LocalVarSig : CodeNode
   public sealed class LocalVar : CodeNode
   {
     public CustomMods CustomMods;
-    public ElementType Constraint; //TODO(ECMA) II.23.2.9
+    [Ecma("II.23.2.9")]
+    public ElementType Constraint;
     public ElementType ByRef;
     public TypeSig Type;
 
@@ -458,6 +466,7 @@ sealed class CustomMod : CodeNode
   }
 }
 
+[Ecma("II.23.2.7")]
 sealed class CustomMods : CodeNode
 {
   protected override void InnerRead() {
@@ -561,7 +570,7 @@ sealed class TypeSig : CodeNode
   public UnsignedCompressed VarNumber;
   public TypeSig PtrType;
   public ElementType PtrVoid;
-  public MethodDefRefSig MethodRefSig; // use MethodRefSig as it si the superset type
+  public MethodDefRefSig MethodRefSig; // use MethodRefSig as it is the superset type
 
   protected override void InnerRead() {
     AddChild(nameof(PrefixCustomMods));
@@ -598,6 +607,7 @@ sealed class TypeSig : CodeNode
         return;
       case ElementType.Fnptr:
         AddChild(nameof(MethodRefSig));
+        MethodRefSig.EcmaSection = "II.23.2.2";
         SetNodeValue($"method {MethodRefSig.NamedValue("*")}");
         return;
       case ElementType.GenericInst:
