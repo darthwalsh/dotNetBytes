@@ -4,8 +4,6 @@
   "liveServer.settings.root": "/view",
   "cSpell.enabled": false,
   "dotnet-test-explorer.showCodeLens": true,
-  "csharp.testsCodeLens.enabled": true,
-  "csharp.referencesCodeLens.enabled": true,
   "coverage-gutters.coverageFileNames": [
     "coverage.info"
   ],
@@ -16,4 +14,6 @@
       "linkText": "https://darthwalsh.github.io/ecma-335?section=${0}"
     },
   ],
+  "dotnet.codeLens.enableReferencesCodeLens": true,
+  "dotnet.codeLens.enableTestsCodeLens": true,
 }
