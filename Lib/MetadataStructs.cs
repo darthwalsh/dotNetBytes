@@ -996,6 +996,7 @@ sealed class TildeStream : CodeNode
   public TildeData TildeData;
   public TildeStreamRows Rows;
 
+  // MAYBE validate the sorted order based on primary/secondary key in II.22
   public Module[] Modules;
   public TypeRef[] TypeRefs;
   public TypeDef[] TypeDefs;
@@ -1056,7 +1057,7 @@ sealed class TildeStream : CodeNode
     Rows = new TildeStreamRows(validTables.Count);
     AddChild(nameof(Rows));
     if (Rows.Rows.Max(r => r.t) >= (1 << 11))
-      throw new NotImplementedException("CodedIndex aren't 4-byte-aware"); //TODO(Index4Bytes)
+      throw new NotImplementedException("CodedIndex aren't 4-byte-aware"); //TODO(Index4Bytes) -- but! II.24.2.6 says if a simple index is >= 216 rows (less than 1<<8) then it should be 4-byte so 1<<11 seems not sufficient
 
     foreach (var (flag, count) in validTables.Zip(Rows.Rows.Select(r => r.GetInt32()))) {
       var name = GetFieldName(flag);
@@ -1288,7 +1289,7 @@ sealed class TableList : CodeNode
   }
 }
 
-sealed class TableIndex<T> : SizedTableIndex<short, T> where T : CodeNode
+sealed class TableIndex<T> : SizedTableIndex<short, T> where T : CodeNode //TODO(Index4Bytes) II.24.2.6 says if a simple index is >= 216 rows then it should be 4 bytes
 {
 
 }
