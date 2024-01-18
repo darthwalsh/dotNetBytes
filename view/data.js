@@ -572,7 +572,7 @@ const charEncoding =
   "χψωΓΔΞΠΣΦΨΩ♠♥♦♣∞" +
   " !\"#$%&'()*+,-./" +
   "0123456789:;<=>?" +
-  "@ABCDEFGHIJKL!NO" +
+  "@ABCDEFGHIJKLMNO" +
   "PQRSTUVWXYZ[\\]^_" +
   "`abcdefghijklmno" +
   "pqrstuvwxyz{|}~₪" +
