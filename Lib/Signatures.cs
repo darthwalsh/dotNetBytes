@@ -568,6 +568,7 @@ sealed class TypeSig : CodeNode
 
   public TypeDefOrRefOrSpecEncoded TypeEncoded;
   public UnsignedCompressed VarNumber;
+  public CustomMods PtrCustomMods;
   public TypeSig PtrType;
   public ElementType PtrVoid;
   public MethodDefRefSig MethodRefSig; // use MethodRefSig as it is the superset type
@@ -618,13 +619,22 @@ sealed class TypeSig : CodeNode
         SetNodeValue($"!!{VarNumber.Value}");
         return;
       case ElementType.Ptr:
+        AddChild(nameof(PtrCustomMods));
+        ResizeLastChild();
+        string ptrNodeVal;
         if (TryAddChild(nameof(PtrVoid), ElementType.Void)) {
-          SetNodeValue("void*");
+          ptrNodeVal = "void";
+
         } else {
           AddChild(nameof(PtrType));
-          SetNodeValue($"{PtrType.NodeValue}*");
+          ptrNodeVal = PtrType.NodeValue;
         }
-        return;
+        if (!string.IsNullOrEmpty(PtrCustomMods.NodeValue)) {
+          SetNodeValue(ptrNodeVal, PtrCustomMods.NodeValue + "*");
+        } else {
+          SetNodeValue(ptrNodeVal + "*");
+        }
+      return;
       case ElementType.SzArray:
         ReadSzArray();
         return;
@@ -652,16 +662,16 @@ sealed class TypeSig : CodeNode
   }
 
   public CustomMods SzArrayCustomMods;
-  public ElementType SzArrayElementType;
+  public TypeSig SzArrayElementType;
   void ReadSzArray() {
     AddChild(nameof(SzArrayCustomMods));
     ResizeLastChild();
     AddChild(nameof(SzArrayElementType));
 
     if (!string.IsNullOrEmpty(SzArrayCustomMods.NodeValue)) {
-      SetNodeValue(SzArrayElementType.S(), SzArrayCustomMods.NodeValue + "[]");
+      SetNodeValue(SzArrayElementType.NodeValue, SzArrayCustomMods.NodeValue + "[]");
     } else {
-      SetNodeValue(SzArrayElementType.S() + "[]");
+      SetNodeValue(SzArrayElementType.NodeValue + "[]");
     }
   }
 

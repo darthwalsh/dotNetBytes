@@ -101,6 +101,13 @@ ret
   ret 
 }
 
+.method static void SzArrayClass() {
+  ldnull 
+  castclass class SignatureTests[]
+  pop 
+  ret 
+}
+
 .method static void Ptr() {
   ldc.i4.3
   newarr int32*
@@ -111,6 +118,21 @@ ret
 .method static void VoidPtr() {
   ldc.i4.3
   newarr void*
+  pop 
+  ret 
+}
+
+.method static void PtrPtr() {
+  ldc.i4.3
+  newarr int32**
+  pop 
+  ret 
+}
+
+
+.method static void PtrMod() {
+  ldc.i4.3
+  newarr void modopt (char)*
   pop 
   ret 
 }

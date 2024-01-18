@@ -7,18 +7,27 @@ using System.Runtime.CompilerServices;
 
 public static class Program
 {
-  static void Main(string[] args) {
+  static int Main(string[] args) {
     var path = args.FirstOrDefault() ?? Path.Join("..", "view", "Program.dat");
 
-    Run(path);
+    return Run(path);
   }
 
-  public static void Run(string path) {
+  public static int Run(string path) {
     AssemblyBytes assm;
     using var fileStream = File.OpenRead(path);
     assm = new AssemblyBytes(fileStream);
 
     Console.WriteLine(assm.Node.ToJson());
+
+    int errors = 0;
+    assm.Node.CallBack(n => {
+      errors += n.Errors.Count;
+      foreach (var error in n.Errors) {
+        Console.Error.WriteLine(error);
+      }
+    });
+    return errors;
   }
 }
 

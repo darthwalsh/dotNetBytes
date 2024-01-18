@@ -74,12 +74,15 @@ namespace Tests
     [TestMethod]
     public void SzArrayTypeSpec() {
       Assert.AreEqual("int[]", MethodLines("SzArray"));
+      Assert.AreEqual("class SignatureTests[]", MethodLines("SzArrayClass"));
     }
 
     [TestMethod]
     public void PtrTypeSpec() {
       Assert.AreEqual("int*", MethodLines("Ptr"));
       Assert.AreEqual("void*", MethodLines("VoidPtr"));
+      Assert.AreEqual("int**", MethodLines("PtrPtr"));
+      Assert.AreEqual("void modopt (char)*", MethodLines("PtrMod"));
     }
 
     [TestMethod]
