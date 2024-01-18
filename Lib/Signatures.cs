@@ -48,7 +48,7 @@ sealed class CallingConvention : CodeNode
   [Flags]
   public enum UpperBits : byte
   {
-    [Description("Instance member: this shall be passed.")]
+    [Description("The method has one or more generic parameters.")]
     GENERIC = 0x10,
     [Description("Instance member: this shall be passed.")]
     HASTHIS = 0x20,
