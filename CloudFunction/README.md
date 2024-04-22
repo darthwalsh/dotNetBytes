@@ -13,7 +13,7 @@ Local server will be running at http://127.0.0.1:8080
 Run in `dotNetBytes/CloudFunction/` dir
 
 ```bash
-gcloud --project dotnetbytes functions deploy parse --entry-point CloudFunction.Function --source .. --runtime dotnet3 --trigger-http --allow-unauthenticated  --set-build-env-vars=GOOGLE_BUILDABLE=CloudFunction
+gcloud --project dotnetbytes functions deploy parse --entry-point CloudFunction.Function --source .. --runtime dotnet6 --trigger-http --allow-unauthenticated  --set-build-env-vars=GOOGLE_BUILDABLE=CloudFunction
 ```
 
 Server runs at https://us-central1-dotnetbytes.cloudfunctions.net/parse
