@@ -55,7 +55,7 @@
         "--source",
         "${workspaceFolder}",
         "--runtime",
-        "dotnet3",
+        "dotnet6",
         "--trigger-http",
         "--allow-unauthenticated",
         "--set-build-env-vars=GOOGLE_BUILDABLE=CloudFunction"

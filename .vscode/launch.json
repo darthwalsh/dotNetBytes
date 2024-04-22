@@ -5,7 +5,7 @@
       "name": "run Lib",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/Lib/bin/Debug/netcoreapp3.1/Lib.dll",
+      "program": "${workspaceFolder}/Lib/bin/Debug/net6.0/Lib.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Lib",
       "stopAtEntry": false,
@@ -20,7 +20,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/CloudFunction/bin/Debug/netcoreapp3.1/CloudFunction.dll",
+      "program": "${workspaceFolder}/CloudFunction/bin/Debug/net6.0/CloudFunction.dll",
       "args": [],
       "cwd": "${workspaceFolder}/CloudFunction",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
