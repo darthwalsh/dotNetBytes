@@ -41,6 +41,6 @@ TODO(link)          - .Link should be implemented.
 TODO(size)          - set .Link, but also check link End-Start and create Error if size doesn't match
 TODO(method)        - Error validation for method op codes
 TODO(pedant)        - Small errors aren't caught
-TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve. Check https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md
+TODO(SpecViolation) - Seems to be a spec violation -- could try to resolve. Check https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md or https://github.com/dotnet/runtime/blob/master/docs/project/dotnet-standards.md Microsoft-specific implementation notes
 TODO(PERF)          - Idea to speed up performance; not needed if app is "fast enough"
 */
