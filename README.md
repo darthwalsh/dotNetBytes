@@ -107,6 +107,9 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
   - CloudFlare [Deploying "anything"](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/)
   - CloudFlare [current build image OS](https://github.com/cloudflare/pages-build-image/discussions/1):  Ubuntu 16.04 (xenial) but might upgrade to 22.04 (jammy) and dotnet 6.0.5
 - MAYBE bundle as a vscode extension?
+- [ ] Add macOS to CI/CD
+    - [ ] check required depenencies in https://www.appveyor.com/docs/macos-images-software/
+    - [ ] check really free tier; add to https://github.com/jixserver/free-for-dev?tab=readme-ov-file#ci--cd
 - [ ] Update CloudFunction to [2nd gen](https://cloud.google.com/functions/docs/runtime-support#.net-core), unblocking .NET 8
   - Also unblocks "Container Registry (used by default by Cloud Functions 1st gen for storing build artifacts) is deprecated:" https://cloud.google.com/artifact-registry/docs/transition/transition-from-gcr
 - [ ] Update CloudFunction to .NET 8 [recommended by GCP](https://cloud.google.com/functions/docs/concepts/dotnet-runtime)
