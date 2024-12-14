@@ -686,7 +686,7 @@ async function setupFromFile(buf) {
 
   const parseUrl = window.location.href.startsWith("http://localhost:5500")
     ? "http://127.0.0.1:8080"
-    : "https://us-central1-dotnetbytes.cloudfunctions.net/parse";
+    : "https://dotnetbytes.fly.dev/";
 
   const response = await fetch(parseUrl, {
     method: "POST",

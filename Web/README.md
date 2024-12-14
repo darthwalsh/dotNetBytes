@@ -8,6 +8,14 @@ dotnet run
 
 Local server will be running at http://127.0.0.1:8080
 
-### Deploy to
+### Deploy to Fly.io
 
-TODO!
+Run in `dotNetBytes/` dir
+
+```bash
+fly deploy
+```
+
+Servers run at https://dotnetbytes.fly.dev/
+
+TODO delete references to "gcloud" and "CloudFunction"
