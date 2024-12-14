@@ -12,17 +12,15 @@
       "console": "internalConsole"
     },
     {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "CloudFunction",
+      "name": "Web",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/CloudFunction/bin/Debug/net6.0/CloudFunction.dll",
+      "program": "${workspaceFolder}/Web/bin/Debug/net6.0/Web.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/CloudFunction",
+      "cwd": "${workspaceFolder}/Web",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false
@@ -37,8 +35,8 @@
   ],
   "compounds": [
     {
-      "name": "CloudFunction/Client",
-      "configurations": ["CloudFunction", "Client"]
+      "name": "Web/Client",
+      "configurations": ["Web", "Client"]
     }
   ]
 }

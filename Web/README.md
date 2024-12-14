@@ -17,5 +17,3 @@ fly deploy
 ```
 
 Servers run at https://dotnetbytes.fly.dev/
-
-TODO delete references to "gcloud" and "CloudFunction"

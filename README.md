@@ -40,7 +40,7 @@ There are many ways to help out!
 
 ### Debugging
 
-To debug everything, the vscode debug task `CloudFunction/Client` runs both in watch mode..
+To debug everything, the vscode debug task `Web/Client` runs both in watch mode..
 
 When coding on the frontend, I normally:
  - use [Live Preview extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)
@@ -54,7 +54,7 @@ There's two main parts to the app, a C# back-end and a JavaScript frontend.
 There are four major parts:
  - [`Lib/`](Lib/) has the disassembly library, and can be executed on the command line to see a pseudo-YAML view of the nested objects
  - [`view`/](view/) is the web frontend
- - [`CloudFunction`/](CloudFunction/) is a Google Cloud Function serverless function running `Lib`.
+ - [`Web`/](Web/) is a ASP.NET MVC server running `Lib`, and deployed though [docker](Dockerfile) to https://fly.io.
  - [`Test`/](Test/) is a bunch of test cases of different C# and IL features. Please make sure they all pass before you submit a PR.
 
 The interface is the frontend POSTS the assembly, and the back-end returns recursive JSON description of the entire assembly, in this recursive format:
@@ -85,7 +85,7 @@ Some guarantees about the JSON format:
 - Apart from container nodes (e.g. arrays) with a single element, a node's `Children` will be strictly smaller than the node.
 
 ### Scenarios for full test pass
-- Run both `CloudFunction` and SPA with `CloudFunction/Client` task and with `python -m http.server 5500 -d view`; click around, upload EXE, modify EXE
+- Run both `Web` and SPA with vscode `Web/Client` task and with `python -m http.server 5500 -d view`; click around, upload EXE, modify EXE
   - For SPA-only changes, can just run http-server, open http://127.0.0.1:5500?Example=true, click around
 - `dotnet test` passes
 
@@ -99,7 +99,7 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 ## Future work
 
-- [x] Update CloudFunction to .NET 6
+- [ ] Update to .NET 8 because .NET 6 is already EOL
 - [ ] Implement all [TODOs for Lib](Lib/Program.cs) and [Test](Tests/AssemblyBytesTests.cs)
 - [ ] Get `dotnet test` working on linux
   - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration): Installed dotnet 3.1.302	 (or dotnet6)
@@ -110,6 +110,4 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 - [ ] Add macOS to CI/CD
     - [ ] check required depenencies in https://www.appveyor.com/docs/macos-images-software/
     - [ ] check really free tier; add to https://github.com/jixserver/free-for-dev?tab=readme-ov-file#ci--cd
-- [ ] Update CloudFunction to [2nd gen](https://cloud.google.com/functions/docs/runtime-support#.net-core), unblocking .NET 8
-  - Also unblocks "Container Registry (used by default by Cloud Functions 1st gen for storing build artifacts) is deprecated:" https://cloud.google.com/artifact-registry/docs/transition/transition-from-gcr
-- [ ] Update CloudFunction to .NET 8 [recommended by GCP](https://cloud.google.com/functions/docs/concepts/dotnet-runtime)
+- [-] Update GCP CloudFunction to [2nd gen](https://cloud.google.com/functions/docs/runtime-support#.net-core), unblocking .NET 8 ❌ 2024-12-14
