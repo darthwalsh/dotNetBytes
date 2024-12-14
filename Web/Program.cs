@@ -2,12 +2,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options => {
+  options.AddDefaultPolicy(builder => {
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+  });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 app.MapGet("/", () => Results.BadRequest("Only POST allowed"));
 
-app.MapPost("/", async (HttpContext context) =>
-{
+app.MapPost("/", async (HttpContext context) => {
   using var buffer = new MemoryStream();
   await context.Request.Body.CopyToAsync(buffer, 4096);
   buffer.Position = 0;
