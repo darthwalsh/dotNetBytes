@@ -1,8 +1,8 @@
 # Performance Testing
 
-On main branch `CloudFunction` run: `dotnet run -c Release -- --port 7777`
+On main branch `Web` run: `dotnet run -c Release -- --port 7777`
 
-On WIP branch `CloudFunction`  run: `dotnet run -c Release`
+On WIP branch `Web`  run: `dotnet run -c Release`
 
 Run test in this folder with:
 

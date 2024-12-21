@@ -7,19 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/CloudFunction/CloudFunction.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/CloudFunction/CloudFunction.csproj",
+        "${workspaceFolder}/Web/Web.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -32,33 +20,20 @@
       "args": [
         "watch",
         "run",
-        "${workspaceFolder}/CloudFunction/CloudFunction.csproj",
+        "${workspaceFolder}/Web/Web.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/CloudFunction/"
+        "cwd": "${workspaceFolder}/Web/"
       }
     },
     {
       "label": "cloudPublish",
-      "command": "gcloud",
+      "command": "fly",
       "args": [
-        "--project",
-        "dotnetbytes",
-        "functions",
-        "deploy",
-        "parse",
-        "--entry-point",
-        "CloudFunction.Function",
-        "--source",
-        "${workspaceFolder}",
-        "--runtime",
-        "dotnet6",
-        "--trigger-http",
-        "--allow-unauthenticated",
-        "--set-build-env-vars=GOOGLE_BUILDABLE=CloudFunction"
+        "deploy"
       ],
       "problemMatcher": []
     }
