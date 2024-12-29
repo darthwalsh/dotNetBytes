@@ -99,10 +99,10 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 
 ## Future work
 
-- [ ] Update to .NET 8 because .NET 6 is already EOL
+- [x] Update to .NET 8 because .NET 6 is already EOL
 - [ ] Implement all [TODOs for Lib](Lib/Program.cs) and [Test](Tests/AssemblyBytesTests.cs)
 - [ ] Get `dotnet test` working on linux
-  - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration): Installed dotnet 3.1.302	 (or dotnet6)
+  - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration)
   - CloudFlare [Blazor guide](https://developers.cloudflare.com/pages/framework-guides/deploy-a-blazor-site/) showing dotnet bootstrap
   - CloudFlare [Deploying "anything"](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/)
   - CloudFlare [current build image OS](https://github.com/cloudflare/pages-build-image/discussions/1):  Ubuntu 16.04 (xenial) but might upgrade to 22.04 (jammy) and dotnet 6.0.5
@@ -110,4 +110,3 @@ Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotn
 - [ ] Add macOS to CI/CD
     - [ ] check required depenencies in https://www.appveyor.com/docs/macos-images-software/
     - [ ] check really free tier; add to https://github.com/jixserver/free-for-dev?tab=readme-ov-file#ci--cd
-- [-] Update GCP CloudFunction to [2nd gen](https://cloud.google.com/functions/docs/runtime-support#.net-core), unblocking .NET 8 ❌ 2024-12-14

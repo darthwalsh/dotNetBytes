@@ -5,7 +5,7 @@
       "name": "run Lib",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/Lib/bin/Debug/net6.0/Lib.dll",
+      "program": "${workspaceFolder}/Lib/bin/Debug/net8.0/Lib.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Lib",
       "stopAtEntry": false,
@@ -18,7 +18,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/Web/bin/Debug/net6.0/Web.dll",
+      "program": "${workspaceFolder}/Web/bin/Debug/net8.0/Web.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Web",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

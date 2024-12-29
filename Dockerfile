@@ -1,7 +1,7 @@
 # Easiest to put Dockerfile for Web/ in the root directory:
 # https://github.com/dotnet/dotnet-docker/tree/main/samples/complexapp
 ARG DOTNET_OS_VERSION="-alpine"
-ARG DOTNET_SDK_VERSION=6.0
+ARG DOTNET_SDK_VERSION=8.0
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION}${DOTNET_OS_VERSION} AS build
 

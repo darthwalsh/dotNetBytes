@@ -168,14 +168,14 @@ namespace Tests
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
         if (csc is null) {
           var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
-          var v3line = lines.Single(l => l.StartsWith("6.")).Split(' ');
+          var v3line = lines.Single(l => l.StartsWith("8.")).Split(' ');
           var version = v3line[0];
           var path = v3line[1].Trim('[', ']');
           csc = Path.Join(path, version, "Roslyn", "bincore", "csc.dll");
           Console.Error.WriteLine($"Compiling with {csc}");
         }
         var refs = string.Join(' ',
-          Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/6.0.29/ref/net6.0/", "*.dll")
+          Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/8.0.11/ref/net8.0/", "*.dll")
           .Select(dll => "/reference:" + dll));
         RunProcess("dotnet", $"{csc} {refs} {args}");
       } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
