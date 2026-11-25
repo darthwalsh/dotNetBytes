@@ -1,9 +1,16 @@
 version: 1.0.{build}
 image: Visual Studio 2026
-before_build:
-  - cmd: nuget.exe restore
-build:
-  project: dotNetBytes.sln
-  publish_wap_xcopy: true
-  verbosity: minimal
+
+init:
+  - echo dotNetBytes appveyor.yml loaded
+
+build: false
+
+configuration:
+  - Debug
+  - Release
+
+test_script:
+  - dotnet test dotNetBytes.slnx -c %CONFIGURATION% --nologo -v minimal --logger Appveyor
+
 deploy: off
