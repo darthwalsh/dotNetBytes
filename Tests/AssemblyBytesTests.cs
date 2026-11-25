@@ -164,20 +164,32 @@ namespace Tests
     }
 
     static string csc;
+    static string macRefDllArgs;
+
+    static void InitMacCsc() {
+      var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
+      var v3line = lines.Where(l => l.StartsWith("10.")).OrderDescending().First().Split(' ');
+      var version = v3line[0];
+      var sdkRoot = v3line[1].Trim('[', ']');
+      var dotnetRoot = Directory.GetParent(sdkRoot)!.FullName;
+      csc = Path.Join(sdkRoot, version, "Roslyn", "bincore", "csc.dll");
+      Console.Error.WriteLine($"Compiling with {csc}");
+
+      var refPackVersion = Directory.GetDirectories(Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref"))
+        .Select(Path.GetFileName)
+        .OrderDescending()
+        .First();
+      var refDir = Directory.GetDirectories(Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref", refPackVersion!, "ref")).Single();
+      macRefDllArgs = string.Join(' ',
+        Directory.GetFiles(refDir, "*.dll").Select(dll => "/reference:" + dll));
+    }
+
     static void RunCsc(string args) {
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
         if (csc is null) {
-          var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
-          var v3line = lines.Single(l => l.StartsWith("8.")).Split(' ');
-          var version = v3line[0];
-          var path = v3line[1].Trim('[', ']');
-          csc = Path.Join(path, version, "Roslyn", "bincore", "csc.dll");
-          Console.Error.WriteLine($"Compiling with {csc}");
+          InitMacCsc();
         }
-        var refs = string.Join(' ',
-          Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/8.0.11/ref/net8.0/", "*.dll")
-          .Select(dll => "/reference:" + dll));
-        RunProcess("dotnet", $"{csc} {refs} {args}");
+        RunProcess("dotnet", $"{csc} {macRefDllArgs} {args}");
       } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
         if (csc is null) {
           csc = FindCsc();
@@ -277,7 +289,7 @@ namespace Tests
       var stderr = p.StandardError.ReadToEnd();
       Console.Error.WriteLine(stderr);
 
-      Assert.AreEqual(0, p.ExitCode, "exit code. {0} from running {1} {2}", stdout, filename, processArgs);
+      Assert.AreEqual(0, p.ExitCode, $"exit code. {stdout} from running {filename} {processArgs}");
 
       return stdout;
     }

@@ -93,13 +93,13 @@ Some guarantees about the JSON format:
 
 Website static file hosting uses [Cloudflare Pages](https://pages.cloudflare.com/).
 
-C# disassembly runs as a serverless function using [Google Cloud Functions](https://cloud.google.com/functions).
+C# disassembly runs as an ASP.NET Core app in Docker on [Fly.io](https://fly.io/) — see [`Web/README.md`](Web/README.md) and [`fly.toml`](fly.toml) at https://dotnetbytes.fly.dev/.
 
-Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes).
+Changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes). Config lives in the AppVeyor UI.
 
 ## Future work
 
-- [x] Update to .NET 8 because .NET 6 is already EOL
+- [x] Update to .NET 10 because .NET 8 is EOL
 - [ ] Implement all [TODOs for Lib](Lib/Program.cs) and [Test](Tests/AssemblyBytesTests.cs)
 - [ ] Get `dotnet test` working on linux
   - CloudFlare [build configuration](https://developers.cloudflare.com/pages/platform/build-configuration)
