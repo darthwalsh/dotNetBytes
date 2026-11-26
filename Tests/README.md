@@ -1,7 +1,7 @@
 # Tests
 
 [`Lib/`](../Lib/README.md) changes are tested by [AppVeyor](https://ci.appveyor.com/project/darthwalsh/dotnetbytes).
-Configured in [`appveyor.yml`](appveyor.yml). (Just Windows for now.)
+Configured in the AppVeyor project settings UI, not in the repo. (Just Windows for now.)
 
 See CI builds in https://ci.appveyor.com/project/darthwalsh/dotnetbytes/history
 See: [`AGENTS.md`](../AGENTS.md) for bash snippet to get build logs.

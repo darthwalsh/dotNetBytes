@@ -202,27 +202,22 @@ namespace Tests
       static string FindCsc() {
         // Doesn't work in dotnet core
         // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        // VS folder is the year through 2022 (2017, 2019, 2022), then the major version from VS 2026 on (18).
+        // Glob instead of listing them, so the next VS release doesn't break this.
         var programFiles = new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 };
-        var years = new[] { "2022", "2019", "2017" };
-        var editions = new[] { "Enterprise", "Professional", "Community" };
-        foreach (var programFile in programFiles) {
-          foreach (var year in years) {
-            foreach (var edition in editions) {
-              var path = Path.Combine(
-                Environment.GetFolderPath(programFile),
-                "Microsoft Visual Studio",
-                year,
-                edition,
-                "MSBuild",
-                "Current",
-                "Bin",
-                "Roslyn",
-                "csc.exe");
-              if (File.Exists(path)) return path;
-            }
-          }
+        var candidates = programFiles
+          .Select(pf => Path.Combine(Environment.GetFolderPath(pf), "Microsoft Visual Studio"))
+          .Where(Directory.Exists)
+          .SelectMany(Directory.GetDirectories) // versions
+          .SelectMany(Directory.GetDirectories) // editions
+          .Select(edition => Path.Combine(edition, "MSBuild", "Current", "Bin", "Roslyn", "csc.exe"))
+          .OrderDescending();
+        var found = candidates.FirstOrDefault(File.Exists);
+        if (found is null) {
+          throw new FileNotFoundException($"csc.exe not under any of: {string.Join(", ", candidates)}");
         }
-        throw new FileNotFoundException("csc.exe");
+        Console.Error.WriteLine($"Compiling with {found}");
+        return found;
       }
     }
 
