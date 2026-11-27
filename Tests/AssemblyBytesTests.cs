@@ -164,20 +164,27 @@ namespace Tests
     }
 
     static string csc;
+    static string macRefDllArgs;
+
+    static void InitMacCsc() {
+      var (version, sdkRoot) = ToolLocator.NewestSdk(RunProcess("dotnet", "--list-sdks"), Environment.Version.Major);
+      var dotnetRoot = Directory.GetParent(sdkRoot)!.FullName;
+      csc = Path.Join(sdkRoot, version, "Roslyn", "bincore", "csc.dll");
+      Console.Error.WriteLine($"Compiling with {csc}");
+
+      var refPackRoot = Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref");
+      var refPackVersion = ToolLocator.NewestVersion(Directory.GetDirectories(refPackRoot).Select(Path.GetFileName)!);
+      var refDir = Directory.GetDirectories(Path.Join(refPackRoot, refPackVersion, "ref")).Single();
+      macRefDllArgs = string.Join(' ',
+        Directory.GetFiles(refDir, "*.dll").Select(dll => "/reference:" + dll));
+    }
+
     static void RunCsc(string args) {
       if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
         if (csc is null) {
-          var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
-          var v3line = lines.Single(l => l.StartsWith("8.")).Split(' ');
-          var version = v3line[0];
-          var path = v3line[1].Trim('[', ']');
-          csc = Path.Join(path, version, "Roslyn", "bincore", "csc.dll");
-          Console.Error.WriteLine($"Compiling with {csc}");
+          InitMacCsc();
         }
-        var refs = string.Join(' ',
-          Directory.GetFiles("/usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/8.0.11/ref/net8.0/", "*.dll")
-          .Select(dll => "/reference:" + dll));
-        RunProcess("dotnet", $"{csc} {refs} {args}");
+        RunProcess("dotnet", $"{csc} {macRefDllArgs} {args}");
       } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
         if (csc is null) {
           csc = FindCsc();
@@ -190,27 +197,21 @@ namespace Tests
       static string FindCsc() {
         // Doesn't work in dotnet core
         // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
+        // Glob instead of listing versions, so the next VS release doesn't break this.
         var programFiles = new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 };
-        var years = new[] { "2022", "2019", "2017" };
-        var editions = new[] { "Enterprise", "Professional", "Community" };
-        foreach (var programFile in programFiles) {
-          foreach (var year in years) {
-            foreach (var edition in editions) {
-              var path = Path.Combine(
-                Environment.GetFolderPath(programFile),
-                "Microsoft Visual Studio",
-                year,
-                edition,
-                "MSBuild",
-                "Current",
-                "Bin",
-                "Roslyn",
-                "csc.exe");
-              if (File.Exists(path)) return path;
-            }
-          }
+        var versionDirs = programFiles
+          .Select(pf => Path.Combine(Environment.GetFolderPath(pf), "Microsoft Visual Studio"))
+          .Where(Directory.Exists)
+          .SelectMany(Directory.GetDirectories);
+        var candidates = ToolLocator.VsVersionDirsNewestFirst(versionDirs)
+          .SelectMany(Directory.GetDirectories) // editions
+          .Select(edition => Path.Combine(edition, "MSBuild", "Current", "Bin", "Roslyn", "csc.exe"));
+        var found = candidates.FirstOrDefault(File.Exists);
+        if (found is null) {
+          throw new FileNotFoundException($"csc.exe not under any of: {string.Join(", ", candidates)}");
         }
-        throw new FileNotFoundException("csc.exe");
+        Console.Error.WriteLine($"Compiling with {found}");
+        return found;
       }
     }
 
@@ -277,7 +278,7 @@ namespace Tests
       var stderr = p.StandardError.ReadToEnd();
       Console.Error.WriteLine(stderr);
 
-      Assert.AreEqual(0, p.ExitCode, "exit code. {0} from running {1} {2}", stdout, filename, processArgs);
+      Assert.AreEqual(0, p.ExitCode, $"exit code. {stdout} from running {filename} {processArgs}");
 
       return stdout;
     }
