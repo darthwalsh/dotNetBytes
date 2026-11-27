@@ -10,4 +10,3 @@ dotnet-install.sh
 .obsidian/
 
 BenchmarkDotNet.Artifacts/
-PerfTest/BenchmarkDotNet.Artifacts/

@@ -167,19 +167,14 @@ namespace Tests
     static string macRefDllArgs;
 
     static void InitMacCsc() {
-      var lines = RunProcess("dotnet", "--list-sdks").Split('\n');
-      var v3line = lines.Where(l => l.StartsWith("10.")).OrderDescending().First().Split(' ');
-      var version = v3line[0];
-      var sdkRoot = v3line[1].Trim('[', ']');
+      var (version, sdkRoot) = ToolLocator.NewestSdk(RunProcess("dotnet", "--list-sdks"), Environment.Version.Major);
       var dotnetRoot = Directory.GetParent(sdkRoot)!.FullName;
       csc = Path.Join(sdkRoot, version, "Roslyn", "bincore", "csc.dll");
       Console.Error.WriteLine($"Compiling with {csc}");
 
-      var refPackVersion = Directory.GetDirectories(Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref"))
-        .Select(Path.GetFileName)
-        .OrderDescending()
-        .First();
-      var refDir = Directory.GetDirectories(Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref", refPackVersion!, "ref")).Single();
+      var refPackRoot = Path.Join(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref");
+      var refPackVersion = ToolLocator.NewestVersion(Directory.GetDirectories(refPackRoot).Select(Path.GetFileName)!);
+      var refDir = Directory.GetDirectories(Path.Join(refPackRoot, refPackVersion, "ref")).Single();
       macRefDllArgs = string.Join(' ',
         Directory.GetFiles(refDir, "*.dll").Select(dll => "/reference:" + dll));
     }
@@ -202,16 +197,15 @@ namespace Tests
       static string FindCsc() {
         // Doesn't work in dotnet core
         // ToolLocationHelper.GetFoldersInVSInstalls() + @"\MSBuild\Current\Bin\Roslyn\csc.exe";
-        // VS folder is the year through 2022 (2017, 2019, 2022), then the major version from VS 2026 on (18).
-        // Glob instead of listing them, so the next VS release doesn't break this.
+        // Glob instead of listing versions, so the next VS release doesn't break this.
         var programFiles = new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 };
-        var candidates = programFiles
+        var versionDirs = programFiles
           .Select(pf => Path.Combine(Environment.GetFolderPath(pf), "Microsoft Visual Studio"))
           .Where(Directory.Exists)
-          .SelectMany(Directory.GetDirectories) // versions
+          .SelectMany(Directory.GetDirectories);
+        var candidates = ToolLocator.VsVersionDirsNewestFirst(versionDirs)
           .SelectMany(Directory.GetDirectories) // editions
-          .Select(edition => Path.Combine(edition, "MSBuild", "Current", "Bin", "Roslyn", "csc.exe"))
-          .OrderDescending();
+          .Select(edition => Path.Combine(edition, "MSBuild", "Current", "Bin", "Roslyn", "csc.exe"));
         var found = candidates.FirstOrDefault(File.Exists);
         if (found is null) {
           throw new FileNotFoundException($"csc.exe not under any of: {string.Join(", ", candidates)}");
